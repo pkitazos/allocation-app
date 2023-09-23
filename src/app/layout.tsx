@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "A web app for preference based matching",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -26,7 +26,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          {children}
+          <main className="flex justify-center pt-[12dvh] h-[100dvh]">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

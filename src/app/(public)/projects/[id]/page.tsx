@@ -1,3 +1,3 @@
-export function Project() {
+export default async function Project() {
   return <>specific project</>;
 }

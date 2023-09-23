@@ -1,3 +1,3 @@
-export function Student() {
+export default async function Student() {
   return <>specific student</>;
 }

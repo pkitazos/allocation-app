@@ -7,15 +7,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
 import type { Column } from "@tanstack/react-table";
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, EyeOffIcon, ListFilter } from "lucide-react";
-import { Button } from "midone";
+import {
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
+  EyeOffIcon,
+  Search,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<TData, TValue>
+  extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
-  canFilter: boolean;
+  canFilter?: boolean;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
@@ -63,7 +74,7 @@ export function DataTableColumnHeader<TData, TValue>({
         <Popover>
           <PopoverTrigger asChild>
             <Button size="sm">
-              <ListFilter className="h-4 w-4" />
+              <Search className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent side="top" className="mb-5 w-[300px]">

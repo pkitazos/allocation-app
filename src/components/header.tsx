@@ -15,16 +15,16 @@ export function Header() {
             alt="University of Glasgow logo"
           />
         </a>
-        <a className="text-white hover:underline">
-          <Button variant="ghost">Project</Button>
+        <a className="text-white hover:underline" href="/projects">
+          <Button variant="ghost">Projects</Button>
         </a>
-        <a className="text-white hover:underline">
+        <a className="text-white hover:underline" href="/students">
           <Button variant="ghost">Students</Button>
         </a>
-        <a className="text-white hover:underline">
+        <a className="text-white hover:underline" href="/admin-panel">
           <Button variant="ghost">Admin Panel</Button>
         </a>
-        <a className="text-white hover:underline">
+        <a className="text-white hover:underline" href="/help">
           <Button variant="ghost">Help</Button>
         </a>
         {/* <ModeToggle /> */}

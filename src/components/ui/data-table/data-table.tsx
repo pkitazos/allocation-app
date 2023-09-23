@@ -1,6 +1,18 @@
 "use client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
@@ -12,13 +24,19 @@ import {
 import { useState } from "react";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
+  className?: string;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export default function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData, TValue>({
+  className,
+  columns,
+  data,
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -39,10 +57,11 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
   });
 
   return (
-    <div>
+    <div className={cn(className)}>
       <div className="flex items-center gap-4 py-4">
         <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} / {table.getFilteredRowModel().rows.length} row(s) selected
+          {table.getFilteredSelectedRowModel().rows.length} /{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected
         </div>
         <DataTableViewOptions table={table} />
       </div>
@@ -53,7 +72,12 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -62,15 +86,26 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No Results.
                 </TableCell>
               </TableRow>

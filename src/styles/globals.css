@@ -10,11 +10,11 @@
     --primary: 207 100% 20%;
     --primary-foreground: 210 40% 96.1%;
 
-    --secondary: 210 40% 96.1%;
-    --seconndary-foreground: 207 100% 20%;
+    --secondary: 207 100% 30%;
+    --seconndary-foreground: 210 40% 96.1%;
 
-    --accent: 207 100% 30%;
-    --accent-foreground: 210 40% 96.1%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 207 100% 20%;
 
     --destructive: 0 100% 40%;
     --destructive-foreground: 210 40% 98%;
