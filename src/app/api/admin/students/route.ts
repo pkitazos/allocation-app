@@ -1,6 +1,7 @@
-import { randomFlagAssignment } from "@/data/flags";
+import { flags } from "@/data/flags";
 import { students as studentData } from "@/data/students";
 import { prisma } from "@/lib/prisma";
+import { randomChoice } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -21,9 +22,7 @@ export async function POST() {
           },
           data: {
             flags: {
-              connect: randomFlagAssignment.at(i) || {
-                title: "BSc Computer Science",
-              },
+              connect: randomChoice(flags),
             },
           },
         })

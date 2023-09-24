@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const routeContextSchema = z.object({
@@ -17,4 +17,6 @@ export async function DELETE(
   } = routeContextSchema.parse(context);
 
   await prisma.project.delete({ where: { id } });
+
+  return NextResponse.json({ status: 200, data: "success" });
 }
