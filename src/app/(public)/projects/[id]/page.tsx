@@ -1,4 +1,3 @@
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
