@@ -2,6 +2,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -19,24 +20,26 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light" // TODO:  change in prod
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main className="flex flex-col justify-start gap-4 pt-[12dvh] h-[92dvh]">
-            <Breadcrumbs />
-            <section className="flex w-full justify-center pt-6">
-              {children}
-            </section>
-          </main>
-          <Toaster />
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light" // TODO:  change in prod
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main className="flex flex-col justify-start gap-4 pt-[12dvh] h-[92dvh]">
+              <Breadcrumbs />
+              <section className="flex w-full justify-center pt-6">
+                {children}
+              </section>
+            </main>
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,6 +1,7 @@
 import whiteLogo from "@/assets/uofg-white.png";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { UserButton } from "@clerk/nextjs";
 
 export function Header() {
   return (
@@ -28,6 +29,7 @@ export function Header() {
           <Button variant="ghost">Help</Button>
         </a>
         {/* <ModeToggle /> */}
+        <UserButton afterSignOutUrl="/" />
       </nav>
     </>
   );
