@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 export function Header() {
   return (
     <>
-      <nav className="h-[8dvh] max-h-[5rem] py-5 bg-primary flex items-center justify-center gap-6">
+      <nav className="fixed w-full h-[8dvh] max-h-[5rem] py-5 bg-primary flex items-center justify-center gap-6">
         <a>
           <Image
             className="object-scale-down max-w-[10rem]"
