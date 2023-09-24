@@ -1,7 +1,26 @@
 "use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
+
+const FormSchema = z.object({
+  type: z.enum(["all", "mentions", "none"], {
+    required_error: "You need to select a notification type.",
+  }),
+});
 
 export default function AdminPanel() {
   const createAllocationGroup = () => {
@@ -50,6 +69,25 @@ export default function AdminPanel() {
     });
   };
 
+  const toggleSupervisor = (isSupervisor: boolean) => {
+    fetch("/api/dev/supervisor", {
+      method: "PATCH",
+      body: JSON.stringify({
+        isSupervisor,
+      }),
+    });
+  };
+
+  const handleClick = () => {};
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast("changed user tier");
+  }
+
   const { user } = useUser();
 
   if (!user) return;
@@ -63,7 +101,7 @@ export default function AdminPanel() {
       </div>
       <Tabs defaultValue="dev-setup" className="w-[400px]">
         <TabsList>
-          <TabsTrigger value="dev-setup">Dev</TabsTrigger>
+          {isSuperAdmin && <TabsTrigger value="dev-setup">Dev</TabsTrigger>}{" "}
           {isSuperAdmin && (
             <TabsTrigger value="create-admin">Create Admins</TabsTrigger>
           )}
@@ -76,7 +114,7 @@ export default function AdminPanel() {
         </TabsList>
         <TabsContent value="dev-setup">
           <div className="mt-10 flex flex-col gap-2 w-fit">
-            <h3 className="text-xl font-medium underline underline-offset-2 decoration-2">
+            <h3 className="text-xl font-medium underline underline-offset-2">
               load mock data
             </h3>
             <Button variant="admin" onClick={createAllocationGroup}>
@@ -100,33 +138,77 @@ export default function AdminPanel() {
             <Button variant="admin" onClick={createProjects}>
               add Projects
             </Button>
-            <h3 className="mt-6 text-xl font-medium underline underline-offset-2 decoration-2">
-              this is normally not here
-            </h3>
-
-            <Button
-              variant="default"
-              onClick={() => toggleAdmin(true)}
-              className="bg-lime-500 hover:bg-lime-500/90"
-            >
-              make me admin
-            </Button>
-            <Button variant="destructive" onClick={() => toggleAdmin(false)}>
-              unmake me admin
-            </Button>
-            {/* <Button
-              variant="default"
-              onClick={() => toggleSuperAdmin(true)}
-              className="bg-lime-500 hover:bg-lime-500/90"
-            >
-              make me super-admin
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => toggleSuperAdmin(false)}
-            >
-              unmake me super-admin
-            </Button> */}
+            {isSuperAdmin && (
+              <>
+                <h3 className="text-destructive underline underline-offset-2 mt-6 text-xl font-medium">
+                  this is normally not here
+                </h3>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="w-2/3 space-y-6"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>set user tier</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                            >
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="super-admin" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  super-admin
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="admin" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  admin
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="supervisor" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  supervisor
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="student" />
+                                </FormControl>
+                                <FormLabel className="font-normal">
+                                  student
+                                </FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      variant="destructive"
+                      type="submit"
+                      onClick={handleClick}
+                    >
+                      Submit
+                    </Button>
+                  </form>
+                </Form>
+              </>
+            )}
           </div>
         </TabsContent>
         <TabsContent value="create-admin">create admins here</TabsContent>
