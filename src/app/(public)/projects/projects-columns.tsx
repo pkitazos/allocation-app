@@ -19,6 +19,8 @@ export interface ProjectTableData {
   supervisorName: string;
 }
 
+const userClearance = 2;
+
 const deleteProject = async (id: string) => {
   await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
 };
@@ -80,16 +82,18 @@ export const columns: ColumnDef<ProjectTableData>[] = [
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Button
-                className="w-full"
-                variant="destructive"
-                onClick={() => deleteProject(row.original.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </Button>
-            </DropdownMenuItem>
+            {userClearance >= 2 && (
+              <DropdownMenuItem>
+                <Button
+                  className="w-full"
+                  variant="destructive"
+                  onClick={() => deleteProject(row.original.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

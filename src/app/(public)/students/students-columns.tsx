@@ -18,6 +18,8 @@ export interface StudentData {
   studentId: string;
 }
 
+const userClearance = 2;
+
 const deleteStudent = async (id: string) => {
   await fetch(`/api/admin/students/${id}`, { method: "DELETE" });
 };
@@ -79,16 +81,18 @@ export const columns: ColumnDef<StudentData>[] = [
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Button
-                className="w-full"
-                variant="destructive"
-                onClick={() => deleteStudent(row.original.id)} // TODO: removes student from isntance instead of deleting from database
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </Button>
-            </DropdownMenuItem>
+            {userClearance >= 2 && (
+              <DropdownMenuItem>
+                <Button
+                  className="w-full"
+                  variant="destructive"
+                  onClick={() => deleteStudent(row.original.id)} // TODO: removes student from isntance instead of deleting from database
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </Button>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
