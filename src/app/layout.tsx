@@ -26,7 +26,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <main className="flex justify-center pt-[12dvh] h-[100dvh]">
+          <main className="flex justify-center pt-[12dvh] h-[92dvh]">
             {children}
           </main>
         </ThemeProvider>
