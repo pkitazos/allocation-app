@@ -28,8 +28,12 @@ export default async function Project(
     },
   });
 
-  const flags = project.flags.map((item: { title: string }) => item.title);
-  const tags = project.tags.map((item: { title: string }) => item.title);
+  const flags: string[] = project.flags.map(
+    (item: { title: string }) => item.title
+  );
+  const tags: string[] = project.tags.map(
+    (item: { title: string }) => item.title
+  );
 
   return (
     <>
