@@ -1,13 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { Trash2 } from "lucide-react";
+import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 
 export interface StudentData {
+  id: string;
   name: string;
   studentId: string;
 }
+
+const deleteStudent = async (id: string) => {
+  await fetch(`/api/admin/students/${id}`, { method: "DELETE" });
+};
 
 export const columns: ColumnDef<StudentData>[] = [
   {
@@ -51,9 +64,33 @@ export const columns: ColumnDef<StudentData>[] = [
     },
     cell: ({ row }) => {
       return (
-        <Button className="flex w-fit gap-1" variant="destructive" size="sm">
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <LucideMoreHorizontal className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <a href={`/students/${row.original.id}`}>
+                <Button variant="link">View Details</Button>
+              </a>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={() => deleteStudent(row.original.id)} // TODO: removes student from isntance instead of deleting from database
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

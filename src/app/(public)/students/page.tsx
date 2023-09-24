@@ -1,15 +1,16 @@
-"use client";
-import DataTable from "@/components/ui/data-table/data-table";
-import { columns } from "./students-columns";
-import { data } from "@/data/all-students";
+import { prisma } from "@/lib/prisma";
+import { Student } from "@prisma/client";
+import { ClientSection } from "./client-section";
 
-export default function Students() {
+export default async function Students() {
+  const students = await prisma.student.findMany({});
+
   return (
     <div className="flex flex-col w-2/3 max-w-7xl">
       <div className="flex rounded-md bg-accent py-5 px-6">
         <h1 className="text-5xl text-accent-foreground">Students</h1>
       </div>
-      <DataTable className="w-full" columns={columns} data={data} />
+      <ClientSection data={students} />
     </div>
   );
 }

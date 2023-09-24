@@ -12,12 +12,18 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 
-export interface Projects {
+export interface ProjectTableData {
+  id: string;
   title: string;
-  supervisor: string;
+  description: string;
+  supervisorName: string;
 }
 
-export const columns: ColumnDef<Projects>[] = [
+const deleteProject = async (id: string) => {
+  await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
+};
+
+export const columns: ColumnDef<ProjectTableData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -41,12 +47,12 @@ export const columns: ColumnDef<Projects>[] = [
     id: "title",
     accessorKey: "title",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title="Title" canFilter />
     ),
   },
   {
     id: "supervisor",
-    accessorKey: "supervisor",
+    accessorKey: "supervisorName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor" />
     ),
@@ -58,8 +64,6 @@ export const columns: ColumnDef<Projects>[] = [
       return <div className="text-xs text-gray-500">Actions</div>;
     },
     cell: ({ row }) => {
-      const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -72,10 +76,16 @@ export const columns: ColumnDef<Projects>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Button variant="link">View Details</Button>
+              <a href={`/projects/${row.original.id}`}>
+                <Button variant="link">View Details</Button>
+              </a>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Button className="w-full" variant="destructive">
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={() => deleteProject(row.original.id)}
+              >
                 <Trash2 className="w-4 h-4" />
                 Delete
               </Button>
