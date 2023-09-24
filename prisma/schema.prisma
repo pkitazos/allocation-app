@@ -76,7 +76,7 @@ model Project {
     allocationInstance   AllocationInstance @relation(fields: [allocationInstanceId], references: [id])
     allocationInstanceId String
     flags                Flag[]
-    hasTags              Tag[]
+    tags                 Tag[]
     shortlistedIn        Shortlist[]
     preferenceIn         Preference[]
     allocatedTo          Allocation?
@@ -120,6 +120,6 @@ model Flag {
 
 model Tag {
     id       String    @id @default(uuid())
-    title    String
+    title    String    @unique
     projects Project[]
 }
