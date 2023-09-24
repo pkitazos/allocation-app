@@ -1,8 +1,10 @@
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,9 +28,13 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <main className="flex justify-center pt-[12dvh] h-[92dvh]">
-            {children}
+          <main className="flex flex-col justify-start gap-4 pt-[12dvh] h-[92dvh]">
+            <Breadcrumbs />
+            <section className="flex w-full justify-center pt-6">
+              {children}
+            </section>
           </main>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

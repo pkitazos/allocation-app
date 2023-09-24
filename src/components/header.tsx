@@ -6,7 +6,7 @@ export function Header() {
   return (
     <>
       <nav className="fixed w-full h-[8dvh] max-h-[5rem] py-5 bg-primary flex items-center justify-center gap-6">
-        <a>
+        <a href="/">
           <Image
             className="object-scale-down max-w-[10rem]"
             width={300}
