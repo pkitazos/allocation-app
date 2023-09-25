@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { Toggle } from "@/components/ui/toggle";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { ClientSection } from "./client-section";
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -9,7 +11,7 @@ const routeContextSchema = z.object({
 });
 
 export default async function Project(
-  context: z.infer<typeof routeContextSchema>
+  context: z.infer<typeof routeContextSchema>,
 ) {
   const {
     params: { id },
@@ -29,34 +31,35 @@ export default async function Project(
   });
 
   const flags: string[] = project.flags.map(
-    (item: { title: string }) => item.title
+    (item: { title: string }) => item.title,
   );
   const tags: string[] = project.tags.map(
-    (item: { title: string }) => item.title
+    (item: { title: string }) => item.title,
   );
 
   return (
     <>
-      <div className="flex flex-col w-2/3 max-w-7xl">
-        <div className="flex rounded-md bg-accent py-5 px-6">
+      <div className="flex w-2/3 max-w-7xl flex-col">
+        <div className="flex justify-between rounded-md bg-accent px-6 py-5">
           <h1 className="text-5xl text-accent-foreground">{project.title}</h1>
+          <ClientSection projectId={id} />
         </div>
         <div className="mt-6 flex gap-6">
           <div className="w-3/4">
-            <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+            <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Description:
             </h2>
             <p>{project.description}</p>
           </div>
-          <div className="w-1/4 flex flex-col gap-5 rounded-md bg-accent py-3 px-5">
+          <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Supervisor:
               </h2>
               <p>{project.supervisor.name}</p>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Flags:
               </h2>
               {flags.map((flag) => (
@@ -66,7 +69,7 @@ export default async function Project(
               ))}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Tags:
               </h2>
               {tags.map((tag) => (
