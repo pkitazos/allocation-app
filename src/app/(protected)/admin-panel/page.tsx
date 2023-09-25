@@ -1,9 +1,11 @@
 "use client";
+import { useClearance } from "@/app/clearance";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUser } from "@clerk/nextjs";
 
 export default function AdminPanel() {
+  const [userClearance, recompute] = useClearance();
+
   const createAllocationGroup = () => {
     fetch("/api/admin/allocation-group", { method: "POST" });
   };
@@ -32,46 +34,14 @@ export default function AdminPanel() {
     fetch("/api/admin/projects", { method: "POST" });
   };
 
-  const toggleSuperAdmin = (isSuperAdmin: boolean) => {
-    fetch("/api/dev/super-admin", {
+  const setClearance = (clearance: number) => {
+    fetch("/api/dev/clearance", {
       method: "PATCH",
       body: JSON.stringify({
-        isSuperAdmin,
+        clearance,
       }),
-    });
+    }).then(() => recompute());
   };
-
-  const toggleAdmin = (isAdmin: boolean) => {
-    fetch("/api/dev/admin", {
-      method: "PATCH",
-      body: JSON.stringify({
-        isAdmin,
-      }),
-    });
-  };
-
-  const toggleSupervisor = (isSupervisor: boolean) => {
-    fetch("/api/dev/supervisor", {
-      method: "PATCH",
-      body: JSON.stringify({
-        isSupervisor,
-      }),
-    });
-  };
-  const toggleStudent = (isStudent: boolean) => {
-    fetch("/api/dev/student", {
-      method: "PATCH",
-      body: JSON.stringify({
-        isStudent,
-      }),
-    });
-  };
-
-  const { user } = useUser();
-
-  if (!user) return;
-
-  const isSuperAdmin = user.publicMetadata.isSuperAdmin as boolean; // TODO: fix type lie
 
   return (
     <div className="flex flex-col w-2/3 max-w-7xl gap-6 ">
@@ -80,11 +50,11 @@ export default function AdminPanel() {
       </div>
       <Tabs defaultValue="allocation-instance" className="w-[400px]">
         <TabsList>
-          {isSuperAdmin && <TabsTrigger value="dev-setup">Dev</TabsTrigger>}{" "}
-          {isSuperAdmin && (
+          <TabsTrigger value="dev-setup">Dev</TabsTrigger>
+          {userClearance === 3 && (
             <TabsTrigger value="create-admin">Create Admins</TabsTrigger>
           )}
-          {isSuperAdmin && (
+          {userClearance === 3 && (
             <TabsTrigger value="allocation-group">Allocation Group</TabsTrigger>
           )}
           <TabsTrigger value="allocation-instance">
@@ -117,11 +87,17 @@ export default function AdminPanel() {
             <Button variant="admin" onClick={createProjects}>
               add Projects
             </Button>
-            <Button variant="default" onClick={() => toggleStudent(true)}>
-              make me student
+            <Button variant="default" onClick={() => setClearance(0)}>
+              make me a student
             </Button>
-            <Button variant="destructive" onClick={() => toggleStudent(false)}>
-              unmake me student
+            <Button variant="default" onClick={() => setClearance(1)}>
+              make me a supervisor
+            </Button>
+            <Button variant="default" onClick={() => setClearance(2)}>
+              make me an admin
+            </Button>
+            <Button variant="default" onClick={() => setClearance(3)}>
+              make me a super-admin
             </Button>
           </div>
         </TabsContent>

@@ -1,10 +1,13 @@
+"use client";
 import whiteLogo from "@/assets/uofg-white.png";
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { useClearance } from "@/app/clearance";
 
-export async function Header() {
-  const userClearance = 2;
+export function Header() {
+  const [userClearance, _recompute] = useClearance();
+
   return (
     <>
       <nav className="fixed w-full h-[8dvh] max-h-[5rem] py-5 bg-primary flex items-center justify-center gap-6">

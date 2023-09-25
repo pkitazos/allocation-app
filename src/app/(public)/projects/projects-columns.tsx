@@ -1,3 +1,4 @@
+import { useClearance } from "@/app/clearance";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -18,8 +19,6 @@ export interface ProjectTableData {
   description: string;
   supervisorName: string;
 }
-
-const userClearance = 2;
 
 const deleteProject = async (id: string) => {
   await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
@@ -66,6 +65,9 @@ export const columns: ColumnDef<ProjectTableData>[] = [
       return <div className="text-xs text-gray-500">Actions</div>;
     },
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [userClearance, _recompute] = useClearance();
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
