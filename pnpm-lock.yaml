@@ -80,6 +80,9 @@ dependencies:
   postcss:
     specifier: 8.4.30
     version: 8.4.30
+  prettier:
+    specifier: ^3.0.3
+    version: 3.0.3
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -3393,7 +3396,6 @@ packages:
     resolution: {integrity: sha512-L/4pUDMxcNa8R/EthV08Zt42WBO4h1rarVtK0K+QJG0X187OLo7l699jWw0GKuwzkPQ//jMFA/8Xm6Fh3J/DAg==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
 
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
