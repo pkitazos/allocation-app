@@ -7,10 +7,10 @@ export function Breadcrumbs() {
 
   if (pathname.length === 1)
     return (
-      <ol className="-mt-10 flex ml-20 items-center" aria-label="Breadcrumb">
-        <li className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+      <ol className="ml-20 flex items-center" aria-label="Breadcrumb">
+        <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
           Home
-          <Slash className="w-4 h-4 mx-2" />
+          <Slash className="mx-2 h-4 w-4" />
         </li>
       </ol>
     );
@@ -20,28 +20,28 @@ export function Breadcrumbs() {
   const paths = pathname.split("/").slice(1, -1);
 
   return (
-    <ol className="-mt-10 ml-20 flex items-center" aria-label="Breadcrumb">
-      <li className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+    <ol className="ml-20 flex items-center" aria-label="Breadcrumb">
+      <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
         <a className="hover:text-secondary" href="/">
           Home
         </a>
-        <Slash className="w-4 h-4 mx-2" />
+        <Slash className="mx-2 h-4 w-4" />
       </li>
 
       {paths.length !== 0 &&
         paths.map((path) => (
           <li
             key={path}
-            className="text-sm text-gray-600 dark:text-gray-400 flex items-center"
+            className="flex items-center text-sm text-gray-600 dark:text-gray-400"
           >
             <a className="hover:text-secondary" href={`/${path}`}>
               {path}
             </a>
-            <Slash className="w-4 h-4 mx-2" />
+            <Slash className="mx-2 h-4 w-4" />
           </li>
         ))}
       <li
-        className="text-sm font-semibold text-gray-800 truncate dark:text-gray-200"
+        className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200"
         aria-current="page"
       >
         {leafPath}

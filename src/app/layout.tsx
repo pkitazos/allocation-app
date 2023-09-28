@@ -32,13 +32,13 @@ export default async function RootLayout({
           >
             <ClearanceProvider>
               <Header />
-              <main className="flex flex-col justify-start gap-4 pt-[12dvh] h-[92dvh]">
+              <main className="flex h-[92dvh] flex-col justify-start gap-4 pt-[12dvh]">
                 <Breadcrumbs />
                 <section className="flex w-full justify-center pt-6">
                   {children}
                 </section>
               </main>
-              <Toaster />
+              <Toaster position="bottom-right" />
             </ClearanceProvider>
           </ThemeProvider>
         </body>

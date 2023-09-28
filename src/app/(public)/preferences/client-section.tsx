@@ -22,7 +22,7 @@ export function ClientSection({ studentId, preferences, shortlist }: props) {
   const router = useRouter();
 
   const makePreference = async (studentId: string, projectId: string) => {
-    await fetch("/api/preferences", {
+    await fetch("/api/preference", {
       method: "POST",
       body: JSON.stringify({
         studentId,
@@ -33,7 +33,7 @@ export function ClientSection({ studentId, preferences, shortlist }: props) {
   };
 
   const deletePreference = async (studentId: string, projectId: string) => {
-    await fetch("/api/preferences", {
+    await fetch("/api/preference", {
       method: "DELETE",
       body: JSON.stringify({
         studentId,
