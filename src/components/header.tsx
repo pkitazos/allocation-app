@@ -1,7 +1,6 @@
 "use client";
 import { useClearance } from "@/app/clearance";
 import whiteLogo from "@/assets/uofg-white.png";
-import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Button } from "./ui/button";
 
@@ -42,7 +41,6 @@ export function Header() {
           <Button variant="ghost">Help</Button>
         </a>
         {/* <ModeToggle /> */}
-        <UserButton afterSignOutUrl="/" />
       </nav>
     </>
   );
