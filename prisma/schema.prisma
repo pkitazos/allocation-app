@@ -1,0 +1,129 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+generator kysely {
+    provider = "prisma-kysely"
+    output   = "."
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DB_URL") // uses connection pooling
+}
+
+enum Stage {
+    SETUP
+    PROJECT_SUBMISSION
+    PROJECT_SELECTION
+    PROJECT_ALLOCATION
+    ALLOCATION_PUBLICATION
+}
+
+model SuperAdmin {
+    id              String            @id @default(uuid())
+    name            String
+    allocationGroup AllocationGroup[]
+}
+
+model Admin {
+    id                  String               @id @default(uuid())
+    name                String
+    allocationInstances AllocationInstance[]
+    allocationGroup     AllocationGroup[]
+}
+
+model Supervisor {
+    id                  String               @id @default(uuid())
+    name                String
+    projects            Project[]
+    allocationInstances AllocationInstance[]
+}
+
+model Student {
+    id                  String               @id @default(uuid())
+    name                String
+    studentId           String               @unique
+    flags               Flag[]
+    shortlist           Shortlist[]
+    preferences         Preference[]
+    allocations         Allocation[]
+    allocationInstances AllocationInstance[]
+}
+
+model AllocationGroup {
+    id                  String               @id @default(uuid())
+    name                String               @unique
+    allocationInstances AllocationInstance[]
+    superAdmins         SuperAdmin[]
+    admins              Admin[]
+}
+
+model AllocationInstance {
+    id                String          @id @default(uuid())
+    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
+    allocationGroupId String
+    name              String
+    stage             Stage
+    projects          Project[]
+    admins            Admin[]
+    supervisors       Supervisor[]
+    students          Student[]
+}
+
+model Project {
+    id                   String             @id @default(uuid())
+    title                String
+    description          String
+    supervisor           Supervisor         @relation(fields: [supervisorId], references: [id])
+    supervisorId         String
+    allocationInstance   AllocationInstance @relation(fields: [allocationInstanceId], references: [id])
+    allocationInstanceId String
+    flags                Flag[]
+    tags                 Tag[]
+    shortlistedIn        Shortlist[]
+    preferenceIn         Preference[]
+    allocatedTo          Allocation?
+}
+
+model Shortlist {
+    project   Project @relation(fields: [projectId], references: [id])
+    projectId String
+    student   Student @relation(fields: [studentId], references: [id])
+    studentId String
+
+    @@id([projectId, studentId])
+}
+
+model Preference {
+    project   Project @relation(fields: [projectId], references: [id])
+    projectId String
+    student   Student @relation(fields: [studentId], references: [id])
+    studentId String
+    rank      Int
+
+    @@id([projectId, studentId])
+    @@unique([rank, studentId])
+}
+
+model Allocation {
+    project   Project @relation(fields: [projectId], references: [id])
+    projectId String  @unique
+    student   Student @relation(fields: [studentId], references: [id])
+    studentId String
+
+    @@id([projectId, studentId])
+}
+
+model Flag {
+    id       String    @id @default(uuid())
+    title    String    @unique
+    students Student[]
+    projects Project[]
+}
+
+model Tag {
+    id       String    @id @default(uuid())
+    title    String    @unique
+    projects Project[]
+}

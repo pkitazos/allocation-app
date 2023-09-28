@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -24,7 +25,6 @@ import {
 import { useState } from "react";
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
-import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
@@ -59,7 +59,7 @@ export default function DataTable<TData, TValue>({
   return (
     <div className={cn(className)}>
       <div className="flex items-center gap-4 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
+        <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} /{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected
         </div>
@@ -76,7 +76,7 @@ export default function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 ))}
@@ -94,7 +94,7 @@ export default function DataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
