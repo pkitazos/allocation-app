@@ -83,28 +83,3 @@ export function ClientSection({
     </>
   );
 }
-
-// <Toggle onClick={handleClick} variant="primary">
-//         {currentlyShortlisted ? "remove from Shortlist" : "add to shortlist"}
-
-//       </Toggle>
-
-// const handleClick = async () => {
-//   setCurrentlyShortlisted(!currentlyShortlisted);
-
-//   if (!currentlyShortlisted) {
-//     await fetch(`/api/shortlist/${projectId}`, {
-//       method: "POST",
-//       body: JSON.stringify({
-//         studentId,
-//       }),
-//     });
-//   } else {
-//     await fetch(`/api/shortlist/${projectId}`, {
-//       method: "DELETE",
-//       body: JSON.stringify({
-//         studentId,
-//       }),
-//     });
-//   }
-// };

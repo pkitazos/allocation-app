@@ -1,9 +1,9 @@
 "use client";
+import { useClearance } from "@/app/clearance";
 import whiteLogo from "@/assets/uofg-white.png";
 import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { useClearance } from "@/app/clearance";
 
 export function Header() {
   const [userClearance, _recompute] = useClearance();

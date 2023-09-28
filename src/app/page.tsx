@@ -5,10 +5,10 @@ export default async function Home() {
   if (!user) return;
 
   return (
-    <div className="grid h-[92dvh] place-items-center -mt-[12dvh]">
+    <div className="-mt-[12dvh] grid h-[92dvh] place-items-center">
       <h1 className="text-4xl">
         Welcome{" "}
-        <span className="text-secondary font-semibold">{user.username}</span>!
+        <span className="font-semibold text-secondary">{user.username}</span>!
       </h1>
     </div>
   );

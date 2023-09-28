@@ -90,7 +90,7 @@ export const columns: ColumnDef<StudentData>[] = [
                   variant="destructive"
                   onClick={() => deleteStudent(row.original.id)} // TODO: removes student from isntance instead of deleting from database
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                   Delete
                 </Button>
               </DropdownMenuItem>

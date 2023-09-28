@@ -32,8 +32,8 @@ export async function PATCH(req: NextRequest) {
       console.log(
         `you are ${!typedData.isSupervisor ? "not " : ""}a supervisor ${
           !typedData.isSupervisor ? ":(" : ":)"
-        }`
-      )
+        }`,
+      ),
     );
 
   // TODO: streamline how clearance changes

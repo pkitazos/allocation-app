@@ -31,8 +31,8 @@ export async function PATCH(req: NextRequest) {
       console.log(
         `you are ${!typedData.isSuperAdmin ? "not " : ""}a super admin ${
           !typedData.isSuperAdmin ? ":((" : ":))"
-        }`
-      )
+        }`,
+      ),
     );
 
   return NextResponse.json({ status: 200, data: "success" });

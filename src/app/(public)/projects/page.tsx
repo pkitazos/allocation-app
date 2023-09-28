@@ -17,12 +17,12 @@ export default async function Projects() {
       title,
       description,
       supervisorName: name,
-    })
+    }),
   );
 
   return (
-    <div className="flex flex-col w-2/3 max-w-7xl">
-      <div className="flex rounded-md bg-accent py-5 px-6">
+    <div className="flex w-2/3 max-w-7xl flex-col">
+      <div className="flex rounded-md bg-accent px-6 py-5">
         <h1 className="text-5xl text-accent-foreground">Projects</h1>
       </div>
       <ClientSection data={data} />

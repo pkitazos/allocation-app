@@ -9,7 +9,7 @@ const routeContextSchema = z.object({
 });
 
 export default async function Student(
-  context: z.infer<typeof routeContextSchema>
+  context: z.infer<typeof routeContextSchema>,
 ) {
   const {
     params: { id },
@@ -32,14 +32,14 @@ export default async function Student(
 
   return (
     <>
-      <div className="flex flex-col w-2/3 max-w-7xl">
-        <div className="flex rounded-md bg-accent py-5 px-6">
+      <div className="flex w-2/3 max-w-7xl flex-col">
+        <div className="flex rounded-md bg-accent px-6 py-5">
           <h1 className="text-5xl text-accent-foreground">{student.name}</h1>
         </div>
         <div className="mt-6 flex gap-6">
-          <div className="w-3/4 flex flex-col gap-6">
+          <div className="flex w-3/4 flex-col gap-6">
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Preferences:
               </h2>
               <ol>
@@ -53,7 +53,7 @@ export default async function Student(
               </ol>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Shortlist:
               </h2>
               <ul>
@@ -65,15 +65,15 @@ export default async function Student(
               </ul>
             </div>
           </div>
-          <div className="w-1/4 flex flex-col gap-5 rounded-md bg-accent py-3 px-5">
+          <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Student ID:
               </h2>
               <p>{student.studentId}</p>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline underline-offset-2 decoration-secondary decoration-[3px]">
+              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Flags:
               </h2>
               {flags.map((flag) => (

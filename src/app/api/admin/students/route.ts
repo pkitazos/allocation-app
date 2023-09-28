@@ -25,8 +25,8 @@ export async function POST() {
               connect: randomChoice(flags),
             },
           },
-        })
-    )
+        }),
+    ),
   );
 
   return NextResponse.json({ status: 200, data: "success" });

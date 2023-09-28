@@ -31,8 +31,8 @@ export async function PATCH(req: NextRequest) {
       console.log(
         `you are ${!typedData.isAdmin ? "not " : ""}an admin ${
           !typedData.isAdmin ? ":(" : ":)"
-        }`
-      )
+        }`,
+      ),
     );
 
   return NextResponse.json({ status: 200, data: "success" });

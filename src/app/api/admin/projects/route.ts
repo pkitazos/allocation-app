@@ -29,8 +29,8 @@ export async function POST() {
               connect: randomChoice(tags),
             },
           },
-        })
-    )
+        }),
+    ),
   );
 
   return NextResponse.json({ status: 200, data: "success" });
