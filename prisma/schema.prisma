@@ -2,10 +2,14 @@ generator client {
     provider = "prisma-client-js"
 }
 
+generator kysely {
+    provider = "prisma-kysely"
+    output   = "."
+}
+
 datasource db {
-    provider  = "postgresql"
-    url       = env("DB_PRISMA_URL") // uses connection pooling
-    directUrl = env("DB_URL_NON_POOLING") // uses a direct connection
+    provider = "postgresql"
+    url      = env("DB_URL") // uses connection pooling
 }
 
 enum Stage {
