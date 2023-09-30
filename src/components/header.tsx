@@ -40,7 +40,6 @@ export function Header() {
         <a className="text-white hover:underline" href="/help">
           <Button variant="ghost">Help</Button>
         </a>
-        {/* <ModeToggle /> */}
       </nav>
     </>
   );
