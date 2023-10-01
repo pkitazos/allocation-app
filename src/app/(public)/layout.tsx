@@ -4,6 +4,6 @@ import { ReactNode } from "react";
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const session = await getServerSession();
-  if (!session || !session.user) redirect("/api/auth/signin");
+  // if (!session || !session.user) redirect("/api/auth/signin");
   return <>{children}</>;
 }
