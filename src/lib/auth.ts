@@ -28,6 +28,9 @@ export const authOptions = {
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
+    },
     async jwt({ token }) {
       token.userRole = "admin";
       return token;
