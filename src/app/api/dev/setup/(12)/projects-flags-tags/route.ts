@@ -1,25 +1,28 @@
-import { flags } from "@/data/flags";
-import { projectData } from "@/data/projects";
-import { tags } from "@/data/tags";
 import { prisma } from "@/lib/prisma";
 import { randomChoice } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  await prisma.project.createMany({
-    data: projectData,
+  const projects = await prisma.project.findMany({});
+
+  const flags = await prisma.flag.findMany({
+    select: {
+      title: true,
+    },
   });
 
-  const projectIds = await prisma.project.findMany({
-    select: { id: true },
+  const tags = await prisma.tag.findMany({
+    select: {
+      title: true,
+    },
   });
 
   Promise.all(
-    projectIds.map(
-      async ({ id: projectid }, i) =>
+    projects.map(
+      async ({ id }) =>
         await prisma.project.update({
           where: {
-            id: projectid,
+            id,
           },
           data: {
             flags: {
@@ -33,5 +36,5 @@ export async function POST() {
     ),
   );
 
-  return NextResponse.json({ status: 200, data: "success" });
+  return NextResponse.json({ status: 200, data: true });
 }

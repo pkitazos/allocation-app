@@ -1,4 +1,4 @@
-export const supervisors = [
+export const supervisorData = [
   { name: "John Smith" },
   { name: "Joe Bloggs" },
   { name: "Hugh Grant" },

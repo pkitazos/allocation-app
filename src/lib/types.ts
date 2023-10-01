@@ -26,18 +26,6 @@ export type Account = {
   id_token: string | null;
   session_state: string | null;
 };
-export type Admin = {
-  id: string;
-  name: string;
-};
-export type AdminToAllocationGroup = {
-  A: string;
-  B: string;
-};
-export type AdminToAllocationInstance = {
-  A: string;
-  B: string;
-};
 export type Allocation = {
   projectId: string;
   studentId: string;
@@ -45,14 +33,11 @@ export type Allocation = {
 export type AllocationGroup = {
   id: string;
   name: string;
-};
-export type AllocationGroupToSuperAdmin = {
-  A: string;
-  B: string;
+  groupAdminId: string;
 };
 export type AllocationInstance = {
   id: string;
-  allocationGroupId: string;
+  allocationSubGroupId: string;
   name: string;
   stage: Stage;
 };
@@ -63,6 +48,11 @@ export type AllocationInstanceToStudent = {
 export type AllocationInstanceToSupervisor = {
   A: string;
   B: string;
+};
+export type AllocationSubGroup = {
+  id: string;
+  name: string;
+  allocationGroupId: string;
 };
 export type Flag = {
   id: string;
@@ -75,6 +65,11 @@ export type FlagToProject = {
 export type FlagToStudent = {
   A: string;
   B: string;
+};
+export type GroupAdmin = {
+  id: string;
+  name: string;
+  allocationGroupId: string | null;
 };
 export type Preference = {
   projectId: string;
@@ -107,9 +102,10 @@ export type Student = {
   name: string;
   studentId: string;
 };
-export type SuperAdmin = {
+export type SubGroupAdmin = {
   id: string;
   name: string;
+  allocationSubGroupId: string;
 };
 export type Supervisor = {
   id: string;
@@ -132,26 +128,24 @@ export type VerificationToken = {
   expires: Timestamp;
 };
 export type DB = {
-  _AdminToAllocationGroup: AdminToAllocationGroup;
-  _AdminToAllocationInstance: AdminToAllocationInstance;
-  _AllocationGroupToSuperAdmin: AllocationGroupToSuperAdmin;
   _AllocationInstanceToStudent: AllocationInstanceToStudent;
   _AllocationInstanceToSupervisor: AllocationInstanceToSupervisor;
   _FlagToProject: FlagToProject;
   _FlagToStudent: FlagToStudent;
   _ProjectToTag: ProjectToTag;
   Account: Account;
-  Admin: Admin;
   Allocation: Allocation;
   AllocationGroup: AllocationGroup;
   AllocationInstance: AllocationInstance;
+  AllocationSubGroup: AllocationSubGroup;
   Flag: Flag;
+  GroupAdmin: GroupAdmin;
   Preference: Preference;
   Project: Project;
   Session: Session;
   Shortlist: Shortlist;
   Student: Student;
-  SuperAdmin: SuperAdmin;
+  SubGroupAdmin: SubGroupAdmin;
   Supervisor: Supervisor;
   Tag: Tag;
   User: User;

@@ -4,7 +4,7 @@ generator client {
 
 generator kysely {
     provider = "prisma-kysely"
-    output   = "."
+    output   = "../src/lib"
 }
 
 datasource db {
@@ -20,17 +20,18 @@ enum Stage {
     ALLOCATION_PUBLICATION
 }
 
-model SuperAdmin {
-    id              String            @id @default(uuid())
-    name            String
-    allocationGroup AllocationGroup[]
+model GroupAdmin {
+    id                String           @id @default(uuid())
+    name              String
+    allocationGroup   AllocationGroup?
+    allocationGroupId String?
 }
 
-model Admin {
-    id                  String               @id @default(uuid())
-    name                String
-    allocationInstances AllocationInstance[]
-    allocationGroup     AllocationGroup[]
+model SubGroupAdmin {
+    id                   String             @id @default(uuid())
+    name                 String
+    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
+    allocationSubGroupId String
 }
 
 model Supervisor {
@@ -54,21 +55,29 @@ model Student {
 model AllocationGroup {
     id                  String               @id @default(uuid())
     name                String               @unique
+    groupAdmin          GroupAdmin           @relation(fields: [groupAdminId], references: [id])
+    groupAdminId        String               @unique
+    allocationSubGroups AllocationSubGroup[]
+}
+
+model AllocationSubGroup {
+    id                  String               @id @default(uuid())
+    name                String
+    subGroupAdmins      SubGroupAdmin[]
+    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
+    allocationGroupId   String
     allocationInstances AllocationInstance[]
-    superAdmins         SuperAdmin[]
-    admins              Admin[]
 }
 
 model AllocationInstance {
-    id                String          @id @default(uuid())
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
-    allocationGroupId String
-    name              String
-    stage             Stage
-    projects          Project[]
-    admins            Admin[]
-    supervisors       Supervisor[]
-    students          Student[]
+    id                   String             @id @default(uuid())
+    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
+    allocationSubGroupId String
+    name                 String
+    stage                Stage
+    projects             Project[]
+    supervisors          Supervisor[]
+    students             Student[]
 }
 
 model Project {
