@@ -1,11 +1,11 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
+import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { ClearanceProvider } from "./clearance";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +28,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClearanceProvider>
+          <SessionProvider>
             <Header />
             <main className="flex h-[92dvh] flex-col justify-start gap-4 pt-[12dvh]">
               <Breadcrumbs />
@@ -37,7 +37,7 @@ export default async function RootLayout({
               </section>
             </main>
             <Toaster position="bottom-right" />
-          </ClearanceProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

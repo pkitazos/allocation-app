@@ -3,6 +3,76 @@ import { useClearance } from "@/app/clearance";
 import whiteLogo from "@/assets/uofg-white.png";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { User2 } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import Link from "next/link";
+
+function UserButton() {
+  const { data: session } = useSession();
+
+  const user = session?.user;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="cursor-pointer">
+          <AvatarImage src={user?.image ?? ""} />
+          <AvatarFallback>
+            <User2 />
+          </AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="mt-3 w-60">
+        {user && (
+          <DropdownMenuLabel className="py-4">
+            <div className="flex flex-col space-y-1 pb-2.5">
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.email}
+              </p>
+            </div>
+            <DropdownMenuSeparator />
+          </DropdownMenuLabel>
+        )}
+        <DropdownMenuItem>
+          <Link href="/account" className="w-full">
+            <Button className="w-full" variant="link" onClick={() => signOut()}>
+              My account
+            </Button>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          {session ? (
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => signOut()}
+            >
+              Sign out
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => signIn()}
+            >
+              Sign In
+            </Button>
+          )}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export function Header() {
   const [userClearance, _recompute] = useClearance();
@@ -40,6 +110,7 @@ export function Header() {
         <a className="text-white hover:underline" href="/help">
           <Button variant="ghost">Help</Button>
         </a>
+        <UserButton />
       </nav>
     </>
   );
