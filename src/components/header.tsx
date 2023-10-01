@@ -1,5 +1,4 @@
 "use client";
-import { useClearance } from "@/app/clearance";
 import whiteLogo from "@/assets/uofg-white.png";
 import Image from "next/image";
 import { Button } from "./ui/button";
@@ -45,9 +44,7 @@ function UserButton() {
         )}
         <DropdownMenuItem>
           <Link href="/account" className="w-full">
-            <Button className="w-full" variant="link" onClick={() => signOut()}>
-              My account
-            </Button>
+            <Button variant="link">My account</Button>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
@@ -75,43 +72,45 @@ function UserButton() {
 }
 
 export function Header() {
-  const [userClearance, _recompute] = useClearance();
-
   return (
-    <>
-      <nav className="fixed flex h-[8dvh] max-h-[5rem] w-full items-center justify-center gap-6 bg-primary py-5">
-        <a href="/">
-          <Image
-            className="max-w-[10rem] object-scale-down"
-            width={300}
-            height={100}
-            src={whiteLogo}
-            alt="University of Glasgow logo"
-          />
-        </a>
-        <a className="text-white hover:underline" href="/projects">
-          <Button variant="ghost">Projects</Button>
-        </a>
-        {userClearance === 0 && (
-          <a className="text-white hover:underline" href="/preferences">
-            <Button variant="ghost">Preferences</Button>
-          </a>
-        )}
-        {userClearance >= 1 && (
-          <a className="text-white hover:underline" href="/students">
-            <Button variant="ghost">Students</Button>
-          </a>
-        )}
-        {userClearance >= 2 && (
-          <a className="text-white hover:underline" href="/admin-panel">
-            <Button variant="ghost">Admin Panel</Button>
-          </a>
-        )}
-        <a className="text-white hover:underline" href="/help">
-          <Button variant="ghost">Help</Button>
-        </a>
-        <UserButton />
-      </nav>
-    </>
+    <nav className="fixed flex h-[8dvh] max-h-[5rem] w-full items-center justify-center gap-6 bg-primary py-5">
+      <Link href="/">
+        <Image
+          className="max-w-[10rem] object-scale-down"
+          width={300}
+          height={100}
+          src={whiteLogo}
+          alt="University of Glasgow logo"
+        />
+      </Link>
+      <Link className="text-white hover:underline" href="/projects">
+        <Button variant="ghost">Projects</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/supervisors">
+        <Button variant="ghost">Supervisors</Button>
+      </Link>
+      <Link
+        className="text-white hover:underline"
+        href="/account/my-preferences"
+      >
+        <Button variant="ghost">My Preferences</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/account/my-projects">
+        <Button variant="ghost">My Projects</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/help">
+        <Button variant="ghost">Help</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/students">
+        <Button variant="ghost">Students</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/allocations">
+        <Button variant="ghost">Allocations</Button>
+      </Link>
+      <Link className="text-white hover:underline" href="/admin-panel">
+        <Button variant="ghost">Admin Panel</Button>
+      </Link>
+      <UserButton />
+    </nav>
   );
 }

@@ -1,5 +1,6 @@
+// accessible by admins only
+
 import { prisma } from "@/lib/prisma";
-import { Student } from "@prisma/client";
 import { ClientSection } from "./client-section";
 
 export default async function Students() {
