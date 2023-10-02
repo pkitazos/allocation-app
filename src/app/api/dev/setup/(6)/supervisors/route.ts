@@ -1,6 +1,6 @@
 import { supervisorData } from "@/data";
 import { prisma } from "@/lib/prisma";
-import { checkUpload } from "@/lib/utils";
+import { checkUpload, logUpload } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -10,5 +10,6 @@ export async function POST() {
     await prisma.supervisor.createMany({ data: supervisorData });
   }
 
+  logUpload("SUPERVISORS", supervisors, 28);
   return NextResponse.json({ status: 200, data: true });
 }

@@ -1,6 +1,6 @@
 import { projectData, studentData } from "@/data";
 import { prisma } from "@/lib/prisma";
-import { checkUpload, randomChoice } from "@/lib/utils";
+import { checkUpload, logUpload, randomChoice } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -10,7 +10,17 @@ export async function POST() {
     })
   ).map((item) => item.id);
 
-  const allocInstanId = "481674ab-c2a8-4964-9a3b-77657fe91dca";
+  const allocationInstance = await prisma.allocationInstance.findFirst({
+    where: {
+      name: "2023",
+      allocationSubGroup: {
+        name: "Level 4 Individual Project",
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
 
   const projects = await prisma.project.findMany({});
 
@@ -19,10 +29,12 @@ export async function POST() {
       data: projectData.map(({ title, description }) => ({
         title: title,
         description: description,
-        allocationInstanceId: allocInstanId,
+        allocationInstanceId: allocationInstance?.id ?? "",
         supervisorId: randomChoice(supervisors),
       })),
     });
   }
+
+  logUpload("PROJECTS", projects, 33);
   return NextResponse.json({ status: 200, data: true });
 }

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Stage } from "@/lib/types";
-import { checkUpload } from "@/lib/utils";
+import { checkUpload, logUpload } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -28,5 +28,6 @@ export async function POST() {
     });
   }
 
+  logUpload("ALLOCATION_INSTANCES", allocationInstances, 5);
   return NextResponse.json({ status: 200, data: true });
 }

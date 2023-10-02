@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { checkUpload } from "@/lib/utils";
+import { checkUpload, logUpload } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -20,5 +20,6 @@ export async function POST() {
     });
   }
 
+  logUpload("GROUP_ADMINS", groupAdmins, 1);
   return NextResponse.json({ status: 200, data: true });
 }

@@ -14,9 +14,16 @@ export const checkUpload = <T extends unknown>(
   data: T[],
   expectedRows: number,
 ) => {
+  return data.length === expectedRows;
+};
+
+export const logUpload = <T extends unknown>(
+  label: string,
+  data: T[],
+  expectedRows: number,
+) => {
   if (data.length !== expectedRows) console.log("ERROR", label, data.length);
   else console.log("SUCCESS", label, data.length);
-  return data.length === expectedRows;
 };
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

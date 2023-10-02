@@ -1,6 +1,6 @@
 import { flagData } from "@/data";
 import { prisma } from "@/lib/prisma";
-import { checkUpload } from "@/lib/utils";
+import { checkUpload, logUpload } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -16,5 +16,6 @@ export async function POST() {
     await prisma.flag.createMany({ data: flagData });
   }
 
+  logUpload("FLAGS", flags, 5);
   return NextResponse.json({ status: 200, data: true });
 }

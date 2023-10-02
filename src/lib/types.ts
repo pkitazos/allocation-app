@@ -4,6 +4,13 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export const Role = {
+  GROUP_ADMIN: "GROUP_ADMIN",
+  SUB_GROUP_ADMIN: "SUB_GROUP_ADMIN",
+  SUPERVISOR: "SUPERVISOR",
+  STUDENT: "STUDENT",
+} as const;
+export type Role = (typeof Role)[keyof typeof Role];
 export const Stage = {
   SETUP: "SETUP",
   PROJECT_SUBMISSION: "PROJECT_SUBMISSION",
@@ -121,6 +128,7 @@ export type User = {
   email: string | null;
   emailVerified: Timestamp | null;
   image: string | null;
+  role: Role;
 };
 export type VerificationToken = {
   identifier: string;

@@ -1,6 +1,6 @@
 import { tagData } from "@/data";
 import { prisma } from "@/lib/prisma";
-import { checkUpload } from "@/lib/utils";
+import { checkUpload, logUpload } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -15,5 +15,7 @@ export async function POST() {
   if (!checkUpload("TAGS", tags, 20)) {
     await prisma.tag.createMany({ data: tagData });
   }
+
+  logUpload("TAGS", tags, 20);
   return NextResponse.json({ status: 200, data: true });
 }
