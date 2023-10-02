@@ -4,7 +4,7 @@ generator client {
 
 generator kysely {
     provider = "prisma-kysely"
-    output   = "../src/lib"
+    output   = "../src/types"
 }
 
 datasource db {
@@ -30,6 +30,7 @@ enum Stage {
 model GroupAdmin {
     id                String           @id @default(uuid())
     name              String
+    email             String
     allocationGroup   AllocationGroup?
     allocationGroupId String?
 }
@@ -37,6 +38,7 @@ model GroupAdmin {
 model SubGroupAdmin {
     id                   String             @id @default(uuid())
     name                 String
+    email                String
     allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
     allocationSubGroupId String
 }
@@ -177,7 +179,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
-    role          Role
+    role          String?
     accounts      Account[]
     sessions      Session[]
 }

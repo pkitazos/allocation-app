@@ -14,9 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Session } from "@prisma/client";
 
 function UserButton() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
 
   const user = session?.user;
 
@@ -52,7 +55,7 @@ function UserButton() {
             <Button
               className="w-full"
               variant="outline"
-              onClick={() => signOut()}
+              onClick={async () => await signOut()}
             >
               Sign out
             </Button>
@@ -60,7 +63,11 @@ function UserButton() {
             <Button
               className="w-full"
               variant="outline"
-              onClick={() => signIn()}
+              onClick={async () =>
+                await signIn("google", {
+                  callbackUrl: searchParams?.get("from") ?? "/",
+                })
+              }
             >
               Sign In
             </Button>

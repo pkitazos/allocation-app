@@ -76,6 +76,7 @@ export type FlagToStudent = {
 export type GroupAdmin = {
   id: string;
   name: string;
+  email: string;
   allocationGroupId: string | null;
 };
 export type Preference = {
@@ -112,6 +113,7 @@ export type Student = {
 export type SubGroupAdmin = {
   id: string;
   name: string;
+  email: string;
   allocationSubGroupId: string;
 };
 export type Supervisor = {
@@ -128,7 +130,7 @@ export type User = {
   email: string | null;
   emailVerified: Timestamp | null;
   image: string | null;
-  role: Role;
+  role: string | null;
 };
 export type VerificationToken = {
   identifier: string;

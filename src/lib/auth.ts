@@ -1,5 +1,4 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import type {
   GetServerSidePropsContext,
   NextApiRequest,
@@ -8,16 +7,7 @@ import type {
 import type { NextAuthOptions as NextAuthConfig } from "next-auth";
 import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-
-// Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
-declare module "next-auth/jwt" {
-  interface JWT {
-    /** The user's role. */
-    userRole?: "admin";
-  }
-}
-
-const prisma = new PrismaClient();
+import { prisma } from "./prisma";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -27,13 +17,46 @@ export const authOptions = {
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
   ],
+  session: { strategy: "jwt" },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      return baseUrl;
+    async session({ token, session }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
+        session.user.role = token.role;
+      }
+
+      return session;
     },
-    async jwt({ token }) {
-      token.userRole = "admin";
-      return token;
+    async jwt({ token, user, trigger }) {
+      const dbUser = await prisma.user.findFirst({
+        where: {
+          email: token.email,
+        },
+      });
+
+      if (trigger === "signUp") {
+        // check email
+      }
+
+      if (!dbUser) {
+        if (user) {
+          token.id = user?.id;
+        }
+        return token;
+      }
+
+      const isAdmin = true;
+
+      return {
+        id: dbUser.id,
+        name: dbUser.name,
+        email: dbUser.email,
+        picture: dbUser.image,
+        role: !!isAdmin ? "GROUP_ADMIN" : "user",
+      };
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
