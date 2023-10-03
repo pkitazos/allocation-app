@@ -2,10 +2,10 @@ generator client {
     provider = "prisma-client-js"
 }
 
-generator kysely {
-    provider = "prisma-kysely"
-    output   = "../src/types"
-}
+// generator kysely {
+//     provider = "prisma-kysely"
+//     output   = "../src/lib"
+// }
 
 datasource db {
     provider = "postgresql"
@@ -46,6 +46,7 @@ model SubGroupAdmin {
 model Supervisor {
     id                  String               @id @default(uuid())
     name                String
+    email               String // TODO: make unique + link to Invitation
     projects            Project[]
     allocationInstances AllocationInstance[]
 }
@@ -53,7 +54,8 @@ model Supervisor {
 model Student {
     id                  String               @id @default(uuid())
     name                String
-    studentId           String               @unique
+    email               String // TODO: make unique + link to Invitation
+    schoolId            String               @unique
     flags               Flag[]
     shortlist           Shortlist[]
     preferences         Preference[]
@@ -146,6 +148,14 @@ model Tag {
     projects Project[]
 }
 
+model Invitation {
+    userEmail  String @id
+    role       Role
+    signUpCode String @default(uuid())
+
+    @@unique([userEmail, role])
+}
+
 model Account {
     id                String  @id @default(cuid())
     userId            String
@@ -191,3 +201,7 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+// model Test {
+//     id String @id @default(uuid())
+// }

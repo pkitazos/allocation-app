@@ -6,7 +6,7 @@ export default async function Page() {
   const allocations = await prisma.allocation.findMany({
     select: {
       project: { select: { id: true, title: true } },
-      student: { select: { id: true, name: true, studentId: true } },
+      student: { select: { id: true, name: true, schoolId: true } },
     },
   });
 
@@ -15,7 +15,7 @@ export default async function Page() {
     projectId: project.id,
     studentName: student.name,
     studentId: student.id,
-    studentStudentId: student.studentId,
+    schoolId: student.schoolId,
   }));
 
   return (

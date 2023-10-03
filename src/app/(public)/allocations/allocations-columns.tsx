@@ -18,7 +18,7 @@ export interface AllocationTableData {
   projectId: string;
   studentName: string;
   studentId: string;
-  studentStudentId: string;
+  schoolId: string;
 }
 
 export const columns: ColumnDef<AllocationTableData>[] = [
@@ -56,10 +56,10 @@ export const columns: ColumnDef<AllocationTableData>[] = [
     ),
   },
   {
-    accessorKey: "studentStudentId",
-    id: "studentStudentId",
+    accessorKey: "schoolId",
+    id: "schoolId",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student Id" canFilter />
+      <DataTableColumnHeader column={column} title="School Id" canFilter />
     ),
   },
   {
