@@ -2,14 +2,21 @@ generator client {
     provider = "prisma-client-js"
 }
 
-generator kysely {
-    provider = "prisma-kysely"
-    output   = "."
-}
+// generator kysely {
+//     provider = "prisma-kysely"
+//     output   = "../src/lib"
+// }
 
 datasource db {
     provider = "postgresql"
-    url      = env("DB_URL") // uses connection pooling
+    url      = env("DATABASE_URL") // uses connection pooling
+}
+
+enum Role {
+    GROUP_ADMIN
+    SUB_GROUP_ADMIN
+    SUPERVISOR
+    STUDENT
 }
 
 enum Stage {
@@ -20,22 +27,26 @@ enum Stage {
     ALLOCATION_PUBLICATION
 }
 
-model SuperAdmin {
-    id              String            @id @default(uuid())
-    name            String
-    allocationGroup AllocationGroup[]
+model GroupAdmin {
+    id                String           @id @default(uuid())
+    name              String
+    email             String
+    allocationGroup   AllocationGroup?
+    allocationGroupId String?
 }
 
-model Admin {
-    id                  String               @id @default(uuid())
-    name                String
-    allocationInstances AllocationInstance[]
-    allocationGroup     AllocationGroup[]
+model SubGroupAdmin {
+    id                   String             @id @default(uuid())
+    name                 String
+    email                String
+    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
+    allocationSubGroupId String
 }
 
 model Supervisor {
     id                  String               @id @default(uuid())
     name                String
+    email               String // TODO: make unique + link to Invitation
     projects            Project[]
     allocationInstances AllocationInstance[]
 }
@@ -43,7 +54,8 @@ model Supervisor {
 model Student {
     id                  String               @id @default(uuid())
     name                String
-    studentId           String               @unique
+    email               String // TODO: make unique + link to Invitation
+    schoolId            String               @unique
     flags               Flag[]
     shortlist           Shortlist[]
     preferences         Preference[]
@@ -54,21 +66,29 @@ model Student {
 model AllocationGroup {
     id                  String               @id @default(uuid())
     name                String               @unique
+    groupAdmin          GroupAdmin           @relation(fields: [groupAdminId], references: [id])
+    groupAdminId        String               @unique
+    allocationSubGroups AllocationSubGroup[]
+}
+
+model AllocationSubGroup {
+    id                  String               @id @default(uuid())
+    name                String
+    subGroupAdmins      SubGroupAdmin[]
+    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
+    allocationGroupId   String
     allocationInstances AllocationInstance[]
-    superAdmins         SuperAdmin[]
-    admins              Admin[]
 }
 
 model AllocationInstance {
-    id                String          @id @default(uuid())
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
-    allocationGroupId String
-    name              String
-    stage             Stage
-    projects          Project[]
-    admins            Admin[]
-    supervisors       Supervisor[]
-    students          Student[]
+    id                   String             @id @default(uuid())
+    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
+    allocationSubGroupId String
+    name                 String
+    stage                Stage
+    projects             Project[]
+    supervisors          Supervisor[]
+    students             Student[]
 }
 
 model Project {
@@ -127,3 +147,61 @@ model Tag {
     title    String    @unique
     projects Project[]
 }
+
+model Invitation {
+    userEmail  String @id
+    role       Role
+    signUpCode String @default(uuid())
+
+    @@unique([userEmail, role])
+}
+
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String?
+    email         String?   @unique
+    emailVerified DateTime?
+    image         String?
+    role          String?
+    accounts      Account[]
+    sessions      Session[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// model Test {
+//     id String @id @default(uuid())
+// }

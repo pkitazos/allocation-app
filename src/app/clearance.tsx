@@ -1,6 +1,5 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 
 interface ClearanceContext {
   userClearance: number;
@@ -13,14 +12,10 @@ const clearanceContext = createContext<ClearanceContext>({
 });
 
 export function ClearanceProvider({ children }: { children: ReactNode }) {
-  const { user } = useUser();
-
-  let userClearance = user?.publicMetadata.clearance as number;
-
-  console.log({ userClearance });
+  const [userClearance, setUserClearance] = useState(0);
 
   const recompute = () => {
-    user?.reload();
+    setUserClearance(0);
   };
 
   return (

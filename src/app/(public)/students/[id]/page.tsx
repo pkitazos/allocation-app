@@ -1,3 +1,5 @@
+// accessible by admins only
+
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -73,14 +75,16 @@ export default async function Student(
               <p>{student.studentId}</p>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
+              <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Flags:
               </h2>
-              {flags.map((flag) => (
-                <Badge key={flag} variant="outline">
-                  {flag}
-                </Badge>
-              ))}
+              <div className="flex flex-col gap-2">
+                {flags.map((flag) => (
+                  <Badge key={flag} variant="outline">
+                    {flag}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </div>
         </div>

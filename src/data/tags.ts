@@ -1,4 +1,4 @@
-export const tags = [
+export const tagData = [
   { title: "Python" },
   { title: "Java" },
   { title: "C++" },

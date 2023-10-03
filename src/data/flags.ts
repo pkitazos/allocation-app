@@ -1,4 +1,4 @@
-export const flags = [
+export const flagData = [
   { title: "BSc Computer Science" },
   { title: "BSc Software Engineering" },
   { title: "MSci Computer Science" },

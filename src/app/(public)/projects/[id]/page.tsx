@@ -3,6 +3,8 @@ import { Toggle } from "@/components/ui/toggle";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { ClientSection } from "./client-section";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const routeContextSchema = z.object({
   params: z.object({
@@ -27,7 +29,7 @@ export default async function Project(
       title: true,
       description: true,
       supervisor: {
-        select: { name: true },
+        select: { name: true, id: true },
       },
       flags: { select: { title: true } },
       tags: { select: { title: true } },
@@ -82,10 +84,14 @@ export default async function Project(
               <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Supervisor:
               </h2>
-              <p>{project.supervisor.name}</p>
+              <Link href={`/supervisors/${project.supervisor.id}`}>
+                <Button className="text-lg" variant="link">
+                  {project.supervisor.name}
+                </Button>
+              </Link>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
+              <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Flags:
               </h2>
               {flags.map((flag) => (
@@ -95,7 +101,7 @@ export default async function Project(
               ))}
             </div>
             <div>
-              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
+              <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Tags:
               </h2>
               {tags.map((tag) => (

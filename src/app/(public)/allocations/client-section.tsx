@@ -1,8 +1,8 @@
 "use client";
 import DataTable from "@/components/ui/data-table/data-table";
-import { StudentData, columns } from "./students-columns";
+import { AllocationTableData, columns } from "./allocations-columns";
 
-export function ClientSection({ data }: { data: StudentData[] }) {
+export function ClientSection({ data }: { data: AllocationTableData[] }) {
   return (
     <>
       <DataTable className="w-full" columns={columns} data={data} />
