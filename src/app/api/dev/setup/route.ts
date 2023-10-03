@@ -399,8 +399,7 @@ export async function POST() {
 
   // step 5
   console.log("ALLOCATION_INSTANCE");
-  const allocationInstances =
-    await createAllocationInstance(allocationSubGroups);
+  await createAllocationInstance(allocationSubGroups);
 
   const testInstace = await prisma.allocationInstance.findFirst({
     where: {
@@ -420,7 +419,10 @@ export async function POST() {
     },
   });
 
-  if (!testInstace) return NextResponse.json({ status: 500, data: "error" });
+  if (!testInstace) {
+    console.log("ERROR creating testInstance");
+    return NextResponse.json({ status: 500, data: "error" });
+  }
 
   console.log({ testInstace });
   console.log("ok");
