@@ -1,22 +1,20 @@
 "use client";
 import whiteLogo from "@/assets/uofg-white.png";
-import { UserButton } from "@clerk/nextjs";
-import Image from "next/image";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { User2 } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
-  DropdownMenuItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Session } from "@prisma/client";
 
 function UserButton() {
   const { data: session } = useSession();
@@ -80,8 +78,6 @@ function UserButton() {
 }
 
 export function Header() {
-  const [userClearance, _recompute] = useClearance();
-
   return (
     <nav className="fixed flex h-[8dvh] max-h-[5rem] w-full items-center justify-center gap-6 bg-primary py-5">
       <Link href="/">

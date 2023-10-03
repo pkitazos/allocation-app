@@ -1,10 +1,8 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";

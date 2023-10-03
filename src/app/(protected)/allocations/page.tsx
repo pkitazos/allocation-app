@@ -1,4 +1,3 @@
-// accessible by admins only
 import { prisma } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
