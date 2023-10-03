@@ -48,14 +48,17 @@ export const authOptions = {
         return token;
       }
 
-      const isAdmin = true;
+      const userRole = await prisma.invitation.findFirst({
+        where: { userEmail: dbUser.email! },
+        select: { role: true },
+      });
 
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        role: !!isAdmin ? "GROUP_ADMIN" : "user",
+        role: userRole?.role ?? "user",
       };
     },
   },

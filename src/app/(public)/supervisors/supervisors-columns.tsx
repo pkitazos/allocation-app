@@ -1,4 +1,3 @@
-import { useClearance } from "@/app/clearance";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -56,9 +55,6 @@ export const columns: ColumnDef<SupervisorData>[] = [
       return <div className="text-xs text-gray-500">Actions</div>;
     },
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [userClearance, _recompute] = useClearance();
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -75,7 +71,7 @@ export const columns: ColumnDef<SupervisorData>[] = [
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
-            {userClearance >= 2 && (
+            {false && (
               <DropdownMenuItem>
                 <Button
                   className="w-full"
