@@ -1,5 +1,6 @@
 "use client";
 import whiteLogo from "@/assets/uofg-white.png";
+import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -79,6 +80,8 @@ function UserButton() {
 }
 
 export function Header() {
+  const [userClearance, _recompute] = useClearance();
+
   return (
     <nav className="fixed flex h-[8dvh] max-h-[5rem] w-full items-center justify-center gap-6 bg-primary py-5">
       <Link href="/">
