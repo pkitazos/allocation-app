@@ -4,6 +4,8 @@ interface props {
   className?: string;
 }
 
+// TODO: swap out for Separator
+
 export const Divider = ({ className }: props) => {
   return (
     <div className={cn("flex justify-center", className)}>

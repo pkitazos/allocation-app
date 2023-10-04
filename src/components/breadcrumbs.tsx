@@ -7,7 +7,7 @@ export function Breadcrumbs() {
 
   if (pathname.length === 1)
     return (
-      <ol className="ml-20 flex items-center" aria-label="Breadcrumb">
+      <ol className="ml-20 mt-7 flex items-center" aria-label="Breadcrumb">
         <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
           Home
           <Slash className="mx-2 h-4 w-4" />
@@ -20,7 +20,7 @@ export function Breadcrumbs() {
   const paths = pathname.split("/").slice(1, -1);
 
   return (
-    <ol className="ml-20 flex items-center" aria-label="Breadcrumb">
+    <ol className="ml-20 mt-7 flex items-center" aria-label="Breadcrumb">
       <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
         <a className="hover:text-secondary" href="/">
           Home

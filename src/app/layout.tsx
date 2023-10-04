@@ -30,7 +30,7 @@ export default async function RootLayout({
         >
           <SessionProvider>
             <Header />
-            <main className="flex h-[92dvh] flex-col justify-start gap-4 pt-[12dvh]">
+            <main className="flex h-[92dvh] flex-col justify-start gap-4">
               <Breadcrumbs />
               <section className="flex w-full justify-center pt-6">
                 {children}

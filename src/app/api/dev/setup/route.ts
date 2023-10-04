@@ -73,7 +73,7 @@ const allocationInstanceNames = [
   // [["2022", "2023"], ["2022", "2023"], ["2022", "2023"]],
 ];
 
-const dbEmpty = true;
+const dbEmpty = false;
 
 // step 1
 const createGroupAdmin = async () => {
@@ -94,7 +94,6 @@ const inviteGroupAdmin = async (groupAdmins: GroupAdmin[]) => {
   if (!dbEmpty) {
     await prisma.invitation.deleteMany({ where: { role: "GROUP_ADMIN" } });
   }
-
   await prisma.invitation.createMany({
     data: groupAdmins.map(({ email: userEmail }) => ({
       userEmail,
@@ -185,7 +184,20 @@ const createAllocationInstance = async (
   allocationSubGroups: AllocationSubGroup[],
 ) => {
   if (!dbEmpty) await prisma.allocationInstance.deleteMany({});
+
   const flatInstanceNames = allocationInstanceNames.flat(1);
+
+  const intermediate = allocationSubGroups
+    .map(({ id: allocationSubGroupId }, i) =>
+      flatInstanceNames[i].map((name) => ({
+        allocationSubGroupId,
+        name,
+        stage: "SETUP" as const,
+      })),
+    )
+    .flat();
+
+  console.log({ intermediate });
 
   await prisma.allocationInstance.createMany({
     data: allocationSubGroups
@@ -399,18 +411,12 @@ export async function POST() {
 
   // step 5
   console.log("ALLOCATION_INSTANCE");
-  await createAllocationInstance(allocationSubGroups);
+  console.log(await createAllocationInstance(allocationSubGroups));
 
   const testInstace = await prisma.allocationInstance.findFirst({
     where: {
-      AND: [
-        { name: "2023" },
-        {
-          allocationSubGroup: {
-            name: "Level 4 Individual Project",
-          },
-        },
-      ],
+      name: "2023",
+      allocationSubGroup: { name: "Level 4 Individual Project" },
     },
     include: {
       allocationSubGroup: {

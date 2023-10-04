@@ -1,41 +1,33 @@
-import { auth, authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 
 export default async function Page() {
   const session = await auth();
 
-  if (!session) return <>you are not signed in</>;
-
-  const user = session.user;
-
-  console.log(user.email);
-
-  const isGroupAdmin = await prisma.groupAdmin.findFirst({
-    where: { email: user.email! },
-  });
-  const isSubGroupAdmin = await prisma.subGroupAdmin.findFirst({
-    where: { email: user.email! },
-  });
-  const isSupervisor = await prisma.supervisor.findFirst({
-    where: { email: user.email! },
-  });
-  const isStudent = await prisma.student.findFirst({
-    where: { email: user.email! },
-  });
-
-  let name = "";
-  if (isGroupAdmin) name = isGroupAdmin.name;
-  if (isSubGroupAdmin) name = isSubGroupAdmin.name;
-  if (isSupervisor) name = isSupervisor.name;
-  if (isStudent) name = isStudent.name;
+  const user = session!.user;
 
   return (
-    <div>
-      <h2 className="mb-2 text-2xl">
-        Hi <span className="font-medium text-sky-600">{name}</span>,
+    <div className="flex h-[70dvh] w-full flex-col gap-6 pt-16 xl:w-1/2">
+      <h2 className="text-4xl font-medium">
+        Hi <span className="font-semibold text-sky-500">{user.name}</span>!
       </h2>
-      this is your account page
+      <h3 className="text-xl">This is your account page</h3>
+      <p
+        className={cn(
+          "w-fit rounded-md bg-emerald-500/20 px-4 py-2 text-lg",
+          user.role === "UNREGISTERED" && "bg-destructive/20",
+        )}
+      >
+        user role :{" "}
+        <span
+          className={cn(
+            "font-semibold text-emerald-500",
+            user.role === "UNREGISTERED" && "text-destructive",
+          )}
+        >
+          {user.role}
+        </span>
+      </p>
     </div>
   );
 }

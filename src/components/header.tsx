@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Role } from "@prisma/client";
 
 function UserButton() {
   const { data: session } = useSession();
@@ -78,44 +79,76 @@ function UserButton() {
 }
 
 export function Header() {
+  const session = useSession();
+
+  const user = session.data?.user;
+
+  const canAccess = (rolesAllowed: Role[]) => {
+    if (!user) return false;
+    return rolesAllowed.includes(user.role!);
+  };
+
   return (
-    <nav className="fixed flex h-[8dvh] max-h-[5rem] w-full items-center justify-center gap-6 bg-primary py-5">
-      <Link href="/">
-        <Image
-          className="max-w-[10rem] object-scale-down"
-          width={300}
-          height={100}
-          src={whiteLogo}
-          alt="University of Glasgow logo"
-        />
-      </Link>
-      <Link className="text-white hover:underline" href="/projects">
-        <Button variant="ghost">Projects</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/supervisors">
-        <Button variant="ghost">Supervisors</Button>
-      </Link>
-      <Link
-        className="text-white hover:underline"
-        href="/account/my-preferences"
-      >
-        <Button variant="ghost">My Preferences</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/account/my-projects">
-        <Button variant="ghost">My Projects</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/help">
-        <Button variant="ghost">Help</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/students">
-        <Button variant="ghost">Students</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/allocations">
-        <Button variant="ghost">Allocations</Button>
-      </Link>
-      <Link className="text-white hover:underline" href="/admin-panel">
-        <Button variant="ghost">Admin Panel</Button>
-      </Link>
+    <nav className="sticky top-0 flex h-[8dvh] max-h-[5rem] w-full items-center justify-between gap-6 bg-primary px-10 py-5">
+      <div className="flex items-center gap-6">
+        <Link href="/">
+          <Image
+            className="max-w-[10rem] object-scale-down"
+            width={300}
+            height={100}
+            src={whiteLogo}
+            alt="University of Glasgow logo"
+          />
+        </Link>
+        {canAccess([
+          "GROUP_ADMIN",
+          "SUB_GROUP_ADMIN",
+          "SUPERVISOR",
+          "STUDENT",
+        ]) && (
+          <Link className="text-white hover:underline" href="/projects">
+            <Button variant="ghost">Projects</Button>
+          </Link>
+        )}
+        {canAccess(["GROUP_ADMIN", "SUB_GROUP_ADMIN", "SUPERVISOR"]) && (
+          <Link className="text-white hover:underline" href="/supervisors">
+            <Button variant="ghost">Supervisors</Button>
+          </Link>
+        )}
+        {canAccess(["STUDENT"]) && (
+          <Link
+            className="text-white hover:underline"
+            href="/account/my-preferences"
+          >
+            <Button variant="ghost">My Preferences</Button>
+          </Link>
+        )}
+
+        {canAccess(["SUPERVISOR"]) && (
+          <Link
+            className="text-white hover:underline"
+            href="/account/my-projects"
+          >
+            <Button variant="ghost">My Projects</Button>
+          </Link>
+        )}
+        <Link className="text-white hover:underline" href="/help">
+          <Button variant="ghost">Help</Button>
+        </Link>
+        {canAccess(["GROUP_ADMIN", "SUB_GROUP_ADMIN"]) && (
+          <>
+            <Link className="text-white hover:underline" href="/students">
+              <Button variant="ghost">Students</Button>
+            </Link>
+            <Link className="text-white hover:underline" href="/allocations">
+              <Button variant="ghost">Allocations</Button>
+            </Link>
+            <Link className="text-white hover:underline" href="/admin-panel">
+              <Button variant="ghost">Admin Panel</Button>
+            </Link>
+          </>
+        )}
+      </div>
       <UserButton />
     </nav>
   );
