@@ -14,7 +14,7 @@ export default function Page() {
   const handleReset = async () => {
     setInProgress(true);
     await fetch("/api/dev/reset", { method: "DELETE" });
-    setInProgress(true);
+    setInProgress(false);
   };
 
   return (
