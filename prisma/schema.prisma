@@ -17,6 +17,7 @@ enum Role {
     SUB_GROUP_ADMIN
     SUPERVISOR
     STUDENT
+    UNREGISTERED
 }
 
 enum Stage {

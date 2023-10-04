@@ -58,15 +58,13 @@ export const authOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        role: userRole?.role ?? "user",
+        role: userRole?.role ?? "UNREGISTERED",
       };
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
 
-// Helper function to get session without passing config every time
-// https://next-auth.js.org/configuration/nextjs#getserversession
 export function auth(
   ...args:
     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
@@ -76,7 +74,7 @@ export function auth(
   return getServerSession(...args, authOptions);
 }
 
-// We recommend doing your own environment variable validation
+// TODO: redo enviornment variable validation
 declare global {
   namespace NodeJS {
     export interface ProcessEnv {
