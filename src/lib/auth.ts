@@ -8,13 +8,14 @@ import type { NextAuthOptions as NextAuthConfig } from "next-auth";
 import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
+import { env } from "@/env";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
     }),
   ],
   session: { strategy: "jwt" },
@@ -72,16 +73,4 @@ export function auth(
     | []
 ) {
   return getServerSession(...args, authOptions);
-}
-
-// TODO: redo enviornment variable validation
-declare global {
-  namespace NodeJS {
-    export interface ProcessEnv {
-      NEXTAUTH_SECRET: string;
-
-      AUTH_GOOGLE_ID: string;
-      AUTH_GOOGLE_SECRET: string;
-    }
-  }
 }

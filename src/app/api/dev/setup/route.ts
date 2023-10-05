@@ -22,6 +22,7 @@ import {
 import { randomChoice } from "@/lib/utils";
 
 const groupAdminDetails = [
+  // { name: "Petros", email: "super.allocationapp.gmail.com" },
   { name: "Alice", email: "group.allocationapp@gmail.com" },
   // { name: "Evan", email: "group2.allocationapp@gmail.com" },
   // { name: "Holly", email: "group3.allocationapp@gmail.com" },
@@ -219,12 +220,7 @@ const createAllocationInstance = async (
 const createSupervisor = async () => {
   if (!dbEmpty) await prisma.supervisor.deleteMany({});
 
-  await prisma.supervisor.createMany({
-    data: supervisorData.map((details) => ({
-      ...details,
-      email: `${details.name.split(" ").at(0)?.toLowerCase()}@example.com`,
-    })),
-  });
+  await prisma.supervisor.createMany({ data: supervisorData });
 
   const supervisors = await prisma.supervisor.findMany();
   return supervisors;
@@ -290,12 +286,7 @@ const createTag = async () => {
 const createStudent = async () => {
   if (!dbEmpty) await prisma.student.deleteMany({});
 
-  await prisma.student.createMany({
-    data: studentData.map((details) => ({
-      ...details,
-      email: `${details.schoolId}@example.com`,
-    })),
-  });
+  await prisma.student.createMany({ data: studentData });
 
   const students = await prisma.student.findMany({});
   return students;

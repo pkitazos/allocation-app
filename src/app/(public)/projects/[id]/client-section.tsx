@@ -27,7 +27,7 @@ export function ClientSection({
     if (selectStatus === value) return;
 
     if (selectStatus === "shortlist" || selectStatus === "preference") {
-      let res = fetch(`/api/${selectStatus}`, {
+      const res = fetch(`/api/${selectStatus}`, {
         method: "DELETE",
         body: JSON.stringify({
           studentId,
