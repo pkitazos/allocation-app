@@ -1,9 +1,21 @@
-// accessible by Supervisors + Admins
-
+import { Unauthorised } from "@/components/unauthorised";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function Page() {
+  const session = await auth();
+
+  const user = session!.user;
+
+  if (
+    user.role !== "GROUP_ADMIN" &&
+    user.role !== "SUB_GROUP_ADMIN" &&
+    user.role !== "SUPERVISOR"
+  ) {
+    return <Unauthorised message="You don't have access to this page" />;
+  }
+
   const supervisors = await prisma.supervisor.findMany({});
 
   return (

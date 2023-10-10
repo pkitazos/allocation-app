@@ -8,13 +8,14 @@ import type { NextAuthOptions as NextAuthConfig } from "next-auth";
 import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
+import { env } from "@/env";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: env.AUTH_GOOGLE_ID,
+      clientSecret: env.AUTH_GOOGLE_SECRET,
     }),
   ],
   session: { strategy: "jwt" },
@@ -58,15 +59,13 @@ export const authOptions = {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        role: userRole?.role ?? "user",
+        role: userRole?.role ?? "UNREGISTERED",
       };
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
 
-// Helper function to get session without passing config every time
-// https://next-auth.js.org/configuration/nextjs#getserversession
 export function auth(
   ...args:
     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
@@ -74,16 +73,4 @@ export function auth(
     | []
 ) {
   return getServerSession(...args, authOptions);
-}
-
-// We recommend doing your own environment variable validation
-declare global {
-  namespace NodeJS {
-    export interface ProcessEnv {
-      NEXTAUTH_SECRET: string;
-
-      AUTH_GOOGLE_ID: string;
-      AUTH_GOOGLE_SECRET: string;
-    }
-  }
 }

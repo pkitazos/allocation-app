@@ -10,5 +10,11 @@ export default async function Layout({ children }: { children: ReactNode }) {
     return <Unauthorised message="You need to sign in to access this page" />;
   }
 
+  const user = session.user;
+
+  if (user.role !== "SUPERVISOR" && user.role !== "STUDENT") {
+    return <Unauthorised message="Your role does not require this page" />;
+  }
+
   return <>{children}</>;
 }

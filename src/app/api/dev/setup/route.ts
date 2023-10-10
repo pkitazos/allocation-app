@@ -22,6 +22,7 @@ import {
 import { randomChoice } from "@/lib/utils";
 
 const groupAdminDetails = [
+  // { name: "Petros", email: "super.allocationapp.gmail.com" },
   { name: "Alice", email: "group.allocationapp@gmail.com" },
   // { name: "Evan", email: "group2.allocationapp@gmail.com" },
   // { name: "Holly", email: "group3.allocationapp@gmail.com" },
@@ -73,7 +74,7 @@ const allocationInstanceNames = [
   // [["2022", "2023"], ["2022", "2023"], ["2022", "2023"]],
 ];
 
-const dbEmpty = true;
+const dbEmpty = false;
 
 // step 1
 const createGroupAdmin = async () => {
@@ -94,7 +95,6 @@ const inviteGroupAdmin = async (groupAdmins: GroupAdmin[]) => {
   if (!dbEmpty) {
     await prisma.invitation.deleteMany({ where: { role: "GROUP_ADMIN" } });
   }
-
   await prisma.invitation.createMany({
     data: groupAdmins.map(({ email: userEmail }) => ({
       userEmail,
@@ -185,7 +185,20 @@ const createAllocationInstance = async (
   allocationSubGroups: AllocationSubGroup[],
 ) => {
   if (!dbEmpty) await prisma.allocationInstance.deleteMany({});
+
   const flatInstanceNames = allocationInstanceNames.flat(1);
+
+  const intermediate = allocationSubGroups
+    .map(({ id: allocationSubGroupId }, i) =>
+      flatInstanceNames[i].map((name) => ({
+        allocationSubGroupId,
+        name,
+        stage: "SETUP" as const,
+      })),
+    )
+    .flat();
+
+  console.log({ intermediate });
 
   await prisma.allocationInstance.createMany({
     data: allocationSubGroups
@@ -207,12 +220,7 @@ const createAllocationInstance = async (
 const createSupervisor = async () => {
   if (!dbEmpty) await prisma.supervisor.deleteMany({});
 
-  await prisma.supervisor.createMany({
-    data: supervisorData.map((details) => ({
-      ...details,
-      email: `${details.name.split(" ").at(0)?.toLowerCase()}@example.com`,
-    })),
-  });
+  await prisma.supervisor.createMany({ data: supervisorData });
 
   const supervisors = await prisma.supervisor.findMany();
   return supervisors;
@@ -278,12 +286,7 @@ const createTag = async () => {
 const createStudent = async () => {
   if (!dbEmpty) await prisma.student.deleteMany({});
 
-  await prisma.student.createMany({
-    data: studentData.map((details) => ({
-      ...details,
-      email: `${details.schoolId}@example.com`,
-    })),
-  });
+  await prisma.student.createMany({ data: studentData });
 
   const students = await prisma.student.findMany({});
   return students;
@@ -399,18 +402,12 @@ export async function POST() {
 
   // step 5
   console.log("ALLOCATION_INSTANCE");
-  await createAllocationInstance(allocationSubGroups);
+  console.log(await createAllocationInstance(allocationSubGroups));
 
   const testInstace = await prisma.allocationInstance.findFirst({
     where: {
-      AND: [
-        { name: "2023" },
-        {
-          allocationSubGroup: {
-            name: "Level 4 Individual Project",
-          },
-        },
-      ],
+      name: "2023",
+      allocationSubGroup: { name: "Level 4 Individual Project" },
     },
     include: {
       allocationSubGroup: {

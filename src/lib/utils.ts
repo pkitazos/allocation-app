@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const randomChoice = <T extends unknown>(arr: T[]): T => {
+export const randomChoice = <T>(arr: T[]): T => {
   return Array.from(arr).sort(() => 0.5 - Math.random())[0];
 };
 

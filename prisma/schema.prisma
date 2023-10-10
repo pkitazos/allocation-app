@@ -17,6 +17,7 @@ enum Role {
     SUB_GROUP_ADMIN
     SUPERVISOR
     STUDENT
+    UNREGISTERED
 }
 
 enum Stage {
@@ -189,7 +190,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
-    role          String?
+    role          Role?
     accounts      Account[]
     sessions      Session[]
 }
