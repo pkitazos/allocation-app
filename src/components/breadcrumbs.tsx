@@ -29,12 +29,15 @@ export function Breadcrumbs() {
       </li>
 
       {paths.length !== 0 &&
-        paths.map((path) => (
+        paths.map((path, i) => (
           <li
             key={path}
             className="flex items-center text-sm text-gray-600 dark:text-gray-400"
           >
-            <a className="hover:text-secondary" href={`/${path}`}>
+            <a
+              className="hover:text-secondary"
+              href={`${paths.slice(0, i).map((route) => `/${route}`)}/${path}`}
+            >
               {path}
             </a>
             <Slash className="mx-2 h-4 w-4" />
