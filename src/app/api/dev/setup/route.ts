@@ -8,6 +8,7 @@ import {
   Project,
   Student,
   SubGroupAdmin,
+  SuperAdmin,
   Supervisor,
   Tag,
 } from "@prisma/client";
@@ -19,7 +20,14 @@ import {
   studentData,
   projectData,
 } from "@/data";
-import { randomChoice } from "@/lib/utils";
+import { randomChoice, slugify } from "@/lib/utils";
+
+const superAdminDetails = [
+  { name: "Zoe", email: "super.allocationapp@gmail.com" },
+  // { name: "Alice", email: "group.allocationapp@gmail.com" },
+  // { name: "Evan", email: "group2.allocationapp@gmail.com" },
+  // { name: "Holly", email: "group3.allocationapp@gmail.com" },
+];
 
 const groupAdminDetails = [
   // { name: "Petros", email: "super.allocationapp.gmail.com" },
@@ -76,6 +84,33 @@ const allocationInstanceNames = [
 
 const dbEmpty = false;
 
+// step 0
+const createSuperAdmin = async () => {
+  if (!dbEmpty) await prisma.superAdmin.deleteMany({});
+
+  await prisma.superAdmin.createMany({
+    data: superAdminDetails,
+  });
+
+  const superAdmins = await prisma.superAdmin.findMany({
+    orderBy: { name: "asc" },
+  });
+
+  return superAdmins;
+};
+
+const inviteSuperAdmin = async (superAdmins: SuperAdmin[]) => {
+  if (!dbEmpty) {
+    await prisma.invitation.deleteMany({ where: { role: "SUPER_ADMIN" } });
+  }
+  await prisma.invitation.createMany({
+    data: superAdmins.map(({ email: userEmail }) => ({
+      userEmail,
+      role: "SUPER_ADMIN",
+    })),
+  });
+};
+
 // step 1
 const createGroupAdmin = async () => {
   if (!dbEmpty) await prisma.groupAdmin.deleteMany({});
@@ -109,13 +144,14 @@ const createAllocationGroup = async (groupAdmins: GroupAdmin[]) => {
 
   await prisma.allocationGroup.createMany({
     data: allocationGroupNames.map((name, i) => ({
-      name,
+      displayName: name,
       groupAdminId: groupAdmins[i].id,
+      slug: slugify(name),
     })),
   });
 
   const allocationGroups = await prisma.allocationGroup.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { displayName: "asc" },
   });
 
   return allocationGroups;
@@ -131,14 +167,15 @@ const createAllocaitonSubGroup = async (
   allocationGroups.map(async ({ id }, i) => {
     await prisma.allocationSubGroup.createMany({
       data: allocationSubGroupNames[i].map((name) => ({
-        name: name,
+        displayName: name,
         allocationGroupId: id,
+        slug: slugify(name),
       })),
     });
   });
 
   const allocationSubGroups = await prisma.allocationSubGroup.findMany({
-    orderBy: { name: "asc" },
+    orderBy: { displayName: "asc" },
   });
 
   return allocationSubGroups;
@@ -205,8 +242,9 @@ const createAllocationInstance = async (
       .map(({ id: allocationSubGroupId }, i) =>
         flatInstanceNames[i].map((name) => ({
           allocationSubGroupId,
-          name,
+          displayName: name,
           stage: "SETUP" as const,
+          slug: slugify(name),
         })),
       )
       .flat(),
@@ -378,40 +416,53 @@ const connectToProject = async (
 };
 
 export async function POST() {
+  // step 0
+  console.log("SUPER_ADMIN");
+  const superAdmins = await createSuperAdmin();
+  await inviteSuperAdmin(superAdmins);
+  console.log(superAdmins);
+  console.log("ok");
+
   // step 1
   console.log("GROUP_ADMIN");
   const groupAdmins = await createGroupAdmin();
   await inviteGroupAdmin(groupAdmins);
+  console.log(groupAdmins);
   console.log("ok");
 
   // step 2
   console.log("ALLOCATION_GROUP");
   const allocationGroups = await createAllocationGroup(groupAdmins);
+  console.log(allocationGroups);
   console.log("ok");
 
   // step 3
   console.log("ALLOCATION_SUB_GROUP");
   const allocationSubGroups = await createAllocaitonSubGroup(allocationGroups);
+  console.log(allocationSubGroups);
   console.log("ok");
 
   // setp 4
   console.log("SUB_GROUP_ADMIN");
   const subGroupAdmins = await createSubGroupAdmin(allocationSubGroups);
+  console.log(subGroupAdmins);
   await inviteSubGroupAdmin(subGroupAdmins);
   console.log("ok");
 
   // step 5
   console.log("ALLOCATION_INSTANCE");
-  console.log(await createAllocationInstance(allocationSubGroups));
+  const allocationInstances =
+    await createAllocationInstance(allocationSubGroups);
+  console.log(allocationInstances);
 
   const testInstace = await prisma.allocationInstance.findFirst({
     where: {
-      name: "2023",
-      allocationSubGroup: { name: "Level 4 Individual Project" },
+      displayName: "2023",
+      allocationSubGroup: { displayName: "Level 4 Individual Project" },
     },
     include: {
       allocationSubGroup: {
-        select: { name: true },
+        select: { displayName: true },
       },
     },
   });

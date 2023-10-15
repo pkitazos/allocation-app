@@ -10,7 +10,7 @@ export default async function Home() {
     <div className="flex h-[70dvh] w-full flex-col items-center justify-center gap-6">
       <h1 className="text-4xl font-medium">
         Welcome{" "}
-        <span className="font-semibold text-secondary">{user?.name ?? ""}</span>
+        <span className="text-secondary font-semibold">{user?.name ?? ""}</span>
         !
       </h1>
       {!user && (

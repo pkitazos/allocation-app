@@ -81,7 +81,7 @@ function UserButton({ className }: ButtonHTMLAttributes<HTMLButtonElement>) {
   );
 }
 
-export function Header() {
+export function Header({ adminPanel }: { adminPanel: string }) {
   const session = useSession();
 
   const user = session.data?.user;
@@ -104,6 +104,7 @@ export function Header() {
       </Link>
       <div className="flex items-center gap-6">
         {canAccess([
+          "SUPER_ADMIN",
           "GROUP_ADMIN",
           "SUB_GROUP_ADMIN",
           "SUPERVISOR",
@@ -113,7 +114,12 @@ export function Header() {
             <Button variant="ghost">Projects</Button>
           </Link>
         )}
-        {canAccess(["GROUP_ADMIN", "SUB_GROUP_ADMIN", "SUPERVISOR"]) && (
+        {canAccess([
+          "SUPER_ADMIN",
+          "GROUP_ADMIN",
+          "SUB_GROUP_ADMIN",
+          "SUPERVISOR",
+        ]) && (
           <Link className="text-white hover:underline" href="/supervisors">
             <Button variant="ghost">Supervisors</Button>
           </Link>
@@ -135,7 +141,7 @@ export function Header() {
             <Button variant="ghost">My Projects</Button>
           </Link>
         )}
-        {canAccess(["GROUP_ADMIN", "SUB_GROUP_ADMIN"]) && (
+        {canAccess(["SUPER_ADMIN", "GROUP_ADMIN", "SUB_GROUP_ADMIN"]) && (
           <>
             <Link className="text-white hover:underline" href="/students">
               <Button variant="ghost">Students</Button>
@@ -143,12 +149,13 @@ export function Header() {
             <Link className="text-white hover:underline" href="/allocations">
               <Button variant="ghost">Allocations</Button>
             </Link>
-            <Link className="text-white hover:underline" href="/admin-panel">
+            <Link className="text-white hover:underline" href={adminPanel}>
               <Button variant="ghost">Admin Panel</Button>
             </Link>
           </>
         )}
         {canAccess([
+          "SUPER_ADMIN",
           "GROUP_ADMIN",
           "SUB_GROUP_ADMIN",
           "SUPERVISOR",

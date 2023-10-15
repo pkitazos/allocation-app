@@ -2,8 +2,11 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getAdminPanel } from "@/lib/admin-panel";
+import { authOptions } from "@/lib/auth";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 
@@ -19,6 +22,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
+  const adminPanel = await getAdminPanel(user);
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -29,7 +37,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            <Header />
+            <Header adminPanel={adminPanel} />
             <main className="flex h-[92dvh] flex-col justify-start gap-4">
               <Breadcrumbs />
               <section className="flex w-full justify-center pt-6">

@@ -12,7 +12,11 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   const user = session.user;
 
-  if (user.role !== "GROUP_ADMIN" && user.role !== "SUB_GROUP_ADMIN") {
+  if (
+    user.role !== "SUPER_ADMIN" &&
+    user.role !== "GROUP_ADMIN" &&
+    user.role !== "SUB_GROUP_ADMIN"
+  ) {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );
