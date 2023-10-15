@@ -36,7 +36,7 @@ export function Breadcrumbs() {
           >
             <a
               className="hover:text-secondary"
-              href={`${paths.slice(0, i).map((route) => `/${route}`)}/${path}`}
+              href={`/${paths.slice(0, i + 1).join("/")}`}
             >
               {path}
             </a>
