@@ -15,7 +15,7 @@ export default async function Page() {
     <div className="mt-6 flex flex-col gap-10 px-6">
       <h2 className="text-4xl">
         Create New{" "}
-        <span className="font-semibold text-sky-500">Allocation Group</span>
+        <span className="font-semibold text-sky-500">Allocation Sub-Group</span>
       </h2>
       <FormSection />
     </div>

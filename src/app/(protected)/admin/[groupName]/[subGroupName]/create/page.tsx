@@ -6,7 +6,7 @@ export default async function Page() {
   const session = await auth();
   const user = session!.user;
 
-  if (user.role !== "SUPER_ADMIN") {
+  if (user.role !== "SUPER_ADMIN" && user.role !== "GROUP_ADMIN") {
     return (
       <Unauthorised message="You need to be a super-admin to access this page" />
     );
@@ -14,8 +14,8 @@ export default async function Page() {
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">
       <h2 className="text-4xl">
-        Create New{" "}
-        <span className="font-semibold text-sky-500">Allocation Group</span>
+        Create new{" "}
+        <span className="font-semibold text-sky-500">Allocation Instance</span>
       </h2>
       <FormSection />
     </div>
