@@ -224,20 +224,7 @@ const createAllocationInstance = async (
 ) => {
   if (!dbEmpty) await prisma.allocationInstance.deleteMany({});
 
-
   const flatInstanceNames = allocationInstanceNames.flat(1);
-
-  const intermediate = allocationSubGroups
-    .map(({ id: allocationSubGroupId }, i) =>
-      flatInstanceNames[i].map((name) => ({
-        allocationSubGroupId,
-        name,
-        stage: "SETUP" as const,
-      })),
-    )
-    .flat();
-
-  console.log({ intermediate });
 
   const intermediate = allocationSubGroups
     .map(({ id: allocationSubGroupId }, i) =>
