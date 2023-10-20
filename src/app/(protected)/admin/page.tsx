@@ -19,7 +19,7 @@ export default async function AdminPanel() {
   const superAdmins = await prisma.superAdmin.findMany({});
 
   return (
-    <div className="mt-6 flex flex-col gap-10 px-6">
+    <div className="mt-6 flex flex-col gap-10 px-6 pb-20">
       <h1 className="text-4xl">University of Glasgow</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-4 text-2xl underline">Super-Admins</h3>

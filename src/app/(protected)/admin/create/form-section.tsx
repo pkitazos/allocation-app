@@ -1,13 +1,12 @@
 "use client";
 import { Input } from "@/components/input";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Separator } from "@/components/ui/separator";
 
 const NewAdminSchema = z.object({
   name: z.string(),
@@ -43,9 +42,7 @@ export function FormSection() {
         <div className="flex w-full items-center justify-start gap-5">
           <Input className="w-1/3" placeholder="Name" {...register("name")} />
           <Input className="w-2/5" placeholder="Email" {...register("email")} />
-          <Button size="icon" variant="secondary">
-            <Plus className="h-4 w-4 stroke-white stroke-[3]" />
-          </Button>
+          <Button variant="secondary">save</Button>
         </div>
       </form>
       <div className="mt-6 w-full">
