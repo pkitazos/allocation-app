@@ -31,6 +31,7 @@ const superAdminDetails = [
 
 const groupAdminDetails = [
   // { name: "Petros", email: "super.allocationapp.gmail.com" },
+  // { name: "Petros", email: "super.allocationapp.gmail.com" },
   { name: "Alice", email: "group.allocationapp@gmail.com" },
   // { name: "Evan", email: "group2.allocationapp@gmail.com" },
   // { name: "Holly", email: "group3.allocationapp@gmail.com" },
@@ -223,7 +224,20 @@ const createAllocationInstance = async (
 ) => {
   if (!dbEmpty) await prisma.allocationInstance.deleteMany({});
 
+
   const flatInstanceNames = allocationInstanceNames.flat(1);
+
+  const intermediate = allocationSubGroups
+    .map(({ id: allocationSubGroupId }, i) =>
+      flatInstanceNames[i].map((name) => ({
+        allocationSubGroupId,
+        name,
+        stage: "SETUP" as const,
+      })),
+    )
+    .flat();
+
+  console.log({ intermediate });
 
   const intermediate = allocationSubGroups
     .map(({ id: allocationSubGroupId }, i) =>
@@ -258,6 +272,7 @@ const createAllocationInstance = async (
 const createSupervisor = async () => {
   if (!dbEmpty) await prisma.supervisor.deleteMany({});
 
+  await prisma.supervisor.createMany({ data: supervisorData });
   await prisma.supervisor.createMany({ data: supervisorData });
 
   const supervisors = await prisma.supervisor.findMany();
@@ -324,6 +339,7 @@ const createTag = async () => {
 const createStudent = async () => {
   if (!dbEmpty) await prisma.student.deleteMany({});
 
+  await prisma.student.createMany({ data: studentData });
   await prisma.student.createMany({ data: studentData });
 
   const students = await prisma.student.findMany({});
