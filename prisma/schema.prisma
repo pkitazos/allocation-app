@@ -2,17 +2,13 @@ generator client {
     provider = "prisma-client-js"
 }
 
-// generator kysely {
-//     provider = "prisma-kysely"
-//     output   = "../src/lib"
-// }
-
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL") // uses connection pooling
 }
 
 enum Role {
+    SUPER_ADMIN
     GROUP_ADMIN
     SUB_GROUP_ADMIN
     SUPERVISOR
@@ -26,6 +22,12 @@ enum Stage {
     PROJECT_SELECTION
     PROJECT_ALLOCATION
     ALLOCATION_PUBLICATION
+}
+
+model SuperAdmin {
+    id    String @id @default(uuid())
+    name  String
+    email String
 }
 
 model GroupAdmin {
@@ -66,7 +68,8 @@ model Student {
 
 model AllocationGroup {
     id                  String               @id @default(uuid())
-    name                String               @unique
+    displayName         String               @unique
+    slug                String
     groupAdmin          GroupAdmin           @relation(fields: [groupAdminId], references: [id])
     groupAdminId        String               @unique
     allocationSubGroups AllocationSubGroup[]
@@ -74,22 +77,28 @@ model AllocationGroup {
 
 model AllocationSubGroup {
     id                  String               @id @default(uuid())
-    name                String
+    displayName         String
+    slug                String
     subGroupAdmins      SubGroupAdmin[]
     allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
     allocationGroupId   String
     allocationInstances AllocationInstance[]
+
+    @@unique([allocationGroupId, slug])
 }
 
 model AllocationInstance {
     id                   String             @id @default(uuid())
     allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
     allocationSubGroupId String
-    name                 String
+    displayName          String
+    slug                 String
     stage                Stage
     projects             Project[]
     supervisors          Supervisor[]
     students             Student[]
+
+    @@unique([allocationSubGroupId, slug])
 }
 
 model Project {

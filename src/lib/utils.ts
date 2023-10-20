@@ -10,3 +10,7 @@ export const randomChoice = <T>(arr: T[]): T => {
 };
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export function slugify(label: string): string {
+  return label.replaceAll("&", "and").replaceAll(" ", "-").toLowerCase();
+}
