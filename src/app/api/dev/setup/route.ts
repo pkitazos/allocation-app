@@ -13,14 +13,13 @@ import {
   Tag,
 } from "@prisma/client";
 import { NextResponse } from "next/server";
-import {
-  supervisorData,
-  flagData,
-  tagData,
-  studentData,
-  projectData,
-} from "@/data";
+
 import { randomChoice, slugify } from "@/lib/utils";
+import { projectData } from "./(10)/project/data";
+import { supervisorData } from "./(6)/supervisor/data";
+import { flagData } from "./(7)/flag/data";
+import { tagData } from "./(8)/tag/data";
+import { studentData } from "./(9)/student/data";
 
 const superAdminDetails = [
   { name: "Zoe", email: "super.allocationapp@gmail.com" },
@@ -140,7 +139,10 @@ const inviteGroupAdmin = async (groupAdmins: GroupAdmin[]) => {
 };
 
 // step 2
-const createAllocationGroup = async (groupAdmins: GroupAdmin[]) => {
+const createAllocationGroup = async (
+  superAdmins: SuperAdmin[],
+  groupAdmins: GroupAdmin[],
+) => {
   if (!dbEmpty) await prisma.allocationGroup.deleteMany({});
 
   await prisma.allocationGroup.createMany({
@@ -148,6 +150,7 @@ const createAllocationGroup = async (groupAdmins: GroupAdmin[]) => {
       displayName: name,
       groupAdminId: groupAdmins[i].id,
       slug: slugify(name),
+      superAdminId: superAdmins[0].id,
     })),
   });
 
@@ -225,18 +228,6 @@ const createAllocationInstance = async (
   if (!dbEmpty) await prisma.allocationInstance.deleteMany({});
 
   const flatInstanceNames = allocationInstanceNames.flat(1);
-
-  const intermediate = allocationSubGroups
-    .map(({ id: allocationSubGroupId }, i) =>
-      flatInstanceNames[i].map((name) => ({
-        allocationSubGroupId,
-        name,
-        stage: "SETUP" as const,
-      })),
-    )
-    .flat();
-
-  console.log({ intermediate });
 
   await prisma.allocationInstance.createMany({
     data: allocationSubGroups
@@ -435,7 +426,10 @@ export async function POST() {
 
   // step 2
   console.log("ALLOCATION_GROUP");
-  const allocationGroups = await createAllocationGroup(groupAdmins);
+  const allocationGroups = await createAllocationGroup(
+    superAdmins,
+    groupAdmins,
+  );
   console.log(allocationGroups);
   console.log("ok");
 
