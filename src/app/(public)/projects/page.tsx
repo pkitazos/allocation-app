@@ -1,17 +1,12 @@
-import { prisma } from "@/lib/prisma";
+import { getAllProjects } from "@/procedures/project";
 import { ClientSection } from "./client-section";
 
 export default async function Projects() {
-  const projects = await prisma.project.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      supervisor: { select: { name: true } },
-    },
-  });
+  const allocationInstanceId = "1029";
 
-  const data = projects.map(
+  const projects = await getAllProjects(allocationInstanceId);
+
+  const tableData = projects.map(
     ({ id, title, description, supervisor: { name } }) => ({
       id,
       title,
@@ -25,7 +20,7 @@ export default async function Projects() {
       <div className="flex rounded-md bg-accent px-6 py-5">
         <h1 className="text-5xl text-accent-foreground">Projects</h1>
       </div>
-      <ClientSection data={data} />
+      <ClientSection data={tableData} />
     </div>
   );
 }
