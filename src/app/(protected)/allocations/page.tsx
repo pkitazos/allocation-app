@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function Page() {
-  const allocations = await prisma.allocation.findMany({
+  const allocations = await prisma.projectAllocation.findMany({
     select: {
       project: { select: { id: true, title: true } },
       student: { select: { id: true, name: true, schoolId: true } },
