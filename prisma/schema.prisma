@@ -2,9 +2,16 @@ generator client {
     provider = "prisma-client-js"
 }
 
+generator zod {
+    provider      = "zod-prisma"
+    output        = "../src/types/zod"
+    relationModel = true
+    useDecimalJs  = true
+}
+
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL") // uses connection pooling
+    url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -24,20 +31,24 @@ enum Stage {
     ALLOCATION_PUBLICATION
 }
 
+// group manager
 model SuperAdmin {
-    id    String @id @default(uuid())
-    name  String
-    email String
+    id               String            @id @default(uuid())
+    name             String
+    email            String
+    allocationGroups AllocationGroup[]
 }
 
+// subgroup manager
 model GroupAdmin {
-    id                String           @id @default(uuid())
+    id                String          @id @default(uuid())
     name              String
     email             String
-    allocationGroup   AllocationGroup?
-    allocationGroupId String?
+    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
+    allocationGroupId String
 }
 
+// instance manager
 model SubGroupAdmin {
     id                   String             @id @default(uuid())
     name                 String
@@ -62,41 +73,54 @@ model Student {
     flags               Flag[]
     shortlist           Shortlist[]
     preferences         Preference[]
-    allocations         Allocation[]
+    allocations         ProjectAllocation[]
     allocationInstances AllocationInstance[]
 }
 
 model AllocationGroup {
-    id                  String               @id @default(uuid())
-    displayName         String               @unique
-    slug                String
-    groupAdmin          GroupAdmin           @relation(fields: [groupAdminId], references: [id])
-    groupAdminId        String               @unique
+    id          String @id @default(uuid())
+    displayName String @unique
+    slug        String
+
+    // managed by 1
+    superAdmin   SuperAdmin @relation(fields: [superAdminId], references: [id])
+    superAdminId String
+
+    // includes many
+    groupAdmin          GroupAdmin[]
     allocationSubGroups AllocationSubGroup[]
 }
 
 model AllocationSubGroup {
-    id                  String               @id @default(uuid())
-    displayName         String
-    slug                String
+    id          String @id @default(uuid())
+    displayName String
+    slug        String
+
+    //belongs to 1
+    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
+    allocationGroupId String
+
+    // includes many
     subGroupAdmins      SubGroupAdmin[]
-    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
-    allocationGroupId   String
     allocationInstances AllocationInstance[]
 
     @@unique([allocationGroupId, slug])
 }
 
 model AllocationInstance {
-    id                   String             @id @default(uuid())
+    id          String @id @default(uuid())
+    displayName String
+    slug        String
+    stage       Stage
+
+    // belongs to 1
     allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
     allocationSubGroupId String
-    displayName          String
-    slug                 String
-    stage                Stage
-    projects             Project[]
-    supervisors          Supervisor[]
-    students             Student[]
+
+    // has many
+    projects    Project[]
+    supervisors Supervisor[]
+    students    Student[]
 
     @@unique([allocationSubGroupId, slug])
 }
@@ -113,7 +137,7 @@ model Project {
     tags                 Tag[]
     shortlistedIn        Shortlist[]
     preferenceIn         Preference[]
-    allocatedTo          Allocation?
+    allocatedTo          ProjectAllocation?
 }
 
 model Shortlist {
@@ -136,7 +160,7 @@ model Preference {
     @@unique([rank, studentId])
 }
 
-model Allocation {
+model ProjectAllocation {
     project   Project @relation(fields: [projectId], references: [id])
     projectId String  @unique
     student   Student @relation(fields: [studentId], references: [id])
@@ -211,7 +235,3 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
-
-// model Test {
-//     id String @id @default(uuid())
-// }
