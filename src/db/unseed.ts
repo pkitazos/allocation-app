@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-export async function DELETE() {
+const prisma = new PrismaClient();
+
+async function main() {
   console.log("RESET");
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
@@ -13,11 +14,17 @@ export async function DELETE() {
     .map((name) => `"public"."${name}"`)
     .join(", ");
 
-  await prisma
-    .$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`)
-    .catch((error) => NextResponse.json({ status: 500, data: error }));
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
 
   console.log("ok");
   console.log("RESET COMPLETE");
-  return NextResponse.json({ status: 200, data: "success" });
 }
+
+main()
+  .catch(async (e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

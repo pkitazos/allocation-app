@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { flagData, invitationData, projectData, tagData } from "@/data/data";
+import { flagData, invitationData, projectData, tagData } from "./data";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log("SEEDING");
   const superAdmin = await prisma.superAdmin.create({
     data: {
       name: "Alice",
@@ -123,14 +124,15 @@ async function main() {
   await prisma.invitation.createMany({
     data: invitationData,
   });
+  console.log("ok");
+  console.log("SEEDING COMPLETE");
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
   .catch(async (e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
