@@ -1,5 +1,6 @@
 import { getAllProjects } from "@/procedures/project";
 import { ClientSection } from "./client-section";
+import { Heading } from "@/components/heading";
 
 export default async function Projects() {
   const allocationInstanceId = "1029";
@@ -17,9 +18,7 @@ export default async function Projects() {
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
-      <div className="flex rounded-md bg-accent px-6 py-5">
-        <h1 className="text-5xl text-accent-foreground">Projects</h1>
-      </div>
+      <Heading title="Projects" />
       <ClientSection data={tableData} />
     </div>
   );

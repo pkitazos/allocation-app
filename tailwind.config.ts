@@ -3,6 +3,7 @@ import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -42,6 +43,7 @@ const config: Config = {
         border: "hsl(var(--border) / <alpha-value>)",
 
         input: "hsl(var(--input) / <alpha-value>)",
+        "input-dark": "hsl(var(--input-dark) / <alpha-value>)",
 
         ring: "hsl(var(--ring) / <alpha-value>)",
       },
