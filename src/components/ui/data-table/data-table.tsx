@@ -65,7 +65,7 @@ export default function DataTable<TData, TValue>({
         </div>
         <DataTableViewOptions table={table} />
       </div>
-      <div className="w-full rounded-md border">
+      <div className="w-full rounded-md border border-accent dark:border-slate-600">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
