@@ -1,9 +1,10 @@
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { AllocationSubGroup, GroupAdmin } from "@prisma/client";
 import { ClientSection } from "./client-section";
-import { Button } from "@/components/ui/button";
 
 export default async function Page({
   params,
@@ -27,24 +28,16 @@ export default async function Page({
 
   currentAllocationGroup.id;
 
-  const allocationSubGroups = await prisma.allocationSubGroup.findMany({
-    where: {
-      allocationGroupId: currentAllocationGroup.id,
-    },
-  });
+  const allocationSubGroups: AllocationSubGroup[] = [];
 
-  const groupAdmins = await prisma.groupAdmin.findFirst({
-    where: {
-      id: currentAllocationGroup.groupAdminId,
-    },
-  });
+  const groupAdmins: GroupAdmin[] = [];
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">
       <h1 className="text-4xl">{currentAllocationGroup.displayName}</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-3 text-2xl underline">Group Admins</h3>
-        {[groupAdmins!].map(({ name, email }, i) => (
+        {groupAdmins.map(({ name, email }, i) => (
           <div className="flex items-center gap-5" key={i}>
             <div className="w-1/6 font-medium">{name}</div>
             <Separator orientation="vertical" />
