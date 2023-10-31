@@ -22,4 +22,4 @@ The web app is built using:
 The server is built using:
 - FastAPI
 - Pydantic
-- matchingproblems
+- [matchingproblems](https://github.com/fmcooper/matchingproblems)
