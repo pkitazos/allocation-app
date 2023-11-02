@@ -2,7 +2,7 @@
 
 ## Overview
 
-As part of my fourth year individual project at UofG, I'm building a web app for preference based matching. The web app centralises all the administrative functionality in a single location as well as hosts a platform for supervisors to uplaod their projects and students to submit preference lists over those projects. 
+As part of my fourth year individual project at UofG, I'm building a web app for preference based matching. The web app centralises all the administrative functionality in a single location as well as hosts a platform for supervisors to uplaod their projects and students to submit preference lists over those projects. It's currently under production.
 
 ## Tech Stack
 
