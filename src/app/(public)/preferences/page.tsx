@@ -1,17 +1,17 @@
 import { ClientSection } from "./client-section";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 
 export default async function Preferences() {
   const studentId = "636d1a57-8ffb-4535-a43a-8a5536245bc1";
 
-  const preferences = await prisma.preference.findMany({
+  const preferences = await db.preference.findMany({
     where: { studentId },
     select: {
       project: { select: { id: true, title: true } },
     },
   });
 
-  const shortlist = await prisma.shortlist.findMany({
+  const shortlist = await db.shortlist.findMany({
     where: { studentId },
     select: {
       project: { select: { id: true, title: true } },

@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { Flag } from "@prisma/client";
 
 export async function getAllProjects(allocationInstanceId: string) {
-  return prisma.project.findMany({
+  return db.project.findMany({
     where: {
       allocationInstanceId,
     },
@@ -24,7 +24,7 @@ export async function getAllProjects(allocationInstanceId: string) {
 }
 
 export async function getProjectsByFlag(flag: Flag) {
-  return prisma.project.findMany({
+  return db.project.findMany({
     where: {
       flags: {
         some: {

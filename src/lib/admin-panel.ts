@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { prisma } from "./prisma";
+import { db } from "./prisma";
 
 type CompositeUser = {
   id: string;
@@ -16,7 +16,7 @@ export const getAdminPanel = async (user: CompositeUser | undefined) => {
   if (user.role === "SUPER_ADMIN") return "/admin";
 
   if (user.role === "GROUP_ADMIN") {
-    const groupAdmin = await prisma.groupAdmin.findFirst({
+    const groupAdmin = await db.groupAdmin.findFirst({
       where: {
         email: user.email!,
       },
@@ -31,7 +31,7 @@ export const getAdminPanel = async (user: CompositeUser | undefined) => {
   }
 
   if (user.role === "SUB_GROUP_ADMIN") {
-    const subGroupAdmin = await prisma.subGroupAdmin.findFirst({
+    const subGroupAdmin = await db.subGroupAdmin.findFirst({
       where: {
         email: user.email!,
       },

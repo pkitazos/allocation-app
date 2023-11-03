@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import Link from "next/link";
 import { z } from "zod";
 import { ClientSection } from "./client-section";
@@ -22,7 +22,7 @@ export default async function Project(
 
   let selectStatus = "none";
 
-  const project = await prisma.project.findFirstOrThrow({
+  const project = await db.project.findFirstOrThrow({
     where: { id },
     select: {
       title: true,
@@ -42,7 +42,7 @@ export default async function Project(
     (item: { title: string }) => item.title,
   );
 
-  const inStudentShortlist = !!(await prisma.shortlist.findFirst({
+  const inStudentShortlist = !!(await db.shortlist.findFirst({
     where: {
       projectId: id,
       studentId,
@@ -51,7 +51,7 @@ export default async function Project(
 
   if (inStudentShortlist) selectStatus = "shortlist";
 
-  const inPreferences = !!(await prisma.preference.findFirst({
+  const inPreferences = !!(await db.preference.findFirst({
     where: {
       projectId: id,
       studentId,

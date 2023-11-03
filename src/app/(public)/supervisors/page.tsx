@@ -1,6 +1,6 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function Page() {
@@ -16,7 +16,7 @@ export default async function Page() {
     return <Unauthorised message="You don't have access to this page" />;
   }
 
-  const supervisors = await prisma.supervisor.findMany({});
+  const supervisors = await db.supervisor.findMany({});
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
