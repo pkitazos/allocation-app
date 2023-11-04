@@ -47,40 +47,4 @@ export const projectRouter = createTRPCRouter({
         },
       });
     }),
-
-  addToShortlist: publicProcedure
-    .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      return await db.shortlist.create({
-        data: {
-          projectId,
-          studentId,
-        },
-      });
-    }),
-
-  removeFromShortlist: publicProcedure
-    .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      await db.shortlist.delete({
-        where: {
-          projectId_studentId: {
-            projectId,
-            studentId,
-          },
-        },
-      });
-    }),
-
-  changeShortlistToPreference: publicProcedure
-    .input(
-      z.object({
-        projectId: z.string(),
-        studentId: z.string(),
-        rank: z.number(),
-      }),
-    )
-    .mutation(async ({ input: { projectId, studentId, rank } }) => {
-      return;
-    }),
 });
