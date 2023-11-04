@@ -2,8 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { AllocationSubGroup, GroupAdmin } from "@prisma/client";
+import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function Page({
@@ -20,7 +19,7 @@ export default async function Page({
     );
   }
 
-  const currentAllocationGroup = await prisma.allocationGroup.findFirstOrThrow({
+  const currentAllocationGroup = await db.allocationGroup.findFirstOrThrow({
     where: {
       slug: params.groupName,
     },
@@ -28,9 +27,17 @@ export default async function Page({
 
   currentAllocationGroup.id;
 
-  const allocationSubGroups: AllocationSubGroup[] = [];
+  const allocationSubGroups = await db.allocationSubGroup.findMany({
+    where: {
+      allocationGroupId: currentAllocationGroup.id,
+    },
+  });
 
-  const groupAdmins: GroupAdmin[] = [];
+  const groupAdmins = await db.groupAdmin.findFirst({
+    where: {
+      id: currentAllocationGroup.groupAdminId,
+    },
+  });
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">

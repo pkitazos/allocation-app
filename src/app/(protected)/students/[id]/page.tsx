@@ -1,7 +1,7 @@
 // accessible by admins only
 
 import { Badge } from "@/components/ui/badge";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { z } from "zod";
 
 const routeContextSchema = z.object({
@@ -17,7 +17,7 @@ export default async function Student(
     params: { id },
   } = routeContextSchema.parse(context);
 
-  const student = await prisma.student.findFirstOrThrow({
+  const student = await db.student.findFirstOrThrow({
     where: { id },
     select: {
       name: true,

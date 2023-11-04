@@ -4,7 +4,7 @@ import { CompleteProject, RelatedProjectModel, CompleteStudent, RelatedStudentMo
 export const PreferenceModel = z.object({
   projectId: z.string(),
   studentId: z.string(),
-  rank: z.number().int(),
+  rank: z.number(),
 })
 
 export interface CompletePreference extends z.infer<typeof PreferenceModel> {

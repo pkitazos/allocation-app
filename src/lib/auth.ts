@@ -7,11 +7,11 @@ import type {
 import type { NextAuthOptions as NextAuthConfig } from "next-auth";
 import { getServerSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { prisma } from "./prisma";
+import { db } from "./prisma";
 import { env } from "@/env";
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
   providers: [
     GoogleProvider({
       clientId: env.AUTH_GOOGLE_ID,
@@ -32,7 +32,7 @@ export const authOptions = {
       return session;
     },
     async jwt({ token, user, trigger }) {
-      const dbUser = await prisma.user.findFirst({
+      const dbUser = await db.user.findFirst({
         where: {
           email: token.email,
         },
@@ -49,7 +49,7 @@ export const authOptions = {
         return token;
       }
 
-      const userRole = await prisma.invitation.findFirst({
+      const userRole = await db.invitation.findFirst({
         where: { userEmail: dbUser.email! },
         select: { role: true },
       });

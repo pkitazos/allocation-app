@@ -1,6 +1,6 @@
 // accessible by all users
 
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { z } from "zod";
 import { ClientSection } from "./client-section";
 
@@ -17,14 +17,14 @@ export default async function Page(
     params: { id },
   } = routeContextSchema.parse(context);
 
-  const supervisor = await prisma.supervisor.findFirstOrThrow({
+  const supervisor = await db.supervisor.findFirstOrThrow({
     where: { id },
     select: {
       name: true,
     },
   });
 
-  const projects = await prisma.project.findMany({
+  const projects = await db.project.findMany({
     where: {
       supervisor: {
         id,

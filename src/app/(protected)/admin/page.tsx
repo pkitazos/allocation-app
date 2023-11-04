@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function AdminPanel() {
@@ -14,9 +14,9 @@ export default async function AdminPanel() {
     );
   }
 
-  const allocationGroups = await prisma.allocationGroup.findMany({});
+  const allocationGroups = await db.allocationGroup.findMany({});
 
-  const superAdmins = await prisma.superAdmin.findMany({});
+  const superAdmins = await db.superAdmin.findMany({});
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6 pb-20">

@@ -1,10 +1,10 @@
 // accessible by admins only
 
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 
 export default async function Students() {
-  const students = await prisma.student.findMany({});
+  const students = await db.student.findMany({});
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">

@@ -4,10 +4,12 @@ import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getAdminPanel } from "@/lib/admin-panel";
 import { authOptions } from "@/lib/auth";
+import { TRPCReactProvider } from "@/lib/trpc/provider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -37,14 +39,16 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            <Header adminPanel={adminPanel} />
-            <main className="flex h-[92dvh] flex-col justify-start gap-4">
-              <Breadcrumbs />
-              <section className="flex w-full justify-center pt-6">
-                {children}
-              </section>
-            </main>
-            <Toaster position="bottom-right" />
+            <TRPCReactProvider headers={headers()}>
+              <Header adminPanel={adminPanel} />
+              <main className="flex h-[92dvh] flex-col justify-start gap-4">
+                <Breadcrumbs />
+                <section className="flex w-full justify-center pt-6">
+                  {children}
+                </section>
+              </main>
+              <Toaster position="bottom-right" />
+            </TRPCReactProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

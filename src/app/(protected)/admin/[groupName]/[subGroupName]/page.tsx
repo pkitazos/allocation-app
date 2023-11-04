@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -12,7 +12,7 @@ export default async function Page({
   const session = await auth();
   const user = session?.user;
 
-  const allocationInstances = await prisma.allocationInstance.findMany({
+  const allocationInstances = await db.allocationInstance.findMany({
     where: {
       allocationSubGroup: {
         slug: params.subGroupName,
@@ -20,11 +20,11 @@ export default async function Page({
     },
   });
 
-  const currentSubGroup = await prisma.allocationSubGroup.findFirstOrThrow({
+  const currentSubGroup = await db.allocationSubGroup.findFirstOrThrow({
     where: { slug: params.subGroupName },
   });
 
-  const subGroupAdmins = await prisma.subGroupAdmin.findFirstOrThrow({
+  const subGroupAdmins = await db.subGroupAdmin.findFirstOrThrow({
     where: { allocationSubGroupId: currentSubGroup.id },
   });
 

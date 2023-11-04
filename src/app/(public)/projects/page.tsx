@@ -1,11 +1,11 @@
-import { getAllProjects } from "@/procedures/project";
 import { ClientSection } from "./client-section";
 import { Heading } from "@/components/heading";
+import { api } from "@/lib/trpc/server";
 
 export default async function Projects() {
-  const allocationInstanceId = "1029";
-
-  const projects = await getAllProjects(allocationInstanceId);
+  const projects = await api.project.getAll.query({
+    allocationInstanceId: "1a9c55f9-3c96-4860-bfab-80ba13c83ae6",
+  });
 
   const tableData = projects.map(
     ({ id, title, description, supervisor: { name } }) => ({
