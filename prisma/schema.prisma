@@ -154,7 +154,7 @@ model Preference {
     projectId String
     student   Student @relation(fields: [studentId], references: [id])
     studentId String
-    rank      Int
+    rank      Float
 
     @@id([projectId, studentId])
     @@unique([rank, studentId])
