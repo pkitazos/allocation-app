@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-
 function UserButton({ className }: ButtonHTMLAttributes<HTMLButtonElement>) {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
@@ -169,5 +168,5 @@ export function Header({ adminPanel }: { adminPanel: string }) {
       </div>
       <UserButton />
     </nav>
-  )
+  );
 }

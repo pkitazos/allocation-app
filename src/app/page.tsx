@@ -1,5 +1,6 @@
 import { SignInButton } from "@/components/sign-in-button";
 import { Separator } from "@/components/ui/separator";
+import { UserInstances } from "@/components/user-instances";
 import { auth } from "@/lib/auth";
 
 export default async function Home() {
@@ -13,7 +14,7 @@ export default async function Home() {
         <span className="font-semibold text-secondary">{user?.name ?? ""}</span>
         !
       </h1>
-      {!user && (
+      {!user ? (
         <>
           <Separator className="mt-4 w-1/2" />
           <div className="flex items-center gap-3 text-lg">
@@ -21,6 +22,8 @@ export default async function Home() {
             to access the rest of the application
           </div>
         </>
+      ) : (
+        <UserInstances />
       )}
     </div>
   );

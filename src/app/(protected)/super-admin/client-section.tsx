@@ -24,7 +24,7 @@ export function ClientSection({ groups }: { groups: AllocationGroup[] }) {
               key={i}
               title={group.displayName}
               index={i}
-              url={`/admin/${group.slug}`}
+              url={`/${group.slug}`}
             />
           ))}
         </div>

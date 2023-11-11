@@ -4,7 +4,7 @@ import { shortlistRouter } from "./shortlist";
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 
-export const projectRouter = createTRPCRouter({
+export const studentRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(z.object({ allocationInstanceId: z.string() }))
     .query(async ({ input: { allocationInstanceId } }) => {

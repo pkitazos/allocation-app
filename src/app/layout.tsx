@@ -4,7 +4,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getAdminPanel } from "@/lib/admin-panel";
 import { authOptions } from "@/lib/auth";
-import { TRPCReactProvider } from "@/lib/trpc/provider";
+import { TRPCReactProvider } from "@/lib/trpc/client";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
