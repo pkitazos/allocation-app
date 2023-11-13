@@ -16,7 +16,7 @@ export function ClientSection({
   const pathname = usePathname();
   return (
     <>
-      <Link href={`${pathname}/create`} className="w-fit">
+      <Link href={`${pathname}/create-sub-group`} className="w-fit">
         <Button
           variant="outline"
           className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"

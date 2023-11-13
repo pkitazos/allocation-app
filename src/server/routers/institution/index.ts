@@ -11,6 +11,10 @@ export const institution = createTRPCRouter({
   subGroup: subGroupRouter,
   instance: instanceRouter,
 
+  getAllGroups: publicProcedure.query(async () => {
+    return await db.allocationGroup.findMany({});
+  }),
+
   getGroupNames: publicProcedure.query(async () => {
     return (
       await db.allocationGroup.findMany({

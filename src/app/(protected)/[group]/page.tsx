@@ -3,8 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 
+import { api } from "@/lib/trpc/server";
 import { ClientSection } from "./client-section";
-import { AllocationSubGroup, GroupAdmin } from "@prisma/client";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const session = await auth();
@@ -15,13 +15,15 @@ export default async function Page({ params }: { params: { group: string } }) {
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
   }
-  console.log(params.group);
-  const groupAdmins: GroupAdmin[] = [];
-  const allocationSubGroups: AllocationSubGroup[] = [];
+
+  const { allocationSubGroups, groupAdmins, ...allocationGroup } =
+    await api.institution.group.get.query({
+      slug: params.group,
+    });
 
   return (
-    <div className="mt-6 flex flex-col gap-10 px-6">
-      <h1 className="text-4xl">{params.group}</h1>
+    <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
+      <h1 className="text-4xl">{allocationGroup.displayName}</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-3 text-2xl underline">Group Admins</h3>
         {groupAdmins.length !== 0 &&

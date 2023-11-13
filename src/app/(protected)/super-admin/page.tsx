@@ -14,7 +14,7 @@ export default async function Page() {
     );
   }
 
-  const allocationGroups = await api.institution.group.getAll.query();
+  const allocationGroups = await api.institution.getAllGroups.query();
 
   const superAdmin = await api.institution.getSuperAdmin.query();
 
