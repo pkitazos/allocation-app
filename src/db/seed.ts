@@ -24,7 +24,7 @@ async function main() {
     data: {
       name: "Bob",
       email: "group.allocationapp@gmail.com",
-      allocationGroupId: allocationGroup.id,
+      allocationGroupId: allocationGroup.slug,
     },
   });
 
@@ -32,7 +32,7 @@ async function main() {
     data: {
       displayName: "Level 4 Individual Project",
       slug: "level-4-individual-project",
-      allocationGroupId: allocationGroup.id,
+      allocationGroupId: allocationGroup.slug,
     },
   });
 

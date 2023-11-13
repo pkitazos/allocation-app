@@ -86,7 +86,7 @@ model AllocationGroup {
     superAdminId String
 
     // includes many
-    groupAdmin          GroupAdmin[]
+    groupAdmins         GroupAdmin[]
     allocationSubGroups AllocationSubGroup[]
 }
 

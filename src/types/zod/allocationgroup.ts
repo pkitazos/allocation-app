@@ -9,7 +9,7 @@ export const AllocationGroupModel = z.object({
 
 export interface CompleteAllocationGroup extends z.infer<typeof AllocationGroupModel> {
   superAdmin: CompleteSuperAdmin
-  groupAdmin: CompleteGroupAdmin[]
+  groupAdmins: CompleteGroupAdmin[]
   allocationSubGroups: CompleteAllocationSubGroup[]
 }
 
@@ -20,6 +20,6 @@ export interface CompleteAllocationGroup extends z.infer<typeof AllocationGroupM
  */
 export const RelatedAllocationGroupModel: z.ZodSchema<CompleteAllocationGroup> = z.lazy(() => AllocationGroupModel.extend({
   superAdmin: RelatedSuperAdminModel,
-  groupAdmin: RelatedGroupAdminModel.array(),
+  groupAdmins: RelatedGroupAdminModel.array(),
   allocationSubGroups: RelatedAllocationSubGroupModel.array(),
 }))
