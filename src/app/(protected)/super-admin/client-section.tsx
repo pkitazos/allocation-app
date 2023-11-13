@@ -9,7 +9,7 @@ import Link from "next/link";
 export function ClientSection({ groups }: { groups: AllocationGroup[] }) {
   return (
     <>
-      <Link href="/admin/create" className="w-fit">
+      <Link href="/super-admin/create-group" className="w-fit">
         <Button
           variant="outline"
           className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"

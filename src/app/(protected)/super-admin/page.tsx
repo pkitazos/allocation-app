@@ -1,10 +1,10 @@
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/prisma";
+import { api } from "@/lib/trpc/server";
 import { ClientSection } from "./client-section";
 
-export default async function AdminPanel() {
+export default async function Page() {
   const session = await auth();
   const user = session!.user;
 
@@ -14,22 +14,20 @@ export default async function AdminPanel() {
     );
   }
 
-  const allocationGroups = await db.allocationGroup.findMany({});
+  const allocationGroups = await api.institution.group.getAll.query();
 
-  const superAdmins = await db.superAdmin.findMany({});
+  const superAdmin = await api.institution.getSuperAdmin.query();
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6 pb-20">
       <h1 className="text-4xl">University of Glasgow</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-4 text-2xl underline">Super-Admins</h3>
-        {superAdmins.map(({ name, email }, i) => (
-          <div className="flex items-center gap-5" key={i}>
-            <div className="w-1/6 font-medium">{name}</div>
-            <Separator orientation="vertical" />
-            <div className="w-/4">{email}</div>
-          </div>
-        ))}
+        <div className="flex items-center gap-5">
+          <div className="w-1/6 font-medium">{superAdmin.name}</div>
+          <Separator orientation="vertical" />
+          <div className="w-/4">{superAdmin.email}</div>
+        </div>
       </div>
 
       <h2 className="text-3xl">Manage Allocation Groups</h2>
