@@ -6,7 +6,9 @@ export const ProjectModel = z.object({
   title: z.string(),
   description: z.string(),
   supervisorId: z.string(),
-  allocationInstanceId: z.string(),
+  allocationGroupSlug: z.string(),
+  allocationSubGroupSlug: z.string(),
+  allocationInstanceSlug: z.string(),
 })
 
 export interface CompleteProject extends z.infer<typeof ProjectModel> {

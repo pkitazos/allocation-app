@@ -2,10 +2,9 @@ import * as z from "zod"
 import { CompleteAllocationGroup, RelatedAllocationGroupModel, CompleteSubGroupAdmin, RelatedSubGroupAdminModel, CompleteAllocationInstance, RelatedAllocationInstanceModel } from "./index"
 
 export const AllocationSubGroupModel = z.object({
-  id: z.string(),
-  displayName: z.string(),
   slug: z.string(),
-  allocationGroupId: z.string(),
+  displayName: z.string(),
+  allocationGroupSlug: z.string(),
 })
 
 export interface CompleteAllocationSubGroup extends z.infer<typeof AllocationSubGroupModel> {

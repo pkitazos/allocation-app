@@ -14,8 +14,8 @@ async function main() {
 
   const allocationGroup = await prisma.allocationGroup.create({
     data: {
-      displayName: "School of Computing Science",
       slug: "school-of-computing-science",
+      displayName: "School of Computing Science",
       superAdminId: superAdmin.id,
     },
   });
@@ -24,15 +24,15 @@ async function main() {
     data: {
       name: "Bob",
       email: "group.allocationapp@gmail.com",
-      allocationGroupId: allocationGroup.slug,
+      allocationGroupSlug: allocationGroup.slug,
     },
   });
 
   const allocationSubGroup = await prisma.allocationSubGroup.create({
     data: {
-      displayName: "Level 4 Individual Project",
       slug: "level-4-individual-project",
-      allocationGroupId: allocationGroup.slug,
+      displayName: "Level 4 Individual Project",
+      allocationGroupSlug: allocationGroup.slug,
     },
   });
 
@@ -40,16 +40,18 @@ async function main() {
     data: {
       name: "Chris",
       email: "subgroup.allocationapp@gmail.com",
-      allocationSubGroupId: allocationSubGroup.id,
+      allocationGroupSlug: allocationGroup.slug,
+      allocationSubGroupSlug: allocationSubGroup.slug,
     },
   });
 
   const allocationInstance = await prisma.allocationInstance.create({
     data: {
-      displayName: "2023",
       slug: "2023",
+      displayName: "2023",
       stage: "SETUP",
-      allocationSubGroupId: allocationSubGroup.id,
+      allocationGroupSlug: allocationGroup.slug,
+      allocationSubGroupSlug: allocationSubGroup.slug,
     },
   });
 
@@ -57,9 +59,11 @@ async function main() {
     data: {
       name: "Dan",
       email: "supervisor.allocationapp@gmail.com",
-      allocationInstances: {
-        connect: {
-          id: allocationInstance.id,
+      supervisorInInstance: {
+        create: {
+          allocationGroupSlug: allocationGroup.slug,
+          allocationSubGroupSlug: allocationSubGroup.slug,
+          allocationInstanceSlug: allocationInstance.slug,
         },
       },
     },
@@ -87,6 +91,13 @@ async function main() {
           id: flags[0].id,
         },
       },
+      studentInInstance: {
+        create: {
+          allocationGroupSlug: allocationGroup.slug,
+          allocationSubGroupSlug: allocationSubGroup.slug,
+          allocationInstanceSlug: allocationInstance.slug,
+        },
+      },
     },
   });
 
@@ -95,7 +106,9 @@ async function main() {
       title,
       description,
       supervisorId: supervisor.id,
-      allocationInstanceId: allocationInstance.id,
+      allocationGroupSlug: allocationGroup.slug,
+      allocationSubGroupSlug: allocationSubGroup.slug,
+      allocationInstanceSlug: allocationInstance.slug,
     })),
   });
 

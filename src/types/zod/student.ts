@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { CompleteFlag, RelatedFlagModel, CompleteShortlist, RelatedShortlistModel, CompletePreference, RelatedPreferenceModel, CompleteProjectAllocation, RelatedProjectAllocationModel, CompleteAllocationInstance, RelatedAllocationInstanceModel } from "./index"
+import { CompleteFlag, RelatedFlagModel, CompleteShortlist, RelatedShortlistModel, CompletePreference, RelatedPreferenceModel, CompleteProjectAllocation, RelatedProjectAllocationModel, CompleteStudentInInstance, RelatedStudentInInstanceModel } from "./index"
 
 export const StudentModel = z.object({
   id: z.string(),
@@ -13,7 +13,7 @@ export interface CompleteStudent extends z.infer<typeof StudentModel> {
   shortlist: CompleteShortlist[]
   preferences: CompletePreference[]
   allocations: CompleteProjectAllocation[]
-  allocationInstances: CompleteAllocationInstance[]
+  studentInInstance: CompleteStudentInInstance[]
 }
 
 /**
@@ -26,5 +26,5 @@ export const RelatedStudentModel: z.ZodSchema<CompleteStudent> = z.lazy(() => St
   shortlist: RelatedShortlistModel.array(),
   preferences: RelatedPreferenceModel.array(),
   allocations: RelatedProjectAllocationModel.array(),
-  allocationInstances: RelatedAllocationInstanceModel.array(),
+  studentInInstance: RelatedStudentInInstanceModel.array(),
 }))

@@ -5,7 +5,8 @@ export const SubGroupAdminModel = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
-  allocationSubGroupId: z.string(),
+  allocationGroupSlug: z.string(),
+  allocationSubGroupSlug: z.string(),
 })
 
 export interface CompleteSubGroupAdmin extends z.infer<typeof SubGroupAdminModel> {

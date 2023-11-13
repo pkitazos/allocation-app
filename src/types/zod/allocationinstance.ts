@@ -1,20 +1,20 @@
 import * as z from "zod"
 import { Stage } from "@prisma/client"
-import { CompleteAllocationSubGroup, RelatedAllocationSubGroupModel, CompleteProject, RelatedProjectModel, CompleteSupervisor, RelatedSupervisorModel, CompleteStudent, RelatedStudentModel } from "./index"
+import { CompleteAllocationSubGroup, RelatedAllocationSubGroupModel, CompleteProject, RelatedProjectModel, CompleteSupervisorInInstance, RelatedSupervisorInInstanceModel, CompleteStudentInInstance, RelatedStudentInInstanceModel } from "./index"
 
 export const AllocationInstanceModel = z.object({
-  id: z.string(),
   displayName: z.string(),
   slug: z.string(),
   stage: z.nativeEnum(Stage),
-  allocationSubGroupId: z.string(),
+  allocationGroupSlug: z.string(),
+  allocationSubGroupSlug: z.string(),
 })
 
 export interface CompleteAllocationInstance extends z.infer<typeof AllocationInstanceModel> {
   allocationSubGroup: CompleteAllocationSubGroup
   projects: CompleteProject[]
-  supervisors: CompleteSupervisor[]
-  students: CompleteStudent[]
+  supervisorsInInstance: CompleteSupervisorInInstance[]
+  studentsInInstance: CompleteStudentInInstance[]
 }
 
 /**
@@ -25,6 +25,6 @@ export interface CompleteAllocationInstance extends z.infer<typeof AllocationIns
 export const RelatedAllocationInstanceModel: z.ZodSchema<CompleteAllocationInstance> = z.lazy(() => AllocationInstanceModel.extend({
   allocationSubGroup: RelatedAllocationSubGroupModel,
   projects: RelatedProjectModel.array(),
-  supervisors: RelatedSupervisorModel.array(),
-  students: RelatedStudentModel.array(),
+  supervisorsInInstance: RelatedSupervisorInInstanceModel.array(),
+  studentsInInstance: RelatedStudentInInstanceModel.array(),
 }))

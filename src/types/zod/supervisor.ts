@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { CompleteProject, RelatedProjectModel, CompleteAllocationInstance, RelatedAllocationInstanceModel } from "./index"
+import { CompleteProject, RelatedProjectModel, CompleteSupervisorInInstance, RelatedSupervisorInInstanceModel } from "./index"
 
 export const SupervisorModel = z.object({
   id: z.string(),
@@ -9,7 +9,7 @@ export const SupervisorModel = z.object({
 
 export interface CompleteSupervisor extends z.infer<typeof SupervisorModel> {
   projects: CompleteProject[]
-  allocationInstances: CompleteAllocationInstance[]
+  supervisorInInstance: CompleteSupervisorInInstance[]
 }
 
 /**
@@ -19,5 +19,5 @@ export interface CompleteSupervisor extends z.infer<typeof SupervisorModel> {
  */
 export const RelatedSupervisorModel: z.ZodSchema<CompleteSupervisor> = z.lazy(() => SupervisorModel.extend({
   projects: RelatedProjectModel.array(),
-  allocationInstances: RelatedAllocationInstanceModel.array(),
+  supervisorInInstance: RelatedSupervisorInInstanceModel.array(),
 }))

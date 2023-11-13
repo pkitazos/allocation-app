@@ -41,40 +41,42 @@ model SuperAdmin {
 
 // subgroup manager
 model GroupAdmin {
-    id                String          @id @default(uuid())
-    name              String
-    email             String
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [slug])
-    allocationGroupId String
+    id                  String          @id @default(uuid())
+    name                String
+    email               String
+    allocationGroup     AllocationGroup @relation(fields: [allocationGroupSlug], references: [slug])
+    allocationGroupSlug String
 }
 
 // instance manager
 model SubGroupAdmin {
-    id                   String             @id @default(uuid())
-    name                 String
-    email                String
-    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
-    allocationSubGroupId String
+    id                 String             @id @default(uuid())
+    name               String
+    email              String
+    allocationSubGroup AllocationSubGroup @relation(fields: [allocationGroupSlug, allocationSubGroupSlug], references: [allocationGroupSlug, slug])
+
+    allocationGroupSlug    String
+    allocationSubGroupSlug String
 }
 
 model Supervisor {
-    id                  String               @id @default(uuid())
-    name                String
-    email               String // TODO: make unique + link to Invitation
-    projects            Project[]
-    allocationInstances AllocationInstance[]
+    id                   String                 @id @default(uuid())
+    name                 String
+    email                String // TODO: make unique + link to Invitation
+    projects             Project[]
+    supervisorInInstance SupervisorInInstance[]
 }
 
 model Student {
-    id                  String               @id @default(uuid())
-    name                String
-    email               String // TODO: make unique + link to Invitation
-    schoolId            String               @unique
-    flags               Flag[]
-    shortlist           Shortlist[]
-    preferences         Preference[]
-    allocations         ProjectAllocation[]
-    allocationInstances AllocationInstance[]
+    id                String              @id @default(uuid())
+    name              String
+    email             String // TODO: make unique + link to Invitation
+    schoolId          String              @unique
+    flags             Flag[]
+    shortlist         Shortlist[]
+    preferences       Preference[]
+    allocations       ProjectAllocation[]
+    studentInInstance StudentInInstance[]
 }
 
 model AllocationGroup {
@@ -91,52 +93,81 @@ model AllocationGroup {
 }
 
 model AllocationSubGroup {
-    id          String @id @default(uuid())
-    displayName String
     slug        String
+    displayName String
 
     //belongs to 1
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [slug])
-    allocationGroupId String
+    allocationGroup     AllocationGroup @relation(fields: [allocationGroupSlug], references: [slug])
+    allocationGroupSlug String
 
     // includes many
     subGroupAdmins      SubGroupAdmin[]
     allocationInstances AllocationInstance[]
 
-    @@unique([allocationGroupId, slug])
+    @@id([allocationGroupSlug, slug])
+    @@unique([allocationGroupSlug, slug])
 }
 
 model AllocationInstance {
-    id          String @id @default(uuid())
     displayName String
     slug        String
     stage       Stage
 
     // belongs to 1
-    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationSubGroupId], references: [id])
-    allocationSubGroupId String
+    allocationSubGroup AllocationSubGroup @relation(fields: [allocationGroupSlug, allocationSubGroupSlug], references: [allocationGroupSlug, slug])
+
+    allocationGroupSlug    String
+    allocationSubGroupSlug String
 
     // has many
-    projects    Project[]
-    supervisors Supervisor[]
-    students    Student[]
+    projects Project[]
 
-    @@unique([allocationSubGroupId, slug])
+    supervisorsInInstance SupervisorInInstance[]
+    studentsInInstance    StudentInInstance[]
+
+    @@id([allocationGroupSlug, allocationSubGroupSlug, slug])
+    @@unique([allocationSubGroupSlug, slug])
+}
+
+model SupervisorInInstance {
+    supervisor             Supervisor         @relation(fields: [supervisorId], references: [id])
+    supervisorId           String
+    allocationInstance     AllocationInstance @relation(fields: [allocationGroupSlug, allocationSubGroupSlug, allocationInstanceSlug], references: [allocationGroupSlug, allocationSubGroupSlug, slug])
+    allocationGroupSlug    String
+    allocationSubGroupSlug String
+    allocationInstanceSlug String
+
+    @@id([supervisorId, allocationGroupSlug, allocationSubGroupSlug, allocationInstanceSlug])
+}
+
+model StudentInInstance {
+    student                Student            @relation(fields: [studentId], references: [id])
+    allocationInstance     AllocationInstance @relation(fields: [allocationGroupSlug, allocationSubGroupSlug, allocationInstanceSlug], references: [allocationGroupSlug, allocationSubGroupSlug, slug])
+    studentId              String
+    allocationGroupSlug    String
+    allocationSubGroupSlug String
+    allocationInstanceSlug String
+
+    @@id([studentId, allocationGroupSlug, allocationSubGroupSlug, allocationInstanceSlug])
 }
 
 model Project {
-    id                   String             @id @default(uuid())
-    title                String
-    description          String
-    supervisor           Supervisor         @relation(fields: [supervisorId], references: [id])
-    supervisorId         String
-    allocationInstance   AllocationInstance @relation(fields: [allocationInstanceId], references: [id])
-    allocationInstanceId String
-    flags                Flag[]
-    tags                 Tag[]
-    shortlistedIn        Shortlist[]
-    preferenceIn         Preference[]
-    allocatedTo          ProjectAllocation?
+    id                 String             @id @default(uuid())
+    title              String
+    description        String
+    supervisor         Supervisor         @relation(fields: [supervisorId], references: [id])
+    supervisorId       String
+    allocationInstance AllocationInstance @relation(fields: [allocationGroupSlug, allocationSubGroupSlug, allocationInstanceSlug], references: [allocationGroupSlug, allocationSubGroupSlug, slug])
+
+    allocationGroupSlug    String
+    allocationSubGroupSlug String
+    allocationInstanceSlug String
+
+    flags         Flag[]
+    tags          Tag[]
+    shortlistedIn Shortlist[]
+    preferenceIn  Preference[]
+    allocatedTo   ProjectAllocation?
 }
 
 model Shortlist {
