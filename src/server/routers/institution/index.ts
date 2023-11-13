@@ -36,8 +36,8 @@ export const institution = createTRPCRouter({
 
       await db.allocationGroup.create({
         data: {
-          displayName: groupName,
           slug: slugify(groupName),
+          displayName: groupName,
           superAdminId: superAdmin.id,
         },
       });

@@ -44,7 +44,7 @@ model GroupAdmin {
     id                String          @id @default(uuid())
     name              String
     email             String
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
+    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [slug])
     allocationGroupId String
 }
 
@@ -78,9 +78,8 @@ model Student {
 }
 
 model AllocationGroup {
-    id          String @id @default(uuid())
+    slug        String @id
     displayName String @unique
-    slug        String
 
     // managed by 1
     superAdmin   SuperAdmin @relation(fields: [superAdminId], references: [id])
@@ -97,7 +96,7 @@ model AllocationSubGroup {
     slug        String
 
     //belongs to 1
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [id])
+    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [slug])
     allocationGroupId String
 
     // includes many

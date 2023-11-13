@@ -2,9 +2,8 @@ import * as z from "zod"
 import { CompleteSuperAdmin, RelatedSuperAdminModel, CompleteGroupAdmin, RelatedGroupAdminModel, CompleteAllocationSubGroup, RelatedAllocationSubGroupModel } from "./index"
 
 export const AllocationGroupModel = z.object({
-  id: z.string(),
-  displayName: z.string(),
   slug: z.string(),
+  displayName: z.string(),
   superAdminId: z.string(),
 })
 
