@@ -13,7 +13,7 @@ type CompositeUser = {
 export const getAdminPanel = async (user: CompositeUser | undefined) => {
   if (!user) return "";
 
-  if (user.role === "SUPER_ADMIN") return "/admin";
+  if (user.role === "SUPER_ADMIN") return "/super-admin";
 
   if (user.role === "GROUP_ADMIN") {
     const groupAdmin = await db.groupAdmin.findFirst({
@@ -27,7 +27,7 @@ export const getAdminPanel = async (user: CompositeUser | undefined) => {
       },
     });
     const group = groupAdmin?.allocationGroup?.slug;
-    return `/admin/${group}`;
+    return `/${group}`;
   }
 
   if (user.role === "SUB_GROUP_ADMIN") {
@@ -51,7 +51,7 @@ export const getAdminPanel = async (user: CompositeUser | undefined) => {
 
     const group = subGroupAdmin?.allocationSubGroup.allocationGroup.slug;
     const subGroup = subGroupAdmin?.allocationSubGroup.slug;
-    return `/admin/${group}/${subGroup}`;
+    return `/${group}/${subGroup}`;
   }
   return "";
 };
