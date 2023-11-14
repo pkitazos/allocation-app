@@ -30,8 +30,8 @@ export default async function Page({
       </h2>
       <FormSection
         takenNames={takenNames}
-        allocationGroupSlug={group}
-        allocationSubGroupSlug={subGroup}
+        groupSlug={group}
+        subGroupSlug={subGroup}
       />
     </div>
   );

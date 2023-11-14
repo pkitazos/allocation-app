@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { CompositeUser } from "@/lib/admin-panel";
 
 function UserButton({ className }: ButtonHTMLAttributes<HTMLButtonElement>) {
   const { data: session } = useSession();
@@ -47,11 +48,13 @@ function UserButton({ className }: ButtonHTMLAttributes<HTMLButtonElement>) {
               <DropdownMenuSeparator />
             </DropdownMenuLabel>
           )}
-          <DropdownMenuItem>
-            <Link href="/account" className="w-full">
-              <Button variant="link">My account</Button>
-            </Link>
-          </DropdownMenuItem>
+          {canAccess(user, ["STUDENT", "SUPERVISOR"]) && (
+            <DropdownMenuItem>
+              <Link href="/account" className="w-full">
+                <Button variant="link">My account</Button>
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem>
             {session ? (
               <Button
@@ -80,6 +83,11 @@ function UserButton({ className }: ButtonHTMLAttributes<HTMLButtonElement>) {
     </button>
   );
 }
+
+const canAccess = (user: CompositeUser | undefined, rolesAllowed: Role[]) => {
+  if (!user) return false;
+  return rolesAllowed.includes(user.role!);
+};
 
 export function Header({ adminPanel }: { adminPanel: string }) {
   const session = useSession();
