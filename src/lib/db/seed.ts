@@ -1,18 +1,27 @@
 import { PrismaClient } from "@prisma/client";
-import { flagData, invitationData, projectData, tagData } from "./data";
+import {
+  flagData,
+  invitationData,
+  preferenceData,
+  projectData,
+  studentData,
+  supervisorData,
+  supervisorInInstanceData,
+  tagData,
+} from "./data";
 
-const prisma = new PrismaClient();
+const db = new PrismaClient();
 
 async function main() {
   console.log("SEEDING");
-  const superAdmin = await prisma.superAdmin.create({
+  const superAdmin = await db.superAdmin.create({
     data: {
       name: "Alice",
       email: "super.allocationapp@gmail.com",
     },
   });
 
-  const allocationGroup = await prisma.allocationGroup.create({
+  const allocationGroup = await db.allocationGroup.create({
     data: {
       slug: "school-of-computing-science",
       displayName: "School of Computing Science",
@@ -20,122 +29,149 @@ async function main() {
     },
   });
 
-  await prisma.groupAdmin.create({
+  await db.groupAdmin.create({
     data: {
       name: "Bob",
       email: "group.allocationapp@gmail.com",
-      allocationGroupSlug: allocationGroup.slug,
+      allocationGroupId: allocationGroup.slug,
     },
   });
 
-  const allocationSubGroup = await prisma.allocationSubGroup.create({
+  const allocationSubGroup = await db.allocationSubGroup.create({
     data: {
       slug: "level-4-individual-project",
       displayName: "Level 4 Individual Project",
-      allocationGroupSlug: allocationGroup.slug,
+      allocationGroupId: allocationGroup.slug,
     },
   });
 
-  await prisma.subGroupAdmin.create({
+  await db.subGroupAdmin.create({
     data: {
       name: "Chris",
       email: "subgroup.allocationapp@gmail.com",
-      allocationGroupSlug: allocationGroup.slug,
-      allocationSubGroupSlug: allocationSubGroup.slug,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
     },
   });
 
-  const allocationInstance = await prisma.allocationInstance.create({
+  const allocationInstance = await db.allocationInstance.create({
     data: {
       slug: "2023",
       displayName: "2023",
-      allocationGroupSlug: allocationGroup.slug,
-      allocationSubGroupSlug: allocationSubGroup.slug,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
     },
   });
 
-  const supervisor = await prisma.supervisor.create({
-    data: {
-      name: "Dan",
-      email: "supervisor.allocationapp@gmail.com",
-      supervisorInInstance: {
-        create: {
-          allocationGroupSlug: allocationGroup.slug,
-          allocationSubGroupSlug: allocationSubGroup.slug,
-          allocationInstanceSlug: allocationInstance.slug,
-        },
-      },
-    },
-  });
-
-  const flags = await prisma.flag
+  const supervisor = await db.supervisor
     .createMany({
-      data: flagData,
+      data: supervisorData,
     })
-    .then(async () => await prisma.flag.findMany({}));
+    .then(async () => await db.supervisor.findMany({}));
 
-  const tags = await prisma.tag
-    .createMany({
-      data: tagData,
-    })
-    .then(async () => await prisma.tag.findMany({}));
-
-  await prisma.student.create({
-    data: {
-      name: "Eva",
-      email: "student.allocationapp@gmail.com",
-      schoolId: "2345678e",
-      flags: {
-        connect: {
-          id: flags[0].id,
-        },
-      },
-      studentInInstance: {
-        create: {
-          allocationGroupSlug: allocationGroup.slug,
-          allocationSubGroupSlug: allocationSubGroup.slug,
-          allocationInstanceSlug: allocationInstance.slug,
-        },
-      },
-    },
-  });
-
-  await prisma.project.createMany({
-    data: projectData.map(({ title, description }) => ({
-      title,
-      description,
-      supervisorId: supervisor.id,
-      allocationGroupSlug: allocationGroup.slug,
-      allocationSubGroupSlug: allocationSubGroup.slug,
-      allocationInstanceSlug: allocationInstance.slug,
+  await db.supervisorInInstance.createMany({
+    data: supervisorInInstanceData.map((item) => ({
+      supervisorId: item.id,
+      projectAllocationTarget: item.projectAllocationTarget,
+      projectAllocationUpperBound: item.projectAllocationUpperBound,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
+      allocationInstanceId: allocationInstance.slug,
     })),
   });
 
-  const projects = await prisma.project.findMany({});
+  const flags = await db.flag
+    .createMany({ data: flagData })
+    .then(async () => await db.flag.findMany({}));
 
-  projects.map(async ({ id }, i) => {
-    await prisma.project.update({
-      where: {
-        id,
-      },
-      data: {
-        flags: {
-          connect: {
-            id: flags[i % flags.length].id,
-          },
-        },
-        tags: {
-          connect: {
-            id: tags[i % tags.length].id,
-          },
-        },
-      },
-    });
+  const tags = await db.tag
+    .createMany({ data: tagData })
+    .then(async () => await db.tag.findMany({}));
+
+  const students = await db.student
+    .createMany({ data: studentData })
+    .then(async () => await db.student.findMany({ orderBy: { id: "asc" } }));
+
+  await db.studentInInstance.createMany({
+    data: students.map(({ id: studentId }) => ({
+      studentId,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
+      allocationInstanceId: allocationInstance.slug,
+    })),
   });
 
-  await prisma.invitation.createMany({
+  await db.flagOnStudent.createMany({
+    data: students.map(({ id: studentId }) => ({
+      studentId,
+      flagId: flags[0].id,
+    })),
+  });
+
+  await db.project.createMany({
+    data: projectData.slice(0, 3).map(({ id, title, description }) => ({
+      id,
+      title,
+      description,
+      supervisorId: supervisor[0].id,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
+      allocationInstanceId: allocationInstance.slug,
+    })),
+  });
+
+  await db.project.createMany({
+    data: projectData.slice(3, 6).map(({ id, title, description }) => ({
+      id,
+      title,
+      description,
+      supervisorId: supervisor[1].id,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
+      allocationInstanceId: allocationInstance.slug,
+    })),
+  });
+
+  await db.project.createMany({
+    data: projectData.slice(6, 8).map(({ id, title, description }) => ({
+      id,
+      title,
+      description,
+      supervisorId: supervisor[2].id,
+      allocationGroupId: allocationGroup.slug,
+      allocationSubGroupId: allocationSubGroup.slug,
+      allocationInstanceId: allocationInstance.slug,
+    })),
+  });
+
+  const projects = await db.project.findMany({});
+
+  await db.flagOnProject.createMany({
+    data: projects.map(({ id: projectId }) => ({
+      projectId,
+      flagId: flags[0].id,
+    })),
+  });
+
+  await db.tagOnProject.createMany({
+    data: projects.map(({ id: projectId }) => ({
+      projectId,
+      tagId: tags[0].id,
+    })),
+  });
+
+  await db.preference.createMany({
+    data: preferenceData.map(({ idx, projectId, rank }) => ({
+      studentId: students[idx].id,
+      projectId,
+      rank,
+    })),
+  });
+
+  await db.invitation.createMany({
     data: invitationData,
   });
+
   console.log("ok");
   console.log("SEEDING COMPLETE");
 }
@@ -146,5 +182,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });
