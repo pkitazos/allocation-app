@@ -5,19 +5,6 @@ import { z } from "zod";
 import { db } from "@/lib/prisma";
 
 export const studentRouter = createTRPCRouter({
-  getAll: publicProcedure
-    .input(z.object({ allocationInstanceId: z.string() }))
-    .query(async ({ input: { allocationInstanceId } }) => {
-      return await db.allocationInstance.findFirstOrThrow({
-        where: {
-          id: allocationInstanceId,
-        },
-        select: {
-          students: true,
-        },
-      });
-    }),
-
   getById: publicProcedure
     .input(z.object({ studentId: z.string() }))
     .query(async ({ input: { studentId } }) => {
@@ -42,6 +29,20 @@ export const studentRouter = createTRPCRouter({
           },
         },
       });
+    }),
+
+  getMyInstances: publicProcedure
+    .input(z.object({ studentId: z.string() }))
+    .query(async ({ input: { studentId } }) => {
+      const data = await db.studentInInstance.findMany({
+        where: {
+          studentId,
+        },
+        include: {
+          allocationInstance: true,
+        },
+      });
+      return data.map((item) => item.allocationInstance);
     }),
 
   shortlist: shortlistRouter,

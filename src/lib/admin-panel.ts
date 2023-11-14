@@ -1,7 +1,7 @@
 import { Role } from "@prisma/client";
 import { db } from "./prisma";
 
-type CompositeUser = {
+export type CompositeUser = {
   id: string;
   role: Role | null | undefined;
 } & {
