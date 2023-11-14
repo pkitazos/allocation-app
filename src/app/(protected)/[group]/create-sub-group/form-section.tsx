@@ -53,7 +53,7 @@ export function FormSection({
     console.log(subGroupName);
     void toast.promise(
       createSubGroupAsync({
-        allocationGroupId: allocationGroupSlug,
+        groupSlug: allocationGroupSlug,
         name: subGroupName,
       }).then(() =>
         router.push(`/${allocationGroupSlug}/${slugify(subGroupName)}`),
@@ -91,7 +91,7 @@ export function FormSection({
                 <FormMessage />
               </FormItem>
             )}
-          ></FormField>
+          />
         </div>
         <Separator className="my-14" />
         <div className="flex justify-end">

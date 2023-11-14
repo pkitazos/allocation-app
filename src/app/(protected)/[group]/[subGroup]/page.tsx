@@ -1,39 +1,29 @@
 import { Separator } from "@/components/ui/separator";
-import { db } from "@/lib/prisma";
 import { ClientSection } from "./client-section";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { api } from "@/lib/trpc/server";
 
 export default async function Page({
   params,
 }: {
-  params: { subGroupName: string };
+  params: { group: string; subGroup: string };
 }) {
   const session = await auth();
   const user = session?.user;
 
-  const allocationInstances = await db.allocationInstance.findMany({
-    where: {
-      allocationSubGroup: {
-        slug: params.subGroupName,
-      },
-    },
-  });
-
-  const currentSubGroup = await db.allocationSubGroup.findFirstOrThrow({
-    where: { slug: params.subGroupName },
-  });
-
-  const subGroupAdmins = await db.subGroupAdmin.findFirstOrThrow({
-    where: { allocationSubGroupId: currentSubGroup.id },
-  });
+  const { subGroupAdmins, allocationInstances, ...subGroup } =
+    await api.institution.subGroup.get.query({
+      groupSlug: params.group,
+      subGroupSlug: params.subGroup,
+    });
 
   return (
-    <div className="mt-6 flex flex-col gap-10 px-6">
-      <h1 className="text-4xl">{currentSubGroup.displayName}</h1>
+    <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
+      <h1 className="text-4xl">{subGroup.displayName}</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-3 text-2xl underline">Sub-Group Admins</h3>
-        {[subGroupAdmins].map(({ name, email }, i) => (
+        {subGroupAdmins.map(({ name, email }, i) => (
           <div className="flex items-center gap-5" key={i}>
             <div className="w-1/6 font-medium">{name}</div>
             <Separator orientation="vertical" />

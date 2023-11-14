@@ -19,11 +19,11 @@ export const groupRouter = createTRPCRouter({
     }),
 
   getAllSubGroupNames: publicProcedure
-    .input(z.object({ allocationGroupId: z.string() }))
-    .query(async ({ input: { allocationGroupId } }) => {
+    .input(z.object({ groupSlug: z.string() }))
+    .query(async ({ input: { groupSlug } }) => {
       const data = await db.allocationGroup.findFirstOrThrow({
         where: {
-          slug: allocationGroupId,
+          slug: groupSlug,
         },
         select: {
           allocationSubGroups: {
@@ -37,13 +37,13 @@ export const groupRouter = createTRPCRouter({
     }),
 
   createSubGroup: publicProcedure
-    .input(z.object({ allocationGroupId: z.string(), name: z.string() }))
-    .mutation(async ({ input: { allocationGroupId, name } }) => {
+    .input(z.object({ groupSlug: z.string(), name: z.string() }))
+    .mutation(async ({ input: { groupSlug, name } }) => {
       await db.allocationSubGroup.create({
         data: {
           displayName: name,
           slug: slugify(name),
-          allocationGroupId,
+          allocationGroupSlug: groupSlug,
         },
       });
     }),

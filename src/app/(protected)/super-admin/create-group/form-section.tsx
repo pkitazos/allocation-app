@@ -83,7 +83,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
                 <FormMessage />
               </FormItem>
             )}
-          ></FormField>
+          />
         </div>
         <Separator className="my-14" />
         {/* <AdminInviteForm /> */}
