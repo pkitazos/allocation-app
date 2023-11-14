@@ -49,7 +49,6 @@ async function main() {
     data: {
       slug: "2023",
       displayName: "2023",
-      stage: "SETUP",
       allocationGroupSlug: allocationGroup.slug,
       allocationSubGroupSlug: allocationSubGroup.slug,
     },

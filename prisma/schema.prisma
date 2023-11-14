@@ -111,7 +111,7 @@ model AllocationSubGroup {
 model AllocationInstance {
     displayName String
     slug        String
-    stage       Stage
+    stage       Stage  @default(SETUP)
 
     // belongs to 1
     allocationSubGroup AllocationSubGroup @relation(fields: [allocationGroupSlug, allocationSubGroupSlug], references: [allocationGroupSlug, slug])
