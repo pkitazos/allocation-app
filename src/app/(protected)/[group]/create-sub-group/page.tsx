@@ -18,7 +18,7 @@ export default async function Page({
   }
 
   const takenNames = await api.institution.group.getAllSubGroupNames.query({
-    groupSlug: group,
+    groupId: group,
   });
 
   return (
@@ -27,7 +27,7 @@ export default async function Page({
         Create New{" "}
         <span className="font-semibold text-sky-500">Allocation Sub-Group</span>
       </h2>
-      <FormSection takenNames={takenNames} allocationGroupSlug={group} />
+      <FormSection takenNames={takenNames} allocationGroupId={group} />
     </div>
   );
 }

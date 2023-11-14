@@ -30,17 +30,11 @@ export default async function Project(
       supervisor: {
         select: { name: true, id: true },
       },
-      flags: { select: { title: true } },
-      tags: { select: { title: true } },
     },
   });
 
-  const flags: string[] = project.flags.map(
-    (item: { title: string }) => item.title,
-  );
-  const tags: string[] = project.tags.map(
-    (item: { title: string }) => item.title,
-  );
+  const flags: string[] = [];
+  const tags: string[] = [];
 
   const inStudentShortlist = !!(await db.shortlist.findFirst({
     where: {

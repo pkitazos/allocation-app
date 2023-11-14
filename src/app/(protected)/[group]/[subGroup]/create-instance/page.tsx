@@ -18,8 +18,8 @@ export default async function Page({
   }
 
   const takenNames = await api.institution.subGroup.getAllSubGroupNames.query({
-    groupSlug: group,
-    subGroupSlug: subGroup,
+    groupId: group,
+    subGroupId: subGroup,
   });
 
   return (
@@ -30,8 +30,8 @@ export default async function Page({
       </h2>
       <FormSection
         takenNames={takenNames}
-        groupSlug={group}
-        subGroupSlug={subGroup}
+        groupId={group}
+        subGroupId={subGroup}
       />
     </div>
   );
