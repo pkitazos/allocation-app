@@ -5,11 +5,11 @@ import { z } from "zod";
 
 export const groupRouter = createTRPCRouter({
   get: publicProcedure
-    .input(z.object({ slug: z.string() }))
-    .query(async ({ input: { slug } }) => {
+    .input(z.object({ groupId: z.string() }))
+    .query(async ({ input: { groupId } }) => {
       return await db.allocationGroup.findFirstOrThrow({
         where: {
-          slug,
+          slug: groupId,
         },
         include: {
           groupAdmins: true,
@@ -19,11 +19,11 @@ export const groupRouter = createTRPCRouter({
     }),
 
   getAllSubGroupNames: publicProcedure
-    .input(z.object({ groupSlug: z.string() }))
-    .query(async ({ input: { groupSlug } }) => {
+    .input(z.object({ groupId: z.string() }))
+    .query(async ({ input: { groupId } }) => {
       const data = await db.allocationGroup.findFirstOrThrow({
         where: {
-          slug: groupSlug,
+          slug: groupId,
         },
         select: {
           allocationSubGroups: {
@@ -37,13 +37,13 @@ export const groupRouter = createTRPCRouter({
     }),
 
   createSubGroup: publicProcedure
-    .input(z.object({ groupSlug: z.string(), name: z.string() }))
-    .mutation(async ({ input: { groupSlug, name } }) => {
+    .input(z.object({ groupId: z.string(), name: z.string() }))
+    .mutation(async ({ input: { groupId, name } }) => {
       await db.allocationSubGroup.create({
         data: {
           displayName: name,
           slug: slugify(name),
-          allocationGroupSlug: groupSlug,
+          allocationGroupId: groupId,
         },
       });
     }),

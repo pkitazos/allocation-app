@@ -21,10 +21,10 @@ import { z } from "zod";
 
 export function FormSection({
   takenNames,
-  allocationGroupSlug,
+  allocationGroupId,
 }: {
   takenNames: string[];
-  allocationGroupSlug: string;
+  allocationGroupId: string;
 }) {
   const router = useRouter();
   const FormSchema = z.object({
@@ -53,10 +53,10 @@ export function FormSection({
     console.log(subGroupName);
     void toast.promise(
       createSubGroupAsync({
-        groupSlug: allocationGroupSlug,
+        groupId: allocationGroupId,
         name: subGroupName,
       }).then(() =>
-        router.push(`/${allocationGroupSlug}/${slugify(subGroupName)}`),
+        router.push(`/${allocationGroupId}/${slugify(subGroupName)}`),
       ),
       {
         loading: "Loading",

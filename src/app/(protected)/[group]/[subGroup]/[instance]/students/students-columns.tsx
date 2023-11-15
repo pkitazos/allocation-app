@@ -15,7 +15,6 @@ import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 export interface StudentData {
   id: string;
   name: string;
-  schoolId: string;
 }
 
 const deleteStudent = async (id: string) => {
@@ -47,13 +46,6 @@ export const columns: ColumnDef<StudentData>[] = [
     accessorKey: "name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" canFilter />
-    ),
-  },
-  {
-    id: "schoolId",
-    accessorKey: "schoolId",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="School ID" />
     ),
   },
   {

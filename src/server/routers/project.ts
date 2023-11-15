@@ -1,6 +1,5 @@
 import { db } from "@/lib/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
-import { FlagModel } from "@/types/zod";
 import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
@@ -10,24 +9,6 @@ export const projectRouter = createTRPCRouter({
       return await db.project.findMany({
         where: {
           allocationInstanceId,
-        },
-        include: {
-          supervisor: true,
-        },
-      });
-    }),
-
-  getWithFlag: publicProcedure
-    .input(z.object({ allocationInstanceId: z.string(), flag: FlagModel }))
-    .query(async ({ input: { allocationInstanceId, flag } }) => {
-      return await db.project.findMany({
-        where: {
-          allocationInstanceId,
-          flags: {
-            some: {
-              id: flag.id,
-            },
-          },
         },
         include: {
           supervisor: true,

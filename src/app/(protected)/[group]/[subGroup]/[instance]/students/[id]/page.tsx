@@ -21,7 +21,6 @@ export default async function Student(
     where: { id },
     select: {
       name: true,
-      schoolId: true,
       flags: { select: { title: true } },
       preferences: { select: { project: { select: { title: true } } } },
       shortlist: { select: { project: { select: { title: true } } } },
@@ -68,12 +67,6 @@ export default async function Student(
             </div>
           </div>
           <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
-            <div>
-              <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
-                School ID:
-              </h2>
-              <p>{student.schoolId}</p>
-            </div>
             <div>
               <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
                 Flags:

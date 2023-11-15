@@ -21,12 +21,12 @@ import { z } from "zod";
 
 export function FormSection({
   takenNames,
-  groupSlug,
-  subGroupSlug,
+  groupId,
+  subGroupId,
 }: {
   takenNames: string[];
-  groupSlug: string;
-  subGroupSlug: string;
+  groupId: string;
+  subGroupId: string;
 }) {
   const router = useRouter();
   const FormSchema = z
@@ -147,10 +147,10 @@ export function FormSection({
     console.log("boom");
     await toast.promise(
       createInstanceAsync({
-        groupSlug,
-        subGroupSlug,
+        groupId,
+        subGroupId,
         name: formData.instanceName,
-      }).then(() => router.push(`/${groupSlug}/${subGroupSlug}`)),
+      }).then(() => router.push(`/${groupId}/${subGroupId}`)),
       {
         loading: "Loading",
         error: "Something went wrong",

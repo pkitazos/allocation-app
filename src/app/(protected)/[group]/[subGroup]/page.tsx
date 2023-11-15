@@ -14,8 +14,8 @@ export default async function Page({
 
   const { subGroupAdmins, allocationInstances, ...subGroup } =
     await api.institution.subGroup.get.query({
-      groupSlug: params.group,
-      subGroupSlug: params.subGroup,
+      groupId: params.group,
+      subGroupId: params.subGroup,
     });
 
   return (

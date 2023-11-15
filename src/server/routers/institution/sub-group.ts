@@ -7,15 +7,15 @@ export const subGroupRouter = createTRPCRouter({
   get: publicProcedure
     .input(
       z.object({
-        groupSlug: z.string(),
-        subGroupSlug: z.string(),
+        groupId: z.string(),
+        subGroupId: z.string(),
       }),
     )
-    .query(async ({ input: { groupSlug, subGroupSlug } }) => {
+    .query(async ({ input: { groupId, subGroupId } }) => {
       return await db.allocationSubGroup.findFirstOrThrow({
         where: {
-          allocationGroupSlug: groupSlug,
-          slug: subGroupSlug,
+          allocationGroupId: groupId,
+          slug: subGroupId,
         },
         include: {
           subGroupAdmins: true,
@@ -27,15 +27,15 @@ export const subGroupRouter = createTRPCRouter({
   getAllSubGroupNames: publicProcedure
     .input(
       z.object({
-        groupSlug: z.string(),
-        subGroupSlug: z.string(),
+        groupId: z.string(),
+        subGroupId: z.string(),
       }),
     )
-    .query(async ({ input: { groupSlug, subGroupSlug } }) => {
+    .query(async ({ input: { groupId, subGroupId } }) => {
       const data = await db.allocationSubGroup.findFirstOrThrow({
         where: {
-          allocationGroupSlug: groupSlug,
-          slug: subGroupSlug,
+          allocationGroupId: groupId,
+          slug: subGroupId,
         },
         select: {
           allocationInstances: {
@@ -52,17 +52,17 @@ export const subGroupRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        groupSlug: z.string(),
-        subGroupSlug: z.string(),
+        groupId: z.string(),
+        subGroupId: z.string(),
       }),
     )
-    .mutation(async ({ input: { name, groupSlug, subGroupSlug } }) => {
+    .mutation(async ({ input: { name, groupId, subGroupId } }) => {
       await db.allocationInstance.create({
         data: {
           displayName: name,
           slug: slugify(name),
-          allocationGroupSlug: groupSlug,
-          allocationSubGroupSlug: subGroupSlug,
+          allocationGroupId: groupId,
+          allocationSubGroupId: subGroupId,
         },
       });
     }),
