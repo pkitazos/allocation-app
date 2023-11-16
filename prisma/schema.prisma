@@ -127,7 +127,6 @@ model AllocationInstance {
     studentsInInstance    StudentInInstance[]
 
     @@id([allocationGroupId, allocationSubGroupId, slug])
-    @@unique([allocationSubGroupId, slug])
 }
 
 model SupervisorInInstance {

@@ -14,7 +14,7 @@ const data = {
     [5, 3, 8],
   ],
   projects: [
-    [0, 2, 1],
+    [0, 1, 1],
     [0, 1, 1],
     [0, 1, 1],
     [0, 1, 2],
@@ -47,3 +47,12 @@ export default function Page() {
     </div>
   );
 }
+
+// # matching statistics
+// matching: 7 1 4 2 3 5 8
+// cost: 17
+// cost_sq: 49
+// degree: 4
+// profile: < 2 1 3 1 0 0 >
+// max_lec_abs_diff: 1
+// sum_lec_abs_diff: 1

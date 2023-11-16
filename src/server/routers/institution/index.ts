@@ -6,7 +6,7 @@ import { db } from "@/lib/prisma";
 import { z } from "zod";
 import { slugify } from "@/lib/utils";
 
-export const institution = createTRPCRouter({
+export const institutionRouter = createTRPCRouter({
   group: groupRouter,
   subGroup: subGroupRouter,
   instance: instanceRouter,
