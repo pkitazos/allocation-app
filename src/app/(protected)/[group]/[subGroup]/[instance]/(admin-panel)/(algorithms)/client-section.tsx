@@ -18,13 +18,17 @@ export function ClientSection({
 }: {
   matchingData: MatchingData;
 }) {
-  console.log({ matchingData });
-
   const { isLoading: generousLoading, mutateAsync: runGenerousAsync } =
     api.algorithm.generous.useMutation();
 
   const { isLoading: greedyLoading, mutateAsync: runGreedyAsync } =
     api.algorithm.greedy.useMutation();
+
+  const { isLoading: minCostLoading, mutateAsync: runMinCostAsync } =
+    api.algorithm.minCost.useMutation();
+
+  const { isLoading: greedyGenLoading, mutateAsync: runGreedyGenAsync } =
+    api.algorithm.greedyGen.useMutation();
 
   const handleClick = async (
     mutateAsync: (data: MatchingData) => Promise<void>,
@@ -57,12 +61,22 @@ export function ClientSection({
         </Button>
       </div>
       <div className="flex justify-between gap-5">
-        <p>Greedy-Generous - description</p>
-        <Button>run</Button>
+        <p>Minimum Cost - description</p>
+        <Button
+          disabled={minCostLoading}
+          onClick={() => handleClick(runMinCostAsync)}
+        >
+          run
+        </Button>
       </div>
       <div className="flex justify-between gap-5">
-        <p>Minimum Cost - description</p>
-        <Button>run</Button>
+        <p>Greedy-Generous - description</p>
+        <Button
+          disabled={greedyGenLoading}
+          onClick={() => handleClick(runGreedyGenAsync)}
+        >
+          run
+        </Button>
       </div>
       <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
       <Table>
