@@ -19,33 +19,23 @@ export const instanceRouter = createTRPCRouter({
         },
         select: {
           student: {
-            select: { preferences: { orderBy: { rank: "asc" } } },
+            select: {
+              preferences: {
+                where: {
+                  project: {
+                    allocationGroupId: groupId,
+                    allocationSubGroupId: subGroupId,
+                    allocationInstanceId: instanceId,
+                  },
+                },
+                orderBy: {
+                  rank: "asc",
+                },
+              },
+            },
           },
         },
       });
-
-      // TODO: ensure the preferences returned are only for the given instance
-
-      // {
-      //   select: {
-      //     preferences: {
-      //       where: {
-      //         project: {
-      //           allocationGroupId: groupId,
-      //           allocationSubGroupId: subGroupId,
-      //           allocationInstanceId: instanceId,
-      //         },
-      //       },
-      //       orderBy: {
-      //         rank: "asc",
-      //       },
-      //     },
-      //   },
-      // },
-
-      const students = studentData.map(({ student: { preferences } }) =>
-        preferences.map(({ projectId }) => projectId),
-      );
 
       const projectData = await ctx.db.project.findMany({
         where: {
@@ -55,9 +45,10 @@ export const instanceRouter = createTRPCRouter({
         },
       });
 
-      const projects = projectData.map(
-        ({ id }) => [0, 1, id] as [0, 1, string],
-      );
+      const projectHashMap = new Map<string, number>();
+      projectData.map(({ id }, idx) => {
+        supervisorHashMap.set(id, idx + 1);
+      });
 
       const supervisorData = await ctx.db.supervisorInInstance.findMany({
         where: {
@@ -66,14 +57,31 @@ export const instanceRouter = createTRPCRouter({
           allocationInstanceId: instanceId,
         },
         select: {
+          supervisorId: true,
           projectAllocationTarget: true,
           projectAllocationUpperBound: true,
         },
       });
 
+      const supervisorHashMap = new Map<string, number>();
+      supervisorData.map(({ supervisorId }, idx) => {
+        supervisorHashMap.set(supervisorId, idx + 1);
+      });
+
+      const students = studentData.map(({ student: { preferences } }) =>
+        preferences.map(({ projectId }) => projectHashMap.get(projectId)),
+      );
+
+      const projects = projectData.map(({ supervisorId }) => [
+        0,
+        1,
+        supervisorHashMap.get(supervisorId),
+      ]);
+
       const lecturers = supervisorData.map(
-        ({ projectAllocationTarget: t, projectAllocationUpperBound: u }) =>
-          [0, t, u] as [0, number, number],
+        ({ projectAllocationTarget, projectAllocationUpperBound }) => {
+          return [0, projectAllocationTarget, projectAllocationUpperBound];
+        },
       );
 
       return { students, projects, lecturers };

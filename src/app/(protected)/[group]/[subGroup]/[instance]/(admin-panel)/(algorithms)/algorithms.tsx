@@ -15,7 +15,8 @@ export async function Algorithms({
     subGroupId,
     instanceId,
   });
-
+  console.log("ADMIN-PANEL");
+  console.log(matchingData);
   return (
     <div className="mt-20 flex flex-col items-center">
       <div className="flex w-1/2 flex-col gap-3">
