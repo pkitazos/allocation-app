@@ -50,6 +50,7 @@ const config: Config = {
     },
   },
   plugins: [
+    require("tailwindcss-animate"),
     plugin(function ({ addUtilities }) {
       addUtilities({
         ".--orange-500": {
