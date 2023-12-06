@@ -47,8 +47,8 @@ export async function DetailsSection() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {generousData.matching.map((projectId) => (
-          <TableRow>
+        {generousData.matching.map((projectId, i) => (
+          <TableRow key={i}>
             <TableCell>studentId</TableCell>
             <TableCell>{projectId}</TableCell>
             <TableCell>rank</TableCell>
