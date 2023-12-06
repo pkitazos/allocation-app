@@ -17,7 +17,7 @@ export function StageControl() {
     setConfirmedIdx(idx);
   };
   return (
-    <div className="flex justify-between px-6">
+    <div className="mx-16 mt-20 flex justify-between px-6">
       <ol className="flex flex-col gap-10">
         <li className="flex items-center gap-9">
           <button

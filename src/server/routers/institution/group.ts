@@ -4,9 +4,11 @@ import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const groupRouter = createTRPCRouter({
-  get: publicProcedure
+  getById: publicProcedure
     .input(z.object({ groupId: z.string() }))
     .query(async ({ input: { groupId } }) => {
+      console.log(groupId);
+
       return await db.allocationGroup.findFirstOrThrow({
         where: {
           slug: groupId,

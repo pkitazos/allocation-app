@@ -11,6 +11,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        "2xl": "1536px",
+        "3xl": "1700px",
+      },
+      maxWidth: {
+        "8xl": "88rem",
+        "9xl": "96rem",
+      },
       colors: {
         primary: "hsl(var(--primary) / <alpha-value>)",
         "primary-foreground": "hsl(var(--primary-foreground) / <alpha-value>)",
