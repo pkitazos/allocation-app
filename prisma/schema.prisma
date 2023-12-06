@@ -31,6 +31,15 @@ enum Stage {
     ALLOCATION_PUBLICATION
 }
 
+enum AlgorithmFlag {
+    MAXSIZE
+    GEN
+    GRE
+    MINCOST
+    MINQCOST
+    LSB
+}
+
 // group manager
 model SuperAdmin {
     id               String            @id @default(uuid())
@@ -238,6 +247,16 @@ model TagOnProject {
     projectId String  @map("project_id")
 
     @@id([tagId, projectId])
+}
+
+model AlgorithmResult {
+    name     String
+    algFlag1 AlgorithmFlag @map("alg_flag_1")
+    algFlag2 AlgorithmFlag @map("alg_flag_2")
+    algFlag3 AlgorithmFlag @map("alg_flag_3")
+    data     Json
+
+    @@id([name, algFlag1, algFlag2, algFlag3])
 }
 
 model Invitation {

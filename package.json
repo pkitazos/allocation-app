@@ -69,6 +69,7 @@
     "eslint": "8.50.0",
     "prettier-plugin-tailwindcss": "^0.5.4",
     "prisma": "^5.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.1",
     "tsx": "^3.14.0",
     "typescript": "5.2.2"

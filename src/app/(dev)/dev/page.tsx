@@ -1,6 +1,6 @@
 "use client";
 
-export const testAllocationData = {
+const testAllocationData = {
   args: [["-na", "3", "-maxsize", "1", "-gre", "2", "-lsb", "3"]],
   students: [
     [1, 7],
@@ -29,5 +29,6 @@ export const testAllocationData = {
 };
 
 export default function Page() {
+  console.log({ testAllocationData });
   return <div>dev</div>;
 }

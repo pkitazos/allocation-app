@@ -26,43 +26,138 @@ type AlgorithmServerData =
 export const algorithmRouter = createTRPCRouter({
   generous: publicProcedure
     .input(matchingDataSchema)
-    .mutation(async ({ input: matchingData }) => {
+    .mutation(async ({ ctx, input: matchingData }) => {
       const result = await getMatching({ algorithm: "generous", matchingData });
-      console.log(result);
+
+      if (result) {
+        const hello = await ctx.db.algorithmResult.upsert({
+          where: {
+            name_algFlag1_algFlag2_algFlag3: {
+              name: "generous",
+              algFlag1: "MAXSIZE",
+              algFlag2: "GEN",
+              algFlag3: "LSB",
+            },
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "generous",
+            algFlag1: "MAXSIZE",
+            algFlag2: "GEN",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+        console.log(hello);
+      }
+
+      return result;
     }),
 
   greedy: publicProcedure
     .input(matchingDataSchema)
-    .mutation(async ({ input: matchingData }) => {
+    .mutation(async ({ ctx, input: matchingData }) => {
       const result = await getMatching({ algorithm: "greedy", matchingData });
-      console.log(result);
+
+      if (result) {
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_algFlag1_algFlag2_algFlag3: {
+              name: "greedy",
+              algFlag1: "MAXSIZE",
+              algFlag2: "GRE",
+              algFlag3: "LSB",
+            },
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "greedy",
+            algFlag1: "MAXSIZE",
+            algFlag2: "GRE",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+      }
+      return result;
     }),
 
   minCost: publicProcedure
     .input(matchingDataSchema)
-    .mutation(async ({ input: matchingData }) => {
+    .mutation(async ({ ctx, input: matchingData }) => {
       const result = await getMatching({
         algorithm: "minimum-cost",
         matchingData,
       });
-      console.log(result);
+
+      if (result) {
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_algFlag1_algFlag2_algFlag3: {
+              name: "minimum-cost",
+              algFlag1: "MAXSIZE",
+              algFlag2: "MINCOST",
+              algFlag3: "LSB",
+            },
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "minimum-cost",
+            algFlag1: "MAXSIZE",
+            algFlag2: "MINCOST",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+      }
+      return result;
     }),
 
   greedyGen: publicProcedure
     .input(matchingDataSchema)
-    .mutation(async ({ input: matchingData }) => {
+    .mutation(async ({ ctx, input: matchingData }) => {
       const result = await getMatching({
         algorithm: "greedy-generous",
         matchingData,
       });
-      console.log(result);
+
+      if (result) {
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_algFlag1_algFlag2_algFlag3: {
+              name: "greedy-generous",
+              algFlag1: "MAXSIZE",
+              algFlag2: "GRE",
+              algFlag3: "LSB",
+            },
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "greedy-generous",
+            algFlag1: "MAXSIZE",
+            algFlag2: "GRE",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+      }
+      return result;
     }),
 
+  // TODO: decide how to name custom Algorithm configurations
   custom: publicProcedure
     .input(mathcingDataWithArgsSchema)
     .mutation(async ({ input: matchingData }) => {
       const result = await getMatching({ algorithm: "", matchingData });
-      console.log(result);
+      return result;
     }),
 });
 
@@ -74,9 +169,22 @@ const getMatching = async ({
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(matchingData),
-  });
+  }).then((res) => res.json());
 
-  const result = await res.json();
-  if (res.ok) console.log(result);
-  return result;
+  if (res.ok) console.log(res);
+  const result = serverResponseSchema.safeParse(res.data);
+
+  if (!result.success) return;
+
+  return result.data;
 };
+
+export const serverResponseSchema = z.object({
+  matching: z.array(z.number()),
+  profile: z.array(z.number()),
+  weight: z.number(),
+  size: z.number(),
+  degree: z.number(),
+});
+
+export type ServerResponse = z.infer<typeof serverResponseSchema>;
