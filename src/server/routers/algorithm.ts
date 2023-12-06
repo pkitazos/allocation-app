@@ -172,19 +172,19 @@ const getMatching = async ({
   }).then((res) => res.json());
 
   if (res.ok) console.log(res);
-  const result = serverResponseSchema.safeParse(res.data);
+  const result = serverResponseDataSchema.safeParse(res.data);
 
   if (!result.success) return;
 
   return result.data;
 };
 
-export const serverResponseSchema = z.object({
-  matching: z.array(z.string()),
+export const serverResponseDataSchema = z.object({
+  matching: z.array(z.tuple([z.string(), z.string(), z.number()])),
   profile: z.array(z.number()),
   weight: z.number(),
   size: z.number(),
   degree: z.number(),
 });
 
-export type ServerResponse = z.infer<typeof serverResponseSchema>;
+export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;

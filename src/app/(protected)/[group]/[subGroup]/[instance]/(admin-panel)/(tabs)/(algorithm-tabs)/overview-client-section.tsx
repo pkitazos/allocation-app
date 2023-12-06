@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
-import { MatchingData, ServerResponse } from "@/server/routers/algorithm";
+import { MatchingData, ServerResponseData } from "@/server/routers/algorithm";
 import { toast } from "react-hot-toast";
 
 export function OverviewClientSection({
@@ -31,7 +31,9 @@ export function OverviewClientSection({
     api.algorithm.greedyGen.useMutation();
 
   const handleClick = async (
-    mutateAsync: (data: MatchingData) => Promise<ServerResponse | undefined>,
+    mutateAsync: (
+      data: MatchingData,
+    ) => Promise<ServerResponseData | undefined>,
     refetch: () => void,
   ) => {
     toast.promise(
