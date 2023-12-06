@@ -52,10 +52,10 @@ export const instanceRouter = createTRPCRouter({
         },
       });
 
-      const supervisorHashMap = new Map<string, number>();
-      supervisorData.map(({ supervisorId }, idx) => {
-        supervisorHashMap.set(supervisorId, idx + 1);
-      });
+      // const supervisorHashMap = new Map<string, number>();
+      // supervisorData.map(({ supervisorId }, idx) => {
+      //   supervisorHashMap.set(supervisorId, idx + 1);
+      // });
 
       const projectData = await ctx.db.project.findMany({
         where: {
@@ -65,24 +65,34 @@ export const instanceRouter = createTRPCRouter({
         },
       });
 
-      const projectHashMap = new Map<string, number>();
-      projectData.map(({ id }, idx) => {
-        projectHashMap.set(id, idx + 1);
-      });
+      // const projectHashMap = new Map<string, number>();
+      // projectData.map(({ id }, idx) => {
+      //   projectHashMap.set(id, idx + 1);
+      // });
 
       const students = studentData.map(({ student: { preferences } }) =>
-        preferences.map(({ projectId }) => projectHashMap.get(projectId)),
-      ) as number[][];
+        preferences.map(({ projectId }) => projectId),
+      );
 
-      const projects = projectData.map(({ supervisorId }) => [
+      const projects = projectData.map(({ id, supervisorId }) => [
+        id,
         0,
         1,
-        supervisorHashMap.get(supervisorId),
-      ]) as number[][];
+        supervisorId,
+      ]) as [string, number, number, string][];
 
       const lecturers = supervisorData.map(
-        ({ projectAllocationTarget, projectAllocationUpperBound }) => {
-          return [0, projectAllocationTarget, projectAllocationUpperBound];
+        ({
+          supervisorId,
+          projectAllocationTarget,
+          projectAllocationUpperBound,
+        }) => {
+          return [
+            supervisorId,
+            0,
+            projectAllocationTarget,
+            projectAllocationUpperBound,
+          ] as [string, number, number, number];
         },
       );
 

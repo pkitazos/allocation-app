@@ -3,15 +3,15 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { env } from "@/env";
 
 const matchingDataSchema = z.object({
-  students: z.array(z.array(z.number())),
-  projects: z.array(z.array(z.number())),
-  lecturers: z.array(z.array(z.number())),
+  students: z.array(z.array(z.string())),
+  projects: z.array(z.tuple([z.string(), z.number(), z.number(), z.string()])),
+  lecturers: z.array(z.tuple([z.string(), z.number(), z.number(), z.number()])),
 });
 
 const mathcingDataWithArgsSchema = z.object({
-  students: z.array(z.array(z.number())),
-  projects: z.array(z.array(z.number())),
-  lecturers: z.array(z.array(z.number())),
+  students: z.array(z.array(z.string())),
+  projects: z.array(z.tuple([z.string(), z.number(), z.number(), z.string()])),
+  lecturers: z.array(z.tuple([z.string(), z.number(), z.number(), z.number()])),
   args: z.array(z.string()),
 });
 
@@ -180,7 +180,7 @@ const getMatching = async ({
 };
 
 export const serverResponseSchema = z.object({
-  matching: z.array(z.number()),
+  matching: z.array(z.string()),
   profile: z.array(z.number()),
   weight: z.number(),
   size: z.number(),
