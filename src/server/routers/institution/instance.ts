@@ -1,7 +1,7 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { AlgorithmFlag } from "@prisma/client";
 import { z } from "zod";
-import { ServerResponse, serverResponseSchema } from "../algorithm";
+import { ServerResponseData, serverResponseDataSchema } from "../algorithm";
 
 export const instanceRouter = createTRPCRouter({
   getMatchingData: publicProcedure
@@ -22,6 +22,7 @@ export const instanceRouter = createTRPCRouter({
         select: {
           student: {
             select: {
+              id: true,
               preferences: {
                 where: {
                   project: {
@@ -70,8 +71,8 @@ export const instanceRouter = createTRPCRouter({
       //   projectHashMap.set(id, idx + 1);
       // });
 
-      const students = studentData.map(({ student: { preferences } }) =>
-        preferences.map(({ projectId }) => projectId),
+      const students = studentData.map(({ student: { id, preferences } }) =>
+        [id].concat(preferences.map(({ projectId }) => projectId)),
       );
 
       const projects = projectData.map(({ id, supervisorId }) => [
@@ -135,7 +136,7 @@ export const instanceRouter = createTRPCRouter({
         ctx,
         input: { algorithmName, algFlag1, algFlag2, algFlag3 },
       }) => {
-        const blankResult: ServerResponse = {
+        const blankResult: ServerResponseData = {
           profile: [],
           matching: [],
           weight: NaN,
@@ -154,7 +155,7 @@ export const instanceRouter = createTRPCRouter({
 
         if (!res) return blankResult;
 
-        const result = serverResponseSchema.safeParse(
+        const result = serverResponseDataSchema.safeParse(
           JSON.parse(res.data as string),
         );
 
