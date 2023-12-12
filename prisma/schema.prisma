@@ -250,13 +250,16 @@ model TagOnProject {
 }
 
 model AlgorithmResult {
-    name     String
-    algFlag1 AlgorithmFlag @map("alg_flag_1")
-    algFlag2 AlgorithmFlag @map("alg_flag_2")
-    algFlag3 AlgorithmFlag @map("alg_flag_3")
-    data     Json
+    name                 String
+    algFlag1             AlgorithmFlag @map("alg_flag_1")
+    algFlag2             AlgorithmFlag @map("alg_flag_2")
+    algFlag3             AlgorithmFlag @map("alg_flag_3")
+    data                 Json
+    allocationGroupId    String        @map("allocation_group_id")
+    allocationSubGroupId String        @map("allocation_sub_group_id")
+    allocationInstanceId String        @map("allocation_instance_id")
 
-    @@id([name, algFlag1, algFlag2, algFlag3])
+    @@id([name, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Invitation {

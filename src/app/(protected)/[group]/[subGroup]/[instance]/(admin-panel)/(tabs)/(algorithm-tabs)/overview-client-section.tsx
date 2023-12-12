@@ -14,8 +14,14 @@ import { MatchingData, ServerResponseData } from "@/server/routers/algorithm";
 import { toast } from "react-hot-toast";
 
 export function OverviewClientSection({
+  groupId,
+  subGroupId,
+  instanceId,
   matchingData,
 }: {
+  groupId: string;
+  subGroupId: string;
+  instanceId: string;
   matchingData: MatchingData;
 }) {
   const { isLoading: generousLoading, mutateAsync: runGenerousAsync } =
@@ -31,15 +37,25 @@ export function OverviewClientSection({
     api.algorithm.greedyGen.useMutation();
 
   const handleClick = async (
-    mutateAsync: (
-      data: MatchingData,
-    ) => Promise<ServerResponseData | undefined>,
+    mutateAsync: ({
+      groupId,
+      subGroupId,
+      instanceId,
+      matchingData,
+    }: {
+      groupId: string;
+      subGroupId: string;
+      instanceId: string;
+      matchingData: MatchingData;
+    }) => Promise<ServerResponseData | undefined>,
     refetch: () => void,
   ) => {
     toast.promise(
-      mutateAsync(matchingData).then(() => {
-        refetch();
-      }),
+      mutateAsync({ groupId, subGroupId, instanceId, matchingData }).then(
+        () => {
+          refetch();
+        },
+      ),
       {
         loading: "Running...",
         error: "Something went wrong",
@@ -53,10 +69,10 @@ export function OverviewClientSection({
     data: generous,
     refetch: refetchGenerous,
   } = api.institution.instance.getAlgorithmResult.useQuery({
-    algorithmName: "generous",
-    algFlag1: "MAXSIZE",
-    algFlag2: "GEN",
-    algFlag3: "LSB",
+    algName: "generous",
+    groupId,
+    subGroupId,
+    instanceId,
   });
 
   const {
@@ -64,30 +80,30 @@ export function OverviewClientSection({
     data: greedy,
     refetch: refetchGreedy,
   } = api.institution.instance.getAlgorithmResult.useQuery({
-    algorithmName: "greedy",
-    algFlag1: "MAXSIZE",
-    algFlag2: "GRE",
-    algFlag3: "LSB",
+    algName: "greedy",
+    groupId,
+    subGroupId,
+    instanceId,
   });
   const {
     isLoading: minCostDataLoading,
     data: minCost,
     refetch: refetchMinCost,
   } = api.institution.instance.getAlgorithmResult.useQuery({
-    algorithmName: "minimum-cost",
-    algFlag1: "MAXSIZE",
-    algFlag2: "MINCOST",
-    algFlag3: "LSB",
+    algName: "minimum-cost",
+    groupId,
+    subGroupId,
+    instanceId,
   });
   const {
     isLoading: greedyGenDataLoading,
     data: greedyGen,
     refetch: refetchGreedyGen,
   } = api.institution.instance.getAlgorithmResult.useQuery({
-    algorithmName: "greedy-generous",
-    algFlag1: "MAXSIZE",
-    algFlag2: "GRE",
-    algFlag3: "LSB",
+    algName: "greedy-generous",
+    groupId,
+    subGroupId,
+    instanceId,
   });
 
   return (

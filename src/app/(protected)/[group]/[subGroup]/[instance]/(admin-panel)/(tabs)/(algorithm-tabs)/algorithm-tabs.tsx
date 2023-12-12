@@ -28,7 +28,12 @@ export async function AlgorithmTabs({
             <h2 className="mb-6 text-2xl font-semibold">
               Select Algorithms to run
             </h2>
-            <OverviewClientSection matchingData={matchingData} />
+            <OverviewClientSection
+              groupId={groupId}
+              subGroupId={subGroupId}
+              instanceId={instanceId}
+              matchingData={matchingData}
+            />
           </div>
         </div>
       </TabsContent>

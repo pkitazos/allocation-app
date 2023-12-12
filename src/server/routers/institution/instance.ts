@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
-import { AlgorithmFlag } from "@prisma/client";
+import { Stage } from "@prisma/client";
 import { z } from "zod";
 import { ServerResponseData, serverResponseDataSchema } from "../algorithm";
 
@@ -122,20 +122,69 @@ export const instanceRouter = createTRPCRouter({
       return stage;
     }),
 
+  setStage: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        stage: z.nativeEnum(Stage),
+      }),
+    )
+    .mutation(
+      async ({ ctx, input: { groupId, subGroupId, instanceId, stage } }) => {
+        await ctx.db.allocationInstance.update({
+          where: {
+            allocationGroupId_allocationSubGroupId_slug: {
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              slug: instanceId,
+            },
+          },
+          data: { stage },
+        });
+      },
+    ),
+  selectMatching: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        algName: z.string(),
+      }),
+    )
+    .mutation(
+      async ({ ctx, input: { algName, groupId, subGroupId, instanceId } }) => {
+        const matching = await ctx.db.algorithmResult.findFirstOrThrow({
+          where: {
+            name: algName,
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+          },
+        });
+
+        const result = serverResponseDataSchema.parse(
+          JSON.parse(matching.data as string),
+        );
+
+        // TODO this
+        // @ts-expect-error not finished
+        return result.data;
+      },
+    ),
   getAlgorithmResult: publicProcedure
     .input(
       z.object({
-        algorithmName: z.string(),
-        algFlag1: z.nativeEnum(AlgorithmFlag),
-        algFlag2: z.nativeEnum(AlgorithmFlag),
-        algFlag3: z.nativeEnum(AlgorithmFlag),
+        algName: z.string(),
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
       }),
     )
     .query(
-      async ({
-        ctx,
-        input: { algorithmName, algFlag1, algFlag2, algFlag3 },
-      }) => {
+      async ({ ctx, input: { algName, groupId, subGroupId, instanceId } }) => {
         const blankResult: ServerResponseData = {
           profile: [],
           matching: [],
@@ -146,10 +195,10 @@ export const instanceRouter = createTRPCRouter({
 
         const res = await ctx.db.algorithmResult.findFirst({
           where: {
-            name: algorithmName,
-            algFlag1,
-            algFlag2,
-            algFlag3,
+            name: algName,
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
           },
         });
 

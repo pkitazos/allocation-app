@@ -48,7 +48,7 @@ export async function DetailsSection() {
           <TabsTrigger value="generous">Generous</TabsTrigger>
           <TabsTrigger value="greedy">Greedy</TabsTrigger>
           <TabsTrigger value="minimum-cost">Minimum Cost</TabsTrigger>
-          <TabsTrigger value="greedy-generous">GreedyGenerous</TabsTrigger>
+          <TabsTrigger value="greedy-generous">Greedy-Generous</TabsTrigger>
         </TabsList>
         <TabsContent value="generous">
           <DetailsTable data={generousData} />
