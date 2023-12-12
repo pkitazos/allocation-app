@@ -1,11 +1,28 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { Stage } from "@prisma/client";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
-export function StageControl() {
+const stages = Object.values(Stage);
+
+export function StageControl({
+  groupId,
+  subGroupId,
+  instanceId,
+  stage,
+}: {
+  groupId: string;
+  subGroupId: string;
+  instanceId: string;
+  stage: Stage;
+}) {
   const [selectedIdx, setSelectedIdx] = useState(-1);
-  const [confirmedIdx, setConfirmedIdx] = useState(1);
+  const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
+
+  const { mutateAsync } = api.institution.instance.setStage.useMutation();
 
   const handleSelection = (idx: number) => {
     if (idx === selectedIdx) setSelectedIdx(-1);
@@ -13,8 +30,22 @@ export function StageControl() {
   };
 
   const handleConfirmation = (idx: number) => {
-    setSelectedIdx(-1);
-    setConfirmedIdx(idx);
+    toast.promise(
+      mutateAsync({
+        groupId,
+        subGroupId,
+        instanceId,
+        stage: stages[idx - 1],
+      }).then(() => {
+        setSelectedIdx(-1);
+        setConfirmedIdx(idx);
+      }),
+      {
+        loading: "Updating Stage...",
+        error: "Something went wrong",
+        success: "Succcess",
+      },
+    );
   };
   return (
     <div className="mx-16 mt-20 flex justify-between px-6">

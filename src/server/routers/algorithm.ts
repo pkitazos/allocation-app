@@ -25,132 +25,199 @@ type AlgorithmServerData =
 
 export const algorithmRouter = createTRPCRouter({
   generous: publicProcedure
-    .input(matchingDataSchema)
-    .mutation(async ({ ctx, input: matchingData }) => {
-      const result = await getMatching({ algorithm: "generous", matchingData });
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        matchingData: matchingDataSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: { groupId, subGroupId, instanceId, matchingData },
+      }) => {
+        const result = await getMatching({
+          algorithm: "generous",
+          matchingData,
+        });
 
-      if (result) {
-        const hello = await ctx.db.algorithmResult.upsert({
-          where: {
-            name_algFlag1_algFlag2_algFlag3: {
+        if (result) {
+          const hello = await ctx.db.algorithmResult.upsert({
+            where: {
+              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  name: "generous",
+                  allocationGroupId: groupId,
+                  allocationSubGroupId: subGroupId,
+                  allocationInstanceId: instanceId,
+                },
+            },
+            update: {
+              data: JSON.stringify(result),
+            },
+            create: {
               name: "generous",
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
               algFlag1: "MAXSIZE",
               algFlag2: "GEN",
               algFlag3: "LSB",
+              data: JSON.stringify(result),
             },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "generous",
-            algFlag1: "MAXSIZE",
-            algFlag2: "GEN",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-        console.log(hello);
-      }
+          });
+          console.log(hello);
+        }
 
-      return result;
-    }),
+        return result;
+      },
+    ),
 
   greedy: publicProcedure
-    .input(matchingDataSchema)
-    .mutation(async ({ ctx, input: matchingData }) => {
-      const result = await getMatching({ algorithm: "greedy", matchingData });
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        matchingData: matchingDataSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: { groupId, subGroupId, instanceId, matchingData },
+      }) => {
+        const result = await getMatching({ algorithm: "greedy", matchingData });
 
-      if (result) {
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_algFlag1_algFlag2_algFlag3: {
+        if (result) {
+          await ctx.db.algorithmResult.upsert({
+            where: {
+              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  name: "greedy",
+                  allocationGroupId: groupId,
+                  allocationSubGroupId: subGroupId,
+                  allocationInstanceId: instanceId,
+                },
+            },
+            update: {
+              data: JSON.stringify(result),
+            },
+            create: {
               name: "greedy",
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
               algFlag1: "MAXSIZE",
               algFlag2: "GRE",
               algFlag3: "LSB",
+              data: JSON.stringify(result),
             },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "greedy",
-            algFlag1: "MAXSIZE",
-            algFlag2: "GRE",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-      }
-      return result;
-    }),
+          });
+        }
+        return result;
+      },
+    ),
 
   minCost: publicProcedure
-    .input(matchingDataSchema)
-    .mutation(async ({ ctx, input: matchingData }) => {
-      const result = await getMatching({
-        algorithm: "minimum-cost",
-        matchingData,
-      });
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        matchingData: matchingDataSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: { groupId, subGroupId, instanceId, matchingData },
+      }) => {
+        const result = await getMatching({
+          algorithm: "minimum-cost",
+          matchingData,
+        });
 
-      if (result) {
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_algFlag1_algFlag2_algFlag3: {
+        if (result) {
+          await ctx.db.algorithmResult.upsert({
+            where: {
+              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  name: "minimum-cost",
+                  allocationGroupId: groupId,
+                  allocationSubGroupId: subGroupId,
+                  allocationInstanceId: instanceId,
+                },
+            },
+            update: {
+              data: JSON.stringify(result),
+            },
+            create: {
               name: "minimum-cost",
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
               algFlag1: "MAXSIZE",
               algFlag2: "MINCOST",
               algFlag3: "LSB",
+              data: JSON.stringify(result),
             },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "minimum-cost",
-            algFlag1: "MAXSIZE",
-            algFlag2: "MINCOST",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-      }
-      return result;
-    }),
+          });
+        }
+        return result;
+      },
+    ),
 
   greedyGen: publicProcedure
-    .input(matchingDataSchema)
-    .mutation(async ({ ctx, input: matchingData }) => {
-      const result = await getMatching({
-        algorithm: "greedy-generous",
-        matchingData,
-      });
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+        matchingData: matchingDataSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: { groupId, subGroupId, instanceId, matchingData },
+      }) => {
+        const result = await getMatching({
+          algorithm: "greedy-generous",
+          matchingData,
+        });
 
-      if (result) {
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_algFlag1_algFlag2_algFlag3: {
+        if (result) {
+          await ctx.db.algorithmResult.upsert({
+            where: {
+              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  name: "greedy-generous",
+                  allocationGroupId: groupId,
+                  allocationSubGroupId: subGroupId,
+                  allocationInstanceId: instanceId,
+                },
+            },
+            update: {
+              data: JSON.stringify(result),
+            },
+            create: {
               name: "greedy-generous",
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
               algFlag1: "MAXSIZE",
               algFlag2: "GRE",
               algFlag3: "LSB",
+              data: JSON.stringify(result),
             },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "greedy-generous",
-            algFlag1: "MAXSIZE",
-            algFlag2: "GRE",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-      }
-      return result;
-    }),
+          });
+        }
+        return result;
+      },
+    ),
 
   // TODO: decide how to name custom Algorithm configurations
   custom: publicProcedure

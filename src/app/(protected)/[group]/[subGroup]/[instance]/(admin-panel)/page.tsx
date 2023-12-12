@@ -19,12 +19,12 @@ export default async function Page({
 }: {
   params: { group: string; subGroup: string; instance: string };
 }) {
-  let stage = await api.institution.instance.getStage.query({
+  const stage = await api.institution.instance.getStage.query({
     groupId: group,
     subGroupId: subGroup,
     instanceId: instance,
   });
-  stage = "PROJECT_ALLOCATION"; // ! for testing only
+
   const tabs = tabsRecord[stage];
 
   return (
@@ -54,7 +54,12 @@ export default async function Page({
       <section className="col-span-5 max-w-6xl">
         <Heading title={instance} />
         <TabsContent value="stage-control">
-          <StageControl />
+          <StageControl
+            stage={stage}
+            groupId={group}
+            subGroupId={subGroup}
+            instanceId={instance}
+          />
         </TabsContent>
         {stage === "PROJECT_ALLOCATION" && (
           <AlgorithmTabs
