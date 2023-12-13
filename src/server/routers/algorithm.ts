@@ -5,23 +5,40 @@ import { env } from "@/env";
 const matchingDataSchema = z.object({
   students: z.array(z.array(z.string())),
   projects: z.array(z.tuple([z.string(), z.number(), z.number(), z.string()])),
+  //^ consider making this an object not a tuple
+  // its pretty opaque as a tuple - what do these things mean?
+  // if it really needs to be a tuple you could have a .transform() maybe?
   lecturers: z.array(z.tuple([z.string(), z.number(), z.number(), z.number()])),
+  // ^ same deal here
 });
 
 const mathcingDataWithArgsSchema = z.object({
   students: z.array(z.array(z.string())),
   projects: z.array(z.tuple([z.string(), z.number(), z.number(), z.string()])),
   lecturers: z.array(z.tuple([z.string(), z.number(), z.number(), z.number()])),
+  //  ^ these 2 also
   args: z.array(z.string()),
 });
 
+export const serverResponseDataSchema = z.object({
+  matching: z.array(z.tuple([z.string(), z.string(), z.number()])),
+  profile: z.array(z.number()),
+  weight: z.number(),
+  size: z.number(),
+  degree: z.number(),
+});
+
+export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;
+
 export type MatchingData = z.infer<typeof matchingDataSchema>;
 
-type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
+export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
+
+type builtInAlg = "generous" | "greedy" | "minimum-cost" | "greedy-generous";
 
 type AlgorithmServerData =
-  | { algorithm: ""; matchingData: MatchingDataWithArgs }
-  | { algorithm: string; matchingData: MatchingData };
+  | { algorithm: "custom"; matchingData: MatchingDataWithArgs }
+  | { algorithm: builtInAlg; matchingData: MatchingData };
 
 export const algorithmRouter = createTRPCRouter({
   generous: publicProcedure
@@ -44,6 +61,7 @@ export const algorithmRouter = createTRPCRouter({
         });
 
         if (result) {
+          // guard clause? i.e. if !result return null
           const hello = await ctx.db.algorithmResult.upsert({
             where: {
               name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
@@ -223,7 +241,7 @@ export const algorithmRouter = createTRPCRouter({
   custom: publicProcedure
     .input(mathcingDataWithArgsSchema)
     .mutation(async ({ input: matchingData }) => {
-      const result = await getMatching({ algorithm: "", matchingData });
+      const result = await getMatching({ algorithm: "custom", matchingData });
       return result;
     }),
 });
@@ -245,13 +263,3 @@ const getMatching = async ({
 
   return result.data;
 };
-
-export const serverResponseDataSchema = z.object({
-  matching: z.array(z.tuple([z.string(), z.string(), z.number()])),
-  profile: z.array(z.number()),
-  weight: z.number(),
-  size: z.number(),
-  degree: z.number(),
-});
-
-export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;
