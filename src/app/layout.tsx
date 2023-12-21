@@ -43,7 +43,7 @@ export default async function RootLayout({
               <Header adminPanel={adminPanel} />
               <main className="flex h-[92dvh] flex-col justify-start gap-4">
                 <Breadcrumbs />
-                <section className="3xl:max-w-9xl mx-auto flex w-full max-w-7xl justify-center pt-6">
+                <section className="mx-auto flex w-full max-w-7xl justify-center pb-40 pt-6 3xl:max-w-9xl">
                   {children}
                 </section>
               </main>

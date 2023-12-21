@@ -255,6 +255,7 @@ model AlgorithmResult {
     algFlag2             AlgorithmFlag @map("alg_flag_2")
     algFlag3             AlgorithmFlag @map("alg_flag_3")
     data                 Json
+    selected             Boolean       @default(false)
     allocationGroupId    String        @map("allocation_group_id")
     allocationSubGroupId String        @map("allocation_sub_group_id")
     allocationInstanceId String        @map("allocation_instance_id")

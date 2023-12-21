@@ -28,13 +28,23 @@ export const serverResponseDataSchema = z.object({
   degree: z.number(),
 });
 
+export const algorithmResultSchema = serverResponseDataSchema.extend({
+  selected: z.boolean(),
+});
+
 export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;
+
+export type AlgorithmResult = z.infer<typeof algorithmResultSchema>;
 
 export type MatchingData = z.infer<typeof matchingDataSchema>;
 
 export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
 
-type builtInAlg = "generous" | "greedy" | "minimum-cost" | "greedy-generous";
+export type builtInAlg =
+  | "generous"
+  | "greedy"
+  | "minimum-cost"
+  | "greedy-generous";
 
 type AlgorithmServerData =
   | { algorithm: "custom"; matchingData: MatchingDataWithArgs }
@@ -55,39 +65,38 @@ export const algorithmRouter = createTRPCRouter({
         ctx,
         input: { groupId, subGroupId, instanceId, matchingData },
       }) => {
-        const result = await getMatching({
+        const serverResult = await getMatching({
           algorithm: "generous",
           matchingData,
         });
 
-        if (result) {
-          // guard clause? i.e. if !result return null
-          const hello = await ctx.db.algorithmResult.upsert({
-            where: {
-              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  name: "generous",
-                  allocationGroupId: groupId,
-                  allocationSubGroupId: subGroupId,
-                  allocationInstanceId: instanceId,
-                },
-            },
-            update: {
-              data: JSON.stringify(result),
-            },
-            create: {
+        if (!serverResult) return undefined;
+
+        const result = { ...serverResult, selected: false };
+
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
               name: "generous",
               allocationGroupId: groupId,
               allocationSubGroupId: subGroupId,
               allocationInstanceId: instanceId,
-              algFlag1: "MAXSIZE",
-              algFlag2: "GEN",
-              algFlag3: "LSB",
-              data: JSON.stringify(result),
             },
-          });
-          console.log(hello);
-        }
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "generous",
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+            algFlag1: "MAXSIZE",
+            algFlag2: "GEN",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
 
         return result;
       },
@@ -107,34 +116,39 @@ export const algorithmRouter = createTRPCRouter({
         ctx,
         input: { groupId, subGroupId, instanceId, matchingData },
       }) => {
-        const result = await getMatching({ algorithm: "greedy", matchingData });
+        const serverResult = await getMatching({
+          algorithm: "greedy",
+          matchingData,
+        });
 
-        if (result) {
-          await ctx.db.algorithmResult.upsert({
-            where: {
-              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  name: "greedy",
-                  allocationGroupId: groupId,
-                  allocationSubGroupId: subGroupId,
-                  allocationInstanceId: instanceId,
-                },
-            },
-            update: {
-              data: JSON.stringify(result),
-            },
-            create: {
+        if (!serverResult) return undefined;
+
+        const result = { ...serverResult, selected: false };
+
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
               name: "greedy",
               allocationGroupId: groupId,
               allocationSubGroupId: subGroupId,
               allocationInstanceId: instanceId,
-              algFlag1: "MAXSIZE",
-              algFlag2: "GRE",
-              algFlag3: "LSB",
-              data: JSON.stringify(result),
             },
-          });
-        }
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "greedy",
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+            algFlag1: "MAXSIZE",
+            algFlag2: "GRE",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+
         return result;
       },
     ),
@@ -153,37 +167,38 @@ export const algorithmRouter = createTRPCRouter({
         ctx,
         input: { groupId, subGroupId, instanceId, matchingData },
       }) => {
-        const result = await getMatching({
+        const serverResult = await getMatching({
           algorithm: "minimum-cost",
           matchingData,
         });
+        if (!serverResult) return undefined;
 
-        if (result) {
-          await ctx.db.algorithmResult.upsert({
-            where: {
-              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  name: "minimum-cost",
-                  allocationGroupId: groupId,
-                  allocationSubGroupId: subGroupId,
-                  allocationInstanceId: instanceId,
-                },
-            },
-            update: {
-              data: JSON.stringify(result),
-            },
-            create: {
+        const result = { ...serverResult, selected: false };
+
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
               name: "minimum-cost",
               allocationGroupId: groupId,
               allocationSubGroupId: subGroupId,
               allocationInstanceId: instanceId,
-              algFlag1: "MAXSIZE",
-              algFlag2: "MINCOST",
-              algFlag3: "LSB",
-              data: JSON.stringify(result),
             },
-          });
-        }
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "minimum-cost",
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+            algFlag1: "MAXSIZE",
+            algFlag2: "MINCOST",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+
         return result;
       },
     ),
@@ -202,37 +217,39 @@ export const algorithmRouter = createTRPCRouter({
         ctx,
         input: { groupId, subGroupId, instanceId, matchingData },
       }) => {
-        const result = await getMatching({
+        const serverResult = await getMatching({
           algorithm: "greedy-generous",
           matchingData,
         });
 
-        if (result) {
-          await ctx.db.algorithmResult.upsert({
-            where: {
-              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  name: "greedy-generous",
-                  allocationGroupId: groupId,
-                  allocationSubGroupId: subGroupId,
-                  allocationInstanceId: instanceId,
-                },
-            },
-            update: {
-              data: JSON.stringify(result),
-            },
-            create: {
+        if (!serverResult) return undefined;
+
+        const result = { ...serverResult, selected: false };
+
+        await ctx.db.algorithmResult.upsert({
+          where: {
+            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
               name: "greedy-generous",
               allocationGroupId: groupId,
               allocationSubGroupId: subGroupId,
               allocationInstanceId: instanceId,
-              algFlag1: "MAXSIZE",
-              algFlag2: "GRE",
-              algFlag3: "LSB",
-              data: JSON.stringify(result),
             },
-          });
-        }
+          },
+          update: {
+            data: JSON.stringify(result),
+          },
+          create: {
+            name: "greedy-generous",
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+            algFlag1: "MAXSIZE",
+            algFlag2: "GRE",
+            algFlag3: "LSB",
+            data: JSON.stringify(result),
+          },
+        });
+
         return result;
       },
     ),
@@ -255,10 +272,10 @@ const getMatching = async ({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(matchingData),
   }).then((res) => res.json());
-
+  console.log("from getMatching", res);
   if (res.ok) console.log(res);
   const result = serverResponseDataSchema.safeParse(res.data);
-
+  console.log("from getMatching", result);
   if (!result.success) return;
 
   return result.data;

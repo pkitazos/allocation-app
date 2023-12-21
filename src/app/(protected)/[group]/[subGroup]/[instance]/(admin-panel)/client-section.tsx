@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { Stage } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -19,6 +20,7 @@ export function StageControl({
   instanceId: string;
   stage: Stage;
 }) {
+  const router = useRouter();
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
 
@@ -39,6 +41,7 @@ export function StageControl({
       }).then(() => {
         setSelectedIdx(-1);
         setConfirmedIdx(idx);
+        router.refresh();
       }),
       {
         loading: "Updating Stage...",
