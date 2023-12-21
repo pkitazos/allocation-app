@@ -59,10 +59,12 @@ export default function DataTable<TData, TValue>({
   return (
     <div className={cn(className)}>
       <div className="flex items-center gap-4 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} /{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected
-        </div>
+        {table.getAllColumns().at(0)?.id === "select" && (
+          <div className="flex-1 text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} /{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected
+          </div>
+        )}
         <DataTableViewOptions table={table} />
       </div>
       <div className="w-full rounded-md border border-accent dark:border-slate-600">
