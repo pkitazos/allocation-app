@@ -1,5 +1,5 @@
 import { api } from "@/lib/trpc/server";
-import { StageControl } from "./client-section";
+import { StageControl } from "./stage-control";
 
 export default async function Page({
   params: { group, subGroup, instance },
