@@ -1,7 +1,7 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { Stage } from "@prisma/client";
 import { z } from "zod";
-import { ServerResponseData, serverResponseDataSchema } from "../algorithm";
+import { AlgorithmResult, algorithmResultSchema } from "../algorithm";
 
 export const instanceRouter = createTRPCRouter({
   getMatchingData: publicProcedure
@@ -53,11 +53,6 @@ export const instanceRouter = createTRPCRouter({
         },
       });
 
-      // const supervisorHashMap = new Map<string, number>();
-      // supervisorData.map(({ supervisorId }, idx) => {
-      //   supervisorHashMap.set(supervisorId, idx + 1);
-      // });
-
       const projectData = await ctx.db.project.findMany({
         where: {
           allocationGroupId: groupId,
@@ -65,11 +60,6 @@ export const instanceRouter = createTRPCRouter({
           allocationInstanceId: instanceId,
         },
       });
-
-      // const projectHashMap = new Map<string, number>();
-      // projectData.map(({ id }, idx) => {
-      //   projectHashMap.set(id, idx + 1);
-      // });
 
       const students = studentData.map(({ student: { id, preferences } }) =>
         [id].concat(preferences.map(({ projectId }) => projectId)),
@@ -152,26 +142,93 @@ export const instanceRouter = createTRPCRouter({
         subGroupId: z.string(),
         instanceId: z.string(),
         algName: z.string(),
+        oldAlgName: z.string().optional(),
       }),
     )
     .mutation(
-      async ({ ctx, input: { algName, groupId, subGroupId, instanceId } }) => {
-        const matching = await ctx.db.algorithmResult.findFirstOrThrow({
+      async ({
+        ctx,
+        input: { algName, oldAlgName, groupId, subGroupId, instanceId },
+      }) => {
+        if (oldAlgName) {
+          await ctx.db.projectAllocation.deleteMany({
+            where: {
+              project: {
+                allocationGroupId: groupId,
+                allocationSubGroupId: subGroupId,
+                allocationInstanceId: instanceId,
+              },
+            },
+          });
+
+          const { data: oldAlgData } =
+            await ctx.db.algorithmResult.findFirstOrThrow({
+              where: {
+                name: oldAlgName,
+                allocationGroupId: groupId,
+                allocationSubGroupId: subGroupId,
+                allocationInstanceId: instanceId,
+              },
+            });
+
+          const oldAlgPrevData = algorithmResultSchema.parse(
+            JSON.parse(oldAlgData as string),
+          );
+
+          const oldAlgUpdatedData = { ...oldAlgPrevData, selected: false };
+          console.log("oldAlgUpdatedData", oldAlgUpdatedData);
+          await ctx.db.algorithmResult.update({
+            where: {
+              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  name: oldAlgName,
+                  allocationGroupId: groupId,
+                  allocationSubGroupId: subGroupId,
+                  allocationInstanceId: instanceId,
+                },
+            },
+            data: {
+              data: JSON.stringify(oldAlgUpdatedData),
+            },
+          });
+        }
+
+        const { data: newAlgData } =
+          await ctx.db.algorithmResult.findFirstOrThrow({
+            where: {
+              name: algName,
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
+            },
+          });
+
+        const newAlgPrevData = algorithmResultSchema.parse(
+          JSON.parse(newAlgData as string),
+        );
+
+        const newAlgUpdatedData = { ...newAlgPrevData, selected: true };
+        console.log("newAlgUpdatedData", newAlgUpdatedData);
+        await ctx.db.algorithmResult.update({
           where: {
-            name: algName,
-            allocationGroupId: groupId,
-            allocationSubGroupId: subGroupId,
-            allocationInstanceId: instanceId,
+            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
+              name: algName,
+              allocationGroupId: groupId,
+              allocationSubGroupId: subGroupId,
+              allocationInstanceId: instanceId,
+            },
+          },
+          data: {
+            data: JSON.stringify(newAlgUpdatedData),
           },
         });
 
-        const result = serverResponseDataSchema.parse(
-          JSON.parse(matching.data as string),
-        );
-
-        // TODO this
-        // @ts-expect-error not finished
-        return result.data;
+        await ctx.db.projectAllocation.createMany({
+          data: newAlgUpdatedData.matching.map((pair) => ({
+            studentId: pair[0],
+            projectId: pair[1],
+          })),
+        });
       },
     ),
   getAlgorithmResult: publicProcedure
@@ -185,12 +242,13 @@ export const instanceRouter = createTRPCRouter({
     )
     .query(
       async ({ ctx, input: { algName, groupId, subGroupId, instanceId } }) => {
-        const blankResult: ServerResponseData = {
+        const blankResult: AlgorithmResult = {
           profile: [],
           matching: [],
           weight: NaN,
           size: NaN,
           degree: NaN,
+          selected: false,
         };
 
         const res = await ctx.db.algorithmResult.findFirst({
@@ -201,18 +259,165 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instanceId,
           },
         });
-
+        console.log("from getAlgorithmResult", res);
         if (!res) return blankResult;
 
-        const result = serverResponseDataSchema.safeParse(
+        const result = algorithmResultSchema.safeParse(
           JSON.parse(res.data as string),
         );
+        console.log("from getAlgorithmResult", result);
 
         if (!result.success) return blankResult;
 
         return result.data;
       },
     ),
+  getProjectAllocations: publicProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        subGroupId: z.string(),
+        instanceId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input: { groupId, subGroupId, instanceId } }) => {
+      const byStudentRaw = await ctx.db.projectAllocation.findMany({
+        where: {
+          project: {
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+          },
+        },
+        select: {
+          student: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              // flags: true,
+            },
+          },
+          project: {
+            select: {
+              id: true,
+              supervisor: { select: { name: true } },
+            },
+          },
+        },
+      });
+
+      const byStudent = byStudentRaw.map(
+        ({
+          student: { id: studentId, name: studentName, email: studentEmail },
+          project: {
+            id: projectId,
+            supervisor: { name: supervisorName },
+          },
+        }) => ({
+          studentId,
+          studentName,
+          studentEmail,
+          projectId,
+          supervisorName,
+        }),
+      );
+
+      const byProjectRaw = await ctx.db.projectAllocation.findMany({
+        where: {
+          project: {
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+          },
+        },
+        select: {
+          project: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              supervisor: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          student: {
+            select: { id: true },
+          },
+        },
+      });
+
+      const byProject = byProjectRaw.map(
+        ({
+          project: {
+            id: projectId,
+            title: projectTitle,
+            supervisor: { id: supervisorId, name: supervisorName },
+          },
+          student: { id: studentId },
+        }) => ({
+          projectId,
+          projectTitle,
+          studentId,
+          supervisorId,
+          supervisorName,
+        }),
+      );
+
+      const bySupervisorRaw = await ctx.db.projectAllocation.findMany({
+        where: {
+          project: {
+            allocationGroupId: groupId,
+            allocationSubGroupId: subGroupId,
+            allocationInstanceId: instanceId,
+          },
+        },
+        select: {
+          project: {
+            select: {
+              id: true,
+              title: true,
+              supervisor: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          student: { select: { id: true } },
+        },
+      });
+
+      const bySupervisor = bySupervisorRaw.map(
+        ({
+          project: {
+            supervisor: {
+              id: supervisorId,
+              name: supervisorName,
+              email: supervisorEmail,
+            },
+            id: projectId,
+            title: projectTitle,
+          },
+          student: { id: studentId },
+        }) => ({
+          supervisorId,
+          supervisorName,
+          supervisorEmail,
+          projectId,
+          projectTitle,
+          studentId,
+        }),
+      );
+
+      return { byStudent, byProject, bySupervisor };
+    }),
 });
 
 export const testAllocationData = {

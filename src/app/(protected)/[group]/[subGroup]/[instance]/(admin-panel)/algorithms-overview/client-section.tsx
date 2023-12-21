@@ -10,10 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
-import { MatchingData, ServerResponseData } from "@/server/routers/algorithm";
+import { cn } from "@/lib/utils";
+import {
+  MatchingData,
+  ServerResponseData,
+  builtInAlg,
+} from "@/server/routers/algorithm";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-export function OverviewClientSection({
+export function ClientSection({
   groupId,
   subGroupId,
   instanceId,
@@ -24,6 +30,10 @@ export function OverviewClientSection({
   instanceId: string;
   matchingData: MatchingData;
 }) {
+  const [selectedMatching, setSelectedMatching] = useState<builtInAlg>();
+  const { mutateAsync: selectMatchingAsync } =
+    api.institution.instance.selectMatching.useMutation();
+
   const { isLoading: generousLoading, mutateAsync: runGenerousAsync } =
     api.algorithm.generous.useMutation();
 
@@ -53,7 +63,9 @@ export function OverviewClientSection({
     toast.promise(
       mutateAsync({ groupId, subGroupId, instanceId, matchingData }).then(
         () => {
+          console.log("from handleClick pre-refetch", generous);
           refetch();
+          console.log("from handleClick post-prefetch", generous);
         },
       ),
       {
@@ -106,8 +118,27 @@ export function OverviewClientSection({
     instanceId,
   });
 
+  const handleSelection = (algName: builtInAlg) => {
+    toast.promise(
+      selectMatchingAsync({
+        oldAlgName: selectedMatching,
+        algName,
+        groupId,
+        subGroupId,
+        instanceId,
+      }).then(() => {
+        setSelectedMatching(algName);
+      }),
+      {
+        loading: "Running...",
+        error: "Something went wrong",
+        success: "Succcess",
+      },
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex w-full flex-col gap-5">
       <div className="flex justify-between gap-5">
         <p>Generous - description</p>
         <Button
@@ -150,79 +181,90 @@ export function OverviewClientSection({
           <TableRow>
             <TableHead className="font-semibold">Matching Type</TableHead>
             <TableHead className="text-center">Weight</TableHead>
-            <TableHead className="text-center">Profile</TableHead>
+            <TableHead className="w-fit min-w-[8rem] text-center">
+              Profile
+            </TableHead>
+            <TableHead className="w-32 text-center">&nbsp;</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell className="font-medium">Generous</TableCell>
-            <TableCell className="text-center">
-              {generousDataLoading
-                ? "-"
-                : generous &&
-                  (Number.isNaN(generous.weight) ? "-" : generous.weight)}
-            </TableCell>
-            <TableCell className="text-center">
-              {generousDataLoading
-                ? "-"
-                : generous &&
-                  (Number.isNaN(generous.profile)
-                    ? "-"
-                    : `(${generous.profile.join(", ")})`)}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">Greedy</TableCell>
-            <TableCell className="text-center">
-              {greedyDataLoading
-                ? "-"
-                : greedy && (Number.isNaN(greedy.weight) ? "-" : greedy.weight)}
-            </TableCell>
-            <TableCell className="text-center">
-              {greedyDataLoading
-                ? "-"
-                : greedy &&
-                  (Number.isNaN(greedy.profile)
-                    ? "-"
-                    : `(${greedy.profile.join(", ")})`)}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">Minimum Cost</TableCell>
-            <TableCell className="text-center">
-              {minCostDataLoading
-                ? "-"
-                : minCost &&
-                  (Number.isNaN(minCost.weight) ? "-" : minCost.weight)}
-            </TableCell>
-            <TableCell className="text-center">
-              {minCostDataLoading
-                ? "-"
-                : minCost &&
-                  (Number.isNaN(minCost.profile)
-                    ? "-"
-                    : `(${minCost.profile.join(", ")})`)}
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className="font-medium">Greedy-Generous</TableCell>
-            <TableCell className="text-center">
-              {greedyGenDataLoading
-                ? "-"
-                : greedyGen &&
-                  (Number.isNaN(greedyGen.weight) ? "-" : greedyGen.weight)}
-            </TableCell>
-            <TableCell className="text-center">
-              {greedyGenDataLoading
-                ? "-"
-                : greedyGen &&
-                  (Number.isNaN(greedyGen.profile)
-                    ? "-"
-                    : `(${greedyGen.profile.join(", ")})`)}
-            </TableCell>
-          </TableRow>
+          <ResultsTableRow
+            isLoading={generousDataLoading}
+            matching={generous}
+            algName={"generous"}
+            algDisplayName={"Generous"}
+            selectedMatching={selectedMatching}
+            handleSelection={handleSelection}
+          />
+          <ResultsTableRow
+            isLoading={greedyDataLoading}
+            matching={greedy}
+            algName={"greedy"}
+            algDisplayName={"Greedy"}
+            selectedMatching={selectedMatching}
+            handleSelection={handleSelection}
+          />
+          <ResultsTableRow
+            isLoading={minCostDataLoading}
+            matching={minCost}
+            algName={"minimum-cost"}
+            algDisplayName={"Minimum Cost"}
+            selectedMatching={selectedMatching}
+            handleSelection={handleSelection}
+          />
+          <ResultsTableRow
+            isLoading={greedyGenDataLoading}
+            matching={greedyGen}
+            algName={"greedy-generous"}
+            algDisplayName={"Greedy-Generous"}
+            selectedMatching={selectedMatching}
+            handleSelection={handleSelection}
+          />
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function ResultsTableRow({
+  isLoading,
+  matching,
+  algName,
+  algDisplayName,
+  selectedMatching,
+  handleSelection,
+}: {
+  isLoading: boolean;
+  matching: ServerResponseData | undefined;
+  algName: builtInAlg;
+  algDisplayName: string;
+  selectedMatching: builtInAlg | undefined;
+  handleSelection: (algName: builtInAlg) => void;
+}) {
+  // const selected = !isLoading && matching !== undefined && matching.selected;
+
+  return (
+    <TableRow className="items-center">
+      <TableCell className="font-medium">{algDisplayName}</TableCell>
+      <TableCell className="text-center">
+        {isLoading || !matching || Number.isNaN(matching.weight)
+          ? "-"
+          : matching.weight}
+      </TableCell>
+      <TableCell className="text-center">
+        {isLoading || !matching || matching.profile.length === 0
+          ? "-"
+          : `(${matching.profile.join(", ")})`}
+      </TableCell>
+      <TableCell className="text-center">
+        <Button
+          variant={selectedMatching === algName ? "secondary" : "ghost"}
+          className={cn()}
+          onClick={() => handleSelection(algName)}
+        >
+          {selectedMatching === algName ? "Selected" : "Select"}
+        </Button>
+      </TableCell>
+    </TableRow>
   );
 }
