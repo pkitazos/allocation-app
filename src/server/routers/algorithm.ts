@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { env } from "@/env";
 
 const matchingDataSchema = z.object({
@@ -51,7 +51,7 @@ type AlgorithmServerData =
   | { algorithm: builtInAlg; matchingData: MatchingData };
 
 export const algorithmRouter = createTRPCRouter({
-  generous: publicProcedure
+  generous: protectedProcedure
     .input(
       z.object({
         groupId: z.string(),
@@ -102,7 +102,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  greedy: publicProcedure
+  greedy: protectedProcedure
     .input(
       z.object({
         groupId: z.string(),
@@ -153,7 +153,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  minCost: publicProcedure
+  minCost: protectedProcedure
     .input(
       z.object({
         groupId: z.string(),
@@ -203,7 +203,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  greedyGen: publicProcedure
+  greedyGen: protectedProcedure
     .input(
       z.object({
         groupId: z.string(),
@@ -255,7 +255,7 @@ export const algorithmRouter = createTRPCRouter({
     ),
 
   // TODO: decide how to name custom Algorithm configurations
-  custom: publicProcedure
+  custom: protectedProcedure
     .input(mathcingDataWithArgsSchema)
     .mutation(async ({ input: matchingData }) => {
       const result = await getMatching({ algorithm: "custom", matchingData });
