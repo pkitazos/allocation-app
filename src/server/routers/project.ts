@@ -1,12 +1,11 @@
-import { db } from "@/lib/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
   getAll: publicProcedure
     .input(z.object({ allocationInstanceId: z.string() }))
-    .query(async ({ input: { allocationInstanceId } }) => {
-      return await db.project.findMany({
+    .query(async ({ ctx, input: { allocationInstanceId } }) => {
+      return await ctx.db.project.findMany({
         where: {
           allocationInstanceId,
         },
@@ -18,8 +17,8 @@ export const projectRouter = createTRPCRouter({
 
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input: { id } }) => {
-      return await db.project.findFirstOrThrow({
+    .query(async ({ ctx, input: { id } }) => {
+      return await ctx.db.project.findFirstOrThrow({
         where: {
           id,
         },
