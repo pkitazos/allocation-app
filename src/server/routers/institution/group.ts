@@ -1,4 +1,3 @@
-import { db } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
@@ -6,10 +5,10 @@ import { z } from "zod";
 export const groupRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ groupId: z.string() }))
-    .query(async ({ input: { groupId } }) => {
+    .query(async ({ ctx, input: { groupId } }) => {
       console.log(groupId);
 
-      return await db.allocationGroup.findFirstOrThrow({
+      return await ctx.db.allocationGroup.findFirstOrThrow({
         where: {
           slug: groupId,
         },
@@ -22,8 +21,8 @@ export const groupRouter = createTRPCRouter({
 
   getAllSubGroupNames: publicProcedure
     .input(z.object({ groupId: z.string() }))
-    .query(async ({ input: { groupId } }) => {
-      const data = await db.allocationGroup.findFirstOrThrow({
+    .query(async ({ ctx, input: { groupId } }) => {
+      const data = await ctx.db.allocationGroup.findFirstOrThrow({
         where: {
           slug: groupId,
         },
@@ -40,8 +39,8 @@ export const groupRouter = createTRPCRouter({
 
   createSubGroup: publicProcedure
     .input(z.object({ groupId: z.string(), name: z.string() }))
-    .mutation(async ({ input: { groupId, name } }) => {
-      await db.allocationSubGroup.create({
+    .mutation(async ({ ctx, input: { groupId, name } }) => {
+      await ctx.db.allocationSubGroup.create({
         data: {
           displayName: name,
           slug: slugify(name),

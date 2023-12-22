@@ -1,12 +1,11 @@
-import { db } from "@/lib/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const shortlistRouter = createTRPCRouter({
   add: publicProcedure
     .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      return await db.shortlist.create({
+    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
+      return await ctx.db.shortlist.create({
         data: {
           projectId,
           studentId,
@@ -16,8 +15,8 @@ export const shortlistRouter = createTRPCRouter({
 
   remove: publicProcedure
     .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      await db.shortlist.delete({
+    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
+      await ctx.db.shortlist.delete({
         where: {
           projectId_studentId: {
             projectId,
@@ -29,8 +28,8 @@ export const shortlistRouter = createTRPCRouter({
 
   fromPreference: publicProcedure
     .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      await db.preference.delete({
+    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
+      await ctx.db.preference.delete({
         where: {
           projectId_studentId: {
             projectId,
@@ -39,7 +38,7 @@ export const shortlistRouter = createTRPCRouter({
         },
       });
 
-      return await db.shortlist.create({
+      return await ctx.db.shortlist.create({
         data: {
           projectId,
           studentId,

@@ -1,18 +1,17 @@
-import { db } from "@/lib/prisma";
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const preferenceRouter = createTRPCRouter({
   add: publicProcedure
     .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      const { _max: currentMax } = await db.preference.aggregate({
+    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
+      const { _max: currentMax } = await ctx.db.preference.aggregate({
         _max: {
           rank: true,
         },
       });
 
-      return await db.preference.create({
+      return await ctx.db.preference.create({
         data: {
           projectId,
           studentId,
@@ -23,8 +22,8 @@ export const preferenceRouter = createTRPCRouter({
 
   remove: publicProcedure
     .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ input: { projectId, studentId } }) => {
-      await db.preference.delete({
+    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
+      await ctx.db.preference.delete({
         where: {
           projectId_studentId: {
             projectId,
@@ -42,8 +41,8 @@ export const preferenceRouter = createTRPCRouter({
         rank: z.number(),
       }),
     )
-    .mutation(async ({ input: { projectId, studentId, rank } }) => {
-      await db.shortlist.delete({
+    .mutation(async ({ ctx, input: { projectId, studentId, rank } }) => {
+      await ctx.db.shortlist.delete({
         where: {
           projectId_studentId: {
             projectId,
@@ -53,7 +52,7 @@ export const preferenceRouter = createTRPCRouter({
       });
 
       if (rank === -1) {
-        const { _max: currentMax } = await db.preference.aggregate({
+        const { _max: currentMax } = await ctx.db.preference.aggregate({
           _max: {
             rank: true,
           },
@@ -61,7 +60,7 @@ export const preferenceRouter = createTRPCRouter({
         rank = (currentMax.rank ?? 0) + 1;
       }
 
-      return await db.preference.create({
+      return await ctx.db.preference.create({
         data: {
           projectId,
           studentId,
@@ -78,8 +77,8 @@ export const preferenceRouter = createTRPCRouter({
         rank: z.number(),
       }),
     )
-    .mutation(async ({ input: { projectId, studentId, rank } }) => {
-      return await db.preference.update({
+    .mutation(async ({ ctx, input: { projectId, studentId, rank } }) => {
+      return await ctx.db.preference.update({
         where: {
           projectId_studentId: {
             projectId,

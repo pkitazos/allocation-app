@@ -2,13 +2,12 @@ import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { preferenceRouter } from "./preference";
 import { shortlistRouter } from "./shortlist";
 import { z } from "zod";
-import { db } from "@/lib/prisma";
 
 export const studentRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ studentId: z.string() }))
-    .query(async ({ input: { studentId } }) => {
-      return await db.student.findFirstOrThrow({
+    .query(async ({ ctx, input: { studentId } }) => {
+      return await ctx.db.student.findFirstOrThrow({
         where: {
           id: studentId,
         },
@@ -17,8 +16,8 @@ export const studentRouter = createTRPCRouter({
 
   getAllPreferences: publicProcedure
     .input(z.object({ studentId: z.string() }))
-    .query(async ({ input: { studentId } }) => {
-      return await db.student.findFirstOrThrow({
+    .query(async ({ ctx, input: { studentId } }) => {
+      return await ctx.db.student.findFirstOrThrow({
         where: { id: studentId },
         include: {
           shortlist: true,
@@ -33,8 +32,8 @@ export const studentRouter = createTRPCRouter({
 
   getMyInstances: publicProcedure
     .input(z.object({ studentId: z.string() }))
-    .query(async ({ input: { studentId } }) => {
-      const data = await db.studentInInstance.findMany({
+    .query(async ({ ctx, input: { studentId } }) => {
+      const data = await ctx.db.studentInInstance.findMany({
         where: {
           studentId,
         },

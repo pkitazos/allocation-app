@@ -1,23 +1,22 @@
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
-import { groupRouter } from "./group";
-import { subGroupRouter } from "./sub-group";
-import { instanceRouter } from "./instance";
-import { db } from "@/lib/prisma";
-import { z } from "zod";
 import { slugify } from "@/lib/utils";
+import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { z } from "zod";
+import { groupRouter } from "./group";
+import { instanceRouter } from "./instance";
+import { subGroupRouter } from "./sub-group";
 
 export const institutionRouter = createTRPCRouter({
   group: groupRouter,
   subGroup: subGroupRouter,
   instance: instanceRouter,
 
-  getAllGroups: publicProcedure.query(async () => {
-    return await db.allocationGroup.findMany({});
+  getAllGroups: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.allocationGroup.findMany({});
   }),
 
-  getAllGroupNames: publicProcedure.query(async () => {
+  getAllGroupNames: publicProcedure.query(async ({ ctx }) => {
     return (
-      await db.allocationGroup.findMany({
+      await ctx.db.allocationGroup.findMany({
         select: {
           displayName: true,
         },
@@ -25,8 +24,8 @@ export const institutionRouter = createTRPCRouter({
     ).map((item) => item.displayName);
   }),
 
-  getSuperAdmin: publicProcedure.query(async () => {
-    return await db.superAdmin.findFirstOrThrow({});
+  getSuperAdmin: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.superAdmin.findFirstOrThrow({});
   }),
 
   createGroup: publicProcedure
@@ -35,10 +34,10 @@ export const institutionRouter = createTRPCRouter({
         groupName: z.string(),
       }),
     )
-    .mutation(async ({ input: { groupName } }) => {
-      const superAdmin = await db.superAdmin.findFirstOrThrow({});
+    .mutation(async ({ ctx, input: { groupName } }) => {
+      const superAdmin = await ctx.db.superAdmin.findFirstOrThrow({});
 
-      await db.allocationGroup.create({
+      await ctx.db.allocationGroup.create({
         data: {
           slug: slugify(groupName),
           displayName: groupName,

@@ -2,7 +2,6 @@ import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
 import { z } from "zod";
-import { db } from "@/lib/prisma";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,
@@ -10,8 +9,8 @@ export const userRouter = createTRPCRouter({
 
   getRole: publicProcedure
     .input(z.object({ userId: z.string() }))
-    .query(async ({ input: { userId } }) => {
-      return db.user.findFirstOrThrow({
+    .query(async ({ ctx, input: { userId } }) => {
+      return ctx.db.user.findFirstOrThrow({
         where: {
           id: userId,
         },
