@@ -1,8 +1,8 @@
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
-  getAll: publicProcedure
+  getAll: protectedProcedure
     .input(z.object({ allocationInstanceId: z.string() }))
     .query(async ({ ctx, input: { allocationInstanceId } }) => {
       return await ctx.db.project.findMany({
@@ -15,7 +15,7 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  getById: publicProcedure
+  getById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input: { id } }) => {
       return await ctx.db.project.findFirstOrThrow({
