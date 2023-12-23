@@ -2,17 +2,24 @@ import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
-  getAll: protectedProcedure
+  getTableData: protectedProcedure
     .input(z.object({ allocationInstanceId: z.string() }))
     .query(async ({ ctx, input: { allocationInstanceId } }) => {
-      return await ctx.db.project.findMany({
+      const user = ctx.session.user;
+
+      const projects = await ctx.db.project.findMany({
         where: {
           allocationInstanceId,
         },
-        include: {
-          supervisor: true,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          supervisor: { select: { name: true, id: true } },
         },
       });
+
+      return projects.map((project) => ({ ...project, user }));
     }),
 
   getById: protectedProcedure

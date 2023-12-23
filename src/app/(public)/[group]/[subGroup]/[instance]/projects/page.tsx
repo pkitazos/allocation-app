@@ -7,18 +7,9 @@ export default async function Projects({
 }: {
   params: { group: string; subGroup: string; instance: string };
 }) {
-  const projects = await api.project.getAll.query({
+  const tableData = await api.project.getTableData.query({
     allocationInstanceId: params.instance,
   });
-
-  const tableData = projects.map(
-    ({ id, title, description, supervisor: { name } }) => ({
-      id,
-      title,
-      description,
-      supervisorName: name,
-    }),
-  );
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">

@@ -11,12 +11,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import { User } from "next-auth";
 
 export interface ProjectTableData {
   id: string;
   title: string;
   description: string;
-  supervisorName: string;
+  supervisor: {
+    id: string;
+    name: string;
+  };
+  user: User;
 }
 
 const deleteProject = async (id: string) => {
@@ -52,7 +57,7 @@ export const columns: ColumnDef<ProjectTableData>[] = [
   },
   {
     id: "supervisor",
-    accessorKey: "supervisorName",
+    accessorFn: (row) => row.supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor" />
     ),
@@ -64,6 +69,7 @@ export const columns: ColumnDef<ProjectTableData>[] = [
       return <div className="text-xs text-gray-500">Actions</div>;
     },
     cell: ({ row }) => {
+      const role = row.original.user.role;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -80,7 +86,7 @@ export const columns: ColumnDef<ProjectTableData>[] = [
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
-            {false && (
+            {role === "SUPER_ADMIN" && (
               <DropdownMenuItem>
                 <Button
                   className="w-full"
