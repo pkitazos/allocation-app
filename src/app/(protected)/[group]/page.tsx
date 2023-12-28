@@ -6,7 +6,11 @@ import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { ClientSection } from "./client-section";
 
-export default async function Page({ params }: { params: { group: string } }) {
+export default async function Page({
+  params: { group: groupId },
+}: {
+  params: { group: string };
+}) {
   const session = await auth();
   const user = session!.user;
 
@@ -17,9 +21,7 @@ export default async function Page({ params }: { params: { group: string } }) {
   }
 
   const { allocationSubGroups, groupAdmins, ...allocationGroup } =
-    await api.institution.group.getById.query({
-      groupId: params.group,
-    });
+    await api.institution.group.getById.query({ groupId });
 
   return (
     <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">

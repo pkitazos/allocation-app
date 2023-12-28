@@ -6,7 +6,11 @@ import { AllocationGroup } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export function ClientSection({ groups }: { groups: AllocationGroup[] }) {
+export function ClientSection({
+  allocationGroups,
+}: {
+  allocationGroups: AllocationGroup[];
+}) {
   return (
     <>
       <Link href="/super-admin/create-group" className="w-fit">
@@ -19,7 +23,7 @@ export function ClientSection({ groups }: { groups: AllocationGroup[] }) {
       </Link>
       <SpaceContextProvider>
         <div className="grid w-full grid-cols-3 gap-6">
-          {groups.map((group, i) => (
+          {allocationGroups.map((group, i) => (
             <SpaceButton
               key={i}
               title={group.displayName}

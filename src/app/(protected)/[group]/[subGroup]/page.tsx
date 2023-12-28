@@ -3,19 +3,30 @@ import { ClientSection } from "./client-section";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
+import { Unauthorised } from "@/components/unauthorised";
 
 export default async function Page({
-  params,
+  params: { group: groupId, subGroup: subGroupId },
 }: {
   params: { group: string; subGroup: string };
 }) {
   const session = await auth();
-  const user = session?.user;
+
+  if (
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN" &&
+    session.user.role !== "SUB_GROUP_ADMIN"
+  ) {
+    return (
+      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
+    );
+  }
 
   const { subGroupAdmins, allocationInstances, ...subGroup } =
     await api.institution.subGroup.get.query({
-      groupId: params.group,
-      subGroupId: params.subGroup,
+      groupId,
+      subGroupId,
     });
 
   return (
@@ -28,7 +39,9 @@ export default async function Page({
             <div className="w-1/6 font-medium">{name}</div>
             <Separator orientation="vertical" />
             <div className="w-/4">{email}</div>
-            {(user!.role === "SUPER_ADMIN" || user!.role === "GROUP_ADMIN") && (
+            {/* // TODO: add user to procedure return data */}
+            {(session!.user.role === "SUPER_ADMIN" ||
+              session!.user.role === "GROUP_ADMIN") && (
               <>
                 <Separator orientation="vertical" />
                 <Button className="ml-8" variant="destructive">

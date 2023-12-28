@@ -6,16 +6,17 @@ import { ClientSection } from "./client-section";
 export default async function Page() {
   const session = await auth();
 
-  const user = session!.user;
-
   if (
-    user.role !== "GROUP_ADMIN" &&
-    user.role !== "SUB_GROUP_ADMIN" &&
-    user.role !== "SUPERVISOR"
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN" &&
+    session.user.role !== "SUB_GROUP_ADMIN" &&
+    session.user.role !== "SUPERVISOR"
   ) {
     return <Unauthorised message="You don't have access to this page" />;
   }
 
+  // TODO: move db call to trpc procedure
   const supervisors = await db.supervisor.findMany({});
 
   return (

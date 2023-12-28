@@ -9,11 +9,14 @@ export default async function Page({
   params: { group: string };
 }) {
   const session = await auth();
-  const user = session!.user;
 
-  if (user.role !== "SUPER_ADMIN") {
+  if (
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN"
+  ) {
     return (
-      <Unauthorised message="You need to be a super-admin to access this page" />
+      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
   }
 

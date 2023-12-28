@@ -4,22 +4,26 @@ import { FormSection } from "./form-section";
 import { api } from "@/lib/trpc/server";
 
 export default async function Page({
-  params: { group, subGroup },
+  params: { group: groupId, subGroup: subGroupId },
 }: {
   params: { group: string; subGroup: string };
 }) {
   const session = await auth();
-  const user = session!.user;
 
-  if (user.role !== "SUPER_ADMIN" && user.role !== "GROUP_ADMIN") {
+  if (
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN" &&
+    session.user.role !== "SUB_GROUP_ADMIN"
+  ) {
     return (
-      <Unauthorised message="You need to be a super-admin to access this page" />
+      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
   }
 
   const takenNames = await api.institution.subGroup.getAllSubGroupNames.query({
-    groupId: group,
-    subGroupId: subGroup,
+    groupId,
+    subGroupId,
   });
 
   return (
@@ -30,8 +34,8 @@ export default async function Page({
       </h2>
       <FormSection
         takenNames={takenNames}
-        groupId={group}
-        subGroupId={subGroup}
+        groupId={groupId}
+        subGroupId={subGroupId}
       />
     </div>
   );

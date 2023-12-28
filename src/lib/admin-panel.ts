@@ -13,7 +13,7 @@ export type CompositeUser = {
 export const getAdminPanel = async (user: CompositeUser | undefined) => {
   if (!user) return "";
 
-  if (user.role === "SUPER_ADMIN") return "/super-admin";
+  if (user.role === "SUPER_ADMIN") return "/admin";
 
   if (user.role === "GROUP_ADMIN") {
     const groupAdmin = await db.groupAdmin.findFirst({
