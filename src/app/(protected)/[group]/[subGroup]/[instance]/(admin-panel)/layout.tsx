@@ -1,6 +1,8 @@
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Unauthorised } from "@/components/unauthorised";
+import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { slugify } from "@/lib/utils";
 import { Stage } from "@prisma/client";
@@ -21,6 +23,19 @@ export default async function Layout({
   params: { group: string; subGroup: string; instance: string };
   children: React.ReactNode;
 }) {
+  const session = await auth();
+
+  if (
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN" &&
+    session.user.role !== "SUB_GROUP_ADMIN"
+  ) {
+    return (
+      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
+    );
+  }
+
   const stage = await api.institution.instance.getStage.query({
     groupId: group,
     subGroupId: subGroup,

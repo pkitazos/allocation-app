@@ -1,7 +1,17 @@
 import { ClientSection } from "./client-section";
 import { db } from "@/lib/prisma";
+import { Unauthorised } from "@/components/unauthorised";
+import { auth } from "@/lib/auth";
 
-export default async function Preferences() {
+export default async function Page() {
+  const session = await auth();
+
+  if (session && session.user.role !== "STUDENT") {
+    return (
+      <Unauthorised message="You need to be a Student to access this page" />
+    );
+  }
+
   const studentId = "636d1a57-8ffb-4535-a43a-8a5536245bc1";
 
   const preferences = await db.preference.findMany({

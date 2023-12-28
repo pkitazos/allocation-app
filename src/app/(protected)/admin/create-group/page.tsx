@@ -1,18 +1,7 @@
-import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
-import { FormSection } from "./form-section";
 import { api } from "@/lib/trpc/server";
+import { FormSection } from "./form-section";
 
 export default async function Page() {
-  const session = await auth();
-  const user = session!.user;
-
-  if (user.role !== "SUPER_ADMIN") {
-    return (
-      <Unauthorised message="You need to be a super-admin to access this page" />
-    );
-  }
-
   const takenNames = await api.institution.getAllGroupNames.query();
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">

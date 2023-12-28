@@ -32,7 +32,7 @@ export default async function Page() {
 
       <h2 className="text-3xl">Manage Allocation Groups</h2>
       <div className="flex w-full flex-col gap-6">
-        <ClientSection groups={allocationGroups} />
+        <ClientSection allocationGroups={allocationGroups} />
       </div>
     </div>
   );
