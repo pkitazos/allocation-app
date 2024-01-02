@@ -16,6 +16,7 @@ The web app is built using:
 - NextJS
 - TailwindCSS
 - NextAuth
+- tRPC
 
 ### allocation-server
 
