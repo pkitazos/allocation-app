@@ -8,12 +8,12 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { auth as getServerAuthSession } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
+import { Session } from "next-auth";
 
 /**
  * 1. CONTEXT
@@ -25,6 +25,7 @@ import { db } from "@/lib/prisma";
 
 interface CreateContextOptions {
   headers: Headers;
+  session: Session | null;
 }
 
 /**
@@ -38,7 +39,10 @@ interface CreateContextOptions {
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
 export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
-  const session = await getServerAuthSession();
+  const session = opts.session ?? (await auth());
+  const source = opts.headers.get("x-trpc-source") ?? "unknown";
+
+  console.log(">>> tRPC Request from", source, "by", session?.user);
 
   return {
     session,
@@ -53,11 +57,15 @@ export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = async (opts: { req: NextRequest }) => {
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  session: Session | null;
+}) => {
   // Fetch stuff that depends on the request
 
   return await createInnerTRPCContext({
-    headers: opts.req.headers,
+    headers: opts.headers,
+    session: opts.session,
   });
 };
 
@@ -124,7 +132,10 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 
 const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not signed in",
+    });
   }
 
   if (

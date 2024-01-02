@@ -1,15 +1,13 @@
 import { Role } from "@prisma/client";
 import { DefaultSession, DefaultUser } from "next-auth";
+import { JWT as DefaultJWT } from "@auth/core/jwt";
 
-declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
+declare module "@auth/core/types" {
   interface Session {
-    user: {
+    user: DefaultSession["user"] & {
       id: string;
       role: Role | undefined | null;
-    } & DefaultSession["user"];
+    };
   }
 
   interface User extends DefaultUser {
@@ -17,10 +15,27 @@ declare module "next-auth" {
   }
 }
 
-// Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: UserId;
-    role: Role;
+declare module "@auth/core/jwt" {
+  interface JWT extends DefaultJWT {
+    id: string;
+    role: Role | undefined | null;
+  }
+}
+
+declare module "next-auth" {
+  interface Session {
+    user: DefaultSession["user"] & {
+      id: string;
+      role: Role | undefined | null;
+    };
+  }
+
+  interface User extends DefaultUser {
+    role: Role | undefined | null;
+  }
+
+  interface JWT extends DefaultJWT {
+    id: string;
+    role: Role | undefined | null;
   }
 }

@@ -12,9 +12,12 @@ export default async function Page({
   params: { group: string };
 }) {
   const session = await auth();
-  const user = session!.user;
 
-  if (user.role !== "SUPER_ADMIN" && user.role !== "GROUP_ADMIN") {
+  if (
+    session &&
+    session.user.role !== "SUPER_ADMIN" &&
+    session.user.role !== "GROUP_ADMIN"
+  ) {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
@@ -34,7 +37,7 @@ export default async function Page({
               <div className="w-1/6 font-medium">{name}</div>
               <Separator orientation="vertical" />
               <div className="w-/4">{email}</div>
-              {user.role === "SUPER_ADMIN" && (
+              {session && session.user.role === "SUPER_ADMIN" && (
                 <>
                   <Separator orientation="vertical" />
                   <Button className="ml-8" variant="destructive">
