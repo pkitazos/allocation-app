@@ -1,36 +1,19 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import type {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-} from "next";
-import type { NextAuthOptions as NextAuthConfig } from "next-auth";
-import { getServerSession } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import { Role } from "@prisma/client";
+import NextAuth from "next-auth";
+import authConfig from "./auth.config";
 import { db } from "./prisma";
-import { env } from "@/env";
 
-export const authOptions = {
+export const {
+  handlers: { GET, POST },
+  auth,
+} = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(db),
-  providers: [
-    GoogleProvider({
-      clientId: env.AUTH_GOOGLE_ID,
-      clientSecret: env.AUTH_GOOGLE_SECRET,
-    }),
-  ],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.role = token.role;
-      }
-
-      return session;
-    },
     async jwt({ token, user, trigger }) {
       const dbUser = await db.user.findFirst({
         where: {
@@ -62,15 +45,17 @@ export const authOptions = {
         role: userRole?.role ?? "UNREGISTERED",
       };
     },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-} satisfies NextAuthConfig;
 
-export function auth(
-  ...args:
-    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
-    | [NextApiRequest, NextApiResponse]
-    | []
-) {
-  return getServerSession(...args, authOptions);
-}
+    session: ({ session, token }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: token.id as string,
+        name: token.name,
+        email: token.email,
+        image: token.picture,
+        role: token.role as Role,
+      },
+    }),
+  },
+});

@@ -3,11 +3,11 @@ import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getAdminPanel } from "@/lib/admin-panel";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
+
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import { Toaster } from "react-hot-toast";
@@ -24,7 +24,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   const adminPanel = await getAdminPanel(user);
@@ -35,7 +35,6 @@ export default async function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light" // TODO:  change in prod
-          enableSystem
           disableTransitionOnChange
         >
           <SessionProvider>

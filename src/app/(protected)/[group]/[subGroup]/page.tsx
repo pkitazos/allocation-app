@@ -40,15 +40,16 @@ export default async function Page({
             <Separator orientation="vertical" />
             <div className="w-/4">{email}</div>
             {/* // TODO: add user to procedure return data */}
-            {(session!.user.role === "SUPER_ADMIN" ||
-              session!.user.role === "GROUP_ADMIN") && (
-              <>
-                <Separator orientation="vertical" />
-                <Button className="ml-8" variant="destructive">
-                  remove
-                </Button>
-              </>
-            )}
+            {session &&
+              (session.user.role === "SUPER_ADMIN" ||
+                session!.user.role === "GROUP_ADMIN") && (
+                <>
+                  <Separator orientation="vertical" />
+                  <Button className="ml-8" variant="destructive">
+                    remove
+                  </Button>
+                </>
+              )}
           </div>
         ))}
       </div>
