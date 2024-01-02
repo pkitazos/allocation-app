@@ -40,6 +40,11 @@ enum AlgorithmFlag {
     LSB
 }
 
+enum PreferenceType {
+    SHORTLIST
+    PREFERENCE
+}
+
 // group manager
 model SuperAdmin {
     id               String            @id @default(uuid())
@@ -88,7 +93,6 @@ model Student {
     name              String
     email             String
     flags             Flag[]
-    shortlist         Shortlist[]
     preferences       Preference[]
     allocations       ProjectAllocation[]
     studentInInstance StudentInInstance[]
@@ -172,28 +176,19 @@ model Project {
     allocationGroupId    String             @map("allocation_group_id")
     allocationSubGroupId String             @map("allocation_sub_group_id")
     allocationInstanceId String             @map("allocation_instance_id")
-    shortlistedIn        Shortlist[]
     preferenceIn         Preference[]
     allocatedTo          ProjectAllocation?
     flagOnProjects       FlagOnProject[]
     tagOnProject         TagOnProject[]
 }
 
-model Shortlist {
-    project   Project @relation(fields: [projectId], references: [id])
-    projectId String  @map("project_id")
-    student   Student @relation(fields: [studentId], references: [id])
-    studentId String  @map("student_id")
-
-    @@id([projectId, studentId])
-}
-
 model Preference {
-    project   Project @relation(fields: [projectId], references: [id])
-    projectId String  @map("project_id")
-    student   Student @relation(fields: [studentId], references: [id])
-    studentId String  @map("student_id")
+    project   Project        @relation(fields: [projectId], references: [id])
+    projectId String         @map("project_id")
+    student   Student        @relation(fields: [studentId], references: [id])
+    studentId String         @map("student_id")
     rank      Float
+    type      PreferenceType
 
     @@id([projectId, studentId])
     @@unique([rank, studentId])

@@ -161,10 +161,11 @@ async function main() {
   });
 
   await db.preference.createMany({
-    data: preferenceData.map(({ idx, projectId, rank }) => ({
+    data: preferenceData.map(({ idx, projectId, rank, type }) => ({
       studentId: students[idx].id,
       projectId,
       rank,
+      type,
     })),
   });
 
