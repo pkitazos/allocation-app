@@ -1,23 +1,22 @@
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/trpc";
 import { Stage } from "@prisma/client";
 import { z } from "zod";
 import { AlgorithmResult, algorithmResultSchema } from "../algorithm";
+import { instanceParamsSchema } from "@/types/params";
 
 export const instanceRouter = createTRPCRouter({
-  getMatchingData: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input: { groupId, subGroupId, instanceId } }) => {
+  matchingData: publicProcedure
+    .input(instanceParamsSchema)
+    .query(async ({ ctx, input: { group, subGroup, instance } }) => {
       const studentData = await ctx.db.studentInInstance.findMany({
         where: {
-          allocationGroupId: groupId,
-          allocationSubGroupId: subGroupId,
-          allocationInstanceId: instanceId,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
         },
         select: {
           student: {
@@ -26,9 +25,9 @@ export const instanceRouter = createTRPCRouter({
               preferences: {
                 where: {
                   project: {
-                    allocationGroupId: groupId,
-                    allocationSubGroupId: subGroupId,
-                    allocationInstanceId: instanceId,
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
                   },
                 },
                 orderBy: {
@@ -42,9 +41,9 @@ export const instanceRouter = createTRPCRouter({
 
       const supervisorData = await ctx.db.supervisorInInstance.findMany({
         where: {
-          allocationGroupId: groupId,
-          allocationSubGroupId: subGroupId,
-          allocationInstanceId: instanceId,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
         },
         select: {
           supervisorId: true,
@@ -55,9 +54,9 @@ export const instanceRouter = createTRPCRouter({
 
       const projectData = await ctx.db.project.findMany({
         where: {
-          allocationGroupId: groupId,
-          allocationSubGroupId: subGroupId,
-          allocationInstanceId: instanceId,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
         },
       });
 
@@ -90,20 +89,14 @@ export const instanceRouter = createTRPCRouter({
       return { students, projects, lecturers };
     }),
 
-  getStage: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input: { groupId, subGroupId, instanceId } }) => {
+  currentStage: publicProcedure
+    .input(instanceParamsSchema)
+    .query(async ({ ctx, input: { group, subGroup, instance } }) => {
       const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
         where: {
-          allocationGroupId: groupId,
-          allocationSubGroupId: subGroupId,
-          slug: instanceId,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          slug: instance,
         },
         select: {
           stage: true,
@@ -113,50 +106,81 @@ export const instanceRouter = createTRPCRouter({
     }),
 
   setStage: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        stage: z.nativeEnum(Stage),
-      }),
-    )
-    .mutation(
-      async ({ ctx, input: { groupId, subGroupId, instanceId, stage } }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            allocationGroupId_allocationSubGroupId_slug: {
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              slug: instanceId,
-            },
+    .input(instanceParamsSchema.and(z.object({ stage: z.nativeEnum(Stage) })))
+    .mutation(async ({ ctx, input: { stage, group, subGroup, instance } }) => {
+      await ctx.db.allocationInstance.update({
+        where: {
+          allocationGroupId_allocationSubGroupId_slug: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            slug: instance,
           },
-          data: { stage },
-        });
-      },
-    ),
+        },
+        data: { stage },
+      });
+    }),
+
+  access: protectedProcedure
+    .input(instanceParamsSchema)
+    .query(async ({ ctx, input: { group, subGroup, instance } }) => {
+      const role = ctx.session.user.role;
+
+      if (!role) return false;
+
+      if (role === "UNREGISTERED") return false;
+
+      const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
+        where: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          slug: instance,
+        },
+        select: {
+          stage: true,
+        },
+      });
+
+      const supervisorStages: Stage[] = [
+        Stage.SETUP,
+        Stage.PROJECT_ALLOCATION,
+        Stage.ALLOCATION_ADJUSTMENT,
+      ];
+
+      if (role === "SUPERVISOR") return supervisorStages.includes(stage);
+
+      const studentStages: Stage[] = [
+        Stage.SETUP,
+        Stage.PROJECT_SUBMISSION,
+        Stage.PROJECT_ALLOCATION,
+        Stage.ALLOCATION_ADJUSTMENT,
+      ];
+
+      if (role === "STUDENT") return studentStages.includes(stage);
+
+      return true;
+    }),
+
   selectMatching: publicProcedure
     .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        algName: z.string(),
-        oldAlgName: z.string().optional(),
-      }),
+      instanceParamsSchema.and(
+        z.object({
+          algName: z.string(),
+          oldAlgName: z.string().optional(),
+        }),
+      ),
     )
     .mutation(
       async ({
         ctx,
-        input: { algName, oldAlgName, groupId, subGroupId, instanceId },
+        input: { algName, oldAlgName, group, subGroup, instance },
       }) => {
         if (oldAlgName) {
           await ctx.db.projectAllocation.deleteMany({
             where: {
               project: {
-                allocationGroupId: groupId,
-                allocationSubGroupId: subGroupId,
-                allocationInstanceId: instanceId,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
               },
             },
           });
@@ -165,9 +189,9 @@ export const instanceRouter = createTRPCRouter({
             await ctx.db.algorithmResult.findFirstOrThrow({
               where: {
                 name: oldAlgName,
-                allocationGroupId: groupId,
-                allocationSubGroupId: subGroupId,
-                allocationInstanceId: instanceId,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
               },
             });
 
@@ -182,9 +206,9 @@ export const instanceRouter = createTRPCRouter({
               name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
                 {
                   name: oldAlgName,
-                  allocationGroupId: groupId,
-                  allocationSubGroupId: subGroupId,
-                  allocationInstanceId: instanceId,
+                  allocationGroupId: group,
+                  allocationSubGroupId: subGroup,
+                  allocationInstanceId: instance,
                 },
             },
             data: {
@@ -197,9 +221,9 @@ export const instanceRouter = createTRPCRouter({
           await ctx.db.algorithmResult.findFirstOrThrow({
             where: {
               name: algName,
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
             },
           });
 
@@ -213,9 +237,9 @@ export const instanceRouter = createTRPCRouter({
           where: {
             name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
               name: algName,
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
             },
           },
           data: {

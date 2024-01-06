@@ -7,7 +7,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   if (session && session.user.role !== "SUPER_ADMIN") {
     return (
-      <Unauthorised message="You need to be an admin to access this page" />
+      <Unauthorised message="You need to be a super-admin to access this page" />
     );
   }
 

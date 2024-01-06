@@ -13,16 +13,18 @@ const tabsRecord: Record<Stage, string[]> = {
   PROJECT_SUBMISSION: ["Invite Supervisors", "Projects Overview"],
   PROJECT_SELECTION: ["Invite Students", "Preferences Overview"],
   PROJECT_ALLOCATION: ["Algorithms Overview", "Algorithm Details"],
+  ALLOCATION_ADJUSTMENT: ["Manual Changes"],
   ALLOCATION_PUBLICATION: ["Allocation Overview"],
 };
 
 export default async function Layout({
-  params: { group, subGroup, instance },
+  params,
   children,
 }: {
   params: { group: string; subGroup: string; instance: string };
   children: React.ReactNode;
 }) {
+  const { group, subGroup, instance } = params;
   const session = await auth();
   console.log("session", session);
 
@@ -37,11 +39,7 @@ export default async function Layout({
     );
   }
 
-  const stage = await api.institution.instance.getStage.query({
-    groupId: group,
-    subGroupId: subGroup,
-    instanceId: instance,
-  });
+  const stage = await api.institution.instance.currentStage.query(params);
 
   const tabs = tabsRecord[stage];
   return (

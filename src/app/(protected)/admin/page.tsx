@@ -1,19 +1,8 @@
 import { Separator } from "@/components/ui/separator";
-import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { ClientSection } from "./client-section";
 
 export default async function Page() {
-  const session = await auth();
-  const user = session!.user;
-
-  if (user.role !== "SUPER_ADMIN") {
-    return (
-      <Unauthorised message="You need to be a super-admin to access this page" />
-    );
-  }
-
   const allocationGroups = await api.institution.getAllGroups.query();
 
   const superAdmin = await api.institution.getSuperAdmin.query();

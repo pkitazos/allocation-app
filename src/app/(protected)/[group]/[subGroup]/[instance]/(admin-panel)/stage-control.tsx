@@ -10,14 +10,14 @@ import toast from "react-hot-toast";
 const stages = Object.values(Stage);
 
 export function StageControl({
-  groupId,
-  subGroupId,
-  instanceId,
+  group,
+  subGroup,
+  instance,
   stage,
 }: {
-  groupId: string;
-  subGroupId: string;
-  instanceId: string;
+  group: string;
+  subGroup: string;
+  instance: string;
   stage: Stage;
 }) {
   const router = useRouter();
@@ -34,9 +34,9 @@ export function StageControl({
   const handleConfirmation = (idx: number) => {
     toast.promise(
       mutateAsync({
-        groupId,
-        subGroupId,
-        instanceId,
+        group,
+        subGroup,
+        instance,
         stage: stages[idx - 1],
       }).then(() => {
         setSelectedIdx(-1);
