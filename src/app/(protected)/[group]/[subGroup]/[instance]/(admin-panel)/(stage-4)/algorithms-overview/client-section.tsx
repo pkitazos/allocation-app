@@ -14,54 +14,58 @@ import { cn } from "@/lib/utils";
 import {
   MatchingData,
   ServerResponseData,
-  builtInAlg,
+  BuiltInAlg,
 } from "@/server/routers/algorithm";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 export function ClientSection({
-  groupId,
-  subGroupId,
-  instanceId,
+  group,
+  subGroup,
+  instance,
   matchingData,
 }: {
-  groupId: string;
-  subGroupId: string;
-  instanceId: string;
+  group: string;
+  subGroup: string;
+  instance: string;
   matchingData: MatchingData;
 }) {
-  const [selectedMatching, setSelectedMatching] = useState<builtInAlg>();
+  const [selectedMatching, setSelectedMatching] = useState<BuiltInAlg>();
+
   const { mutateAsync: selectMatchingAsync } =
     api.institution.instance.selectMatching.useMutation();
 
-  const { isLoading: generousLoading, mutateAsync: runGenerousAsync } =
-    api.algorithm.generous.useMutation();
+  const { isPending: generousLoading, mutateAsync: runGenerousAsync } =
+    api.algorithm.run.useMutation();
 
-  const { isLoading: greedyLoading, mutateAsync: runGreedyAsync } =
-    api.algorithm.greedy.useMutation();
+  const { isPending: greedyLoading, mutateAsync: runGreedyAsync } =
+    api.algorithm.run.useMutation();
 
-  const { isLoading: minCostLoading, mutateAsync: runMinCostAsync } =
-    api.algorithm.minCost.useMutation();
+  const { isPending: minCostLoading, mutateAsync: runMinCostAsync } =
+    api.algorithm.run.useMutation();
 
-  const { isLoading: greedyGenLoading, mutateAsync: runGreedyGenAsync } =
-    api.algorithm.greedyGen.useMutation();
+  const { isPending: greedyGenLoading, mutateAsync: runGreedyGenAsync } =
+    api.algorithm.run.useMutation();
 
   const handleClick = async (
+    algorithm: BuiltInAlg,
     mutateAsync: ({
-      groupId,
-      subGroupId,
-      instanceId,
+      group,
+      subGroup,
+      instance,
+      algorithm,
       matchingData,
     }: {
-      groupId: string;
-      subGroupId: string;
-      instanceId: string;
+      group: string;
+      subGroup: string;
+      instance: string;
+      algorithm: BuiltInAlg;
       matchingData: MatchingData;
     }) => Promise<ServerResponseData | undefined>,
     refetch: () => void,
   ) => {
     toast.promise(
-      mutateAsync({ groupId, subGroupId, instanceId, matchingData }).then(
+      mutateAsync({ group, subGroup, instance, algorithm, matchingData }).then(
         () => {
           console.log("from handleClick pre-refetch", generous);
           refetch();
@@ -80,52 +84,54 @@ export function ClientSection({
     isLoading: generousDataLoading,
     data: generous,
     refetch: refetchGenerous,
-  } = api.institution.instance.getAlgorithmResult.useQuery({
+  } = api.institution.instance.singleAlgorithmResult.useQuery({
     algName: "generous",
-    groupId,
-    subGroupId,
-    instanceId,
+    group,
+    subGroup,
+    instance,
   });
 
   const {
     isLoading: greedyDataLoading,
     data: greedy,
     refetch: refetchGreedy,
-  } = api.institution.instance.getAlgorithmResult.useQuery({
+  } = api.institution.instance.singleAlgorithmResult.useQuery({
     algName: "greedy",
-    groupId,
-    subGroupId,
-    instanceId,
+    group,
+    subGroup,
+    instance,
   });
+
   const {
     isLoading: minCostDataLoading,
     data: minCost,
     refetch: refetchMinCost,
-  } = api.institution.instance.getAlgorithmResult.useQuery({
+  } = api.institution.instance.singleAlgorithmResult.useQuery({
     algName: "minimum-cost",
-    groupId,
-    subGroupId,
-    instanceId,
+    group,
+    subGroup,
+    instance,
   });
+
   const {
     isLoading: greedyGenDataLoading,
     data: greedyGen,
     refetch: refetchGreedyGen,
-  } = api.institution.instance.getAlgorithmResult.useQuery({
+  } = api.institution.instance.singleAlgorithmResult.useQuery({
     algName: "greedy-generous",
-    groupId,
-    subGroupId,
-    instanceId,
+    group,
+    subGroup,
+    instance,
   });
 
-  const handleSelection = (algName: builtInAlg) => {
+  const handleSelection = (algName: BuiltInAlg) => {
     toast.promise(
       selectMatchingAsync({
         oldAlgName: selectedMatching,
         algName,
-        groupId,
-        subGroupId,
-        instanceId,
+        group,
+        subGroup,
+        instance,
       }).then(() => {
         setSelectedMatching(algName);
       }),
@@ -143,7 +149,9 @@ export function ClientSection({
         <p>Generous - description</p>
         <Button
           disabled={generousLoading}
-          onClick={() => handleClick(runGenerousAsync, refetchGenerous)}
+          onClick={() =>
+            handleClick("generous", runGenerousAsync, refetchGenerous)
+          }
         >
           run
         </Button>
@@ -152,7 +160,7 @@ export function ClientSection({
         <p>Greedy - description</p>
         <Button
           disabled={greedyLoading}
-          onClick={() => handleClick(runGreedyAsync, refetchGreedy)}
+          onClick={() => handleClick("greedy", runGreedyAsync, refetchGreedy)}
         >
           run
         </Button>
@@ -161,7 +169,9 @@ export function ClientSection({
         <p>Minimum Cost - description</p>
         <Button
           disabled={minCostLoading}
-          onClick={() => handleClick(runMinCostAsync, refetchMinCost)}
+          onClick={() =>
+            handleClick("minimum-cost", runMinCostAsync, refetchMinCost)
+          }
         >
           run
         </Button>
@@ -170,7 +180,9 @@ export function ClientSection({
         <p>Greedy-Generous - description</p>
         <Button
           disabled={greedyGenLoading}
-          onClick={() => handleClick(runGreedyGenAsync, refetchGreedyGen)}
+          onClick={() =>
+            handleClick("greedy-generous", runGreedyGenAsync, refetchGreedyGen)
+          }
         >
           run
         </Button>
@@ -236,13 +248,11 @@ function ResultsTableRow({
 }: {
   isLoading: boolean;
   matching: ServerResponseData | undefined;
-  algName: builtInAlg;
+  algName: BuiltInAlg;
   algDisplayName: string;
-  selectedMatching: builtInAlg | undefined;
-  handleSelection: (algName: builtInAlg) => void;
+  selectedMatching: BuiltInAlg | undefined;
+  handleSelection: (algName: BuiltInAlg) => void;
 }) {
-  // const selected = !isLoading && matching !== undefined && matching.selected;
-
   return (
     <TableRow className="items-center">
       <TableCell className="font-medium">{algDisplayName}</TableCell>

@@ -16,9 +16,9 @@ export default async function Page({
           Select Algorithms to run
         </h2>
         <ClientSection
-          groupId={params.group}
-          subGroupId={params.subGroup}
-          instanceId={params.instance}
+          group={params.group}
+          subGroup={params.subGroup}
+          instance={params.instance}
           matchingData={matchingData}
         />
       </div>

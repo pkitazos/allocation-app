@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-const stages = Object.values(Stage);
-
 export function StageControl({
   group,
   subGroup,
@@ -20,6 +18,7 @@ export function StageControl({
   instance: string;
   stage: Stage;
 }) {
+  const stages = Object.values(Stage);
   const router = useRouter();
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);

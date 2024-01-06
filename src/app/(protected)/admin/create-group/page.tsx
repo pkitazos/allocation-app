@@ -2,7 +2,7 @@ import { api } from "@/lib/trpc/server";
 import { FormSection } from "./form-section";
 
 export default async function Page() {
-  const takenNames = await api.institution.getAllGroupNames.query();
+  const takenNames = await api.institution.takenNames.query();
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">
       <h2 className="text-4xl">

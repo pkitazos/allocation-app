@@ -26,7 +26,6 @@ export default async function Layout({
 }) {
   const { group, subGroup, instance } = params;
   const session = await auth();
-  console.log("session", session);
 
   if (
     session &&
@@ -40,8 +39,8 @@ export default async function Layout({
   }
 
   const stage = await api.institution.instance.currentStage.query(params);
-
   const tabs = tabsRecord[stage];
+
   return (
     <div className="grid w-full grid-cols-6">
       <div className="col-span-1 mt-28 flex justify-center border-r">

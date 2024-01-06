@@ -1,5 +1,5 @@
 import { slugify } from "@/lib/utils";
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { z } from "zod";
 import { groupRouter } from "./group";
 import { instanceRouter } from "./instance";
@@ -10,11 +10,13 @@ export const institutionRouter = createTRPCRouter({
   subGroup: subGroupRouter,
   instance: instanceRouter,
 
-  getAllGroups: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.allocationGroup.findMany({});
+  groupManagement: adminProcedure.query(async ({ ctx }) => {
+    const groups = await ctx.db.allocationGroup.findMany({});
+    const superAdmin = await ctx.db.superAdmin.findFirstOrThrow({});
+    return { groups, superAdmin };
   }),
 
-  getAllGroupNames: publicProcedure.query(async ({ ctx }) => {
+  takenNames: adminProcedure.query(async ({ ctx }) => {
     return (
       await ctx.db.allocationGroup.findMany({
         select: {
@@ -24,11 +26,7 @@ export const institutionRouter = createTRPCRouter({
     ).map((item) => item.displayName);
   }),
 
-  getSuperAdmin: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.superAdmin.findFirstOrThrow({});
-  }),
-
-  createGroup: publicProcedure
+  createGroup: adminProcedure
     .input(
       z.object({
         groupName: z.string(),

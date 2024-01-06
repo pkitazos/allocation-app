@@ -28,6 +28,8 @@ export function FormSection({
   groupId: string;
   subGroupId: string;
 }) {
+  // TODO: needs major refactor
+
   const router = useRouter();
   const FormSchema = z
     .object({

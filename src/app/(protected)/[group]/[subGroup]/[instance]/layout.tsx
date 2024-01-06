@@ -1,7 +1,6 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 
-// TODO: check stage
 export default async function Layout({
   children,
   params,

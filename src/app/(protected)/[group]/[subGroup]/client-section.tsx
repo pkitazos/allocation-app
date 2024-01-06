@@ -14,6 +14,9 @@ export function ClientSection({
   instances: AllocationInstance[];
 }) {
   const pathname = usePathname();
+
+  // TODO: remove context and make this a server component
+
   return (
     <>
       <Link href={`${pathname}/create-instance`} className="w-fit">

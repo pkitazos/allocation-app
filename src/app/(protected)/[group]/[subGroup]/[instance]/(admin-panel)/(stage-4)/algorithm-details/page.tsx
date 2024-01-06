@@ -12,39 +12,11 @@ import { api } from "@/lib/trpc/server";
 import { ServerResponseData } from "@/server/routers/algorithm";
 
 export default async function Page({
-  params: { group: groupId, subGroup: subGroupId, instance: instanceId },
+  params,
 }: {
   params: { group: string; subGroup: string; instance: string };
 }) {
-  const generousData = await api.institution.instance.getAlgorithmResult.query({
-    algName: "generous",
-    groupId,
-    subGroupId,
-    instanceId,
-  });
-
-  const greedyData = await api.institution.instance.getAlgorithmResult.query({
-    algName: "greedy",
-    groupId,
-    subGroupId,
-    instanceId,
-  });
-
-  const minCostData = await api.institution.instance.getAlgorithmResult.query({
-    algName: "minimum-cost",
-    groupId,
-    subGroupId,
-    instanceId,
-  });
-
-  const greedyGenData = await api.institution.instance.getAlgorithmResult.query(
-    {
-      algName: "greedy-generous",
-      groupId,
-      subGroupId,
-      instanceId,
-    },
-  );
+  const results = await api.institution.instance.algorithmResults.query(params);
 
   return (
     <div className="mt-20 flex flex-col items-center">
@@ -79,16 +51,16 @@ export default async function Page({
           </TabsList>
           <Separator className="my-4" />
           <TabsContent value="generous">
-            <DetailsTable data={generousData} />
+            <DetailsTable data={results[0].data} />
           </TabsContent>
           <TabsContent value="greedy">
-            <DetailsTable data={greedyData} />
+            <DetailsTable data={results[1].data} />
           </TabsContent>
           <TabsContent value="minimum-cost">
-            <DetailsTable data={minCostData} />
+            <DetailsTable data={results[2].data} />
           </TabsContent>
           <TabsContent value="greedy-generous">
-            <DetailsTable data={greedyGenData} />
+            <DetailsTable data={results[3].data} />
           </TabsContent>
         </Tabs>
       </div>

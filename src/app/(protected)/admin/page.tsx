@@ -3,9 +3,7 @@ import { api } from "@/lib/trpc/server";
 import { ClientSection } from "./client-section";
 
 export default async function Page() {
-  const allocationGroups = await api.institution.getAllGroups.query();
-
-  const superAdmin = await api.institution.getSuperAdmin.query();
+  const { superAdmin, groups } = await api.institution.groupManagement.query();
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6 pb-20">
@@ -21,7 +19,7 @@ export default async function Page() {
 
       <h2 className="text-3xl">Manage Allocation Groups</h2>
       <div className="flex w-full flex-col gap-6">
-        <ClientSection allocationGroups={allocationGroups} />
+        <ClientSection allocationGroups={groups} />
       </div>
     </div>
   );
