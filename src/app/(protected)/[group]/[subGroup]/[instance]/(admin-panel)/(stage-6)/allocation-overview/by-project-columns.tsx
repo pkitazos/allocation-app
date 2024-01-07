@@ -2,27 +2,30 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface ProjectData {
-  projectId: string;
-  projectTitle: string;
-  // projectCapacity: number;
-  // projectRank: number;
-  studentId: string;
-  supervisorId: string;
-  supervisorName: string;
+  project: {
+    id: string;
+    title: string;
+    supervisor: {
+      name: string;
+      id: string;
+    };
+  };
+  student: {
+    id: string;
+  };
 }
-[];
 
 export const byProjectColumns: ColumnDef<ProjectData>[] = [
   {
     id: "projectId",
-    accessorKey: "projectId",
+    accessorFn: ({ project }) => project.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project ID" />
     ),
   },
   {
     id: "projectTitle",
-    accessorKey: "projectTitle",
+    accessorFn: ({ project }) => project.title,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project Title" />
     ),
@@ -42,24 +45,24 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
   //   ),
   // },
   {
-    id: "studentId",
-    accessorKey: "studentId",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
-    ),
-  },
-  {
     id: "supervisorId",
-    accessorKey: "supervisorId",
+    accessorFn: ({ project }) => project.supervisor.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor ID" />
     ),
   },
   {
     id: "supervisorName",
-    accessorKey: "supervisorName",
+    accessorFn: ({ project }) => project.supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
+    ),
+  },
+  {
+    id: "studentId",
+    accessorFn: ({ student }) => student.id,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student ID" />
     ),
   },
 ];

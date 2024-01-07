@@ -1,40 +1,39 @@
 import { slugify } from "@/lib/utils";
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { subGroupParamsSchema } from "@/types/params";
 import { z } from "zod";
 
 export const subGroupRouter = createTRPCRouter({
-  get: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input: { groupId, subGroupId } }) => {
-      return await ctx.db.allocationSubGroup.findFirstOrThrow({
-        where: {
-          allocationGroupId: groupId,
-          slug: subGroupId,
-        },
-        include: {
-          subGroupAdmins: true,
-          allocationInstances: true,
-        },
-      });
-    }),
-
-  getAllSubGroupNames: publicProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-      }),
-    )
-    .query(async ({ ctx, input: { groupId, subGroupId } }) => {
+  instanceManagement: adminProcedure
+    .input(subGroupParamsSchema)
+    .query(async ({ ctx, input: params }) => {
       const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
         where: {
-          allocationGroupId: groupId,
-          slug: subGroupId,
+          allocationGroupId: params.group,
+          slug: params.subGroup,
+        },
+        select: {
+          displayName: true,
+          allocationInstances: true,
+          subGroupAdmins: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+      const admin = ctx.session.user.role!;
+      return { admin, ...data };
+    }),
+
+  takenNames: adminProcedure
+    .input(subGroupParamsSchema)
+    .query(async ({ ctx, input: params }) => {
+      const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
+        where: {
+          allocationGroupId: params.group,
+          slug: params.subGroup,
         },
         select: {
           allocationInstances: {
@@ -47,7 +46,7 @@ export const subGroupRouter = createTRPCRouter({
       return data.allocationInstances.map((item) => item.displayName);
     }),
 
-  createInstance: publicProcedure
+  createInstance: adminProcedure
     .input(
       z.object({
         name: z.string(),

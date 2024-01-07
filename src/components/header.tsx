@@ -1,12 +1,12 @@
 "use client";
 import whiteLogo from "@/assets/uofg-white.png";
-import { CompositeUser } from "@/lib/admin-panel";
+import { CompositeUser } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { User2 } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { ButtonHTMLAttributes } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -52,14 +52,13 @@ export function HeaderTabs({
   user: CompositeUser;
   adminPanel: string;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
+  const routes = pathname.split("/");
 
-  const inInstance = (pathname.match(/\//g) || []).length === 3;
-  if (inInstance) console.log("in instance");
+  const inInstance = routes.length === 4 && routes[3] !== "create-instance";
 
-  console.log("router", { router });
-  console.log("pathname", { pathname });
+  // console.log("------------ pathname", { pathname });
+  // console.log("------------ routes", { routes });
 
   return (
     <div className="flex items-center gap-6">

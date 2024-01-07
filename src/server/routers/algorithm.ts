@@ -1,6 +1,8 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { env } from "@/env";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { instanceParamsSchema } from "@/types/params";
+import { AlgorithmFlag } from "@prisma/client";
+import { z } from "zod";
 
 const matchingDataSchema = z.object({
   students: z.array(z.array(z.string())),
@@ -40,33 +42,43 @@ export type MatchingData = z.infer<typeof matchingDataSchema>;
 
 export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
 
-export type builtInAlg =
-  | "generous"
-  | "greedy"
-  | "minimum-cost"
-  | "greedy-generous";
-
 type AlgorithmServerData =
   | { algorithm: "custom"; matchingData: MatchingDataWithArgs }
-  | { algorithm: builtInAlg; matchingData: MatchingData };
+  | { algorithm: BuiltInAlg; matchingData: MatchingData };
+
+const builtInAlgSchema = z.enum([
+  "generous",
+  "greedy",
+  "minimum-cost",
+  "greedy-generous",
+]);
+
+export type BuiltInAlg = z.infer<typeof builtInAlgSchema>;
+
+const algorithmFlag: Record<BuiltInAlg, AlgorithmFlag> = {
+  generous: "GEN",
+  greedy: "GRE",
+  "minimum-cost": "MINCOST",
+  "greedy-generous": "GRE",
+};
 
 export const algorithmRouter = createTRPCRouter({
-  generous: protectedProcedure
+  run: adminProcedure
     .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        matchingData: matchingDataSchema,
-      }),
+      instanceParamsSchema.and(
+        z.object({
+          algorithm: builtInAlgSchema,
+          matchingData: matchingDataSchema,
+        }),
+      ),
     )
     .mutation(
       async ({
         ctx,
-        input: { groupId, subGroupId, instanceId, matchingData },
+        input: { group, subGroup, instance, algorithm, matchingData },
       }) => {
         const serverResult = await getMatching({
-          algorithm: "generous",
+          algorithm,
           matchingData,
         });
 
@@ -77,174 +89,22 @@ export const algorithmRouter = createTRPCRouter({
         await ctx.db.algorithmResult.upsert({
           where: {
             name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: "generous",
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
+              name: algorithm,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
             },
           },
           update: {
             data: JSON.stringify(result),
           },
           create: {
-            name: "generous",
-            allocationGroupId: groupId,
-            allocationSubGroupId: subGroupId,
-            allocationInstanceId: instanceId,
+            name: algorithm,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
             algFlag1: "MAXSIZE",
-            algFlag2: "GEN",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-
-        return result;
-      },
-    ),
-
-  greedy: protectedProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        matchingData: matchingDataSchema,
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: { groupId, subGroupId, instanceId, matchingData },
-      }) => {
-        const serverResult = await getMatching({
-          algorithm: "greedy",
-          matchingData,
-        });
-
-        if (!serverResult) return undefined;
-
-        const result = { ...serverResult, selected: false };
-
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: "greedy",
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
-            },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "greedy",
-            allocationGroupId: groupId,
-            allocationSubGroupId: subGroupId,
-            allocationInstanceId: instanceId,
-            algFlag1: "MAXSIZE",
-            algFlag2: "GRE",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-
-        return result;
-      },
-    ),
-
-  minCost: protectedProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        matchingData: matchingDataSchema,
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: { groupId, subGroupId, instanceId, matchingData },
-      }) => {
-        const serverResult = await getMatching({
-          algorithm: "minimum-cost",
-          matchingData,
-        });
-        if (!serverResult) return undefined;
-
-        const result = { ...serverResult, selected: false };
-
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: "minimum-cost",
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
-            },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "minimum-cost",
-            allocationGroupId: groupId,
-            allocationSubGroupId: subGroupId,
-            allocationInstanceId: instanceId,
-            algFlag1: "MAXSIZE",
-            algFlag2: "MINCOST",
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
-          },
-        });
-
-        return result;
-      },
-    ),
-
-  greedyGen: protectedProcedure
-    .input(
-      z.object({
-        groupId: z.string(),
-        subGroupId: z.string(),
-        instanceId: z.string(),
-        matchingData: matchingDataSchema,
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: { groupId, subGroupId, instanceId, matchingData },
-      }) => {
-        const serverResult = await getMatching({
-          algorithm: "greedy-generous",
-          matchingData,
-        });
-
-        if (!serverResult) return undefined;
-
-        const result = { ...serverResult, selected: false };
-
-        await ctx.db.algorithmResult.upsert({
-          where: {
-            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: "greedy-generous",
-              allocationGroupId: groupId,
-              allocationSubGroupId: subGroupId,
-              allocationInstanceId: instanceId,
-            },
-          },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: "greedy-generous",
-            allocationGroupId: groupId,
-            allocationSubGroupId: subGroupId,
-            allocationInstanceId: instanceId,
-            algFlag1: "MAXSIZE",
-            algFlag2: "GRE",
+            algFlag2: algorithmFlag[algorithm],
             algFlag3: "LSB",
             data: JSON.stringify(result),
           },
@@ -255,7 +115,7 @@ export const algorithmRouter = createTRPCRouter({
     ),
 
   // TODO: decide how to name custom Algorithm configurations
-  custom: protectedProcedure
+  custom: adminProcedure
     .input(mathcingDataWithArgsSchema)
     .mutation(async ({ input: matchingData }) => {
       const result = await getMatching({ algorithm: "custom", matchingData });
@@ -272,10 +132,13 @@ const getMatching = async ({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(matchingData),
   }).then((res) => res.json());
+
   console.log("from getMatching", res);
   if (res.ok) console.log(res);
+
   const result = serverResponseDataSchema.safeParse(res.data);
   console.log("from getMatching", result);
+
   if (!result.success) return;
 
   return result.data;

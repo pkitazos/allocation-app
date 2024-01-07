@@ -4,7 +4,7 @@ import { FormSection } from "./form-section";
 import { api } from "@/lib/trpc/server";
 
 export default async function Page({
-  params: { group: groupId, subGroup: subGroupId },
+  params,
 }: {
   params: { group: string; subGroup: string };
 }) {
@@ -21,10 +21,7 @@ export default async function Page({
     );
   }
 
-  const takenNames = await api.institution.subGroup.getAllSubGroupNames.query({
-    groupId,
-    subGroupId,
-  });
+  const takenNames = await api.institution.subGroup.takenNames.query(params);
 
   return (
     <div className="mb-40 mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
@@ -34,8 +31,8 @@ export default async function Page({
       </h2>
       <FormSection
         takenNames={takenNames}
-        groupId={groupId}
-        subGroupId={subGroupId}
+        groupId={params.group}
+        subGroupId={params.subGroup}
       />
     </div>
   );

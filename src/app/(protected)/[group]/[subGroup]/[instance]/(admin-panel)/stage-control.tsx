@@ -7,19 +7,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-const stages = Object.values(Stage);
-
 export function StageControl({
-  groupId,
-  subGroupId,
-  instanceId,
+  group,
+  subGroup,
+  instance,
   stage,
 }: {
-  groupId: string;
-  subGroupId: string;
-  instanceId: string;
+  group: string;
+  subGroup: string;
+  instance: string;
   stage: Stage;
 }) {
+  const stages = Object.values(Stage);
   const router = useRouter();
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
@@ -34,9 +33,9 @@ export function StageControl({
   const handleConfirmation = (idx: number) => {
     toast.promise(
       mutateAsync({
-        groupId,
-        subGroupId,
-        instanceId,
+        group,
+        subGroup,
+        instance,
         stage: stages[idx - 1],
       }).then(() => {
         setSelectedIdx(-1);
@@ -50,74 +49,34 @@ export function StageControl({
       },
     );
   };
+
+  function StageButton({ title, num }: { title: string; num: number }) {
+    return (
+      <li className="flex items-center gap-9">
+        <button
+          onClick={() => handleSelection(num)}
+          className={cn(
+            "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
+            selectedIdx === num && "border-4 border-amber-500",
+            confirmedIdx >= num && "bg-primary text-primary-foreground",
+          )}
+        >
+          {num}
+        </button>
+        <h3>{title}</h3>
+      </li>
+    );
+  }
+
   return (
     <div className="mx-16 mt-20 flex justify-between px-6">
       <ol className="flex flex-col gap-10">
-        <li className="flex items-center gap-9">
-          <button
-            onClick={() => handleSelection(1)}
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-              selectedIdx === 1 && "border-4 border-amber-500",
-              confirmedIdx >= 1 && "bg-primary text-primary-foreground",
-            )}
-          >
-            1
-          </button>
-          <h3>Setup</h3>
-        </li>
-        <li className="flex items-center gap-9">
-          <button
-            onClick={() => handleSelection(2)}
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-              selectedIdx === 2 && "border-4 border-amber-500",
-              confirmedIdx >= 2 && "bg-primary text-primary-foreground",
-            )}
-          >
-            2
-          </button>
-          <h3>Project Submission</h3>
-        </li>
-        <li className="flex items-center gap-9">
-          <button
-            onClick={() => handleSelection(3)}
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-              selectedIdx === 3 && "border-4 border-amber-500",
-              confirmedIdx >= 3 && "bg-primary text-primary-foreground",
-            )}
-          >
-            3
-          </button>
-          <h3>Project Selection</h3>
-        </li>
-        <li className="flex items-center gap-9">
-          <button
-            onClick={() => handleSelection(4)}
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-              selectedIdx === 4 && "border-4 border-amber-500",
-              confirmedIdx >= 4 && "bg-primary text-primary-foreground",
-            )}
-          >
-            4
-          </button>
-          <h3>Project Allocation</h3>
-        </li>
-        <li className="flex items-center gap-9">
-          <button
-            onClick={() => handleSelection(5)}
-            className={cn(
-              "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-              selectedIdx === 5 && "border-4 border-amber-500",
-              confirmedIdx >= 5 && "bg-primary text-primary-foreground",
-            )}
-          >
-            5
-          </button>
-          <h3>Publishing Project Allocation</h3>
-        </li>
+        <StageButton num={1} title="Setup" />
+        <StageButton num={2} title="Project Submission" />
+        <StageButton num={3} title="Project Selection" />
+        <StageButton num={4} title="Project Allocation" />
+        <StageButton num={5} title="Adjusting Project Allocation" />
+        <StageButton num={6} title="Publishing Project Allocation" />
       </ol>
       <Button
         className="self-end"

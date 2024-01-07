@@ -3,11 +3,7 @@ import { auth } from "@/lib/auth";
 import { FormSection } from "./form-section";
 import { api } from "@/lib/trpc/server";
 
-export default async function Page({
-  params: { group },
-}: {
-  params: { group: string };
-}) {
+export default async function Page({ params }: { params: { group: string } }) {
   const session = await auth();
 
   if (
@@ -20,9 +16,7 @@ export default async function Page({
     );
   }
 
-  const takenNames = await api.institution.group.getAllSubGroupNames.query({
-    groupId: group,
-  });
+  const takenNames = await api.institution.group.takenNames.query(params);
 
   return (
     <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
@@ -30,7 +24,7 @@ export default async function Page({
         Create New{" "}
         <span className="font-semibold text-sky-500">Allocation Sub-Group</span>
       </h2>
-      <FormSection takenNames={takenNames} allocationGroupId={group} />
+      <FormSection takenNames={takenNames} allocationGroupId={params.group} />
     </div>
   );
 }

@@ -1,22 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
-import { ClientSection } from "./client-section";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export default async function Page() {
-  const session = await auth();
-  const user = session!.user;
-
-  if (user.role !== "SUPER_ADMIN") {
-    return (
-      <Unauthorised message="You need to be a super-admin to access this page" />
-    );
-  }
-
-  const allocationGroups = await api.institution.getAllGroups.query();
-
-  const superAdmin = await api.institution.getSuperAdmin.query();
+  const { superAdmin, groups } = await api.institution.groupManagement.query();
 
   return (
     <div className="mt-6 flex flex-col gap-10 px-6 pb-20">
@@ -31,8 +20,30 @@ export default async function Page() {
       </div>
 
       <h2 className="text-3xl">Manage Allocation Groups</h2>
+
       <div className="flex w-full flex-col gap-6">
-        <ClientSection allocationGroups={allocationGroups} />
+        <Link href="/admin/create-group" className="w-fit">
+          <Button
+            variant="outline"
+            className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"
+          >
+            <Plus className="h-6 w-6 stroke-[3px]" />
+          </Button>
+        </Link>
+
+        <div className="grid w-full grid-cols-3 gap-6">
+          {groups.map((group, i) => (
+            <Link className="col-span-1" href={`/${group.slug}`} key={i}>
+              <Button
+                className="h-20 w-full text-base font-semibold"
+                variant="outline"
+                size="lg"
+              >
+                {group.displayName}
+              </Button>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

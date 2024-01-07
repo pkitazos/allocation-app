@@ -2,22 +2,18 @@ import { api } from "@/lib/trpc/server";
 import { StageControl } from "./stage-control";
 
 export default async function Page({
-  params: { group, subGroup, instance },
+  params,
 }: {
   params: { group: string; subGroup: string; instance: string };
 }) {
-  const stage = await api.institution.instance.getStage.query({
-    groupId: group,
-    subGroupId: subGroup,
-    instanceId: instance,
-  });
+  const stage = await api.institution.instance.currentStage.query(params);
 
   return (
     <StageControl
       stage={stage}
-      groupId={group}
-      subGroupId={subGroup}
-      instanceId={instance}
+      group={params.group}
+      subGroup={params.subGroup}
+      instance={params.instance}
     />
   );
 }
