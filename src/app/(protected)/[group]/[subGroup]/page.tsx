@@ -1,9 +1,10 @@
-import { Separator } from "@/components/ui/separator";
-import { ClientSection } from "./client-section";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
-import { Unauthorised } from "@/components/unauthorised";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export default async function Page({
   params,
@@ -25,6 +26,8 @@ export default async function Page({
 
   const { subGroupAdmins, allocationInstances, displayName, admin } =
     await api.institution.subGroup.instanceManagement.query(params);
+
+  const { group, subGroup } = params;
 
   return (
     <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
@@ -48,8 +51,34 @@ export default async function Page({
         ))}
       </div>
       <h2 className="text-3xl">Manage Allocation Instances</h2>
+
       <div className="flex w-full flex-col gap-6">
-        <ClientSection instances={allocationInstances} />
+        <Link href={`/${group}/${subGroup}/create-instance`} className="w-fit">
+          <Button
+            variant="outline"
+            className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"
+          >
+            <Plus className="h-6 w-6 stroke-[3px]" />
+          </Button>
+        </Link>
+
+        <div className="grid grid-cols-3 gap-6">
+          {allocationInstances.map((instance, i) => (
+            <Link
+              className="col-span-1 flex"
+              href={`/${group}/${subGroup}/${instance.slug}`}
+              key={i}
+            >
+              <Button
+                className="h-20 w-full text-base font-semibold"
+                variant="outline"
+                size="lg"
+              >
+                {instance.displayName}
+              </Button>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
