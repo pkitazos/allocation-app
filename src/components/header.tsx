@@ -1,6 +1,6 @@
 "use client";
 import whiteLogo from "@/assets/uofg-white.png";
-import { CompositeUser } from "@/lib/admin-panel";
+import { CompositeUser } from "@/lib/prisma";
 import { Role } from "@prisma/client";
 import { User2 } from "lucide-react";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -55,6 +55,7 @@ export function HeaderTabs({
   const router = useRouter();
   const pathname = usePathname();
 
+  // TODO: check that the last route is not "create-instance"
   const inInstance = (pathname.match(/\//g) || []).length === 3;
   if (inInstance) console.log("in instance");
 
