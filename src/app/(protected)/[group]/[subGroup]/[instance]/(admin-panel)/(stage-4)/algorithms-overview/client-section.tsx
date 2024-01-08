@@ -1,192 +1,76 @@
 "use client";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
 import {
-  MatchingData,
-  ServerResponseData,
   BuiltInAlg,
-} from "@/server/routers/algorithm";
-import { useState } from "react";
-import { toast } from "sonner";
+  MatchingData,
+  builtInAlgSchema,
+} from "@/lib/validations/algorithm";
+import { instanceParams } from "@/lib/validations/params";
+import { ResultsTableRow } from "./results-table-row";
+import { RunAlgorithmButton } from "./run-algorithm-button";
 
 export function ClientSection({
-  group,
-  subGroup,
-  instance,
+  params,
   matchingData,
 }: {
-  group: string;
-  subGroup: string;
-  instance: string;
+  params: instanceParams;
   matchingData: MatchingData;
 }) {
   const [selectedMatching, setSelectedMatching] = useState<BuiltInAlg>();
 
-  const { mutateAsync: selectMatchingAsync } =
-    api.institution.instance.selectMatching.useMutation();
-
-  const { isPending: generousLoading, mutateAsync: runGenerousAsync } =
-    api.algorithm.run.useMutation();
-
-  const { isPending: greedyLoading, mutateAsync: runGreedyAsync } =
-    api.algorithm.run.useMutation();
-
-  const { isPending: minCostLoading, mutateAsync: runMinCostAsync } =
-    api.algorithm.run.useMutation();
-
-  const { isPending: greedyGenLoading, mutateAsync: runGreedyGenAsync } =
-    api.algorithm.run.useMutation();
-
-  const handleClick = async (
-    algorithm: BuiltInAlg,
-    mutateAsync: ({
-      group,
-      subGroup,
-      instance,
-      algorithm,
-      matchingData,
-    }: {
-      group: string;
-      subGroup: string;
-      instance: string;
-      algorithm: BuiltInAlg;
-      matchingData: MatchingData;
-    }) => Promise<ServerResponseData | undefined>,
-    refetch: () => void,
-  ) => {
-    toast.promise(
-      mutateAsync({ group, subGroup, instance, algorithm, matchingData }).then(
-        () => {
-          console.log("from handleClick pre-refetch", generous);
-          refetch();
-          console.log("from handleClick post-prefetch", generous);
-        },
-      ),
-      {
-        loading: "Running...",
-        error: "Something went wrong",
-        success: "Succcess",
-      },
-    );
-  };
-
-  const {
-    isLoading: generousDataLoading,
-    data: generous,
-    refetch: refetchGenerous,
-  } = api.institution.instance.singleAlgorithmResult.useQuery({
-    algName: "generous",
-    group,
-    subGroup,
-    instance,
-  });
-
-  const {
-    isLoading: greedyDataLoading,
-    data: greedy,
-    refetch: refetchGreedy,
-  } = api.institution.instance.singleAlgorithmResult.useQuery({
-    algName: "greedy",
-    group,
-    subGroup,
-    instance,
-  });
-
-  const {
-    isLoading: minCostDataLoading,
-    data: minCost,
-    refetch: refetchMinCost,
-  } = api.institution.instance.singleAlgorithmResult.useQuery({
-    algName: "minimum-cost",
-    group,
-    subGroup,
-    instance,
-  });
-
-  const {
-    isLoading: greedyGenDataLoading,
-    data: greedyGen,
-    refetch: refetchGreedyGen,
-  } = api.institution.instance.singleAlgorithmResult.useQuery({
-    algName: "greedy-generous",
-    group,
-    subGroup,
-    instance,
-  });
-
-  const handleSelection = (algName: BuiltInAlg) => {
-    toast.promise(
-      selectMatchingAsync({
-        oldAlgName: selectedMatching,
+  const [
+    { isLoading: generousLoading, data: generous, refetch: refetchGenerous },
+    { isLoading: greedyLoading, data: greedy, refetch: refetchGreedy },
+    { isLoading: minCostLoading, data: minCost, refetch: refetchMinCost },
+    { isLoading: greedyGenLoading, data: greedyGen, refetch: refetchGreedyGen },
+  ] = api.useQueries((t) =>
+    builtInAlgSchema.options.map((algName) =>
+      t.institution.instance.singleAlgorithmResult({
+        params,
         algName,
-        group,
-        subGroup,
-        instance,
-      }).then(() => {
-        setSelectedMatching(algName);
       }),
-      {
-        loading: "Running...",
-        error: "Something went wrong",
-        success: "Succcess",
-      },
-    );
-  };
+    ),
+  );
 
   return (
     <div className="flex w-full flex-col gap-5">
-      <div className="flex justify-between gap-5">
-        <p>Generous - description</p>
-        <Button
-          disabled={generousLoading}
-          onClick={() =>
-            handleClick("generous", runGenerousAsync, refetchGenerous)
-          }
-        >
-          run
-        </Button>
-      </div>
-      <div className="flex justify-between gap-5">
-        <p>Greedy - description</p>
-        <Button
-          disabled={greedyLoading}
-          onClick={() => handleClick("greedy", runGreedyAsync, refetchGreedy)}
-        >
-          run
-        </Button>
-      </div>
-      <div className="flex justify-between gap-5">
-        <p>Minimum Cost - description</p>
-        <Button
-          disabled={minCostLoading}
-          onClick={() =>
-            handleClick("minimum-cost", runMinCostAsync, refetchMinCost)
-          }
-        >
-          run
-        </Button>
-      </div>
-      <div className="flex justify-between gap-5">
-        <p>Greedy-Generous - description</p>
-        <Button
-          disabled={greedyGenLoading}
-          onClick={() =>
-            handleClick("greedy-generous", runGreedyGenAsync, refetchGreedyGen)
-          }
-        >
-          run
-        </Button>
-      </div>
+      <RunAlgorithmButton
+        params={params}
+        matchingData={matchingData}
+        algDisplayName={"Generous"}
+        algName={"generous"}
+        refetch={refetchGenerous}
+      />
+      <RunAlgorithmButton
+        params={params}
+        matchingData={matchingData}
+        algDisplayName={"Greedy"}
+        algName={"greedy"}
+        refetch={refetchGreedy}
+      />
+      <RunAlgorithmButton
+        params={params}
+        matchingData={matchingData}
+        algDisplayName={"Minimum Cost"}
+        algName={"minimum-cost"}
+        refetch={refetchMinCost}
+      />
+      <RunAlgorithmButton
+        params={params}
+        matchingData={matchingData}
+        algDisplayName={"Greedy-Generous"}
+        algName={"greedy-generous"}
+        refetch={refetchGreedyGen}
+      />
       <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
       <Table>
         <TableHeader>
@@ -201,80 +85,43 @@ export function ClientSection({
         </TableHeader>
         <TableBody>
           <ResultsTableRow
-            isLoading={generousDataLoading}
+            isLoading={generousLoading}
             matching={generous}
             algName={"generous"}
             algDisplayName={"Generous"}
+            params={params}
             selectedMatching={selectedMatching}
-            handleSelection={handleSelection}
+            setSelectedMatching={setSelectedMatching}
           />
           <ResultsTableRow
-            isLoading={greedyDataLoading}
+            isLoading={greedyLoading}
             matching={greedy}
             algName={"greedy"}
             algDisplayName={"Greedy"}
+            params={params}
             selectedMatching={selectedMatching}
-            handleSelection={handleSelection}
+            setSelectedMatching={setSelectedMatching}
           />
           <ResultsTableRow
-            isLoading={minCostDataLoading}
+            isLoading={minCostLoading}
             matching={minCost}
             algName={"minimum-cost"}
             algDisplayName={"Minimum Cost"}
+            params={params}
             selectedMatching={selectedMatching}
-            handleSelection={handleSelection}
+            setSelectedMatching={setSelectedMatching}
           />
           <ResultsTableRow
-            isLoading={greedyGenDataLoading}
+            isLoading={greedyGenLoading}
             matching={greedyGen}
             algName={"greedy-generous"}
             algDisplayName={"Greedy-Generous"}
+            params={params}
             selectedMatching={selectedMatching}
-            handleSelection={handleSelection}
+            setSelectedMatching={setSelectedMatching}
           />
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-function ResultsTableRow({
-  isLoading,
-  matching,
-  algName,
-  algDisplayName,
-  selectedMatching,
-  handleSelection,
-}: {
-  isLoading: boolean;
-  matching: ServerResponseData | undefined;
-  algName: BuiltInAlg;
-  algDisplayName: string;
-  selectedMatching: BuiltInAlg | undefined;
-  handleSelection: (algName: BuiltInAlg) => void;
-}) {
-  return (
-    <TableRow className="items-center">
-      <TableCell className="font-medium">{algDisplayName}</TableCell>
-      <TableCell className="text-center">
-        {isLoading || !matching || Number.isNaN(matching.weight)
-          ? "-"
-          : matching.weight}
-      </TableCell>
-      <TableCell className="text-center">
-        {isLoading || !matching || matching.profile.length === 0
-          ? "-"
-          : `(${matching.profile.join(", ")})`}
-      </TableCell>
-      <TableCell className="text-center">
-        <Button
-          variant={selectedMatching === algName ? "secondary" : "ghost"}
-          className={cn()}
-          onClick={() => handleSelection(algName)}
-        >
-          {selectedMatching === algName ? "Selected" : "Select"}
-        </Button>
-      </TableCell>
-    </TableRow>
   );
 }

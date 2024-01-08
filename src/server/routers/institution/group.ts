@@ -1,6 +1,6 @@
 import { slugify } from "@/lib/utils";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { groupParamsSchema } from "@/types/params";
+import { groupParamsSchema } from "@/lib/validations/params";
 import { z } from "zod";
 
 export const groupRouter = createTRPCRouter({

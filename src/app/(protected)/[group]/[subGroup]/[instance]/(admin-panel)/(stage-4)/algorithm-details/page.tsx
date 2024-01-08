@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
-import { ServerResponseData } from "@/server/routers/algorithm";
+import { ServerResponseData } from "@/lib/validations/algorithm";
 
 export default async function Page({
   params,
