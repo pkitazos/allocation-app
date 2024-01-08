@@ -1,7 +1,14 @@
 import { api } from "@/lib/trpc/server";
 
 import { instanceParams } from "@/lib/validations/params";
-import { ClientSection } from "./client-section";
+import { ResultsTable } from "./results-table";
+import { RunAlgorithmButton } from "./run-algorithm-button";
+import {
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  GreedyGenAlgorithm,
+  MinCostAlgorithm,
+} from "@/lib/algorithms";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const matchingData =
@@ -13,7 +20,30 @@ export default async function Page({ params }: { params: instanceParams }) {
         <h2 className="mb-6 text-2xl font-semibold">
           Select Algorithms to run
         </h2>
-        <ClientSection params={params} matchingData={matchingData} />
+        <div className="flex w-full flex-col gap-5">
+          <RunAlgorithmButton
+            params={params}
+            matchingData={matchingData}
+            algorithm={GenerousAlgorithm}
+          />
+          <RunAlgorithmButton
+            params={params}
+            matchingData={matchingData}
+            algorithm={GreedyAlgorithm}
+          />
+          <RunAlgorithmButton
+            params={params}
+            matchingData={matchingData}
+            algorithm={MinCostAlgorithm}
+          />
+          <RunAlgorithmButton
+            params={params}
+            matchingData={matchingData}
+            algorithm={GreedyGenAlgorithm}
+          />
+          <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
+          <ResultsTable params={params} />
+        </div>
       </div>
     </div>
   );

@@ -6,26 +6,28 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { ServerResponseData, BuiltInAlg } from "@/lib/validations/algorithm";
+import { BuiltInAlg } from "@/lib/validations/algorithm";
 import { instanceParams } from "@/lib/validations/params";
 
 export function ResultsTableRow({
-  isLoading,
   algName,
   algDisplayName,
   params,
-  matching,
   selectedMatching,
   setSelectedMatching,
 }: {
-  isLoading: boolean;
   algName: BuiltInAlg;
   algDisplayName: string;
   params: instanceParams;
-  matching: ServerResponseData | undefined;
   selectedMatching: BuiltInAlg | undefined;
   setSelectedMatching: Dispatch<SetStateAction<BuiltInAlg | undefined>>;
 }) {
+  const { isLoading, data } =
+    api.institution.instance.singleAlgorithmResult.useQuery({
+      params,
+      algName,
+    });
+
   const { mutateAsync: selectMatchingAsync } =
     api.institution.instance.selectMatching.useMutation();
 
@@ -45,18 +47,17 @@ export function ResultsTableRow({
       },
     );
   };
+
   return (
     <TableRow className="items-center">
       <TableCell className="font-medium">{algDisplayName}</TableCell>
       <TableCell className="text-center">
-        {isLoading || !matching || Number.isNaN(matching.weight)
-          ? "-"
-          : matching.weight}
+        {isLoading || !data || Number.isNaN(data.weight) ? "-" : data.weight}
       </TableCell>
       <TableCell className="text-center">
-        {isLoading || !matching || matching.profile.length === 0
+        {isLoading || !data || data.profile.length === 0
           ? "-"
-          : `(${matching.profile.join(", ")})`}
+          : `(${data.profile.join(", ")})`}
       </TableCell>
       <TableCell className="text-center">
         <Button
