@@ -157,7 +157,7 @@ export const instanceRouter = createTRPCRouter({
     }),
 
   setStage: adminProcedure
-    .input(instanceParamsSchema.and(z.object({ stage: z.nativeEnum(Stage) })))
+    .input(instanceParamsSchema.extend({ stage: z.nativeEnum(Stage) }))
     .mutation(async ({ ctx, input: { stage, group, subGroup, instance } }) => {
       await ctx.db.allocationInstance.update({
         where: {
@@ -173,12 +173,10 @@ export const instanceRouter = createTRPCRouter({
 
   selectMatching: adminProcedure
     .input(
-      instanceParamsSchema.and(
-        z.object({
-          algName: z.string(),
-          oldAlgName: z.string().optional(),
-        }),
-      ),
+      instanceParamsSchema.extend({
+        algName: z.string(),
+        oldAlgName: z.string().optional(),
+      }),
     )
     .mutation(
       async ({
@@ -269,11 +267,9 @@ export const instanceRouter = createTRPCRouter({
 
   singleAlgorithmResult: adminProcedure
     .input(
-      instanceParamsSchema.and(
-        z.object({
-          algName: z.string(),
-        }),
-      ),
+      instanceParamsSchema.extend({
+        algName: z.string(),
+      }),
     )
     .query(async ({ ctx, input: { algName, group, subGroup, instance } }) => {
       const res = await ctx.db.algorithmResult.findFirst({
