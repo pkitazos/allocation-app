@@ -1,13 +1,17 @@
+import { Stage } from "@prisma/client";
+import { JsonValue } from "@prisma/client/runtime/library";
+import { z } from "zod";
+
+import {
+  AlgorithmResult,
+  algorithmResultSchema,
+} from "@/lib/validations/algorithm";
+import { instanceParamsSchema } from "@/lib/validations/params";
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { instanceParamsSchema } from "@/types/params";
-import { Stage } from "@prisma/client";
-import { JsonValue } from "@prisma/client/runtime/library";
-import { z } from "zod";
-import { AlgorithmResult, algorithmResultSchema } from "../algorithm";
 
 const blankResult: AlgorithmResult = {
   profile: [],
@@ -111,33 +115,35 @@ export const instanceRouter = createTRPCRouter({
         },
       });
 
-      const students = studentData.map(({ student: { id, preferences } }) =>
-        [id].concat(preferences.map(({ projectId }) => projectId)),
-      );
+      const students = studentData.map(({ student }) => ({
+        id: student.id,
+        preferences: student.preferences.map(({ projectId }) => projectId),
+      }));
 
-      const projects = projectData.map(({ id, supervisorId }) => [
+      const projects = projectData.map(({ id, supervisorId }) => ({
         id,
-        0,
-        1,
+        lowerBound: 0,
+        upperBound: 1,
         supervisorId,
-      ]) as [string, number, number, string][];
+      }));
 
-      const lecturers = supervisorData.map(
+      const supervisors = supervisorData.map(
         ({
           supervisorId,
           projectAllocationTarget,
           projectAllocationUpperBound,
-        }) => {
-          return [
-            supervisorId,
-            0,
-            projectAllocationTarget,
-            projectAllocationUpperBound,
-          ] as [string, number, number, number];
-        },
+        }) => ({
+          id: supervisorId,
+          lowerBound: 0,
+          target: projectAllocationTarget,
+          upperBound: projectAllocationUpperBound,
+        }),
       );
 
-      return { students, projects, lecturers };
+      const data = { students, projects, supervisors };
+      console.log("MATCHING DATA", data);
+
+      return data;
     }),
 
   currentStage: adminProcedure
@@ -173,15 +179,21 @@ export const instanceRouter = createTRPCRouter({
 
   selectMatching: adminProcedure
     .input(
-      instanceParamsSchema.extend({
+      z.object({
+        params: instanceParamsSchema,
         algName: z.string(),
         oldAlgName: z.string().optional(),
+        // TODO consider removing the requirement for old alg name by storing selected alg on instance instead of result
       }),
     )
     .mutation(
       async ({
         ctx,
-        input: { algName, oldAlgName, group, subGroup, instance },
+        input: {
+          algName,
+          oldAlgName,
+          params: { group, subGroup, instance },
+        },
       }) => {
         if (oldAlgName) {
           await ctx.db.projectAllocation.deleteMany({
@@ -267,33 +279,42 @@ export const instanceRouter = createTRPCRouter({
 
   singleAlgorithmResult: adminProcedure
     .input(
-      instanceParamsSchema.extend({
+      z.object({
+        params: instanceParamsSchema,
         algName: z.string(),
       }),
     )
-    .query(async ({ ctx, input: { algName, group, subGroup, instance } }) => {
-      const res = await ctx.db.algorithmResult.findFirst({
-        where: {
-          name: algName,
-          allocationGroupId: group,
-          allocationSubGroupId: subGroup,
-          allocationInstanceId: instance,
+    .query(
+      async ({
+        ctx,
+        input: {
+          algName,
+          params: { group, subGroup, instance },
         },
-      });
+      }) => {
+        const res = await ctx.db.algorithmResult.findFirst({
+          where: {
+            name: algName,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
 
-      console.log("from getAlgorithmResult", res);
-      if (!res) return blankResult;
+        console.log("from getAlgorithmResult", res);
+        if (!res) return blankResult;
 
-      const result = algorithmResultSchema.safeParse(
-        JSON.parse(res.data as string),
-      );
+        const result = algorithmResultSchema.safeParse(
+          JSON.parse(res.data as string),
+        );
 
-      console.log("from getAlgorithmResult", result);
+        console.log("from getAlgorithmResult", result);
 
-      if (!result.success) return blankResult;
+        if (!result.success) return blankResult;
 
-      return result.data;
-    }),
+        return result.data;
+      },
+    ),
 
   algorithmResults: adminProcedure
     .input(instanceParamsSchema)
