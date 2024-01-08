@@ -14,31 +14,31 @@ export const algorithmSchema = z.object({
 
 export type Algorithm = z.infer<typeof algorithmSchema>;
 
-// TODO update this with proper values (flags, etc.)
+// TODO: add actual descriptions
 export const GenerousAlgorithm = {
   algName: "generous",
-  displayName: "",
-  description: "",
+  displayName: "Generous",
+  description: "description",
   flag: "GEN",
 } satisfies Algorithm;
 
 export const GreedyAlgorithm = {
   algName: "greedy",
-  displayName: "",
-  description: "",
-  flag: "GEN",
+  displayName: "Greedy",
+  description: "description",
+  flag: "GRE",
 } satisfies Algorithm;
 
 export const MinCostAlgorithm = {
   algName: "minimum-cost",
-  displayName: "",
-  description: "",
-  flag: "GEN",
+  displayName: "Minimum Cost",
+  description: "description",
+  flag: "MINCOST",
 } satisfies Algorithm;
 
 export const GreedyGenAlgorithm = {
   algName: "greedy-generous",
-  displayName: "",
-  description: "",
-  flag: "GEN",
+  displayName: "Greedy-Generous",
+  description: "description",
+  flag: "GRE",
 } satisfies Algorithm;
