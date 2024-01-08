@@ -1,5 +1,4 @@
 "use client";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,13 +9,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export function FormSection({
@@ -147,7 +147,7 @@ export function FormSection({
   const onSubmit = async ({ ...formData }: FormData) => {
     console.log(formData);
     console.log("boom");
-    await toast.promise(
+    void toast.promise(
       createInstanceAsync({
         groupId,
         subGroupId,

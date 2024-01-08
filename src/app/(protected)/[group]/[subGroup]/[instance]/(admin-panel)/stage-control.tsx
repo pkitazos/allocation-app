@@ -1,11 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
 import { Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
+import { StageButton } from "../../../../../../components/stage-button";
 
 export function StageControl({
   group,
@@ -24,11 +24,6 @@ export function StageControl({
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
 
   const { mutateAsync } = api.institution.instance.setStage.useMutation();
-
-  const handleSelection = (idx: number) => {
-    if (idx === selectedIdx) setSelectedIdx(-1);
-    else setSelectedIdx(idx);
-  };
 
   const handleConfirmation = (idx: number) => {
     toast.promise(
@@ -50,33 +45,51 @@ export function StageControl({
     );
   };
 
-  function StageButton({ title, num }: { title: string; num: number }) {
-    return (
-      <li className="flex items-center gap-9">
-        <button
-          onClick={() => handleSelection(num)}
-          className={cn(
-            "flex h-16 w-16 items-center justify-center rounded-full bg-accent text-lg font-medium",
-            selectedIdx === num && "border-4 border-amber-500",
-            confirmedIdx >= num && "bg-primary text-primary-foreground",
-          )}
-        >
-          {num}
-        </button>
-        <h3>{title}</h3>
-      </li>
-    );
-  }
-
   return (
     <div className="mx-16 mt-20 flex justify-between px-6">
       <ol className="flex flex-col gap-10">
-        <StageButton num={1} title="Setup" />
-        <StageButton num={2} title="Project Submission" />
-        <StageButton num={3} title="Project Selection" />
-        <StageButton num={4} title="Project Allocation" />
-        <StageButton num={5} title="Adjusting Project Allocation" />
-        <StageButton num={6} title="Publishing Project Allocation" />
+        <StageButton
+          title="Setup"
+          num={1}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
+        <StageButton
+          title="Project Submission"
+          num={2}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
+        <StageButton
+          title="Project Selection"
+          num={3}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
+        <StageButton
+          title="Project Allocation"
+          num={4}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
+        <StageButton
+          title="Adjusting Project Allocation"
+          num={5}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
+        <StageButton
+          title="Publishing Project Allocation"
+          num={6}
+          selectedIdx={selectedIdx}
+          confirmedIdx={confirmedIdx}
+          setSelectedIdx={setSelectedIdx}
+        />
       </ol>
       <Button
         className="self-end"
