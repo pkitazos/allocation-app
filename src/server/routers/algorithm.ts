@@ -1,14 +1,13 @@
 import { env } from "@/env";
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { instanceParamsSchema } from "@/lib/validations/params";
+import { algorithmSchema } from "@/lib/algorithms";
 import {
-  builtInAlgSchema,
-  matchingDataSchema,
-  algorithmFlag,
-  mathcingDataWithArgsSchema,
   AlgorithmServerData,
+  matchingDataSchema,
+  mathcingDataWithArgsSchema,
   serverResponseDataSchema,
 } from "@/lib/validations/algorithm";
+import { instanceParamsSchema } from "@/lib/validations/params";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { z } from "zod";
 
 export const algorithmRouter = createTRPCRouter({
@@ -16,7 +15,7 @@ export const algorithmRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        algorithm: builtInAlgSchema,
+        algorithm: algorithmSchema,
         matchingData: matchingDataSchema,
       }),
     )
@@ -30,7 +29,7 @@ export const algorithmRouter = createTRPCRouter({
         },
       }) => {
         const serverResult = await getMatching({
-          algorithm,
+          algName: algorithm.algName,
           matchingData,
         });
 
@@ -41,7 +40,7 @@ export const algorithmRouter = createTRPCRouter({
         await ctx.db.algorithmResult.upsert({
           where: {
             name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: algorithm,
+              name: algorithm.algName,
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
@@ -51,12 +50,12 @@ export const algorithmRouter = createTRPCRouter({
             data: JSON.stringify(result),
           },
           create: {
-            name: algorithm,
+            name: algorithm.algName,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             algFlag1: "MAXSIZE",
-            algFlag2: algorithmFlag[algorithm],
+            algFlag2: algorithm.flag,
             algFlag3: "LSB",
             data: JSON.stringify(result),
           },
@@ -70,16 +69,13 @@ export const algorithmRouter = createTRPCRouter({
   custom: adminProcedure
     .input(mathcingDataWithArgsSchema)
     .mutation(async ({ input: matchingData }) => {
-      const result = await getMatching({ algorithm: "custom", matchingData });
+      const result = await getMatching({ algName: "custom", matchingData });
       return result;
     }),
 });
 
-const getMatching = async ({
-  algorithm,
-  matchingData,
-}: AlgorithmServerData) => {
-  const res = await fetch(`${env.SERVER_URL}/${algorithm}`, {
+const getMatching = async ({ algName, matchingData }: AlgorithmServerData) => {
+  const res = await fetch(`${env.SERVER_URL}/${algName}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(matchingData),

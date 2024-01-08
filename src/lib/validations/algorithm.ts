@@ -49,12 +49,7 @@ export const builtInAlgSchema = z.enum([
   "greedy-generous",
 ]);
 
-export const algorithmFlag: Record<BuiltInAlg, AlgorithmFlag> = {
-  generous: "GEN",
-  greedy: "GRE",
-  "minimum-cost": "MINCOST",
-  "greedy-generous": "GRE",
-};
+export const algorithmFlagSchema = z.nativeEnum(AlgorithmFlag);
 
 export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;
 
@@ -65,7 +60,7 @@ export type MatchingData = z.infer<typeof matchingDataSchema>;
 export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
 
 export type AlgorithmServerData =
-  | { algorithm: "custom"; matchingData: MatchingDataWithArgs }
-  | { algorithm: BuiltInAlg; matchingData: MatchingData };
+  | { algName: "custom"; matchingData: MatchingDataWithArgs }
+  | { algName: BuiltInAlg; matchingData: MatchingData };
 
 export type BuiltInAlg = z.infer<typeof builtInAlgSchema>;

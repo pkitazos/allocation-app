@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   AlgorithmResult,
   algorithmResultSchema,
+  builtInAlgSchema,
 } from "@/lib/validations/algorithm";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import {
@@ -319,7 +320,7 @@ export const instanceRouter = createTRPCRouter({
   algorithmResults: adminProcedure
     .input(instanceParamsSchema)
     .query(async ({ ctx, input: { group, subGroup, instance } }) => {
-      const algs = ["generous", "greedy", "minimum-cost", "greedy-generous"];
+      const algs = builtInAlgSchema.options;
 
       const results: ({
         data: JsonValue;
@@ -453,31 +454,3 @@ export const instanceRouter = createTRPCRouter({
       return { byStudent, byProject, bySupervisor };
     }),
 });
-
-export const testAllocationData = {
-  // args: [["-na", "3", "-maxsize", "1", "-gre", "2", "-lsb", "3"]],
-  students: [
-    [1],
-    [1, 2, 3, 4, 5, 6],
-    [2, 1, 4],
-    [2],
-    [1, 2, 3, 4],
-    [2, 3, 4, 5, 6],
-    [5, 3, 8],
-  ],
-  projects: [
-    [0, 1, 1],
-    [0, 1, 1],
-    [0, 1, 1],
-    [0, 1, 2],
-    [0, 1, 2],
-    [0, 1, 2],
-    [0, 1, 3],
-    [0, 1, 3],
-  ],
-  lecturers: [
-    [0, 2, 3],
-    [0, 2, 2],
-    [0, 2, 2],
-  ],
-};

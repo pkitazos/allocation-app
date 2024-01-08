@@ -6,6 +6,7 @@ import { z } from "zod";
 export const subGroupRouter = createTRPCRouter({
   instanceManagement: adminProcedure
     .input(subGroupParamsSchema)
+    // TODO consistentify
     .query(async ({ ctx, input: params }) => {
       const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
         where: {
@@ -54,6 +55,7 @@ export const subGroupRouter = createTRPCRouter({
         subGroupId: z.string(),
       }),
     )
+    // TODO this should be params?
     .mutation(async ({ ctx, input: { name, groupId, subGroupId } }) => {
       await ctx.db.allocationInstance.create({
         data: {
