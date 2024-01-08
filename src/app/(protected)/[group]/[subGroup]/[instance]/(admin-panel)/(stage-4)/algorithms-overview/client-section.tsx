@@ -17,7 +17,7 @@ import {
   BuiltInAlg,
 } from "@/server/routers/algorithm";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 export function ClientSection({
   group,

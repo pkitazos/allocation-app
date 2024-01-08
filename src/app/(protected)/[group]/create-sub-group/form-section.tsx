@@ -16,8 +16,9 @@ import { slugify } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+
 import { z } from "zod";
+import { toast } from "sonner";
 
 export function FormSection({
   takenNames,
