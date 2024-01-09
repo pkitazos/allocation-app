@@ -153,6 +153,7 @@ model SupervisorInInstance {
     allocationGroupId           String             @map("allocation_group_id")
     allocationSubGroupId        String             @map("allocation_sub_group_id")
     allocationInstanceId        String             @map("allocation_instance_id")
+    projectAllocationLowerBound Int                @map("project_allocation_lower_bound")
     projectAllocationTarget     Int                @map("project_allocation_target")
     projectAllocationUpperBound Int                @map("project_allocation_upper_bound")
 
@@ -176,6 +177,8 @@ model Project {
     description          String
     supervisor           Supervisor         @relation(fields: [supervisorId], references: [id])
     supervisorId         String             @map("supervisor_id")
+    capacityLowerBound   Int                @map("capacity_lower_bound")
+    capacityUpperBound   Int                @map("capacity_upper_bound")
     allocationInstance   AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
     allocationGroupId    String             @map("allocation_group_id")
     allocationSubGroupId String             @map("allocation_sub_group_id")

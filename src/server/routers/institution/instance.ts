@@ -104,6 +104,7 @@ export const instanceRouter = createTRPCRouter({
         },
         select: {
           supervisorId: true,
+          projectAllocationLowerBound: true,
           projectAllocationTarget: true,
           projectAllocationUpperBound: true,
         },
@@ -115,6 +116,12 @@ export const instanceRouter = createTRPCRouter({
           allocationSubGroupId: subGroup,
           allocationInstanceId: instance,
         },
+        select: {
+          id: true,
+          supervisorId: true,
+          capacityLowerBound: true,
+          capacityUpperBound: true,
+        },
       });
 
       const students = studentData.map(({ student }) => ({
@@ -122,21 +129,24 @@ export const instanceRouter = createTRPCRouter({
         preferences: student.preferences.map(({ projectId }) => projectId),
       }));
 
-      const projects = projectData.map(({ id, supervisorId }) => ({
-        id,
-        lowerBound: 0,
-        upperBound: 1,
-        supervisorId,
-      }));
+      const projects = projectData.map(
+        ({ id, supervisorId, capacityLowerBound, capacityUpperBound }) => ({
+          id,
+          lowerBound: capacityLowerBound,
+          upperBound: capacityUpperBound,
+          supervisorId,
+        }),
+      );
 
       const supervisors = supervisorData.map(
         ({
           supervisorId,
+          projectAllocationLowerBound,
           projectAllocationTarget,
           projectAllocationUpperBound,
         }) => ({
           id: supervisorId,
-          lowerBound: 0,
+          lowerBound: projectAllocationLowerBound,
           target: projectAllocationTarget,
           upperBound: projectAllocationUpperBound,
         }),
@@ -237,9 +247,9 @@ export const instanceRouter = createTRPCRouter({
         }
 
         await ctx.db.projectAllocation.createMany({
-          data: matching.map((pair) => ({
-            studentId: pair[0],
-            projectId: pair[1],
+          data: matching.map(({ student_id, project_id }) => ({
+            studentId: student_id,
+            projectId: project_id,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
@@ -394,6 +404,8 @@ export const instanceRouter = createTRPCRouter({
             select: {
               id: true,
               title: true,
+              capacityLowerBound: true,
+              capacityUpperBound: true,
               supervisor: {
                 select: {
                   id: true,
@@ -426,6 +438,13 @@ export const instanceRouter = createTRPCRouter({
                   id: true,
                   name: true,
                   email: true,
+                  supervisorInInstance: {
+                    select: {
+                      projectAllocationLowerBound: true,
+                      projectAllocationTarget: true,
+                      projectAllocationUpperBound: true,
+                    },
+                  },
                 },
               },
             },
