@@ -34,7 +34,6 @@ export function ResultsTableRow({
   const handleSelection = (algName: BuiltInAlg) => {
     toast.promise(
       selectMatchingAsync({
-        oldAlgName: selectedMatching,
         algName,
         params,
       }).then(() => {

@@ -199,12 +199,16 @@ model Preference {
 }
 
 model ProjectAllocation {
-    project   Project @relation(fields: [projectId], references: [id])
-    projectId String  @unique @map("project_id")
-    student   Student @relation(fields: [studentId], references: [id])
-    studentId String  @map("student_id")
+    project              Project @relation(fields: [projectId], references: [id])
+    projectId            String  @unique @map("project_id")
+    student              Student @relation(fields: [studentId], references: [id])
+    studentId            String  @map("student_id")
+    allocationGroupId    String  @map("allocation_group_id")
+    allocationSubGroupId String  @map("allocation_sub_group_id")
+    allocationInstanceId String  @map("allocation_instance_id")
 
-    @@id([projectId, studentId])
+    @@id([projectId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@unique([projectId, studentId])
 }
 
 model Flag {

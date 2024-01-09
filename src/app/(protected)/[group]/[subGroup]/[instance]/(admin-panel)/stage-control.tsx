@@ -1,11 +1,13 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { api } from "@/lib/trpc/client";
 import { Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { StageButton } from "../../../../../../components/stage-button";
+
+import { StageButton } from "@/components/stage-button";
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/trpc/client";
+import { stageSchema } from "@/lib/validations/stage";
 
 export function StageControl({
   group,
@@ -18,7 +20,7 @@ export function StageControl({
   instance: string;
   stage: Stage;
 }) {
-  const stages = Object.values(Stage);
+  const stages = stageSchema.options;
   const router = useRouter();
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);

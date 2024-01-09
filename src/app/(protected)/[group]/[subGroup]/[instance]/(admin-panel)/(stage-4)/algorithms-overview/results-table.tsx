@@ -12,8 +12,14 @@ import { BuiltInAlg } from "@/lib/validations/algorithm";
 import { instanceParams } from "@/lib/validations/params";
 import { ResultsTableRow } from "./results-table-row";
 
-export function ResultsTable({ params }: { params: instanceParams }) {
-  const [selectedMatching, setSelectedMatching] = useState<BuiltInAlg>();
+export function ResultsTable({
+  params,
+  selectedAlgorithm,
+}: {
+  params: instanceParams;
+  selectedAlgorithm: BuiltInAlg | undefined;
+}) {
+  const [selectedMatching, setSelectedMatching] = useState(selectedAlgorithm);
 
   return (
     <Table>

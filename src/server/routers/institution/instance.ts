@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import {
   AlgorithmResult,
+  BuiltInAlg,
   algorithmResultSchema,
   builtInAlgSchema,
 } from "@/lib/validations/algorithm";
@@ -142,9 +143,22 @@ export const instanceRouter = createTRPCRouter({
       );
 
       const data = { students, projects, supervisors };
-      console.log("MATCHING DATA", data);
 
-      return data;
+      const { algorithmName } =
+        await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            slug: instance,
+          },
+          select: { algorithmName: true },
+        });
+
+      // * should be changed if frontend adds support for displaying custom algorithms
+      const selectedAlgorithm = algorithmName
+        ? (algorithmName as BuiltInAlg)
+        : undefined;
+      return { matchingData: data, selectedAlgorithm };
     }),
 
   currentStage: adminProcedure
@@ -183,8 +197,6 @@ export const instanceRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         algName: z.string(),
-        oldAlgName: z.string().optional(),
-        // TODO consider removing the requirement for old alg name by storing selected alg on instance instead of result
       }),
     )
     .mutation(
@@ -192,88 +204,59 @@ export const instanceRouter = createTRPCRouter({
         ctx,
         input: {
           algName,
-          oldAlgName,
           params: { group, subGroup, instance },
         },
       }) => {
-        if (oldAlgName) {
-          await ctx.db.projectAllocation.deleteMany({
+        const { algorithmName } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
             where: {
-              project: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-              },
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              slug: instance,
             },
+            select: { algorithmName: true },
           });
 
-          const { data: oldAlgData } =
-            await ctx.db.algorithmResult.findFirstOrThrow({
-              where: {
-                name: oldAlgName,
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-              },
-            });
+        const { data } = await ctx.db.algorithmResult.findFirstOrThrow({
+          where: { name: algName },
+          select: { data: true },
+        });
 
-          const oldAlgPrevData = algorithmResultSchema.parse(
-            JSON.parse(oldAlgData as string),
-          );
+        const { matching } = algorithmResultSchema.parse(
+          JSON.parse(data as string),
+        );
 
-          const oldAlgUpdatedData = { ...oldAlgPrevData, selected: false };
-          console.log("oldAlgUpdatedData", oldAlgUpdatedData);
-          await ctx.db.algorithmResult.update({
+        if (algorithmName) {
+          await ctx.db.projectAllocation.deleteMany({
             where: {
-              name_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  name: oldAlgName,
-                  allocationGroupId: group,
-                  allocationSubGroupId: subGroup,
-                  allocationInstanceId: instance,
-                },
-            },
-            data: {
-              data: JSON.stringify(oldAlgUpdatedData),
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
             },
           });
         }
 
-        const { data: newAlgData } =
-          await ctx.db.algorithmResult.findFirstOrThrow({
-            where: {
-              name: algName,
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
-          });
+        await ctx.db.projectAllocation.createMany({
+          data: matching.map((pair) => ({
+            studentId: pair[0],
+            projectId: pair[1],
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          })),
+        });
 
-        const newAlgPrevData = algorithmResultSchema.parse(
-          JSON.parse(newAlgData as string),
-        );
-
-        const newAlgUpdatedData = { ...newAlgPrevData, selected: true };
-        console.log("newAlgUpdatedData", newAlgUpdatedData);
-        await ctx.db.algorithmResult.update({
+        await ctx.db.allocationInstance.update({
           where: {
-            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: algName,
+            allocationGroupId_allocationSubGroupId_slug: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
+              slug: instance,
             },
           },
           data: {
-            data: JSON.stringify(newAlgUpdatedData),
+            algorithmName: algName,
           },
-        });
-
-        await ctx.db.projectAllocation.createMany({
-          data: newAlgUpdatedData.matching.map((pair) => ({
-            studentId: pair[0],
-            projectId: pair[1],
-          })),
         });
       },
     ),

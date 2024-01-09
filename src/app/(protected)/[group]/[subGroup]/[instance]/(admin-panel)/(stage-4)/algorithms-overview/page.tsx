@@ -1,5 +1,4 @@
 import { api } from "@/lib/trpc/server";
-
 import { instanceParams } from "@/lib/validations/params";
 import { ResultsTable } from "./results-table";
 import { RunAlgorithmButton } from "./run-algorithm-button";
@@ -11,7 +10,7 @@ import {
 } from "@/lib/algorithms";
 
 export default async function Page({ params }: { params: instanceParams }) {
-  const matchingData =
+  const { matchingData, selectedAlgorithm } =
     await api.institution.instance.matchingData.query(params);
 
   return (
@@ -42,7 +41,7 @@ export default async function Page({ params }: { params: instanceParams }) {
             algorithm={GreedyGenAlgorithm}
           />
           <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
-          <ResultsTable params={params} />
+          <ResultsTable selectedAlgorithm={selectedAlgorithm} params={params} />
         </div>
       </div>
     </div>
