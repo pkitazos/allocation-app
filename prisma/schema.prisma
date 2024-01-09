@@ -139,6 +139,9 @@ model AllocationInstance {
     projects              Project[]
     supervisorsInInstance SupervisorInInstance[]
     studentsInInstance    StudentInInstance[]
+    // has one
+    selectedMatching      AlgorithmResult?       @relation(fields: [algorithmName, allocationGroupId, allocationSubGroupId, slug], references: [name, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    algorithmName         String?                @map("algorithm_name")
 
     @@id([allocationGroupId, allocationSubGroupId, slug])
 }
@@ -247,15 +250,15 @@ model TagOnProject {
 
 model AlgorithmResult {
     name                 String
-    algFlag1             AlgorithmFlag @map("alg_flag_1")
-    algFlag2             AlgorithmFlag @map("alg_flag_2")
-    algFlag3             AlgorithmFlag @map("alg_flag_3")
+    algFlag1             AlgorithmFlag        @map("alg_flag_1")
+    algFlag2             AlgorithmFlag        @map("alg_flag_2")
+    algFlag3             AlgorithmFlag        @map("alg_flag_3")
     data                 Json
-    selected             Boolean       @default(false)
-    // TODO consider moving this to the allocation instance
-    allocationGroupId    String        @map("allocation_group_id")
-    allocationSubGroupId String        @map("allocation_sub_group_id")
-    allocationInstanceId String        @map("allocation_instance_id")
+    // selected             Boolean              @default(false)
+    allocationGroupId    String               @map("allocation_group_id")
+    allocationSubGroupId String               @map("allocation_sub_group_id")
+    allocationInstanceId String               @map("allocation_instance_id")
+    allocationInstance   AllocationInstance[]
 
     @@id([name, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
