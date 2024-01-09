@@ -1,5 +1,5 @@
 "use client";
-import { CompositeUser } from "@/lib/prisma";
+import { CompositeUser } from "@/lib/db";
 import { Role } from "@prisma/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

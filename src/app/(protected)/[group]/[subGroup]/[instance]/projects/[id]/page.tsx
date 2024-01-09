@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import Link from "next/link";
 import { z } from "zod";
 import { ClientSection } from "./client-section";
