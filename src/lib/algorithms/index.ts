@@ -1,9 +1,9 @@
+import { z } from "zod";
+
 import {
   algorithmFlagSchema,
   builtInAlgSchema,
 } from "@/lib/validations/algorithm";
-
-import { z } from "zod";
 
 export const algorithmSchema = z.object({
   algName: builtInAlgSchema,
