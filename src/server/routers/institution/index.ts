@@ -12,7 +12,7 @@ export const institutionRouter = createTRPCRouter({
 
   groupManagement: adminProcedure.query(async ({ ctx }) => {
     const groups = await ctx.db.allocationGroup.findMany({});
-    const superAdmin = await ctx.db.superAdmin.findFirstOrThrow({});
+    const superAdmin = ctx.session.user;
     return { groups, superAdmin };
   }),
 
@@ -33,13 +33,11 @@ export const institutionRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input: { groupName } }) => {
-      const superAdmin = await ctx.db.superAdmin.findFirstOrThrow({});
-
       await ctx.db.allocationGroup.create({
         data: {
           slug: slugify(groupName),
           displayName: groupName,
-          superAdminId: superAdmin.id,
+          superAdminId: ctx.session.user.id,
         },
       });
     }),

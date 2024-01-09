@@ -12,7 +12,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { Session } from "next-auth";
 
 /**

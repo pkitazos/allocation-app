@@ -1,5 +1,5 @@
 import { ClientSection } from "./client-section";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 

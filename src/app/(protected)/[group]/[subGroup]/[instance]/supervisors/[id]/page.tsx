@@ -1,6 +1,6 @@
 // accessible by all users
 
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { z } from "zod";
 import { ClientSection } from "./client-section";
 

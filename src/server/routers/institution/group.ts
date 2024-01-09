@@ -1,11 +1,12 @@
 import { slugify } from "@/lib/utils";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { groupParamsSchema } from "@/types/params";
+import { groupParamsSchema } from "@/lib/validations/params";
 import { z } from "zod";
 
 export const groupRouter = createTRPCRouter({
   subGroupManagement: adminProcedure
     .input(groupParamsSchema)
+    // TODO this should be wrapped in a z.object for consistency
     .query(async ({ ctx, input: params }) => {
       const data = await ctx.db.allocationGroup.findFirstOrThrow({
         where: { slug: params.group },
@@ -38,6 +39,7 @@ export const groupRouter = createTRPCRouter({
 
   createSubGroup: adminProcedure
     .input(z.object({ groupId: z.string(), name: z.string() }))
+    // TODO change groupID to params
     .mutation(async ({ ctx, input: { groupId, name } }) => {
       await ctx.db.allocationSubGroup.create({
         data: {

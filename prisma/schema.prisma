@@ -252,6 +252,7 @@ model AlgorithmResult {
     algFlag3             AlgorithmFlag @map("alg_flag_3")
     data                 Json
     selected             Boolean       @default(false)
+    // TODO consider moving this to the allocation instance
     allocationGroupId    String        @map("allocation_group_id")
     allocationSubGroupId String        @map("allocation_sub_group_id")
     allocationInstanceId String        @map("allocation_instance_id")

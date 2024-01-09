@@ -1,7 +1,7 @@
 // accessible by admins only
 
 import { Badge } from "@/components/ui/badge";
-import { db } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { z } from "zod";
 
 const routeContextSchema = z.object({
