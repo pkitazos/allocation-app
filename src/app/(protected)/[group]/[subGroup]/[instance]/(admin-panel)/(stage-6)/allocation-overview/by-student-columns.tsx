@@ -3,8 +3,8 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export interface StudentData {
   student: {
-    id: string;
     name: string;
+    id: string;
     email: string;
   };
   project: {
@@ -13,6 +13,7 @@ export interface StudentData {
       name: string;
     };
   };
+  studentRanking: number;
 }
 
 export const byStudentColumns: ColumnDef<StudentData>[] = [
@@ -44,13 +45,13 @@ export const byStudentColumns: ColumnDef<StudentData>[] = [
       <DataTableColumnHeader column={column} title="Project ID" />
     ),
   },
-  // {
-  //   id: "projectRank",
-  //   accessorKey: "projectRank",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Project Rank" />
-  //   ),
-  // },
+  {
+    id: "studentRanking",
+    accessorFn: ({ studentRanking }) => studentRanking,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Rank" />
+    ),
+  },
   {
     id: "supervisorName",
     accessorFn: ({ project }) => project.supervisor.name,

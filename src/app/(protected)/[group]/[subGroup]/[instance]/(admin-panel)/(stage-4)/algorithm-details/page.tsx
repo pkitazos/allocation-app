@@ -81,9 +81,11 @@ function DetailsTable({ data }: { data: ServerResponseData }) {
       <TableBody>
         {data.matching.map((match, i) => (
           <TableRow key={i}>
-            <TableCell className="text-center">{match[0]}</TableCell>
-            <TableCell className="text-center">{match[1]}</TableCell>
-            <TableCell className="text-center">{match[2]}</TableCell>
+            <TableCell className="text-center">{match.student_id}</TableCell>
+            <TableCell className="text-center">{match.project_id}</TableCell>
+            <TableCell className="text-center">
+              {match.preference_rank}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

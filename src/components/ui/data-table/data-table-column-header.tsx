@@ -40,21 +40,21 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn("flex items-center space-x-2", className)}>
+    <div className={cn("flex h-full items-center space-x-2 py-1", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className=" min-h-8 my-1.5 -ml-1 text-left"
+            className="my-1.5 -ml-1 flex h-full min-h-8 gap-2 py-1 text-left"
           >
             <span>{title}</span>
             {column.getIsSorted() === "desc" ? (
-              <ArrowDownIcon className="ml-2 h-4 w-4" />
+              <ArrowDownIcon className="h-4 min-w-4" />
             ) : column.getIsSorted() === "asc" ? (
-              <ArrowUpIcon className="ml-2 h-4 w-4" />
+              <ArrowUpIcon className="h-4 min-w-4" />
             ) : (
-              <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+              <ArrowUpDownIcon className="h-4 min-w-4" />
             )}
           </Button>
         </DropdownMenuTrigger>

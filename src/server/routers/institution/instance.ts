@@ -247,12 +247,13 @@ export const instanceRouter = createTRPCRouter({
         }
 
         await ctx.db.projectAllocation.createMany({
-          data: matching.map(({ student_id, project_id }) => ({
+          data: matching.map(({ student_id, project_id, preference_rank }) => ({
             studentId: student_id,
             projectId: project_id,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
+            studentRanking: preference_rank,
           })),
         });
 
@@ -362,6 +363,14 @@ export const instanceRouter = createTRPCRouter({
       });
     }),
 
+  // get the project allocations in 3 formats: organised by students, supervisors and projects
+
+  // by student needs to return:
+  // student details (id, name, email)
+  // supervisor id
+  // project ID
+  // preference rank of the assigned project
+
   projectAllocations: adminProcedure
     .input(instanceParamsSchema)
     .query(async ({ ctx, input: params }) => {
@@ -379,7 +388,6 @@ export const instanceRouter = createTRPCRouter({
               id: true,
               name: true,
               email: true,
-              // flags: true,
             },
           },
           project: {
@@ -388,6 +396,7 @@ export const instanceRouter = createTRPCRouter({
               supervisor: { select: { name: true } },
             },
           },
+          studentRanking: true,
         },
       });
 
@@ -417,6 +426,7 @@ export const instanceRouter = createTRPCRouter({
           student: {
             select: { id: true },
           },
+          studentRanking: true,
         },
       });
 
@@ -439,6 +449,11 @@ export const instanceRouter = createTRPCRouter({
                   name: true,
                   email: true,
                   supervisorInInstance: {
+                    where: {
+                      allocationGroupId: params.group,
+                      allocationSubGroupId: params.subGroup,
+                      allocationInstanceId: params.instance,
+                    },
                     select: {
                       projectAllocationLowerBound: true,
                       projectAllocationTarget: true,
@@ -450,6 +465,7 @@ export const instanceRouter = createTRPCRouter({
             },
           },
           student: { select: { id: true } },
+          studentRanking: true,
         },
       });
 

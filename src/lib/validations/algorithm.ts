@@ -30,8 +30,24 @@ export const mathcingDataWithArgsSchema = matchingDataSchema.extend({
   args: z.array(z.string()),
 });
 
+const serverMatchingDetailsSchema = z.object({
+  student_id: z.string(),
+  project_id: z.string(),
+  project_capacities: z.object({
+    lower_bound: z.number(),
+    upper_bound: z.number(),
+  }),
+  preference_rank: z.number(),
+  supervisor_id: z.string(),
+  supervisor_capacities: z.object({
+    lower_bound: z.number(),
+    target: z.number(),
+    upper_bound: z.number(),
+  }),
+});
+
 export const serverResponseDataSchema = z.object({
-  matching: z.array(z.tuple([z.string(), z.string(), z.number()])),
+  matching: z.array(serverMatchingDetailsSchema),
   profile: z.array(z.number()),
   weight: z.number(),
   size: z.number(),

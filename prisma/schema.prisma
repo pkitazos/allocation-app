@@ -206,6 +206,7 @@ model ProjectAllocation {
     projectId            String  @unique @map("project_id")
     student              Student @relation(fields: [studentId], references: [id])
     studentId            String  @map("student_id")
+    studentRanking       Int     @map("student_ranking")
     allocationGroupId    String  @map("allocation_group_id")
     allocationSubGroupId String  @map("allocation_sub_group_id")
     allocationInstanceId String  @map("allocation_instance_id")
