@@ -29,14 +29,16 @@ export const projectRouter = createTRPCRouter({
     ),
 
   getById: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input: { id } }) => {
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input: { projectId } }) => {
       return await ctx.db.project.findFirstOrThrow({
-        where: {
-          id,
-        },
-        include: {
-          supervisor: true,
+        where: { id: projectId },
+        select: {
+          title: true,
+          description: true,
+          supervisor: { select: { id: true, name: true } },
+          flagOnProjects: { select: { flag: { select: { title: true } } } },
+          tagOnProject: { select: { tag: { select: { title: true } } } },
         },
       });
     }),
