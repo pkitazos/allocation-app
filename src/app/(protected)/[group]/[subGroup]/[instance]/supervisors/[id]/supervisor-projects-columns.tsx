@@ -11,10 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
-
-const deleteSupervisor = async (id: string) => {
-  await fetch(`/api/admin/supervisors/${id}`, { method: "DELETE" });
-};
+import Link from "next/link";
 
 export interface SupervisorProjectData {
   id: string;
@@ -42,19 +39,26 @@ export const columns: ColumnDef<SupervisorProjectData>[] = [
     enableHiding: false,
   },
   {
+    id: "id",
+    accessorFn: ({ id }) => id,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ID" canFilter />
+    ),
+  },
+  {
     id: "title",
-    accessorKey: "title",
+    accessorFn: ({ title }) => title,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" canFilter />
     ),
   },
   {
+    id: "actions",
     accessorKey: "actions",
-    id: "Actions",
     header: () => {
       return <div className="text-xs text-gray-500">Actions</div>;
     },
-    cell: ({ row }) => {
+    cell: ({ row: { original: project } }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -67,16 +71,20 @@ export const columns: ColumnDef<SupervisorProjectData>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href={`/supervisors/${row.original.id}`}>
+              {/* // TODO fix link */}
+              <Link href={`${project.id}`}>
                 <Button variant="link">View Details</Button>
-              </a>
+              </Link>
             </DropdownMenuItem>
             {false && (
               <DropdownMenuItem>
+                {/* // TODO: implement delete */}
                 <Button
                   className="w-full"
                   variant="destructive"
-                  onClick={() => deleteSupervisor(row.original.id)} // TODO: removes student from isntance instead of deleting from database
+                  onClick={() => {
+                    return;
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
