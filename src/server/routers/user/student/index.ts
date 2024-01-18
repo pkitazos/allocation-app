@@ -1,9 +1,10 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
-import { preferenceRouter } from "./preference";
-import { shortlistRouter } from "./shortlist";
 import { z } from "zod";
+import { preferenceRouter } from "./preference";
 
 export const studentRouter = createTRPCRouter({
+  preference: preferenceRouter,
+
   getById: publicProcedure
     .input(z.object({ studentId: z.string() }))
     .query(async ({ ctx, input: { studentId } }) => {
@@ -42,8 +43,4 @@ export const studentRouter = createTRPCRouter({
       });
       return data.map((item) => item.allocationInstance);
     }),
-
-  shortlist: shortlistRouter,
-
-  preference: preferenceRouter,
 });
