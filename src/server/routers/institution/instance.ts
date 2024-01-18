@@ -3,8 +3,10 @@ import { JsonValue } from "@prisma/client/runtime/library";
 import { z } from "zod";
 
 import {
+  ServerResponse,
   algorithmFlagSchema,
   builtInAlgSchema,
+  serverResponseSchema,
 } from "@/lib/validations/algorithm";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import {
@@ -12,12 +14,8 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import {
-  ServerResponseNEW,
-  serverResponseSchemaNEW,
-} from "./algorithms-rewrite.t";
 
-const blankResult: ServerResponseNEW = {
+const blankResult: ServerResponse = {
   profile: [],
   degree: NaN,
   size: NaN,
@@ -342,7 +340,7 @@ export const instanceRouter = createTRPCRouter({
           select: { matchingResultData: true },
         });
 
-        const { matching } = serverResponseSchemaNEW.parse(
+        const { matching } = serverResponseSchema.parse(
           JSON.parse(matchingResultData as string),
         );
 
@@ -408,7 +406,7 @@ export const instanceRouter = createTRPCRouter({
         console.log("from getAlgorithmResult", res);
         if (!res) return blankResult;
 
-        const result = serverResponseSchemaNEW.safeParse(
+        const result = serverResponseSchema.safeParse(
           JSON.parse(res.matchingResultData as string),
         );
         console.log("RECEIVED -------->>", res.matchingResultData);
@@ -446,7 +444,7 @@ export const instanceRouter = createTRPCRouter({
       return results.map((item, i) => {
         if (!item) return { name: algs[i], data: blankResult };
         const { algName, matchingResultData } = item;
-        const res = serverResponseSchemaNEW.safeParse(
+        const res = serverResponseSchema.safeParse(
           JSON.parse(matchingResultData as string),
         );
         return { name: algName, data: res.success ? res.data : blankResult };
@@ -470,7 +468,7 @@ export const instanceRouter = createTRPCRouter({
       type tableData = {
         algName: string;
         displayName: string;
-        data: ServerResponseNEW;
+        data: ServerResponse;
       };
 
       if (results.length === 0) {
@@ -480,7 +478,7 @@ export const instanceRouter = createTRPCRouter({
       const nonEmpty: number[] = [];
       const data = results.map(
         ({ algName, displayName, matchingResultData }, i) => {
-          const res = serverResponseSchemaNEW.safeParse(
+          const res = serverResponseSchema.safeParse(
             JSON.parse(matchingResultData as string),
           );
           const data = res.success ? res.data : blankResult;

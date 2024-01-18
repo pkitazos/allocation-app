@@ -1,17 +1,19 @@
 import { z } from "zod";
 
 import { getMatching } from "@/lib/utils/get-matching";
-import { matchingDataSchema } from "@/lib/validations/algorithm";
+import {
+  algorithmSchema,
+  matchingDataSchema,
+} from "@/lib/validations/algorithm";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { algorithmSchemaNEW } from "./institution/algorithms-rewrite.t";
 
 export const algorithmRouter = createTRPCRouter({
   run: adminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
-        algorithm: algorithmSchemaNEW,
+        algorithm: algorithmSchema,
         matchingData: matchingDataSchema,
       }),
     )
