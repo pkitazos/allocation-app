@@ -36,7 +36,10 @@ export function HeaderTabs({
             "SUPERVISOR",
             "STUDENT",
           ]) && (
-            <Link className="text-white hover:underline" href="/projects">
+            <Link
+              className="text-white hover:underline"
+              href={`${pathname}/projects`}
+            >
               <Button variant="ghost">Projects</Button>
             </Link>
           )}
@@ -46,14 +49,17 @@ export function HeaderTabs({
             "SUB_GROUP_ADMIN",
             "SUPERVISOR",
           ]) && (
-            <Link className="text-white hover:underline" href="/supervisors">
+            <Link
+              className="text-white hover:underline"
+              href={`${pathname}/supervisors`}
+            >
               <Button variant="ghost">Supervisors</Button>
             </Link>
           )}
           {accessibleBy(user, ["STUDENT"]) && (
             <Link
               className="text-white hover:underline"
-              href="/account/my-preferences"
+              href={`${pathname}/my-preferences`}
             >
               <Button variant="ghost">My Preferences</Button>
             </Link>
@@ -62,7 +68,7 @@ export function HeaderTabs({
           {accessibleBy(user, ["SUPERVISOR"]) && (
             <Link
               className="text-white hover:underline"
-              href="/account/my-projects"
+              href={`${pathname}/my-projects`}
             >
               <Button variant="ghost">My Projects</Button>
             </Link>
@@ -73,18 +79,17 @@ export function HeaderTabs({
             "SUB_GROUP_ADMIN",
             "SUPERVISOR",
           ]) && (
-            <Link className="text-white hover:underline" href="/students">
+            <Link
+              className="text-white hover:underline"
+              href={`${pathname}/students`}
+            >
               <Button variant="ghost">Students</Button>
             </Link>
           )}
         </>
       )}
-      {adminPanel &&
-        accessibleBy(user, [
-          "SUPER_ADMIN",
-          "GROUP_ADMIN",
-          "SUB_GROUP_ADMIN",
-        ]) && (
+      {accessibleBy(user, ["SUPER_ADMIN", "GROUP_ADMIN", "SUB_GROUP_ADMIN"]) &&
+        adminPanel && (
           <>
             <Link className="text-white hover:underline" href={adminPanel}>
               <Button variant="ghost">Admin Panel</Button>
