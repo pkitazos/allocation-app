@@ -1,6 +1,6 @@
+import { ProjectsDataTable } from "./projects-data-table";
 import { Heading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
-import { ProjectsDataTable } from "./projects-data-table";
 
 export default async function Projects({
   params,

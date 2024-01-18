@@ -12,6 +12,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import { User } from "next-auth";
+import Link from "next/link";
 
 export interface ProjectTableData {
   id: string;
@@ -23,10 +24,6 @@ export interface ProjectTableData {
   };
   user: User;
 }
-
-const deleteProject = async (id: string) => {
-  await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
-};
 
 export const columns: ColumnDef<ProjectTableData>[] = [
   {
@@ -53,6 +50,15 @@ export const columns: ColumnDef<ProjectTableData>[] = [
     accessorKey: "title",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: { id, title },
+      },
+    }) => (
+      <Button variant="link">
+        <Link href={`projects/${id}`}>{title}</Link>
+      </Button>
     ),
   },
   {
@@ -88,10 +94,13 @@ export const columns: ColumnDef<ProjectTableData>[] = [
             </DropdownMenuItem>
             {role === "SUPER_ADMIN" && (
               <DropdownMenuItem>
+                {/* // TODO: implement delete */}
                 <Button
                   className="w-full"
                   variant="destructive"
-                  onClick={() => deleteProject(row.original.id)}
+                  onClick={() => {
+                    return;
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
