@@ -9,19 +9,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { auth } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function ClientSection({
+export function PreferenceButton({
   projectId,
-  studentId,
   defaultStatus,
 }: {
   projectId: string;
-  studentId: string;
   defaultStatus: string;
 }) {
   const [selectStatus, setSelectStatus] = useState(defaultStatus);
+  const studentId = "";
 
   const handleChange = async (value: string) => {
     if (selectStatus === value) return;
