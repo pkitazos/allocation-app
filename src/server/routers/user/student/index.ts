@@ -20,7 +20,6 @@ export const studentRouter = createTRPCRouter({
       return await ctx.db.student.findFirstOrThrow({
         where: { id: studentId },
         include: {
-          shortlist: true,
           preferences: {
             orderBy: {
               rank: "asc",

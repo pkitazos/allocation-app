@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 export interface StudentData {
-  id: string;
-  name: string;
+  student: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
-
-const deleteStudent = async (id: string) => {
-  await fetch(`/api/admin/students/${id}`, { method: "DELETE" });
-};
 
 export const columns: ColumnDef<StudentData>[] = [
   {
@@ -43,9 +43,34 @@ export const columns: ColumnDef<StudentData>[] = [
   },
   {
     id: "name",
-    accessorKey: "name",
+    accessorFn: ({ student }) => student.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: {
+          student: { id, name },
+        },
+      },
+    }) => (
+      <Button variant="link">
+        <Link href={`students/${id}`}>{name}</Link>
+      </Button>
+    ),
+  },
+  {
+    id: "id",
+    accessorFn: ({ student }) => student.id,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="ID" />
+    ),
+  },
+  {
+    id: "email",
+    accessorFn: ({ student }) => student.email,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
     ),
   },
   {
@@ -54,7 +79,11 @@ export const columns: ColumnDef<StudentData>[] = [
     header: () => {
       return <div className="text-xs text-gray-500">Actions</div>;
     },
-    cell: ({ row }) => {
+    cell: ({
+      row: {
+        original: { student },
+      },
+    }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -67,16 +96,19 @@ export const columns: ColumnDef<StudentData>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href={`/students/${row.original.id}`}>
+              <a href={`/students/${student.id}`}>
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
             {false && (
               <DropdownMenuItem>
+                {/* // TODO: implement delete */}
                 <Button
                   className="w-full"
                   variant="destructive"
-                  onClick={() => deleteStudent(row.original.id)} // TODO: removes student from isntance instead of deleting from database
+                  onClick={() => {
+                    return;
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
