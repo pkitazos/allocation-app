@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import {
+  allAlgorithms,
   flagData,
   invitationData,
   preferenceData,
@@ -13,6 +14,8 @@ import {
 const db = new PrismaClient();
 
 async function main() {
+  const debug = false;
+
   console.log("SEEDING");
   const superAdmin = await db.superAdmin.create({
     data: {
@@ -20,6 +23,7 @@ async function main() {
       email: "super.allocationapp@gmail.com",
     },
   });
+  if (debug) console.log("------------ SUPER-ADMIN", superAdmin);
 
   const allocationGroup = await db.allocationGroup.create({
     data: {
@@ -28,14 +32,16 @@ async function main() {
       superAdminId: superAdmin.id,
     },
   });
+  if (debug) console.log("------------ ALLOCATION GROUP", allocationGroup);
 
-  await db.groupAdmin.create({
+  const groupAdmin = await db.groupAdmin.create({
     data: {
       name: "Bob",
       email: "group.allocationapp@gmail.com",
       allocationGroupId: allocationGroup.slug,
     },
   });
+  if (debug) console.log("------------ GROUP ADMIN", groupAdmin);
 
   const allocationSubGroup = await db.allocationSubGroup.create({
     data: {
@@ -44,8 +50,10 @@ async function main() {
       allocationGroupId: allocationGroup.slug,
     },
   });
+  if (debug)
+    console.log("------------ ALLOCATION SUB GROUP", allocationSubGroup);
 
-  await db.subGroupAdmin.create({
+  const subGroupAdmin = await db.subGroupAdmin.create({
     data: {
       name: "Chris",
       email: "subgroup.allocationapp@gmail.com",
@@ -53,6 +61,7 @@ async function main() {
       allocationSubGroupId: allocationSubGroup.slug,
     },
   });
+  if (debug) console.log("------------ SUB GROUP ADMIN", subGroupAdmin);
 
   const allocationInstance = await db.allocationInstance.create({
     data: {
@@ -62,16 +71,20 @@ async function main() {
       allocationSubGroupId: allocationSubGroup.slug,
     },
   });
+  if (debug)
+    console.log("------------ ALLOCATION INSTANCE", allocationInstance);
 
   const supervisor = await db.supervisor
     .createMany({
       data: supervisorData,
     })
     .then(async () => await db.supervisor.findMany({}));
+  if (debug) console.log("------------ SUPERVISOR", supervisor);
 
   await db.supervisorInInstance.createMany({
     data: supervisorInInstanceData.map((item) => ({
       supervisorId: item.id,
+      projectAllocationLowerBound: 0,
       projectAllocationTarget: item.projectAllocationTarget,
       projectAllocationUpperBound: item.projectAllocationUpperBound,
       allocationGroupId: allocationGroup.slug,
@@ -114,6 +127,8 @@ async function main() {
       title,
       description,
       supervisorId: supervisor[0].id,
+      capacityLowerBound: 0,
+      capacityUpperBound: 1,
       allocationGroupId: allocationGroup.slug,
       allocationSubGroupId: allocationSubGroup.slug,
       allocationInstanceId: allocationInstance.slug,
@@ -126,6 +141,8 @@ async function main() {
       title,
       description,
       supervisorId: supervisor[1].id,
+      capacityLowerBound: 0,
+      capacityUpperBound: 1,
       allocationGroupId: allocationGroup.slug,
       allocationSubGroupId: allocationSubGroup.slug,
       allocationInstanceId: allocationInstance.slug,
@@ -138,6 +155,8 @@ async function main() {
       title,
       description,
       supervisorId: supervisor[2].id,
+      capacityLowerBound: 0,
+      capacityUpperBound: 1,
       allocationGroupId: allocationGroup.slug,
       allocationSubGroupId: allocationSubGroup.slug,
       allocationInstanceId: allocationInstance.slug,
@@ -158,6 +177,23 @@ async function main() {
       projectId,
       tagId: tags[0].id,
     })),
+  });
+
+  await db.algorithm.createMany({
+    data: allAlgorithms.map(
+      ({ algName, displayName, description, flag1, flag2, flag3 }) => ({
+        allocationGroupId: allocationGroup.slug,
+        allocationSubGroupId: allocationSubGroup.slug,
+        allocationInstanceId: allocationInstance.slug,
+        algName,
+        displayName,
+        description,
+        flag1,
+        flag2,
+        flag3,
+        matchingResultData: JSON.stringify({}),
+      }),
+    ),
   });
 
   await db.preference.createMany({

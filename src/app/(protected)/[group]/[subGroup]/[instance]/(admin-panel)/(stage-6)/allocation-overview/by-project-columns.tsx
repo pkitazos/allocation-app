@@ -5,14 +5,17 @@ export interface ProjectData {
   project: {
     id: string;
     title: string;
+    capacityLowerBound: number;
+    capacityUpperBound: number;
     supervisor: {
-      name: string;
       id: string;
+      name: string;
     };
   };
   student: {
     id: string;
   };
+  studentRanking: number;
 }
 
 export const byProjectColumns: ColumnDef<ProjectData>[] = [
@@ -30,20 +33,20 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
       <DataTableColumnHeader column={column} title="Project Title" />
     ),
   },
-  // {
-  //   id: "projectCapacity",
-  //   accessorKey: "projectCapacity",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Project Capacity" />
-  //   ),
-  // },
-  // {
-  //   id: "projectRank",
-  //   accessorKey: "projectRank",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Project Rank" />
-  //   ),
-  // },
+  {
+    id: "projectLowerBound",
+    accessorFn: ({ project }) => project.capacityLowerBound,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project Lower Bound" />
+    ),
+  },
+  {
+    id: "projectUpperBound",
+    accessorFn: ({ project }) => project.capacityUpperBound,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project Upper Bound" />
+    ),
+  },
   {
     id: "supervisorId",
     accessorFn: ({ project }) => project.supervisor.id,
@@ -63,6 +66,13 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
+    ),
+  },
+  {
+    id: "studentRank",
+    accessorFn: ({ studentRanking }) => studentRanking,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Rank" />
     ),
   },
 ];

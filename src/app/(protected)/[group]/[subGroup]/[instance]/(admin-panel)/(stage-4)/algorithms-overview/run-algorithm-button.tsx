@@ -1,9 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Algorithm } from "@/lib/algorithms";
 import { api } from "@/lib/trpc/client";
-import { MatchingData } from "@/lib/validations/algorithm";
+import { Algorithm, MatchingData } from "@/lib/validations/algorithm";
 import { instanceParams } from "@/lib/validations/params";
+
 import { toast } from "sonner";
 
 export function RunAlgorithmButton({

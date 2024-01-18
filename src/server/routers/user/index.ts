@@ -34,24 +34,26 @@ export const userRouter = createTRPCRouter({
 
     if (user.role === "SUPER_ADMIN") return "/admin";
 
+    // TODO: fix procedure
     if (user.role === "GROUP_ADMIN") {
-      const { allocationGroupId } = await ctx.db.groupAdmin.findFirstOrThrow({
-        where: { id: user.id },
+      // const { allocationGroupId }
+      const data = await ctx.db.groupAdmin.findFirst({
+        where: { id: user.id }, // ! id and user.id are not the same
         select: { allocationGroupId: true },
       });
-      return `/${allocationGroupId}`;
+      return `/${0}`;
     }
 
     if (user.role === "SUB_GROUP_ADMIN") {
-      const { allocationGroupId, allocationSubGroupId } =
-        await ctx.db.subGroupAdmin.findFirstOrThrow({
-          where: { id: user.id },
-          select: {
-            allocationGroupId: true,
-            allocationSubGroupId: true,
-          },
-        });
-      return `/${allocationGroupId}/${allocationSubGroupId}`;
+      // const { allocationGroupId, allocationSubGroupId }
+      const data = await ctx.db.subGroupAdmin.findFirst({
+        where: { id: user.id }, // ! id and user.id are not the same
+        select: {
+          allocationGroupId: true,
+          allocationSubGroupId: true,
+        },
+      });
+      return `/${0}/${0}`;
     }
 
     return "";

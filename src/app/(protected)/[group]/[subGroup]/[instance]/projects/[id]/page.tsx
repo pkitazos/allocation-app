@@ -36,12 +36,7 @@ export default async function Project(
   const flags: string[] = [];
   const tags: string[] = [];
 
-  const inStudentShortlist = !!(await db.shortlist.findFirst({
-    where: {
-      projectId: id,
-      studentId,
-    },
-  }));
+  const inStudentShortlist = false;
 
   if (inStudentShortlist) selectStatus = "shortlist";
 

@@ -6,21 +6,20 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { BuiltInAlg } from "@/lib/validations/algorithm";
 import { instanceParams } from "@/lib/validations/params";
 
 export function ResultsTableRow({
   algName,
   algDisplayName,
   params,
-  selectedMatching,
+  selectedAlgName,
   setSelectedMatching,
 }: {
-  algName: BuiltInAlg;
+  algName: string;
   algDisplayName: string;
   params: instanceParams;
-  selectedMatching: BuiltInAlg | undefined;
-  setSelectedMatching: Dispatch<SetStateAction<BuiltInAlg | undefined>>;
+  selectedAlgName: string | undefined;
+  setSelectedMatching: Dispatch<SetStateAction<string | undefined>>;
 }) {
   const { isLoading, data } =
     api.institution.instance.singleAlgorithmResult.useQuery({
@@ -31,10 +30,9 @@ export function ResultsTableRow({
   const { mutateAsync: selectMatchingAsync } =
     api.institution.instance.selectMatching.useMutation();
 
-  const handleSelection = (algName: BuiltInAlg) => {
+  const handleSelection = (algName: string) => {
     toast.promise(
       selectMatchingAsync({
-        oldAlgName: selectedMatching,
         algName,
         params,
       }).then(() => {
@@ -55,17 +53,20 @@ export function ResultsTableRow({
         {isLoading || !data || Number.isNaN(data.weight) ? "-" : data.weight}
       </TableCell>
       <TableCell className="text-center">
+        {isLoading || !data || Number.isNaN(data.size) ? "-" : data.size}
+      </TableCell>
+      <TableCell className="text-center">
         {isLoading || !data || data.profile.length === 0
           ? "-"
           : `(${data.profile.join(", ")})`}
       </TableCell>
       <TableCell className="text-center">
         <Button
-          variant={selectedMatching === algName ? "secondary" : "ghost"}
+          variant={selectedAlgName === algName ? "secondary" : "ghost"}
           className={cn()}
           onClick={() => handleSelection(algName)}
         >
-          {selectedMatching === algName ? "Selected" : "Select"}
+          {selectedAlgName === algName ? "Selected" : "Select"}
         </Button>
       </TableCell>
     </TableRow>
