@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import {
+  allAlgorithms,
   flagData,
   invitationData,
   preferenceData,
@@ -176,6 +177,23 @@ async function main() {
       projectId,
       tagId: tags[0].id,
     })),
+  });
+
+  await db.algorithm.createMany({
+    data: allAlgorithms.map(
+      ({ algName, displayName, description, flag1, flag2, flag3 }) => ({
+        allocationGroupId: allocationGroup.slug,
+        allocationSubGroupId: allocationSubGroup.slug,
+        allocationInstanceId: allocationInstance.slug,
+        algName,
+        displayName,
+        description,
+        flag1,
+        flag2,
+        flag3,
+        matchingResultData: JSON.stringify({}),
+      }),
+    ),
   });
 
   await db.preference.createMany({

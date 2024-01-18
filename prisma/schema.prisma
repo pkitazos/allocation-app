@@ -37,7 +37,7 @@ enum AlgorithmFlag {
     GEN
     GRE
     MINCOST
-    MINQCOST
+    MINSQCOST
     LSB
 }
 
@@ -135,13 +135,13 @@ model AllocationInstance {
     allocationSubGroup    AllocationSubGroup     @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, slug])
     allocationGroupId     String                 @map("allocation_group_id")
     allocationSubGroupId  String                 @map("allocation_sub_group_id")
+    // has 1
+    selectedAlgName       String?                @map("selected_alg_name")
     // has many
     projects              Project[]
     supervisorsInInstance SupervisorInInstance[]
     studentsInInstance    StudentInInstance[]
-    // has one
-    selectedMatching      AlgorithmResult?       @relation(fields: [algorithmName, allocationGroupId, allocationSubGroupId, slug], references: [name, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-    algorithmName         String?                @map("algorithm_name")
+    algorithms            Algorithm[]
 
     @@id([allocationGroupId, allocationSubGroupId, slug])
 }
@@ -256,19 +256,22 @@ model TagOnProject {
     @@id([tagId, projectId])
 }
 
-model AlgorithmResult {
-    name                 String
-    algFlag1             AlgorithmFlag        @map("alg_flag_1")
-    algFlag2             AlgorithmFlag        @map("alg_flag_2")
-    algFlag3             AlgorithmFlag        @map("alg_flag_3")
-    data                 Json
-    // selected             Boolean              @default(false)
-    allocationGroupId    String               @map("allocation_group_id")
-    allocationSubGroupId String               @map("allocation_sub_group_id")
-    allocationInstanceId String               @map("allocation_instance_id")
-    allocationInstance   AllocationInstance[]
+model Algorithm {
+    algName            String        @map("alg_name")
+    displayName        String        @map("display_name")
+    description        String
+    flag1              AlgorithmFlag @map("flag_1")
+    flag2              AlgorithmFlag @map("flag_2")
+    flag3              AlgorithmFlag @map("flag_3")
+    matchingResultData Json          @map("matching_result_data")
+    // belongs to 1
 
-    @@id([name, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    allocationGroupId    String             @map("allocation_group_id")
+    allocationSubGroupId String             @map("allocation_sub_group_id")
+    allocationInstanceId String             @map("allocation_instance_id")
+    allocationInstances  AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
+
+    @@id([algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Invitation {

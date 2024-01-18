@@ -1,4 +1,11 @@
 import { PreferenceType, Role } from "@prisma/client";
+import {
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  GreedyGenAlgorithm,
+  MinCostAlgorithm,
+} from "../algorithms";
+import { Algorithm } from "../validations/algorithm";
 
 export const flagData = [
   { title: "BSc Computer Science" },
@@ -303,4 +310,11 @@ export const preferenceData = [
   { idx: 6, projectId: "4", rank: 1, type: PreferenceType.PREFERENCE },
   { idx: 6, projectId: "2", rank: 2, type: PreferenceType.PREFERENCE },
   { idx: 6, projectId: "7", rank: 3, type: PreferenceType.PREFERENCE },
+];
+
+export const allAlgorithms: Algorithm[] = [
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  MinCostAlgorithm,
+  GreedyGenAlgorithm,
 ];
