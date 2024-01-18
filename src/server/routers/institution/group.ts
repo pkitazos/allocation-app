@@ -5,48 +5,68 @@ import { z } from "zod";
 
 export const groupRouter = createTRPCRouter({
   subGroupManagement: adminProcedure
-    .input(groupParamsSchema)
-    // TODO this should be wrapped in a z.object for consistency
-    .query(async ({ ctx, input: params }) => {
-      const data = await ctx.db.allocationGroup.findFirstOrThrow({
-        where: { slug: params.group },
-        select: {
-          displayName: true,
-          allocationSubGroups: true,
-          groupAdmins: {
-            select: {
-              name: true,
-              email: true,
+    .input(z.object({ params: groupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group },
+        },
+      }) => {
+        const data = await ctx.db.allocationGroup.findFirstOrThrow({
+          where: { slug: group },
+          select: {
+            displayName: true,
+            allocationSubGroups: true,
+            groupAdmins: {
+              select: {
+                name: true,
+                email: true,
+              },
             },
           },
-        },
-      });
-      const admin = ctx.session.user.role!;
-      return { admin, ...data };
-    }),
+        });
+        const admin = ctx.session.user.role!;
+        return { admin, ...data };
+      },
+    ),
 
   takenNames: adminProcedure
-    .input(groupParamsSchema)
-    .query(async ({ ctx, input: params }) => {
-      const data = await ctx.db.allocationGroup.findFirstOrThrow({
-        where: { slug: params.group },
-        select: {
-          allocationSubGroups: { select: { displayName: true } },
+    .input(z.object({ params: groupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group },
         },
-      });
-      return data.allocationSubGroups.map((item) => item.displayName);
-    }),
+      }) => {
+        const data = await ctx.db.allocationGroup.findFirstOrThrow({
+          where: { slug: group },
+          select: {
+            allocationSubGroups: { select: { displayName: true } },
+          },
+        });
+        return data.allocationSubGroups.map((item) => item.displayName);
+      },
+    ),
 
   createSubGroup: adminProcedure
-    .input(z.object({ groupId: z.string(), name: z.string() }))
-    // TODO change groupID to params
-    .mutation(async ({ ctx, input: { groupId, name } }) => {
-      await ctx.db.allocationSubGroup.create({
-        data: {
-          displayName: name,
-          slug: slugify(name),
-          allocationGroupId: groupId,
+    .input(z.object({ params: groupParamsSchema, name: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group },
+          name,
         },
-      });
-    }),
+      }) => {
+        await ctx.db.allocationSubGroup.create({
+          data: {
+            displayName: name,
+            slug: slugify(name),
+            allocationGroupId: group,
+          },
+        });
+      },
+    ),
 });

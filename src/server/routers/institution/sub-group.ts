@@ -5,65 +5,84 @@ import { z } from "zod";
 
 export const subGroupRouter = createTRPCRouter({
   instanceManagement: adminProcedure
-    .input(subGroupParamsSchema)
-    // TODO consistentify
-    .query(async ({ ctx, input: params }) => {
-      const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
-        where: {
-          allocationGroupId: params.group,
-          slug: params.subGroup,
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
         },
-        select: {
-          displayName: true,
-          allocationInstances: true,
-          subGroupAdmins: {
-            select: {
-              name: true,
-              email: true,
+      }) => {
+        const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            slug: subGroup,
+          },
+          select: {
+            displayName: true,
+            allocationInstances: true,
+            subGroupAdmins: {
+              select: {
+                name: true,
+                email: true,
+              },
             },
           },
-        },
-      });
-      const admin = ctx.session.user.role!;
-      return { admin, ...data };
-    }),
+        });
+        const admin = ctx.session.user.role!;
+        return { admin, ...data };
+      },
+    ),
 
   takenNames: adminProcedure
-    .input(subGroupParamsSchema)
-    .query(async ({ ctx, input: params }) => {
-      const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
-        where: {
-          allocationGroupId: params.group,
-          slug: params.subGroup,
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
         },
-        select: {
-          allocationInstances: {
-            select: {
-              displayName: true,
+      }) => {
+        const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            slug: subGroup,
+          },
+          select: {
+            allocationInstances: {
+              select: {
+                displayName: true,
+              },
             },
           },
-        },
-      });
-      return data.allocationInstances.map((item) => item.displayName);
-    }),
+        });
+        return data.allocationInstances.map((item) => item.displayName);
+      },
+    ),
 
   createInstance: adminProcedure
     .input(
       z.object({
         name: z.string(),
-        groupId: z.string(),
-        subGroupId: z.string(),
+        params: subGroupParamsSchema,
       }),
     )
-    // TODO this should be params?
-    .mutation(async ({ ctx, input: { name, groupId, subGroupId } }) => {
-      await ctx.db.allocationInstance.create({
-        data: {
-          displayName: name,
-          slug: slugify(name),
-          allocationGroupId: groupId,
-          allocationSubGroupId: subGroupId,
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          name,
+          params: { group, subGroup },
         },
-      });
-    }),
+      }) => {
+        await ctx.db.allocationInstance.create({
+          data: {
+            displayName: name,
+            slug: slugify(name),
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+          },
+        });
+      },
+    ),
 });

@@ -15,7 +15,7 @@ export function HeaderTabs({
   adminPanel,
 }: {
   user: CompositeUser;
-  adminPanel: string;
+  adminPanel: string | undefined;
 }) {
   const pathname = usePathname();
   const routes = pathname.split("/");
@@ -79,17 +79,18 @@ export function HeaderTabs({
           )}
         </>
       )}
-      {accessibleBy(user, [
-        "SUPER_ADMIN",
-        "GROUP_ADMIN",
-        "SUB_GROUP_ADMIN",
-      ]) && (
-        <>
-          <Link className="text-white hover:underline" href={adminPanel}>
-            <Button variant="ghost">Admin Panel</Button>
-          </Link>
-        </>
-      )}
+      {adminPanel &&
+        accessibleBy(user, [
+          "SUPER_ADMIN",
+          "GROUP_ADMIN",
+          "SUB_GROUP_ADMIN",
+        ]) && (
+          <>
+            <Link className="text-white hover:underline" href={adminPanel}>
+              <Button variant="ghost">Admin Panel</Button>
+            </Link>
+          </>
+        )}
     </div>
   );
 }

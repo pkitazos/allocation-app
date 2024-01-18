@@ -25,7 +25,7 @@ export default async function Page({
   }
 
   const { subGroupAdmins, allocationInstances, displayName, admin } =
-    await api.institution.subGroup.instanceManagement.query(params);
+    await api.institution.subGroup.instanceManagement.query({ params });
 
   const { group, subGroup } = params;
 

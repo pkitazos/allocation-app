@@ -38,7 +38,7 @@ export default async function Layout({
     );
   }
 
-  const stage = await api.institution.instance.currentStage.query(params);
+  const stage = await api.institution.instance.currentStage.query({ params });
   const tabs = tabsRecord[stage];
 
   return (
