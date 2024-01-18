@@ -20,7 +20,8 @@ export function HeaderTabs({
   const pathname = usePathname();
   const routes = pathname.split("/");
 
-  const inInstance = routes.length === 4 && routes[3] !== "create-instance";
+  const inInstance = routes.length >= 4 && routes[3] !== "create-instance";
+  const fullInstance = inInstance ? routes.slice(1, 4).join("/") : undefined;
 
   // console.log("------------ pathname", { pathname });
   // console.log("------------ routes", { routes });
@@ -38,7 +39,7 @@ export function HeaderTabs({
           ]) && (
             <Link
               className="text-white hover:underline"
-              href={`${pathname}/projects`}
+              href={`/${fullInstance}/projects`}
             >
               <Button variant="ghost">Projects</Button>
             </Link>
@@ -51,7 +52,7 @@ export function HeaderTabs({
           ]) && (
             <Link
               className="text-white hover:underline"
-              href={`${pathname}/supervisors`}
+              href={`/${fullInstance}/supervisors`}
             >
               <Button variant="ghost">Supervisors</Button>
             </Link>
@@ -59,7 +60,7 @@ export function HeaderTabs({
           {accessibleBy(user, ["STUDENT"]) && (
             <Link
               className="text-white hover:underline"
-              href={`${pathname}/my-preferences`}
+              href={`/${fullInstance}/my-preferences`}
             >
               <Button variant="ghost">My Preferences</Button>
             </Link>
@@ -68,7 +69,7 @@ export function HeaderTabs({
           {accessibleBy(user, ["SUPERVISOR"]) && (
             <Link
               className="text-white hover:underline"
-              href={`${pathname}/my-projects`}
+              href={`/${fullInstance}/my-projects`}
             >
               <Button variant="ghost">My Projects</Button>
             </Link>
@@ -81,7 +82,7 @@ export function HeaderTabs({
           ]) && (
             <Link
               className="text-white hover:underline"
-              href={`${pathname}/students`}
+              href={`/${fullInstance}/students`}
             >
               <Button variant="ghost">Students</Button>
             </Link>
