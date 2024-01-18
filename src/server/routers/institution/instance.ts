@@ -627,4 +627,26 @@ export const instanceRouter = createTRPCRouter({
         return { byStudent, byProject, bySupervisor };
       },
     ),
+
+  supervisors: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.supervisorInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            supervisor: { select: { id: true, name: true, email: true } },
+          },
+        });
+      },
+    ),
 });
