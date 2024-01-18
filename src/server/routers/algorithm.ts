@@ -1,21 +1,17 @@
-import { env } from "@/env";
-import { algorithmSchema } from "@/lib/algorithms";
-import {
-  AlgorithmServerData,
-  matchingDataSchema,
-  mathcingDataWithArgsSchema,
-  serverResponseDataSchema,
-} from "@/lib/validations/algorithm";
+import { z } from "zod";
+
+import { getMatching } from "@/lib/utils/get-matching";
+import { matchingDataSchema } from "@/lib/validations/algorithm";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { z } from "zod";
+import { algorithmSchemaNEW } from "./institution/algorithms-rewrite.t";
 
 export const algorithmRouter = createTRPCRouter({
   run: adminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
-        algorithm: algorithmSchema,
+        algorithm: algorithmSchemaNEW,
         matchingData: matchingDataSchema,
       }),
     )
@@ -28,66 +24,28 @@ export const algorithmRouter = createTRPCRouter({
           matchingData,
         },
       }) => {
-        const serverResult = await getMatching({
-          algName: algorithm.algName,
-          matchingData,
-        });
-
+        const serverResult = await getMatching({ algorithm, matchingData });
+        console.log("from RUN ----------------------", serverResult);
         if (!serverResult) return undefined;
 
-        const result = { ...serverResult, selected: false };
+        console.log("from RUN ----------------------", serverResult);
 
-        await ctx.db.algorithmResult.upsert({
+        await ctx.db.algorithm.update({
           where: {
-            name_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
-              name: algorithm.algName,
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
+            algName_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+              {
+                algName: algorithm.algName,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
           },
-          update: {
-            data: JSON.stringify(result),
-          },
-          create: {
-            name: algorithm.algName,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            algFlag1: "MAXSIZE",
-            algFlag2: algorithm.flag,
-            algFlag3: "LSB",
-            data: JSON.stringify(result),
+          data: {
+            matchingResultData: JSON.stringify(serverResult),
           },
         });
 
-        return result;
+        return serverResult;
       },
     ),
-
-  // TODO: decide how to name custom Algorithm configurations
-  custom: adminProcedure
-    .input(mathcingDataWithArgsSchema)
-    .mutation(async ({ input: matchingData }) => {
-      const result = await getMatching({ algName: "custom", matchingData });
-      return result;
-    }),
 });
-
-const getMatching = async ({ algName, matchingData }: AlgorithmServerData) => {
-  const res = await fetch(`${env.SERVER_URL}/${algName}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(matchingData),
-  }).then((res) => res.json());
-
-  console.log("from getMatching", res);
-  if (res.ok) console.log(res);
-
-  const result = serverResponseDataSchema.safeParse(res.data);
-  console.log("from getMatching", result);
-
-  if (!result.success) return;
-
-  return result.data;
-};

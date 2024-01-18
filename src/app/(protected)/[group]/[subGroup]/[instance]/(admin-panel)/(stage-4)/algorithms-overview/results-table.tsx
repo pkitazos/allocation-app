@@ -8,18 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BuiltInAlg } from "@/lib/validations/algorithm";
 import { instanceParams } from "@/lib/validations/params";
 import { ResultsTableRow } from "./results-table-row";
+import { Algorithm } from "@/lib/validations/algorithm";
 
 export function ResultsTable({
   params,
-  selectedAlgorithm,
+  selectedAlgName,
+  customAlgs,
 }: {
   params: instanceParams;
-  selectedAlgorithm: BuiltInAlg | undefined;
+  selectedAlgName: string | undefined;
+  customAlgs: Algorithm[];
 }) {
-  const [selectedMatching, setSelectedMatching] = useState(selectedAlgorithm);
+  const [selectedAlg, setSelectedAlg] = useState(selectedAlgName);
 
   return (
     <Table>
@@ -27,6 +29,7 @@ export function ResultsTable({
         <TableRow>
           <TableHead className="font-semibold">Matching Type</TableHead>
           <TableHead className="text-center">Weight</TableHead>
+          <TableHead className="text-center">Size</TableHead>
           <TableHead className="w-fit min-w-[8rem] text-center">
             Profile
           </TableHead>
@@ -38,30 +41,40 @@ export function ResultsTable({
           algName={"generous"}
           algDisplayName={"Generous"}
           params={params}
-          selectedMatching={selectedMatching}
-          setSelectedMatching={setSelectedMatching}
+          selectedAlgName={selectedAlg}
+          setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"greedy"}
           algDisplayName={"Greedy"}
           params={params}
-          selectedMatching={selectedMatching}
-          setSelectedMatching={setSelectedMatching}
+          selectedAlgName={selectedAlg}
+          setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"minimum-cost"}
           algDisplayName={"Minimum Cost"}
           params={params}
-          selectedMatching={selectedMatching}
-          setSelectedMatching={setSelectedMatching}
+          selectedAlgName={selectedAlg}
+          setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"greedy-generous"}
           algDisplayName={"Greedy-Generous"}
           params={params}
-          selectedMatching={selectedMatching}
-          setSelectedMatching={setSelectedMatching}
+          selectedAlgName={selectedAlg}
+          setSelectedMatching={setSelectedAlg}
         />
+        {customAlgs.map(({ algName, displayName }, i) => (
+          <ResultsTableRow
+            algName={algName}
+            algDisplayName={displayName}
+            params={params}
+            selectedAlgName={selectedAlg}
+            setSelectedMatching={setSelectedAlg}
+            key={i}
+          />
+        ))}
       </TableBody>
     </Table>
   );

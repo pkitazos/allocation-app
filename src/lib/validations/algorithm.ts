@@ -30,34 +30,6 @@ export const mathcingDataWithArgsSchema = matchingDataSchema.extend({
   args: z.array(z.string()),
 });
 
-const serverMatchingDetailsSchema = z.object({
-  student_id: z.string(),
-  project_id: z.string(),
-  project_capacities: z.object({
-    lower_bound: z.number(),
-    upper_bound: z.number(),
-  }),
-  preference_rank: z.number(),
-  supervisor_id: z.string(),
-  supervisor_capacities: z.object({
-    lower_bound: z.number(),
-    target: z.number(),
-    upper_bound: z.number(),
-  }),
-});
-
-export const serverResponseDataSchema = z.object({
-  matching: z.array(serverMatchingDetailsSchema),
-  profile: z.array(z.number()),
-  weight: z.number(),
-  size: z.number(),
-  degree: z.number(),
-});
-
-export const algorithmResultSchema = serverResponseDataSchema.extend({
-  selected: z.boolean(),
-});
-
 export const builtInAlgSchema = z.enum([
   "generous",
   "greedy",
@@ -67,16 +39,52 @@ export const builtInAlgSchema = z.enum([
 
 export const algorithmFlagSchema = z.nativeEnum(AlgorithmFlag);
 
-export type ServerResponseData = z.infer<typeof serverResponseDataSchema>;
-
-export type AlgorithmResult = z.infer<typeof algorithmResultSchema>;
-
 export type MatchingData = z.infer<typeof matchingDataSchema>;
 
 export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
 
-export type AlgorithmServerData =
-  | { algName: "custom"; matchingData: MatchingDataWithArgs }
-  | { algName: BuiltInAlg; matchingData: MatchingData };
-
 export type BuiltInAlg = z.infer<typeof builtInAlgSchema>;
+
+export const algorithmSchema = z.object({
+  algName: z.string(),
+  displayName: z.string(),
+  description: z.string(),
+  flag1: z.nativeEnum(AlgorithmFlag),
+  flag2: z.nativeEnum(AlgorithmFlag),
+  flag3: z.nativeEnum(AlgorithmFlag),
+});
+
+export type Algorithm = z.infer<typeof algorithmSchema>;
+
+export const matchingDetailsSchema = z.object({
+  student_id: z.string(),
+  project_id: z.string(),
+  project_capacities: z.object({
+    lower_bound: z.number().int(),
+    upper_bound: z.number().int(),
+  }),
+  preference_rank: z.number().int(),
+  supervisor_id: z.string(),
+  supervisor_capacities: z.object({
+    lower_bound: z.number().int(),
+    target: z.number().int(),
+    upper_bound: z.number().int(),
+  }),
+});
+
+export type MatchingDetails = z.infer<typeof matchingDetailsSchema>;
+
+export const serverResponseSchema = z.object({
+  profile: z.array(z.number()),
+  degree: z.number(),
+  size: z.number(),
+  weight: z.number(),
+  cost: z.number(),
+  costSq: z.number(),
+  maxLecAbsDiff: z.number(),
+  sumLecAbsDiff: z.number(),
+  matching: z.array(matchingDetailsSchema),
+  ranks: z.array(z.number()),
+});
+
+export type ServerResponse = z.infer<typeof serverResponseSchema>;
