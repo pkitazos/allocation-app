@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { getMatching } from "@/lib/utils/get-matching";
+import { getMatching } from "@/server/utils/get-matching";
 import {
   algorithmSchema,
   matchingDataSchema,
