@@ -62,9 +62,8 @@ export const userRouter = createTRPCRouter({
     }),
 
   instances: protectedProcedure.query(async ({ ctx }) => {
-    const { id, role } = ctx.session.user;
-
-    if (!role || role === "UNREGISTERED") return [];
+    const { id } = ctx.session.user;
+    const role = ctx.session.role;
 
     if (role === "SUPERVISOR") {
       return await ctx.db.supervisorInInstance.findMany({
