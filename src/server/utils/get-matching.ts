@@ -1,13 +1,13 @@
 import { env } from "@/env";
 
-import { generateArgs } from "@/lib/utils/generate-args";
+import { generateArgs } from "@/server/utils/generate-args";
 import {
   Algorithm,
   MatchingData,
   MatchingDataWithArgs,
   builtInAlgSchema,
   serverResponseSchema,
-} from "../validations/algorithm";
+} from "../../lib/validations/algorithm";
 
 export async function getMatching({
   algorithm: { algName, flag1, flag2, flag3 },

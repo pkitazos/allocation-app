@@ -21,7 +21,9 @@ export default async function Page({
     );
   }
 
-  const takenNames = await api.institution.subGroup.takenNames.query(params);
+  const takenNames = await api.institution.subGroup.takenNames.query({
+    params,
+  });
 
   return (
     <div className="mb-40 mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
@@ -29,11 +31,7 @@ export default async function Page({
         Create new{" "}
         <span className="font-semibold text-sky-500">Allocation Instance</span>
       </h2>
-      <FormSection
-        takenNames={takenNames}
-        groupId={params.group}
-        subGroupId={params.subGroup}
-      />
+      <FormSection takenNames={takenNames} params={params} />
     </div>
   );
 }

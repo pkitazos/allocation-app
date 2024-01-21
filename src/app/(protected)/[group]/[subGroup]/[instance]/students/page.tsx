@@ -1,17 +1,15 @@
-// accessible by admins only
+import { api } from "@/lib/trpc/server";
+import { StudentsDataTable } from "./students-data-table";
+import { instanceParams } from "@/lib/validations/params";
 
-import { db } from "@/lib/db";
-import { ClientSection } from "./client-section";
-
-export default async function Students() {
-  const students = await db.student.findMany({});
-
+export default async function Students({ params }: { params: instanceParams }) {
+  const tableData = await api.institution.instance.students.query({ params });
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
       <div className="flex rounded-md bg-accent px-6 py-5">
         <h1 className="text-5xl text-accent-foreground">Students</h1>
       </div>
-      <ClientSection data={students} />
+      <StudentsDataTable data={tableData} />
     </div>
   );
 }

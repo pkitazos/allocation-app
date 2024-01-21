@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: { group: string } }) {
   }
 
   const { allocationSubGroups, groupAdmins, displayName, admin } =
-    await api.institution.group.subGroupManagement.query(params);
+    await api.institution.group.subGroupManagement.query({ params });
 
   return (
     <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">

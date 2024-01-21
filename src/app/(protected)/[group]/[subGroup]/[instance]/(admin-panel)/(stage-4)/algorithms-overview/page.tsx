@@ -12,7 +12,7 @@ import { RunAlgorithmButton } from "./run-algorithm-button";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const { matchingData, selectedAlgName } =
-    await api.institution.instance.matchingData.query(params);
+    await api.institution.instance.matchingData.query({ params });
 
   const takenNames = await api.institution.instance.takenAlgorithmNames.query({
     params,

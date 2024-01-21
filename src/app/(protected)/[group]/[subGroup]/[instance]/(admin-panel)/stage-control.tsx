@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 import { stageSchema } from "@/lib/validations/stage";
 
+// TODO: change to combined instance params
 export function StageControl({
   group,
   subGroup,
@@ -30,9 +31,7 @@ export function StageControl({
   const handleConfirmation = (idx: number) => {
     toast.promise(
       mutateAsync({
-        group,
-        subGroup,
-        instance,
+        params: { group, subGroup, instance },
         stage: stages[idx - 1],
       }).then(() => {
         setSelectedIdx(-1);

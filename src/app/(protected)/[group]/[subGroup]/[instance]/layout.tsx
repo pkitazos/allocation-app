@@ -8,7 +8,7 @@ export default async function Layout({
   children: React.ReactNode;
   params: { group: string; subGroup: string; instance: string };
 }) {
-  const access = await api.institution.instance.access.query(params);
+  const access = await api.institution.instance.access.query({ params });
 
   if (!access) {
     return (

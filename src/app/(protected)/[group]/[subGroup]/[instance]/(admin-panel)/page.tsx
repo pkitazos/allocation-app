@@ -6,7 +6,7 @@ export default async function Page({
 }: {
   params: { group: string; subGroup: string; instance: string };
 }) {
-  const stage = await api.institution.instance.currentStage.query(params);
+  const stage = await api.institution.instance.currentStage.query({ params });
 
   return (
     <StageControl

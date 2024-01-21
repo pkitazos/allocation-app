@@ -19,13 +19,14 @@ import { useForm } from "react-hook-form";
 
 import { z } from "zod";
 import { toast } from "sonner";
+import { groupParams } from "@/lib/validations/params";
 
 export function FormSection({
   takenNames,
-  allocationGroupId,
+  params,
 }: {
   takenNames: string[];
-  allocationGroupId: string;
+  params: groupParams;
 }) {
   const router = useRouter();
   const FormSchema = z.object({
@@ -54,11 +55,9 @@ export function FormSection({
     console.log(subGroupName);
     void toast.promise(
       createSubGroupAsync({
-        groupId: allocationGroupId,
+        params,
         name: subGroupName,
-      }).then(() =>
-        router.push(`/${allocationGroupId}/${slugify(subGroupName)}`),
-      ),
+      }).then(() => router.push(`/${params.group}/${slugify(subGroupName)}`)),
       {
         loading: "Loading",
         error: "Something went wrong",

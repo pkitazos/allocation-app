@@ -15,12 +15,13 @@ export function HeaderTabs({
   adminPanel,
 }: {
   user: CompositeUser;
-  adminPanel: string;
+  adminPanel: string | undefined;
 }) {
   const pathname = usePathname();
   const routes = pathname.split("/");
 
-  const inInstance = routes.length === 4 && routes[3] !== "create-instance";
+  const inInstance = routes.length >= 4 && routes[3] !== "create-instance";
+  const fullInstance = inInstance ? routes.slice(1, 4).join("/") : undefined;
 
   // console.log("------------ pathname", { pathname });
   // console.log("------------ routes", { routes });
@@ -36,7 +37,10 @@ export function HeaderTabs({
             "SUPERVISOR",
             "STUDENT",
           ]) && (
-            <Link className="text-white hover:underline" href="/projects">
+            <Link
+              className="text-white hover:underline"
+              href={`/${fullInstance}/projects`}
+            >
               <Button variant="ghost">Projects</Button>
             </Link>
           )}
@@ -46,14 +50,17 @@ export function HeaderTabs({
             "SUB_GROUP_ADMIN",
             "SUPERVISOR",
           ]) && (
-            <Link className="text-white hover:underline" href="/supervisors">
+            <Link
+              className="text-white hover:underline"
+              href={`/${fullInstance}/supervisors`}
+            >
               <Button variant="ghost">Supervisors</Button>
             </Link>
           )}
           {accessibleBy(user, ["STUDENT"]) && (
             <Link
               className="text-white hover:underline"
-              href="/account/my-preferences"
+              href={`/${fullInstance}/my-preferences`}
             >
               <Button variant="ghost">My Preferences</Button>
             </Link>
@@ -62,7 +69,7 @@ export function HeaderTabs({
           {accessibleBy(user, ["SUPERVISOR"]) && (
             <Link
               className="text-white hover:underline"
-              href="/account/my-projects"
+              href={`/${fullInstance}/my-projects`}
             >
               <Button variant="ghost">My Projects</Button>
             </Link>
@@ -73,23 +80,23 @@ export function HeaderTabs({
             "SUB_GROUP_ADMIN",
             "SUPERVISOR",
           ]) && (
-            <Link className="text-white hover:underline" href="/students">
+            <Link
+              className="text-white hover:underline"
+              href={`/${fullInstance}/students`}
+            >
               <Button variant="ghost">Students</Button>
             </Link>
           )}
         </>
       )}
-      {accessibleBy(user, [
-        "SUPER_ADMIN",
-        "GROUP_ADMIN",
-        "SUB_GROUP_ADMIN",
-      ]) && (
-        <>
-          <Link className="text-white hover:underline" href={adminPanel}>
-            <Button variant="ghost">Admin Panel</Button>
-          </Link>
-        </>
-      )}
+      {accessibleBy(user, ["SUPER_ADMIN", "GROUP_ADMIN", "SUB_GROUP_ADMIN"]) &&
+        adminPanel && (
+          <>
+            <Link className="text-white hover:underline" href={adminPanel}>
+              <Button variant="ghost">Admin Panel</Button>
+            </Link>
+          </>
+        )}
     </div>
   );
 }

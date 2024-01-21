@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
+import { subGroupParams } from "@/lib/validations/params";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,12 +22,10 @@ import { z } from "zod";
 
 export function FormSection({
   takenNames,
-  groupId,
-  subGroupId,
+  params,
 }: {
   takenNames: string[];
-  groupId: string;
-  subGroupId: string;
+  params: subGroupParams;
 }) {
   // TODO: needs major refactor
 
@@ -149,10 +148,9 @@ export function FormSection({
     console.log("boom");
     void toast.promise(
       createInstanceAsync({
-        groupId,
-        subGroupId,
+        params,
         name: formData.instanceName,
-      }).then(() => router.push(`/${groupId}/${subGroupId}`)),
+      }).then(() => router.push(`/${params.group}/${params.subGroup}`)),
       {
         loading: "Loading",
         error: "Something went wrong",

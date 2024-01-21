@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 export interface SupervisorData {
-  id: string;
-  name: string;
+  supervisor: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
-
-const deleteSupervisor = async (id: string) => {
-  await fetch(`/api/admin/supervisors/${id}`, { method: "DELETE" });
-};
 
 export const columns: ColumnDef<SupervisorData>[] = [
   {
@@ -43,18 +43,40 @@ export const columns: ColumnDef<SupervisorData>[] = [
   },
   {
     id: "name",
-    accessorKey: "name",
+    accessorFn: ({ supervisor }) => supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" canFilter />
     ),
+    cell: ({
+      row: {
+        original: {
+          supervisor: { id, name },
+        },
+      },
+    }) => (
+      <Button variant="link">
+        <Link href={`supervisors/${id}`}>{name}</Link>
+      </Button>
+    ),
   },
   {
+    id: "email",
+    accessorFn: ({ supervisor }) => supervisor.email,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
+  },
+  {
+    id: "actions",
     accessorKey: "actions",
-    id: "Actions",
     header: () => {
       return <div className="text-xs text-gray-500">Actions</div>;
     },
-    cell: ({ row }) => {
+    cell: ({
+      row: {
+        original: { supervisor },
+      },
+    }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -67,16 +89,19 @@ export const columns: ColumnDef<SupervisorData>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href={`/supervisors/${row.original.id}`}>
+              <a href={`/supervisors/${supervisor.id}`}>
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
             {false && (
               <DropdownMenuItem>
+                {/* // TODO: implement delete */}
                 <Button
                   className="w-full"
                   variant="destructive"
-                  onClick={() => deleteSupervisor(row.original.id)} // TODO: removes student from isntance instead of deleting from database
+                  onClick={() => {
+                    return;
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete
