@@ -8,7 +8,7 @@ export default async function Home() {
   const user = session?.user;
 
   return (
-    <div className="flex h-[70dvh] w-full flex-col items-center justify-center gap-6">
+    <div className="relative flex h-full w-full flex-col items-center justify-center gap-6">
       <h1 className="text-4xl font-medium">
         Welcome{" "}
         {user && (
@@ -25,7 +25,9 @@ export default async function Home() {
           </div>
         </>
       ) : (
-        <UserInstances />
+        <div className="absolute bottom-0 w-full max-w-5xl">
+          <UserInstances />
+        </div>
       )}
     </div>
   );
