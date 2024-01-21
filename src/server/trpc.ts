@@ -122,10 +122,22 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
       message: "User is not signed in",
     });
   }
+
+  if (!ctx.session.user.role || ctx.session.user.role === "UNREGISTERED") {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not registered",
+    });
+  }
+
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: {
+        ...ctx.session,
+        user: ctx.session.user,
+        role: ctx.session.user.role,
+      },
     },
   });
 });
@@ -151,10 +163,28 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: {
+        ...ctx.session,
+        user: ctx.session.user,
+        role: ctx.session.user.role,
+      },
     },
   });
 });
+
+// const studentProcedure = t.middleware(({ctx, next}) =>{
+//   //are they a student?
+//   async function getTheStuff() {
+//     return await new Promise()
+//   }
+
+//   next({
+//     ctx: {
+//       ...ctx,
+//       getTheStuff
+//     }
+//   })
+// })
 
 /**
  * Protected (authenticated) procedure
