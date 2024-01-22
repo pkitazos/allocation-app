@@ -15,12 +15,15 @@ datasource db {
 }
 
 enum Role {
-    SUPER_ADMIN
-    GROUP_ADMIN
-    SUB_GROUP_ADMIN
+    ADMIN
     SUPERVISOR
     STUDENT
-    UNREGISTERED
+}
+
+enum AdminLevel {
+    SUPER
+    GROUP
+    SUB_GROUP
 }
 
 enum Stage {
@@ -46,181 +49,167 @@ enum PreferenceType {
     PREFERENCE
 }
 
-// group manager
-model SuperAdmin {
-    id               String            @id @default(uuid())
-    name             String
-    email            String
-    allocationGroups AllocationGroup[]
+model UserInInstance {
+    user                      User                        @relation(fields: [userId], references: [id])
+    userId                    String                      @map("user_id")
+    role                      Role
+    // ---
+    allocationGroupId         String                      @map("allocation_group_id")
+    allocationSubGroupId      String                      @map("allocation_sub_group_id")
+    allocationInstanceId      String                      @map("allocation_instance_id")
+    // ---
+    supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisorDetails")
+    supervisorProjects        Project[]
+    studentInstanceDetails    StudentInstanceDetails[]
+    studentFlags              FlagOnStudent[]
+    studentPreferences        Preference[]
+    studentAllocation         ProjectAllocation?
 
-    @@unique([email])
+    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
-// subgroup manager
-model GroupAdmin {
-    id                String          @id @default(uuid())
-    name              String
-    email             String
-    allocationGroup   AllocationGroup @relation(fields: [allocationGroupId], references: [slug])
-    allocationGroupId String          @map("allocation_group_slug")
-
-    @@unique([email])
-}
-
-// instance manager
-model SubGroupAdmin {
-    id                   String             @id @default(uuid())
-    name                 String
-    email                String
-    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, slug])
-    allocationGroupId    String             @map("allocation_group_id")
-    allocationSubGroupId String             @map("allocation_sub_group_id")
-
-    @@unique([email])
-}
-
-model Supervisor {
-    id                   String                 @id @default(uuid()) @map("student_id")
-    name                 String
-    email                String
-    projects             Project[]
-    supervisorInInstance SupervisorInInstance[]
-
-    @@unique([email])
-}
-
-model Student {
-    id                String              @id @default(uuid()) @map("staff_id")
-    name              String
-    email             String
-    flags             Flag[]
-    preferences       Preference[]
-    allocations       ProjectAllocation[]
-    studentInInstance StudentInInstance[]
-    flagOnStudent     FlagOnStudent[]
-
-    @@unique([email])
+model AdminInSpace {
+    systemId             String              @id @default(uuid()) @map("system_id")
+    user                 User                @relation(fields: [userId], references: [id])
+    userId               String              @map("user_id")
+    role                 AdminLevel
+    allocationGroupId    String?             @map("allocation_group_id")
+    allocationSubGroupId String?             @map("allocation_sub_group_id")
+    allocationGroup      AllocationGroup?    @relation(fields: [allocationGroupId], references: [id])
+    allocationSubGroup   AllocationSubGroup? @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
 }
 
 model AllocationGroup {
-    slug                String               @id
+    id                  String               @id
     displayName         String               @unique
-    // managed by 1
-    superAdmin          SuperAdmin           @relation(fields: [superAdminId], references: [id])
-    superAdminId        String               @map("super_admin_id")
-    // includes many
-    groupAdmins         GroupAdmin[]
     allocationSubGroups AllocationSubGroup[]
+    groupAdmins         AdminInSpace[]
 }
 
 model AllocationSubGroup {
-    slug                String
+    id                  String
     displayName         String               @map("display_name")
     //belongs to 1
-    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [slug])
+    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
     allocationGroupId   String               @map("allocation_group_id")
     // includes many
-    subGroupAdmins      SubGroupAdmin[]
+    // subGroupAdmins      SubGroupAdmin[]
     allocationInstances AllocationInstance[]
+    subGroupAdmins      AdminInSpace[]
 
-    @@id([allocationGroupId, slug])
-    @@unique([allocationGroupId, slug])
+    @@id([allocationGroupId, id])
+    @@unique([allocationGroupId, id])
 }
 
 model AllocationInstance {
-    displayName           String                 @map("display_name")
-    slug                  String
-    stage                 Stage                  @default(SETUP)
+    displayName          String             @map("display_name")
+    id                   String
+    stage                Stage              @default(SETUP)
     // belongs to 1
-    allocationSubGroup    AllocationSubGroup     @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, slug])
-    allocationGroupId     String                 @map("allocation_group_id")
-    allocationSubGroupId  String                 @map("allocation_sub_group_id")
-    // has 1
-    selectedAlgName       String?                @map("selected_alg_name")
-    // has many
-    projects              Project[]
-    supervisorsInInstance SupervisorInInstance[]
-    studentsInInstance    StudentInInstance[]
-    algorithms            Algorithm[]
-
-    @@id([allocationGroupId, allocationSubGroupId, slug])
-}
-
-model SupervisorInInstance {
-    supervisor                  Supervisor         @relation(fields: [supervisorId], references: [id])
-    supervisorId                String             @map("supervisor_id")
-    allocationInstance          AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
-    allocationGroupId           String             @map("allocation_group_id")
-    allocationSubGroupId        String             @map("allocation_sub_group_id")
-    allocationInstanceId        String             @map("allocation_instance_id")
-    projectAllocationLowerBound Int                @map("project_allocation_lower_bound")
-    projectAllocationTarget     Int                @map("project_allocation_target")
-    projectAllocationUpperBound Int                @map("project_allocation_upper_bound")
-
-    @@id([supervisorId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-}
-
-model StudentInInstance {
-    student              Student            @relation(fields: [studentId], references: [id])
-    allocationInstance   AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
-    studentId            String             @map("student_id")
+    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
     allocationGroupId    String             @map("allocation_group_id")
     allocationSubGroupId String             @map("allocation_sub_group_id")
-    allocationInstanceId String             @map("allocation_instance_id")
+    // has 1
+    selectedAlgName      String?            @map("selected_alg_name")
+    // has many
+    projects             Project[]
+    algorithms           Algorithm[]
 
-    @@id([studentId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id([allocationGroupId, allocationSubGroupId, id])
+}
+
+model SupervisorInstanceDetails {
+    userId                      String         @map("user_id")
+    // ---
+    allocationGroupId           String         @map("allocation_group_id")
+    allocationSubGroupId        String         @map("allocation_sub_group_id")
+    allocationInstanceId        String         @map("allocation_instance_id")
+    // ---
+    userInInstance              UserInInstance @relation(name: "supervisorDetails", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onUpdate: Cascade)
+    // actual data
+    projectAllocationLowerBound Int            @map("project_allocation_lower_bound")
+    projectAllocationTarget     Int            @map("project_allocation_target")
+    projectAllocationUpperBound Int            @map("project_allocation_upper_bound")
+
+    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+}
+
+model StudentInstanceDetails {
+    userId               String          @map("user_id")
+    // ---
+    allocationGroupId    String          @map("allocation_group_id")
+    allocationSubGroupId String          @map("allocation_sub_group_id")
+    allocationInstanceId String          @map("allocation_instance_id")
+    // ---
+    userInInstance       UserInInstance  @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onUpdate: Cascade)
+    // actual data
+    flags                FlagOnStudent[]
+
+    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Project {
-    id                   String             @id @default(uuid())
+    id                   String              @id @default(uuid())
     title                String
     description          String
-    supervisor           Supervisor         @relation(fields: [supervisorId], references: [id])
-    supervisorId         String             @map("supervisor_id")
-    capacityLowerBound   Int                @map("capacity_lower_bound")
-    capacityUpperBound   Int                @map("capacity_upper_bound")
-    allocationInstance   AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
-    allocationGroupId    String             @map("allocation_group_id")
-    allocationSubGroupId String             @map("allocation_sub_group_id")
-    allocationInstanceId String             @map("allocation_instance_id")
-    preferenceIn         Preference[]
-    allocatedTo          ProjectAllocation?
+    capacityLowerBound   Int                 @map("capacity_lower_bound")
+    capacityUpperBound   Int                 @map("capacity_upper_bound")
+    // ---
+    supervisorId         String              @map("supervisor_id")
+    // ---
+    allocationInstance   AllocationInstance  @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
+    supervisor           UserInInstance      @relation(fields: [supervisorId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    // ---
+    allocationGroupId    String              @map("allocation_group_id")
+    allocationSubGroupId String              @map("allocation_sub_group_id")
+    allocationInstanceId String              @map("allocation_instance_id")
+    // ---
     flagOnProjects       FlagOnProject[]
     tagOnProject         TagOnProject[]
+    inStudentPreferences Preference[]
+    allocations          ProjectAllocation[]
 }
 
 model Preference {
-    project   Project        @relation(fields: [projectId], references: [id])
-    projectId String         @map("project_id")
-    student   Student        @relation(fields: [studentId], references: [id])
-    studentId String         @map("student_id")
-    rank      Float
-    type      PreferenceType
+    project              Project        @relation(fields: [projectId], references: [id])
+    projectId            String         @map("project_id")
+    userId               String         @map("user_id")
+    // ---
+    allocationGroupId    String         @map("allocation_group_id")
+    allocationSubGroupId String         @map("allocation_sub_group_id")
+    allocationInstanceId String         @map("allocation_instance_id")
+    // ---
+    userInInstance       UserInInstance @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    // ---
+    rank                 Float
+    type                 PreferenceType
 
-    @@id([projectId, studentId])
-    @@unique([rank, studentId])
+    @@id([projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model ProjectAllocation {
-    project              Project @relation(fields: [projectId], references: [id])
-    projectId            String  @unique @map("project_id")
-    student              Student @relation(fields: [studentId], references: [id])
-    studentId            String  @map("student_id")
-    studentRanking       Int     @map("student_ranking")
-    allocationGroupId    String  @map("allocation_group_id")
-    allocationSubGroupId String  @map("allocation_sub_group_id")
-    allocationInstanceId String  @map("allocation_instance_id")
+    project              Project        @relation(fields: [projectId], references: [id])
+    projectId            String         @unique @map("project_id")
+    userId               String         @map("user_id")
+    // ---
+    allocationGroupId    String         @map("allocation_group_id")
+    allocationSubGroupId String         @map("allocation_sub_group_id")
+    allocationInstanceId String         @map("allocation_instance_id")
+    // ---
+    userInInstance       UserInInstance @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    // ---
+    studentRanking       Int            @map("student_ranking")
 
-    @@id([projectId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-    @@unique([projectId, studentId])
+    @@id([projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@unique([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Flag {
-    id             String          @id @default(uuid())
-    title          String          @unique
-    students       Student[]
+    id    String @id @default(uuid())
+    title String @unique
+
     flagOnProjects FlagOnProject[]
-    flagOnStudent  FlagOnStudent[]
+    flagOnStudents FlagOnStudent[]
 }
 
 model FlagOnProject {
@@ -233,12 +222,18 @@ model FlagOnProject {
 }
 
 model FlagOnStudent {
-    flag      Flag    @relation(fields: [flagId], references: [id])
-    flagId    String  @map("flag_id")
-    student   Student @relation(fields: [studentId], references: [id])
-    studentId String  @map("student_id")
+    flagId               String                 @map("flag_id")
+    userId               String                 @map("user_id")
+    // ---
+    allocationGroupId    String                 @map("allocation_group_id")
+    allocationSubGroupId String                 @map("allocation_sub_group_id")
+    allocationInstanceId String                 @map("allocation_instance_id")
+    // virtual fields
+    flag                 Flag                   @relation(fields: [flagId], references: [id])
+    studentDetails       StudentInstanceDetails @relation(map: "flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    UserInInstance       UserInInstance         @relation(map: "userFlags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 
-    @@id([flagId, studentId])
+    @@id([flagId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Tag {
@@ -269,15 +264,14 @@ model Algorithm {
     allocationGroupId    String             @map("allocation_group_id")
     allocationSubGroupId String             @map("allocation_sub_group_id")
     allocationInstanceId String             @map("allocation_instance_id")
-    allocationInstances  AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, slug])
+    allocationInstances  AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
 
     @@id([algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Invitation {
-    userEmail  String @id @map("user_email")
-    role       Role
-    signUpCode String @default(uuid()) @map("sign_up_code")
+    userEmail String @id @map("user_email")
+    role      Role
 
     @@unique([userEmail, role])
 }
@@ -310,14 +304,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    role          Role?
-    accounts      Account[]
-    sessions      Session[]
+    id              String           @id @default(cuid())
+    name            String?
+    email           String?          @unique
+    emailVerified   DateTime?
+    image           String?
+    accounts        Account[]
+    sessions        Session[]
+    userInInstances UserInInstance[]
+    AdminStuff      AdminInSpace[]
 }
 
 model VerificationToken {
