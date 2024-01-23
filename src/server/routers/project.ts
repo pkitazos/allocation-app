@@ -20,7 +20,9 @@ export const projectRouter = createTRPCRouter({
             id: true,
             title: true,
             description: true,
-            supervisor: { select: { name: true, id: true } },
+            supervisor: {
+              select: { user: { select: { name: true, id: true } } },
+            },
           },
         });
 
@@ -36,7 +38,9 @@ export const projectRouter = createTRPCRouter({
         select: {
           title: true,
           description: true,
-          supervisor: { select: { id: true, name: true } },
+          supervisor: {
+            select: { user: { select: { id: true, name: true } } },
+          },
           flagOnProjects: { select: { flag: { select: { title: true } } } },
           tagOnProject: { select: { tag: { select: { title: true } } } },
         },
