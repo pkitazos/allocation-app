@@ -203,8 +203,8 @@ export const instanceRouter = createTRPCRouter({
         params: instanceParamsSchema,
         name: z.string(),
         flag1: algorithmFlagSchema,
-        flag2: algorithmFlagSchema,
-        flag3: algorithmFlagSchema,
+        flag2: algorithmFlagSchema.optional(),
+        flag3: algorithmFlagSchema.optional(),
       }),
     )
     .mutation(
@@ -528,7 +528,7 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
           select: {
-            userInInstance: {
+            student: {
               select: {
                 user: { select: { id: true, name: true, email: true } },
               },

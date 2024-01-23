@@ -69,8 +69,8 @@ export function NewAlgorithmForm({
         return !setOfNames.has(item);
       }, "This name is already taken"),
     flag1: algorithmFlagSchema,
-    flag2: algorithmFlagSchema,
-    flag3: algorithmFlagSchema,
+    flag2: algorithmFlagSchema.optional(),
+    flag3: algorithmFlagSchema.optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
