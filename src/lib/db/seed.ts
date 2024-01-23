@@ -29,40 +29,6 @@ function dbg<T>(label: string, obj?: T) {
 async function main() {
   console.log("---------->> SEEDING");
 
-  // await db.user.create({
-  //   data: {
-  //     id: "super-admin",
-  //     name: "SUPER_ADMIN",
-  //     email: testSuperAdmin.email,
-  //   },
-  // });
-  // await db.user.create({
-  //   data: {
-  //     name: "GROUP_ADMIN",
-  //     email: testGroupAdmin.email,
-  //   },
-  // });
-  // await db.user.create({
-  //   data: {
-  //     name: "SUB_GROUP_ADMIN",
-  //     email: testSubGroupAdmin.email,
-  //   },
-  // });
-  // await db.user.create({
-  //   data: {
-  //     id: testSupervisor.id,
-  //     name: "SUPERVISOR",
-  //     email: testSupervisor.email,
-  //   },
-  // });
-  // await db.user.create({
-  //   data: {
-  //     id: testStudent.id,
-  //     name: "STUDENT",
-  //     email: testStudent.email,
-  //   },
-  // });
-
   const superAdmin = await db.adminInSpace.create({
     data: {
       role: AdminLevel.SUPER,
@@ -73,7 +39,7 @@ async function main() {
 
   const groupAdmin = await db.adminInSpace.create({
     data: {
-      role: AdminLevel.SUB_GROUP,
+      role: AdminLevel.GROUP,
       user: { connect: { email: testGroupAdmin.email } },
     },
   });
@@ -154,6 +120,28 @@ async function main() {
         }),
     );
   dbg("SUPERVISORS - REST", { supervisor, supervisor2, supervisor3 });
+
+  const testSupervisorUser = await db.user.findFirstOrThrow({
+    where: { email: testSupervisor.email },
+  });
+
+  await db.supervisorInstanceDetails.create({
+    data: {
+      projectAllocationLowerBound: 0,
+      projectAllocationTarget: testSupervisor.projectAllocationTarget,
+      projectAllocationUpperBound: testSupervisor.projectAllocationUpperBound,
+      userInInstance: {
+        connect: {
+          userId_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
+            allocationGroupId: allocationGroup.id,
+            allocationSubGroupId: allocationSubGroup.id,
+            allocationInstanceId: allocationInstance.id,
+            userId: testSupervisorUser.id,
+          },
+        },
+      },
+    },
+  });
 
   for (const item of supervisorInInstanceData) {
     await db.supervisorInstanceDetails.create({
