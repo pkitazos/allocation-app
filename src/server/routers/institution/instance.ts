@@ -528,8 +528,11 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
           select: {
-            userId: true,
-
+            userInInstance: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
             project: {
               select: {
                 id: true,

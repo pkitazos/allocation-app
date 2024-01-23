@@ -11,7 +11,7 @@ export default async function Page({
   params: { group: string; subGroup: string; instance: string };
 }) {
   const { byStudent, byProject, bySupervisor } =
-    await api.institution.instance.projectAllocations.query(params);
+    await api.institution.instance.projectAllocations.query({ params });
 
   return (
     <div className="mt-20 flex w-full flex-col items-center">

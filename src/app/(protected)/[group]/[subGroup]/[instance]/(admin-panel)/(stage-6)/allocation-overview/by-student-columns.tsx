@@ -2,15 +2,19 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface StudentData {
-  student: {
-    name: string;
-    id: string;
-    email: string;
+  userInInstance: {
+    user: {
+      name: string | null;
+      id: string;
+      email: string | null;
+    };
   };
   project: {
     id: string;
     supervisor: {
-      name: string;
+      user: {
+        name: string | null;
+      };
     };
   };
   studentRanking: number;
@@ -19,21 +23,21 @@ export interface StudentData {
 export const byStudentColumns: ColumnDef<StudentData>[] = [
   {
     id: "studentId",
-    accessorFn: ({ student }) => student.id,
+    accessorFn: ({ userInInstance: { user } }) => user.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),
   },
   {
     id: "studentName",
-    accessorFn: ({ student }) => student.name,
+    accessorFn: ({ userInInstance: { user } }) => user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" />
     ),
   },
   {
     id: "studentEmail",
-    accessorFn: ({ student }) => student.email,
+    accessorFn: ({ userInInstance: { user } }) => user.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Email" />
     ),
@@ -54,7 +58,7 @@ export const byStudentColumns: ColumnDef<StudentData>[] = [
   },
   {
     id: "supervisorName",
-    accessorFn: ({ project }) => project.supervisor.name,
+    accessorFn: ({ project }) => project.supervisor.user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),

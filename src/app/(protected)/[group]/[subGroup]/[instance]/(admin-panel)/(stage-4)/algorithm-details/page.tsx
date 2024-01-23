@@ -16,7 +16,7 @@ export default async function Page({
   return (
     <div className="mt-20 flex flex-col items-center">
       <div className="flex w-1/2 flex-col gap-3">
-        <h2 className="mb-6 text-2xl font-semibold">Algorithm Results {0}</h2>
+        <h2 className="mb-6 text-2xl font-semibold">Algorithm Results</h2>
         <Tabs defaultValue={results[firstNonEmpty].algName}>
           <TabsList className="w-full">
             {results.map((result, i) => (
