@@ -7,10 +7,11 @@ interface pageParams extends instanceParams {
 }
 
 export default async function Page({ params }: { params: pageParams }) {
-  const { supervisor } = await api.user.supervisor.instanceData.query({
-    params,
-    supervisorId: params.id,
-  });
+  const { supervisorProjects, user: supervisor } =
+    await api.user.supervisor.instanceData.query({
+      params,
+      supervisorId: params.id,
+    });
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
@@ -18,7 +19,7 @@ export default async function Page({ params }: { params: pageParams }) {
         <h1 className="text-5xl text-accent-foreground">{supervisor.name}</h1>
       </div>
       <div className="mt-6 flex gap-6">
-        <ProjectsDataTable data={supervisor.projects} />
+        <ProjectsDataTable data={supervisorProjects} />
       </div>
     </div>
   );

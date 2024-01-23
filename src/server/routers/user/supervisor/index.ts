@@ -18,26 +18,16 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        return await ctx.db.supervisorInInstance.findFirstOrThrow({
+        return await ctx.db.userInInstance.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            supervisorId,
+            userId: supervisorId,
           },
           select: {
-            supervisor: {
-              select: {
-                name: true,
-                email: true,
-                projects: {
-                  select: {
-                    id: true,
-                    title: true,
-                  },
-                },
-              },
-            },
+            user: { select: { name: true, email: true } },
+            supervisorProjects: { select: { id: true, title: true } },
           },
         });
       },

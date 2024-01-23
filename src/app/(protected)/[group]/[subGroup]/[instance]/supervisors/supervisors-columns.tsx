@@ -14,14 +14,14 @@ import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export interface SupervisorData {
-  supervisor: {
+  user: {
     id: string;
-    name: string;
-    email: string;
+    name: string | null;
+    email: string | null;
   };
 }
 
-export const columns: ColumnDef<SupervisorData>[] = [
+export const supervisorColumns: ColumnDef<SupervisorData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -43,14 +43,14 @@ export const columns: ColumnDef<SupervisorData>[] = [
   },
   {
     id: "name",
-    accessorFn: ({ supervisor }) => supervisor.name,
+    accessorFn: ({ user }) => user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" canFilter />
     ),
     cell: ({
       row: {
         original: {
-          supervisor: { id, name },
+          user: { id, name },
         },
       },
     }) => (
@@ -61,7 +61,7 @@ export const columns: ColumnDef<SupervisorData>[] = [
   },
   {
     id: "email",
-    accessorFn: ({ supervisor }) => supervisor.email,
+    accessorFn: ({ user }) => user.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
@@ -74,7 +74,7 @@ export const columns: ColumnDef<SupervisorData>[] = [
     },
     cell: ({
       row: {
-        original: { supervisor },
+        original: { user },
       },
     }) => {
       return (
@@ -89,7 +89,7 @@ export const columns: ColumnDef<SupervisorData>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href={`/supervisors/${supervisor.id}`}>
+              <a href={`/supervisors/${user.id}`}>
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
