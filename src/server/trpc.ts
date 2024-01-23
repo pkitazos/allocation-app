@@ -123,7 +123,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
     });
   }
 
-  if (!ctx.session.user.role || ctx.session.user.role === "UNREGISTERED") {
+  if (!ctx.session.user.role) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "User is not registered",
@@ -150,11 +150,7 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
     });
   }
 
-  if (
-    ctx.session.user.role !== "SUPER_ADMIN" &&
-    ctx.session.user.role !== "GROUP_ADMIN" &&
-    ctx.session.user.role !== "SUB_GROUP_ADMIN"
-  ) {
+  if (ctx.session.user.role !== "ADMIN") {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "User is not an admin",

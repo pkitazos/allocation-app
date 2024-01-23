@@ -1,4 +1,4 @@
-import { Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -41,13 +41,11 @@ export const instanceRouter = createTRPCRouter({
 
         if (!role) return false;
 
-        if (role === "UNREGISTERED") return false;
-
         const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
-            slug: instance,
+            id: instance,
           },
           select: {
             stage: true,
@@ -60,7 +58,7 @@ export const instanceRouter = createTRPCRouter({
           Stage.ALLOCATION_ADJUSTMENT,
         ];
 
-        if (role === "SUPERVISOR") return supervisorStages.includes(stage);
+        if (role === Role.SUPERVISOR) return supervisorStages.includes(stage);
 
         const studentStages: Stage[] = [
           Stage.SETUP,
@@ -69,7 +67,7 @@ export const instanceRouter = createTRPCRouter({
           Stage.ALLOCATION_ADJUSTMENT,
         ];
 
-        if (role === "STUDENT") return studentStages.includes(stage);
+        if (role === Role.STUDENT) return studentStages.includes(stage);
 
         return true;
       },
@@ -85,41 +83,29 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         // TODO: update selection to filter out shortlist items
-        const studentData = await ctx.db.studentInInstance.findMany({
+        const studentData = await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
           },
           select: {
-            student: {
-              select: {
-                id: true,
-                preferences: {
-                  where: {
-                    project: {
-                      allocationGroupId: group,
-                      allocationSubGroupId: subGroup,
-                      allocationInstanceId: instance,
-                    },
-                  },
-                  orderBy: {
-                    rank: "asc",
-                  },
-                },
-              },
+            userId: true,
+            studentPreferences: {
+              select: { projectId: true, rank: true },
+              orderBy: { rank: "asc" },
             },
           },
         });
 
-        const supervisorData = await ctx.db.supervisorInInstance.findMany({
+        const supervisorData = await ctx.db.supervisorInstanceDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
           },
           select: {
-            supervisorId: true,
+            userId: true,
             projectAllocationLowerBound: true,
             projectAllocationTarget: true,
             projectAllocationUpperBound: true,
@@ -140,9 +126,9 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
-        const students = studentData.map(({ student }) => ({
-          id: student.id,
-          preferences: student.preferences.map(({ projectId }) => projectId),
+        const students = studentData.map(({ userId, studentPreferences }) => ({
+          id: userId,
+          preferences: studentPreferences.map(({ projectId }) => projectId),
         }));
 
         const projects = projectData.map(
@@ -156,12 +142,12 @@ export const instanceRouter = createTRPCRouter({
 
         const supervisors = supervisorData.map(
           ({
-            supervisorId,
+            userId,
             projectAllocationLowerBound,
             projectAllocationTarget,
             projectAllocationUpperBound,
           }) => ({
-            id: supervisorId,
+            id: userId,
             lowerBound: projectAllocationLowerBound,
             target: projectAllocationTarget,
             upperBound: projectAllocationUpperBound,
@@ -175,7 +161,7 @@ export const instanceRouter = createTRPCRouter({
             where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              slug: instance,
+              id: instance,
             },
             select: { selectedAlgName: true },
           });
@@ -327,7 +313,7 @@ export const instanceRouter = createTRPCRouter({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
-            slug: instance,
+            id: instance,
           },
           select: {
             stage: true,
@@ -354,10 +340,10 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.allocationInstance.update({
           where: {
-            allocationGroupId_allocationSubGroupId_slug: {
+            allocationGroupId_allocationSubGroupId_id: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              slug: instance,
+              id: instance,
             },
           },
           data: { stage },
@@ -385,7 +371,7 @@ export const instanceRouter = createTRPCRouter({
             where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              slug: instance,
+              id: instance,
             },
             select: { selectedAlgName: true },
           });
@@ -411,7 +397,7 @@ export const instanceRouter = createTRPCRouter({
 
         await ctx.db.projectAllocation.createMany({
           data: matching.map(({ student_id, project_id, preference_rank }) => ({
-            studentId: student_id,
+            userId: student_id,
             projectId: project_id,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -422,10 +408,10 @@ export const instanceRouter = createTRPCRouter({
 
         await ctx.db.allocationInstance.update({
           where: {
-            allocationGroupId_allocationSubGroupId_slug: {
+            allocationGroupId_allocationSubGroupId_id: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              slug: instance,
+              id: instance,
             },
           },
           data: { selectedAlgName: algName },
@@ -537,24 +523,17 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         const byStudent = await ctx.db.projectAllocation.findMany({
           where: {
-            project: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
           },
           select: {
-            student: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
+            userId: true,
+
             project: {
               select: {
                 id: true,
-                supervisor: { select: { name: true } },
+                supervisor: { select: { user: { select: { name: true } } } },
               },
             },
             studentRanking: true,
@@ -563,11 +542,9 @@ export const instanceRouter = createTRPCRouter({
 
         const byProject = await ctx.db.projectAllocation.findMany({
           where: {
-            project: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
           },
           select: {
             project: {
@@ -576,21 +553,21 @@ export const instanceRouter = createTRPCRouter({
                 title: true,
                 capacityLowerBound: true,
                 capacityUpperBound: true,
-                supervisor: { select: { id: true, name: true } },
+                supervisor: {
+                  select: { user: { select: { id: true, name: true } } },
+                },
               },
             },
-            student: { select: { id: true } },
+            userId: true,
             studentRanking: true,
           },
         });
 
         const bySupervisor = await ctx.db.projectAllocation.findMany({
           where: {
-            project: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
           },
           select: {
             project: {
@@ -599,10 +576,8 @@ export const instanceRouter = createTRPCRouter({
                 title: true,
                 supervisor: {
                   select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    supervisorInInstance: {
+                    user: { select: { id: true, name: true, email: true } },
+                    supervisorInstanceDetails: {
                       where: {
                         allocationGroupId: group,
                         allocationSubGroupId: subGroup,
@@ -613,13 +588,13 @@ export const instanceRouter = createTRPCRouter({
                         projectAllocationTarget: true,
                         projectAllocationUpperBound: true,
                       },
-                      // TODO: add "take: 1"
+                      take: 1, // ? might not be doing anything
                     },
                   },
                 },
               },
             },
-            student: { select: { id: true } },
+            userId: true,
             studentRanking: true,
           },
         });
@@ -637,14 +612,15 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.supervisorInInstance.findMany({
+        return await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
+            role: Role.SUPERVISOR,
           },
           select: {
-            supervisor: { select: { id: true, name: true, email: true } },
+            user: { select: { id: true, name: true, email: true } },
           },
         });
       },
@@ -659,14 +635,15 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.studentInInstance.findMany({
+        return await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
+            role: Role.STUDENT,
           },
           select: {
-            student: { select: { id: true, name: true, email: true } },
+            user: { select: { id: true, name: true, email: true } },
           },
         });
       },

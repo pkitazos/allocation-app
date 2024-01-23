@@ -35,9 +35,8 @@ export const institutionRouter = createTRPCRouter({
     .mutation(async ({ ctx, input: { groupName } }) => {
       await ctx.db.allocationGroup.create({
         data: {
-          slug: slugify(groupName),
+          id: slugify(groupName),
           displayName: groupName,
-          superAdminId: ctx.session.user.id,
         },
       });
     }),

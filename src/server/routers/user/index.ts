@@ -1,3 +1,4 @@
+import { adminLevelOrd } from "@/lib/db";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -11,19 +12,6 @@ export const userRouter = createTRPCRouter({
   student: studentRouter,
   supervisor: supervisorRouter,
 
-  role: publicProcedure
-    .input(z.object({ userId: z.string() }))
-    .query(async ({ ctx, input: { userId } }) => {
-      return ctx.db.user.findFirstOrThrow({
-        where: {
-          id: userId,
-        },
-        select: {
-          role: true,
-        },
-      });
-    }),
-
   adminPanelRoute: publicProcedure
     .output(z.string().optional())
     .query(async ({ ctx }) => {
@@ -34,93 +22,89 @@ export const userRouter = createTRPCRouter({
 
       if (!user.role) return;
 
-      if (user.role === "SUPER_ADMIN") return "/admin";
+      if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
 
-      // TODO: fix procedure
-      if (user.role === "GROUP_ADMIN") {
-        // const { allocationGroupId }
-        await ctx.db.groupAdmin.findFirst({
-          where: { id: user.id }, // ! id and user.id are not the same
-          select: { allocationGroupId: true },
-        });
-        return `/${0}`;
-      }
+      const adminSpaces = await ctx.db.adminInSpace.findMany({
+        where: { userId: user.id },
+        select: {
+          role: true,
+          allocationGroupId: true,
+          allocationSubGroupId: true,
+        },
+      });
 
-      if (user.role === "SUB_GROUP_ADMIN") {
-        // const { allocationGroupId, allocationSubGroupId }
-        await ctx.db.subGroupAdmin.findFirst({
-          where: { id: user.id }, // ! id and user.id are not the same
-          select: {
-            allocationGroupId: true,
-            allocationSubGroupId: true,
-          },
-        });
-        return `/${0}/${0}`;
-      }
+      const {
+        role,
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+      } = adminSpaces.sort(
+        (a, b) => adminLevelOrd.indexOf(b.role) - adminLevelOrd.indexOf(a.role),
+      )[0];
+
+      if (role === "SUPER") return "/admin";
+      if (role === "GROUP") return `/${group}`;
+      if (role === "SUB_GROUP") return `/${group}/${subGroup}`;
 
       return;
     }),
 
-  instances: protectedProcedure.query(async ({ ctx }) => {
-    const { id } = ctx.session.user;
-    const role = ctx.session.role;
+  instances: protectedProcedure
+    .output(
+      z.array(
+        z.object({
+          allocationGroupId: z.string(),
+          allocationSubGroupId: z.string(),
+          allocationInstanceId: z.string(),
+        }),
+      ),
+    )
+    .query(async ({ ctx }) => {
+      const user = ctx.session.user;
 
-    if (role === "SUPERVISOR") {
-      return await ctx.db.supervisorInInstance.findMany({
-        where: {
-          supervisorId: id,
-        },
-        select: {
-          allocationGroupId: true,
-          allocationSubGroupId: true,
-          allocationInstanceId: true,
-        },
+      const { role } = await ctx.db.user.findFirstOrThrow({
+        where: { id: user.id },
+        select: { role: true },
       });
-    }
 
-    if (role === "STUDENT") {
-      return await ctx.db.studentInInstance.findMany({
-        where: {
-          studentId: id,
-        },
-        select: {
-          allocationGroupId: true,
-          allocationSubGroupId: true,
-          allocationInstanceId: true,
-        },
-      });
-    }
+      if (!role) return [];
 
-    if (role === "SUB_GROUP_ADMIN") {
-      const data = await ctx.db.subGroupAdmin.findFirstOrThrow({
-        where: { id },
-        select: {
-          allocationSubGroup: {
-            select: {
-              allocationInstances: {
-                select: {
-                  allocationGroupId: true,
-                  allocationSubGroupId: true,
-                  slug: true,
-                },
-              },
-            },
+      if (role === "ADMIN") {
+        const adminSpaces = await ctx.db.adminInSpace.findMany({
+          where: { userId: user.id },
+          select: {
+            role: true,
+            allocationGroupId: true,
+            allocationSubGroupId: true,
           },
-        },
-      });
+        });
 
-      return data.allocationSubGroup.allocationInstances.map((item) => ({
-        allocationGroupId: item.allocationGroupId,
-        allocationSubGroupId: item.allocationSubGroupId,
-        allocationInstanceId: item.slug,
-      }));
-    }
+        const {
+          role: adminLevel,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+        } = adminSpaces.sort(
+          (a, b) =>
+            adminLevelOrd.indexOf(b.role) - adminLevelOrd.indexOf(a.role),
+        )[0];
 
-    if (role === "GROUP_ADMIN") {
-      const data = await ctx.db.groupAdmin.findFirstOrThrow({
-        where: { id },
-        select: {
-          allocationGroup: {
+        if (adminLevel === "SUPER") {
+          const d = await ctx.db.allocationInstance.findMany({
+            select: {
+              allocationGroupId: true,
+              allocationSubGroupId: true,
+              id: true,
+            },
+          });
+          return d.map(({ allocationGroupId, allocationSubGroupId, id }) => ({
+            allocationGroupId,
+            allocationSubGroupId,
+            allocationInstanceId: id,
+          }));
+        }
+
+        if (adminLevel === "GROUP") {
+          const d = await ctx.db.allocationGroup.findFirstOrThrow({
+            where: { id: group! },
             select: {
               allocationSubGroups: {
                 select: {
@@ -128,37 +112,54 @@ export const userRouter = createTRPCRouter({
                     select: {
                       allocationGroupId: true,
                       allocationSubGroupId: true,
-                      slug: true,
+                      id: true,
                     },
                   },
                 },
               },
             },
-          },
+          });
+          return d.allocationSubGroups.flatMap(({ allocationInstances }) =>
+            allocationInstances.map(
+              ({ allocationGroupId, allocationSubGroupId, id }) => ({
+                allocationGroupId,
+                allocationSubGroupId,
+                allocationInstanceId: id,
+              }),
+            ),
+          );
+        }
+
+        if (adminLevel === "SUB_GROUP") {
+          const d = await ctx.db.allocationSubGroup.findFirstOrThrow({
+            where: { allocationGroupId: group!, id: subGroup! },
+            select: {
+              allocationInstances: {
+                select: {
+                  allocationGroupId: true,
+                  allocationSubGroupId: true,
+                  id: true,
+                },
+              },
+            },
+          });
+          return d.allocationInstances.map(
+            ({ allocationGroupId, allocationSubGroupId, id }) => ({
+              allocationGroupId,
+              allocationSubGroupId,
+              allocationInstanceId: id,
+            }),
+          );
+        }
+      }
+
+      return await ctx.db.userInInstance.findMany({
+        where: { userId: user.id },
+        select: {
+          allocationGroupId: true,
+          allocationSubGroupId: true,
+          allocationInstanceId: true,
         },
       });
-
-      return data.allocationGroup.allocationSubGroups
-        .flatMap((item) => item.allocationInstances)
-        .map((item) => ({
-          allocationGroupId: item.allocationGroupId,
-          allocationSubGroupId: item.allocationSubGroupId,
-          allocationInstanceId: item.slug,
-        }));
-    }
-
-    const instances = await ctx.db.allocationInstance.findMany({
-      select: {
-        allocationGroupId: true,
-        allocationSubGroupId: true,
-        slug: true,
-      },
-    });
-
-    return instances.map((item) => ({
-      allocationGroupId: item.allocationGroupId,
-      allocationSubGroupId: item.allocationSubGroupId,
-      allocationInstanceId: item.slug,
-    }));
-  }),
+    }),
 });
