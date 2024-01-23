@@ -63,7 +63,7 @@ model UserInInstance {
     studentInstanceDetails    StudentInstanceDetails[]
     studentFlags              FlagOnStudent[]
     studentPreferences        Preference[]
-    studentAllocation         ProjectAllocation?
+    studentAllocation         ProjectAllocation?          @relation(name: "projectAllocation")
 
     @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -189,14 +189,14 @@ model Preference {
 
 model ProjectAllocation {
     project              Project        @relation(fields: [projectId], references: [id])
-    projectId            String         @unique @map("project_id")
+    projectId            String         @map("project_id")
     userId               String         @map("user_id")
     // ---
     allocationGroupId    String         @map("allocation_group_id")
     allocationSubGroupId String         @map("allocation_sub_group_id")
     allocationInstanceId String         @map("allocation_instance_id")
     // ---
-    userInInstance       UserInInstance @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    userInInstance       UserInInstance @relation(name: "projectAllocation", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
     // ---
     studentRanking       Int            @map("student_ranking")
 

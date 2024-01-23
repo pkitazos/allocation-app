@@ -33,6 +33,8 @@ export const userRouter = createTRPCRouter({
         },
       });
 
+      if (adminSpaces.length === 0) return;
+
       const {
         role,
         allocationGroupId: group,
