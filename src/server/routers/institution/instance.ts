@@ -58,7 +58,7 @@ export const instanceRouter = createTRPCRouter({
           Stage.ALLOCATION_ADJUSTMENT,
         ];
 
-        if (role === Role.SUPERVISOR) return supervisorStages.includes(stage);
+        if (role === Role.SUPERVISOR) return !supervisorStages.includes(stage);
 
         const studentStages: Stage[] = [
           Stage.SETUP,
@@ -67,7 +67,7 @@ export const instanceRouter = createTRPCRouter({
           Stage.ALLOCATION_ADJUSTMENT,
         ];
 
-        if (role === Role.STUDENT) return studentStages.includes(stage);
+        if (role === Role.STUDENT) return !studentStages.includes(stage);
 
         return true;
       },
