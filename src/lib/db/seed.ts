@@ -31,7 +31,7 @@ async function main() {
 
   const superAdmin = await db.adminInSpace.create({
     data: {
-      role: AdminLevel.SUPER,
+      adminLevel: AdminLevel.SUPER,
       user: { connect: { email: testSuperAdmin.email } },
     },
   });
@@ -39,7 +39,7 @@ async function main() {
 
   const groupAdmin = await db.adminInSpace.create({
     data: {
-      role: AdminLevel.GROUP,
+      adminLevel: AdminLevel.GROUP,
       user: { connect: { email: testGroupAdmin.email } },
     },
   });
@@ -47,7 +47,7 @@ async function main() {
 
   const subGroupAdmin = await db.adminInSpace.create({
     data: {
-      role: AdminLevel.SUB_GROUP,
+      adminLevel: AdminLevel.SUB_GROUP,
       user: { connect: { email: testSubGroupAdmin.email } },
     },
   });
@@ -333,6 +333,13 @@ async function main() {
   await db.invitation.createMany({
     data: invitationData,
   });
+
+  for (const invite of invitationData) {
+    await db.user.update({
+      where: { email: invite.userEmail },
+      data: { role: invite.role },
+    });
+  }
 
   console.log("ok");
   console.log("<<---------- SEEDING COMPLETE");
