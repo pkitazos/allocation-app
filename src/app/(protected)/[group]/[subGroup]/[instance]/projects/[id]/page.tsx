@@ -17,8 +17,11 @@ export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
   const project = await api.project.getById.query({ projectId });
 
-  // TODO: remove selectStatus initialisation
-  const selectStatus = "none";
+  const preferenceStatus =
+    await api.user.student.preference.getForProject.query({
+      params,
+      projectId,
+    });
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
@@ -26,8 +29,9 @@ export default async function Project({ params }: { params: pageParams }) {
         <h1 className="text-5xl text-accent-foreground">{project.title}</h1>
         {session && session.user.role && session.user.role === "STUDENT" && (
           <PreferenceButton
+            params={params}
             projectId={projectId}
-            defaultStatus={selectStatus}
+            defaultStatus={preferenceStatus}
           />
         )}
       </div>

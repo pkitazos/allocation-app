@@ -9,46 +9,44 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { auth } from "@/lib/auth";
-import { useSession } from "next-auth/react";
+import { api } from "@/lib/trpc/client";
+import { instanceParams } from "@/lib/validations/params";
+import { PreferenceType } from "@prisma/client";
+
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export function PreferenceButton({
+  params,
   projectId,
   defaultStatus,
 }: {
+  params: instanceParams;
   projectId: string;
   defaultStatus: string;
 }) {
   const [selectStatus, setSelectStatus] = useState(defaultStatus);
-  const studentId = "";
 
-  const handleChange = async (value: string) => {
-    if (selectStatus === value) return;
+  const { mutateAsync: updateAsync } =
+    api.user.student.preference.update.useMutation();
 
-    if (selectStatus === "shortlist" || selectStatus === "preference") {
-      const res = fetch(`/api/${selectStatus}`, {
-        method: "DELETE",
-        body: JSON.stringify({
-          studentId,
-          projectId,
-        }),
-      });
+  const handleChange = (value: string) => {
+    const preferenceChange =
+      value === "None" ? "None" : z.nativeEnum(PreferenceType).parse(value);
 
-      toast.promise(res, {
-        loading: "loading",
-        success: "success",
-        error: "error",
-      });
-    }
-    await fetch(`/api/${value}`, {
-      method: "POST",
-      body: JSON.stringify({
-        studentId,
+    toast.promise(
+      updateAsync({
+        params,
         projectId,
+        preferenceType: preferenceChange,
       }),
-    });
+      {
+        loading: "Loading...",
+        success: "Success",
+        error: "Error",
+      },
+    );
     setSelectStatus(value);
   };
 
@@ -57,9 +55,9 @@ export function PreferenceButton({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
-            {selectStatus === "preference"
+            {selectStatus === PreferenceType.PREFERENCE
               ? "In Preferences"
-              : selectStatus === "shortlist"
+              : selectStatus === PreferenceType.SHORTLIST
               ? "In Shortlist"
               : "Select"}
           </Button>
@@ -71,11 +69,11 @@ export function PreferenceButton({
             value={selectStatus}
             onValueChange={handleChange}
           >
-            <DropdownMenuRadioItem value="none">None</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="shortlist">
+            <DropdownMenuRadioItem value="None">None</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value={PreferenceType.SHORTLIST}>
               Shortlist
             </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="preference">
+            <DropdownMenuRadioItem value={PreferenceType.PREFERENCE}>
               Preference
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
