@@ -27,7 +27,7 @@ export const userRouter = createTRPCRouter({
       const adminSpaces = await ctx.db.adminInSpace.findMany({
         where: { userId: user.id },
         select: {
-          role: true,
+          adminLevel: true,
           allocationGroupId: true,
           allocationSubGroupId: true,
         },
@@ -36,16 +36,17 @@ export const userRouter = createTRPCRouter({
       if (adminSpaces.length === 0) return;
 
       const {
-        role,
+        adminLevel,
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
       } = adminSpaces.sort(
-        (a, b) => adminLevelOrd.indexOf(b.role) - adminLevelOrd.indexOf(a.role),
+        ({ adminLevel: a }, { adminLevel: b }) =>
+          adminLevelOrd.indexOf(b) - adminLevelOrd.indexOf(a),
       )[0];
 
-      if (role === "SUPER") return "/admin";
-      if (role === "GROUP") return `/${group}`;
-      if (role === "SUB_GROUP") return `/${group}/${subGroup}`;
+      if (adminLevel === "SUPER") return "/admin";
+      if (adminLevel === "GROUP") return `/${group}`;
+      if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
 
       return;
     }),
@@ -74,19 +75,19 @@ export const userRouter = createTRPCRouter({
         const adminSpaces = await ctx.db.adminInSpace.findMany({
           where: { userId: user.id },
           select: {
-            role: true,
+            adminLevel: true,
             allocationGroupId: true,
             allocationSubGroupId: true,
           },
         });
 
         const {
-          role: adminLevel,
+          adminLevel: adminLevel,
           allocationGroupId: group,
           allocationSubGroupId: subGroup,
         } = adminSpaces.sort(
-          (a, b) =>
-            adminLevelOrd.indexOf(b.role) - adminLevelOrd.indexOf(a.role),
+          ({ adminLevel: a }, { adminLevel: b }) =>
+            adminLevelOrd.indexOf(b) - adminLevelOrd.indexOf(a),
         )[0];
 
         if (adminLevel === "SUPER") {

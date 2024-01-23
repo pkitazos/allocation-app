@@ -2,7 +2,7 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface StudentData {
-  userInInstance: {
+  student: {
     user: {
       name: string | null;
       id: string;
@@ -23,21 +23,21 @@ export interface StudentData {
 export const byStudentColumns: ColumnDef<StudentData>[] = [
   {
     id: "studentId",
-    accessorFn: ({ userInInstance: { user } }) => user.id,
+    accessorFn: ({ student: { user } }) => user.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),
   },
   {
     id: "studentName",
-    accessorFn: ({ userInInstance: { user } }) => user.name,
+    accessorFn: ({ student: { user } }) => user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" />
     ),
   },
   {
     id: "studentEmail",
-    accessorFn: ({ userInInstance: { user } }) => user.email,
+    accessorFn: ({ student: { user } }) => user.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Email" />
     ),
