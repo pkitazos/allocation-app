@@ -27,14 +27,9 @@ export default async function Layout({
   const { group, subGroup, instance } = params;
   const session = await auth();
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN"
-  ) {
+  if (session && session.user.role !== "ADMIN") {
     return (
-      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
+      <Unauthorised message="You need to be an admin to access this page" />
     );
   }
 
@@ -60,7 +55,7 @@ export default async function Layout({
           ))}
         </div>
       </div>
-      <section className="col-span-5 max-w-6xl">
+      <section className="col-span-5 max-w-6xl pb-32">
         <Heading title={instance} />
         {children}
       </section>

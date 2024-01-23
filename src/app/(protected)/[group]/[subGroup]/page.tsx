@@ -13,18 +13,14 @@ export default async function Page({
 }) {
   const session = await auth();
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN"
-  ) {
+  // TODO: add persmission level check
+  if (session && session.user.role !== "ADMIN") {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );
   }
 
-  const { subGroupAdmins, allocationInstances, displayName, admin } =
+  const { subGroupAdmins, allocationInstances, displayName } =
     await api.institution.subGroup.instanceManagement.query({ params });
 
   const { group, subGroup } = params;
@@ -34,19 +30,20 @@ export default async function Page({
       <h1 className="text-4xl">{displayName}</h1>
       <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-3 text-2xl underline">Sub-Group Admins</h3>
-        {subGroupAdmins.map(({ name, email }, i) => (
+        {subGroupAdmins.map(({ user: { name, email } }, i) => (
           <div className="flex items-center gap-5" key={i}>
             <div className="w-1/6 font-medium">{name}</div>
             <Separator orientation="vertical" />
             <div className="w-/4">{email}</div>
-            {(admin === "SUPER_ADMIN" || admin === "GROUP_ADMIN") && (
+            {
+              // (admin === "SUPER_ADMIN" || admin === "GROUP_ADMIN") && // TODO: use adminLevel instead
               <>
                 <Separator orientation="vertical" />
                 <Button className="ml-8" variant="destructive">
                   remove
                 </Button>
               </>
-            )}
+            }
           </div>
         ))}
       </div>
@@ -66,7 +63,7 @@ export default async function Page({
           {allocationInstances.map((instance, i) => (
             <Link
               className="col-span-1 flex"
-              href={`/${group}/${subGroup}/${instance.slug}`}
+              href={`/${group}/${subGroup}/${instance.id}`}
               key={i}
             >
               <Button

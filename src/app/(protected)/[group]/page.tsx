@@ -9,17 +9,14 @@ import Link from "next/link";
 export default async function Page({ params }: { params: { group: string } }) {
   const session = await auth();
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN"
-  ) {
+  // TODO: add persmission level check
+  if (session && session.user.role !== "ADMIN") {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
   }
 
-  const { allocationSubGroups, groupAdmins, displayName, admin } =
+  const { allocationSubGroups, groupAdmins, displayName } =
     await api.institution.group.subGroupManagement.query({ params });
 
   return (
@@ -29,19 +26,20 @@ export default async function Page({ params }: { params: { group: string } }) {
       <div className="my-10 flex min-h-40 flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
         <h3 className="mb-3 text-2xl underline">Group Admins</h3>
         {groupAdmins.length !== 0 &&
-          groupAdmins.map(({ name, email }, i) => (
+          groupAdmins.map(({ user: { name, email } }, i) => (
             <div className="flex h-9 items-center gap-5" key={i}>
               <div className="w-1/6 font-medium">{name}</div>
               <Separator orientation="vertical" />
               <div className="w-/4">{email}</div>
-              {admin === "SUPER_ADMIN" && (
+              {
+                // admin === "SUPER_ADMIN" && // TODO: use adminLevel instead
                 <>
                   <Separator orientation="vertical" />
                   <Button size="sm" className="ml-8" variant="destructive">
                     remove
                   </Button>
                 </>
-              )}
+              }
             </div>
           ))}
       </div>
@@ -62,7 +60,7 @@ export default async function Page({ params }: { params: { group: string } }) {
           {allocationSubGroups.map((subGroup, i) => (
             <Link
               className="col-span-1"
-              href={`/${params.group}/${subGroup.slug}`}
+              href={`/${params.group}/${subGroup.id}`}
               key={i}
             >
               <Button

@@ -5,7 +5,8 @@ import { ReactNode } from "react";
 export default async function Layout({ children }: { children: ReactNode }) {
   const session = await auth();
 
-  if (session && session.user.role !== "SUPER_ADMIN") {
+  // TODO: use adminLevel instead
+  if (session && session.user.role !== "ADMIN") {
     return (
       <Unauthorised message="You need to be a super-admin to access this page" />
     );

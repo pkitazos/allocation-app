@@ -10,12 +10,8 @@ export default async function Page({
 }) {
   const session = await auth();
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN"
-  ) {
+  // TODO: add persmission level check
+  if (session && session.user.role !== "ADMIN") {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
