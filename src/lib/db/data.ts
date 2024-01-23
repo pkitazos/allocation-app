@@ -125,7 +125,6 @@ export const testInstance = {
 };
 
 export const testStudent = {
-  id: "clrpi3qoc000cwuazkpjyj102", // TODO: grab from prisma
   name: "Eva",
   email: "student.allocationapp@gmail.com",
 };
@@ -164,9 +163,10 @@ export const studentData = [
 ];
 
 export const testSupervisor = {
-  id: "12345d",
   name: "Dan",
   email: "supervisor.allocationapp@gmail.com",
+  projectAllocationTarget: 2,
+  projectAllocationUpperBound: 3,
 };
 
 export const supervisorData = [
@@ -183,11 +183,11 @@ export const supervisorData = [
 ];
 
 export const supervisorInInstanceData = [
-  {
-    id: "clrpi3ly90009wuaz4tw9wq0m", // TODO: grab from prisma
-    projectAllocationTarget: 2,
-    projectAllocationUpperBound: 3,
-  },
+  // {
+  //   id: "clrpi3ly90009wuaz4tw9wq0m", // TODO: grab from prisma
+  //   projectAllocationTarget: 2,
+  //   projectAllocationUpperBound: 3,
+  // },
   {
     id: "12345e",
     projectAllocationTarget: 2,
