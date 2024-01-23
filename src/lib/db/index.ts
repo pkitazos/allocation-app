@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { AdminLevel, PrismaClient, Role } from "@prisma/client";
 
 export const db = new PrismaClient();
 
@@ -10,3 +10,5 @@ export type CompositeUser = {
   email?: string | null | undefined;
   image?: string | null | undefined;
 };
+
+export const adminLevelOrd = Object.values(AdminLevel);
