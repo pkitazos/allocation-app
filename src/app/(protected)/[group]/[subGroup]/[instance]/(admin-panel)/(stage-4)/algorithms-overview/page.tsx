@@ -50,13 +50,13 @@ export default async function Page({ params }: { params: instanceParams }) {
             algorithm={GreedyGenAlgorithm}
           />
           {customAlgs.map((alg, i) => (
-            // TODO: display configuration instead of description
             // TODO: add ability to delete custom algorithms
             <RunAlgorithmButton
               key={i}
               params={params}
               matchingData={matchingData}
               algorithm={alg}
+              custom
             />
           ))}
           <NewAlgorithmButton params={params} takenNames={takenNames} />
