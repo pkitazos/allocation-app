@@ -110,4 +110,50 @@ export const preferenceRouter = createTRPCRouter({
         return preference ? preference.type : "None";
       },
     ),
+
+  getLists: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const res = await ctx.db.preference.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: ctx.session.user.id,
+          },
+          select: {
+            project: { select: { id: true, title: true } },
+            rank: true,
+            type: true,
+          },
+        });
+
+        const data: Record<
+          PreferenceType,
+          {
+            rank: number;
+            project: {
+              id: string;
+              title: string;
+            };
+          }[]
+        > = {
+          PREFERENCE: [],
+          SHORTLIST: [],
+        };
+
+        res.forEach(({ type, ...rest }) => {
+          if (type === PreferenceType.PREFERENCE) data.PREFERENCE.push(rest);
+          if (type === PreferenceType.SHORTLIST) data.SHORTLIST.push(rest);
+        });
+
+        return data;
+      },
+    ),
 });

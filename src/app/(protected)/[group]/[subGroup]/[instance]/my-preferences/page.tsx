@@ -1,9 +1,13 @@
-import { ClientSection } from "./client-section";
-import { db } from "@/lib/db";
 import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
+import { api } from "@/lib/trpc/server";
+import { instanceParams } from "@/lib/validations/params";
 
-export default async function Page() {
+import { MutationButton } from "./mutation-button";
+import { Button } from "@/components/ui/button";
+import { PreferenceType } from "@prisma/client";
+
+export default async function Page({ params }: { params: instanceParams }) {
   const session = await auth();
 
   if (session && session.user.role !== "STUDENT") {
@@ -12,21 +16,8 @@ export default async function Page() {
     );
   }
 
-  const studentId = "636d1a57-8ffb-4535-a43a-8a5536245bc1";
-
-  const preferences = await db.preference.findMany({
-    where: { studentId },
-    select: {
-      project: { select: { id: true, title: true } },
-    },
-  });
-
-  const shortlist = await db.shortlist.findMany({
-    where: { studentId },
-    select: {
-      project: { select: { id: true, title: true } },
-    },
-  });
+  const { PREFERENCE: preferences, SHORTLIST: shortlist } =
+    await api.user.student.preference.getLists.query({ params });
 
   return (
     <>
@@ -35,11 +26,66 @@ export default async function Page() {
           <h1 className="text-5xl text-accent-foreground">Preferences</h1>
         </div>
         <section className="grid grid-cols-2 gap-6 pt-14">
-          <ClientSection
-            studentId={studentId}
-            preferences={preferences}
-            shortlist={shortlist}
-          />
+          <div className="flex h-max min-h-[50dvh] flex-col gap-4 rounded-md bg-accent/50 px-6 py-5">
+            <h2 className="text-xl font-semibold text-primary underline decoration-2 underline-offset-2">
+              Preferences
+            </h2>
+            {preferences.map(({ project: { id: projectId, title } }) => (
+              <p
+                key={projectId}
+                className="flex flex-col gap-3 rounded-md bg-slate-200 px-4 py-3 font-medium"
+              >
+                {title}
+                <div className="flex justify-end gap-4">
+                  <a href={`projects/${projectId}`}>
+                    <Button variant="link" size="sm">
+                      view
+                    </Button>
+                  </a>
+                  <MutationButton
+                    params={params}
+                    projectId={projectId}
+                    updatedStatus={PreferenceType.SHORTLIST}
+                  >
+                    make shortlist
+                  </MutationButton>
+                  <MutationButton params={params} projectId={projectId}>
+                    remove
+                  </MutationButton>
+                </div>
+              </p>
+            ))}
+          </div>
+          <div className="flex h-max min-h-[50dvh] flex-col gap-4 rounded-md bg-accent/50 px-6 py-5">
+            <h2 className="text-xl font-semibold text-primary underline decoration-2 underline-offset-2">
+              Shortlist
+            </h2>
+            {shortlist.map(({ project: { id: projectId, title } }) => (
+              <p
+                key={projectId}
+                className="flex flex-col gap-3 rounded-md bg-slate-200 px-4 py-3 font-medium"
+              >
+                {title}
+                <div className="flex justify-end gap-4">
+                  <a href={`projects/${projectId}`}>
+                    <Button variant="link" size="sm">
+                      view
+                    </Button>
+                  </a>
+                  <MutationButton
+                    params={params}
+                    projectId={projectId}
+                    updatedStatus={PreferenceType.PREFERENCE}
+                  >
+                    make preference
+                  </MutationButton>
+                  <MutationButton params={params} projectId={projectId}>
+                    remove
+                  </MutationButton>
+                </div>
+              </p>
+            ))}
+          </div>
         </section>
       </div>
     </>
