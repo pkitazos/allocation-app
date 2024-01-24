@@ -183,11 +183,6 @@ export const supervisorData = [
 ];
 
 export const supervisorInInstanceData = [
-  // {
-  //   id: "clrpi3ly90009wuaz4tw9wq0m", // TODO: grab from prisma
-  //   projectAllocationTarget: 2,
-  //   projectAllocationUpperBound: 3,
-  // },
   {
     id: "12345e",
     projectAllocationTarget: 2,
