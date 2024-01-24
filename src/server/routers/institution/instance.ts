@@ -82,7 +82,6 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        // TODO: update selection to filter out shortlist items
         const studentData = await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
@@ -92,6 +91,7 @@ export const instanceRouter = createTRPCRouter({
           select: {
             userId: true,
             studentPreferences: {
+              where: { type: { equals: "PREFERENCE" } },
               select: { projectId: true, rank: true },
               orderBy: { rank: "asc" },
             },
