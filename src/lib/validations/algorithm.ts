@@ -50,8 +50,8 @@ export const algorithmSchema = z.object({
   displayName: z.string(),
   description: z.string(),
   flag1: z.nativeEnum(AlgorithmFlag),
-  flag2: z.nativeEnum(AlgorithmFlag).optional(),
-  flag3: z.nativeEnum(AlgorithmFlag).optional(),
+  flag2: z.nativeEnum(AlgorithmFlag).nullable(),
+  flag3: z.nativeEnum(AlgorithmFlag).nullable(),
 });
 
 export type Algorithm = z.infer<typeof algorithmSchema>;

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import {
   ServerResponse,
-  algorithmFlagSchema,
+  algorithmSchema,
   builtInAlgSchema,
   serverResponseSchema,
 } from "@/lib/validations/algorithm";
@@ -199,20 +199,16 @@ export const instanceRouter = createTRPCRouter({
 
   createAlgorithm: adminProcedure
     .input(
-      z.object({
-        params: instanceParamsSchema,
-        name: z.string(),
-        flag1: algorithmFlagSchema,
-        flag2: algorithmFlagSchema.optional(),
-        flag3: algorithmFlagSchema.optional(),
-      }),
+      algorithmSchema
+        .pick({ algName: true, flag1: true, flag2: true, flag3: true })
+        .extend({ params: instanceParamsSchema }),
     )
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
-          name,
+          algName,
           flag1,
           flag2,
           flag3,
@@ -220,8 +216,8 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.algorithm.create({
           data: {
-            algName: name,
-            displayName: name,
+            algName,
+            displayName: algName,
             description: "description",
             flag1,
             flag2,

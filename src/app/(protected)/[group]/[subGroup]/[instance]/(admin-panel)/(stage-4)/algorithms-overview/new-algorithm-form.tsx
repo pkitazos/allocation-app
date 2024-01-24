@@ -57,8 +57,9 @@ export function NewAlgorithmForm({
   const { mutateAsync: createAlgorithmAsync } =
     api.institution.instance.createAlgorithm.useMutation();
 
+  // TODO: derive this from existing algorithmSchema
   const FormSchema = z.object({
-    algorithmName: z
+    algName: z
       .string({
         required_error: "Please select an Algorithm Name",
       })
@@ -69,8 +70,8 @@ export function NewAlgorithmForm({
         return !setOfNames.has(item);
       }, "This name is already taken"),
     flag1: algorithmFlagSchema,
-    flag2: algorithmFlagSchema.optional(),
-    flag3: algorithmFlagSchema.optional(),
+    flag2: algorithmFlagSchema.nullable(),
+    flag3: algorithmFlagSchema.nullable(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -78,11 +79,11 @@ export function NewAlgorithmForm({
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const { algorithmName, flag1, flag2, flag3 } = data;
+    const { algName, flag1, flag2, flag3 } = data;
     toast.promise(
       createAlgorithmAsync({
         params,
-        name: algorithmName,
+        algName,
         flag1,
         flag2,
         flag3,
@@ -99,7 +100,6 @@ export function NewAlgorithmForm({
     console.log(data);
   }
 
-  // TODO: don't allow for duplicate flag selection
   return (
     <Form {...form}>
       <form
@@ -108,7 +108,7 @@ export function NewAlgorithmForm({
       >
         <FormField
           control={form.control}
-          name="algorithmName"
+          name="algName"
           render={({ field }) => (
             <FormItem>
               <FormControl>

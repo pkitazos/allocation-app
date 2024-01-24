@@ -77,12 +77,16 @@ function Flags({ algorithm }: { algorithm: Algorithm }) {
       <Badge variant="outline" className="">
         {algorithm.flag1}
       </Badge>
-      <Badge variant="outline" className="">
-        {algorithm.flag2}
-      </Badge>
-      <Badge variant="outline" className="">
-        {algorithm.flag3}
-      </Badge>
+      {algorithm.flag2 && (
+        <Badge variant="outline" className="">
+          {algorithm.flag2}
+        </Badge>
+      )}
+      {algorithm.flag3 && (
+        <Badge variant="outline" className="">
+          {algorithm.flag3}
+        </Badge>
+      )}
     </div>
   );
 }
