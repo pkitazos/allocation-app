@@ -51,12 +51,14 @@ model UserInInstance {
     allocationSubGroupId      String                      @map("allocation_sub_group_id")
     allocationInstanceId      String                      @map("allocation_instance_id")
     // ---
+    studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
+    // TODO: figure out why this breaks the seed script
+    // allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id]) 
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")
     supervisorProjects        Project[]
     studentInstanceDetails    StudentInstanceDetails[]
     studentFlags              FlagOnStudent[]
     studentPreferences        Preference[]
-    studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
 
     @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -107,6 +109,8 @@ model AllocationInstance {
     // has many
     projects             Project[]
     algorithms           Algorithm[]
+    // TODO: figure out why this breaks the seed script
+    // users                UserInInstance[]
 
     @@id([allocationGroupId, allocationSubGroupId, id])
 }
