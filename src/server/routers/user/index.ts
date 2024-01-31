@@ -7,11 +7,36 @@ import {
 import { z } from "zod";
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
+import { instanceParamsSchema } from "@/lib/validations/params";
+import { Role } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,
   supervisor: supervisorRouter,
 
+  role: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const user = ctx.session.user;
+        const userInInstance = await ctx.db.userInInstance.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: user.id,
+          },
+        });
+
+        if (!userInInstance) return Role.ADMIN;
+        return userInInstance.role;
+      },
+    ),
   adminPanelRoute: publicProcedure
     .output(z.string().optional())
     .query(async ({ ctx }) => {
