@@ -11,4 +11,12 @@ export type CompositeUser = {
   image?: string | null | undefined;
 };
 
-export const adminLevelOrd = Object.values(AdminLevel);
+export const adminLevelOrd = {
+  [AdminLevel.SUPER]: 3,
+  [AdminLevel.GROUP]: 2,
+  [AdminLevel.SUB_GROUP]: 1,
+} as const;
+
+export function permissionCheck(level: AdminLevel, minimumLevel: AdminLevel) {
+  return adminLevelOrd[level] >= adminLevelOrd[minimumLevel];
+}

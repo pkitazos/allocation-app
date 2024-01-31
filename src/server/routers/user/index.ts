@@ -1,4 +1,4 @@
-import { adminLevelOrd } from "@/lib/db";
+import { permissionCheck } from "@/lib/db";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -39,9 +39,8 @@ export const userRouter = createTRPCRouter({
         adminLevel,
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
-      } = adminSpaces.sort(
-        ({ adminLevel: a }, { adminLevel: b }) =>
-          adminLevelOrd.indexOf(b) - adminLevelOrd.indexOf(a),
+      } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
+        permissionCheck(a, b) ? 1 : 0,
       )[0];
 
       if (adminLevel === "SUPER") return "/admin";
@@ -75,9 +74,8 @@ export const userRouter = createTRPCRouter({
         adminLevel: adminLevel,
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
-      } = adminSpaces.sort(
-        ({ adminLevel: a }, { adminLevel: b }) =>
-          adminLevelOrd.indexOf(b) - adminLevelOrd.indexOf(a),
+      } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
+        permissionCheck(a, b) ? 1 : 0,
       )[0];
 
       if (adminLevel === "SUPER") {

@@ -1,16 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const session = await auth();
+  const access = await api.institution.spaceMembership.query({ params });
 
-  // TODO: add persmission level check
-  if (session && session.user.role !== "ADMIN") {
+  if (!access) {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );
