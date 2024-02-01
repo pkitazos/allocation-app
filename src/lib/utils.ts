@@ -1,5 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { instanceParams } from "./validations/params";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -28,4 +29,9 @@ export function groupBy<
     },
     {} as Record<T[K], T[]>,
   );
+}
+
+export function getInstancePath(instanceParams: instanceParams) {
+  const { group, subGroup, instance } = instanceParams;
+  return `/${group}/${subGroup}/${instance}`;
 }

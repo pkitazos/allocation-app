@@ -1,46 +1,42 @@
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { z } from "zod";
 import { preferenceRouter } from "./preference";
+import { instanceParamsSchema } from "@/lib/validations/params";
 
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
 
-  getById: publicProcedure
-    .input(z.object({ studentId: z.string() }))
-    .query(async ({ ctx, input: { studentId } }) => {
-      return await ctx.db.student.findFirstOrThrow({
-        where: {
-          id: studentId,
+  allocatedProject: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
         },
-      });
-    }),
-
-  getAllPreferences: publicProcedure
-    .input(z.object({ studentId: z.string() }))
-    .query(async ({ ctx, input: { studentId } }) => {
-      return await ctx.db.student.findFirstOrThrow({
-        where: { id: studentId },
-        include: {
-          preferences: {
-            orderBy: {
-              rank: "asc",
+      }) => {
+        const user = ctx.session.user;
+        return await ctx.db.projectAllocation.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: user.id,
+          },
+          select: {
+            studentRanking: true,
+            project: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                supervisor: {
+                  select: { user: { select: { name: true, id: true } } },
+                },
+              },
             },
           },
-        },
-      });
-    }),
-
-  getMyInstances: publicProcedure
-    .input(z.object({ studentId: z.string() }))
-    .query(async ({ ctx, input: { studentId } }) => {
-      const data = await ctx.db.studentInInstance.findMany({
-        where: {
-          studentId,
-        },
-        include: {
-          allocationInstance: true,
-        },
-      });
-      return data.map((item) => item.allocationInstance);
-    }),
+        });
+      },
+    ),
 });

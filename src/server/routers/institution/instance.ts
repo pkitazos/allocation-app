@@ -296,7 +296,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  currentStage: adminProcedure
+  currentStage: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -523,10 +523,13 @@ export const instanceRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
           },
+          // ! currently selects all users not just students
           select: {
             student: {
               select: {
-                user: { select: { id: true, name: true, email: true } },
+                user: {
+                  select: { id: true, name: true, email: true },
+                },
               },
             },
             project: {
