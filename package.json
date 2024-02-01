@@ -9,6 +9,7 @@
     "lint": "next lint",
     "tc": "tsc",
     "postinstall": "prisma generate",
+    "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:reset": "prisma db push --force-reset --skip-generate",
