@@ -1,9 +1,30 @@
 import { slugify } from "@/lib/utils";
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { subGroupParamsSchema } from "@/lib/validations/params";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { z } from "zod";
 
 export const subGroupRouter = createTRPCRouter({
+  // access: protectedProcedure
+  //   .input(z.object({ params: subGroupParamsSchema }))
+  //   .query(
+  //     async ({
+  //       ctx,
+  //       input: {
+  //         params: { group, subGroup },
+  //       },
+  //     }) => {
+  //       const access = await ctx.db.adminInSpace.findFirst({
+  //         where: {
+  //           allocationGroupId: group,
+  //           allocationSubGroupId: subGroup,
+  //           userId: ctx.session.user.id,
+  //         },
+  //         select: { adminLevel: true },
+  //       });
+  //       return access;
+  //     },
+  //   ),
+
   instanceManagement: adminProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(
@@ -16,21 +37,26 @@ export const subGroupRouter = createTRPCRouter({
         const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
           where: {
             allocationGroupId: group,
-            slug: subGroup,
+            id: subGroup,
           },
           select: {
             displayName: true,
             allocationInstances: true,
             subGroupAdmins: {
-              select: {
-                name: true,
-                email: true,
-              },
+              select: { user: { select: { name: true, email: true } } },
             },
           },
         });
-        const admin = ctx.session.user.role!;
-        return { admin, ...data };
+
+        const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            userId: ctx.session.user.id,
+          },
+          select: { adminLevel: true },
+        });
+        return { adminLevel, ...data };
       },
     ),
 
@@ -46,7 +72,7 @@ export const subGroupRouter = createTRPCRouter({
         const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
           where: {
             allocationGroupId: group,
-            slug: subGroup,
+            id: subGroup,
           },
           select: {
             allocationInstances: {
@@ -78,7 +104,7 @@ export const subGroupRouter = createTRPCRouter({
         await ctx.db.allocationInstance.create({
           data: {
             displayName: name,
-            slug: slugify(name),
+            id: slugify(name),
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
           },

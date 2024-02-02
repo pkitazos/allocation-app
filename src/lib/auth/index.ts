@@ -43,7 +43,7 @@ export const {
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        role: userRole?.role ?? "UNREGISTERED",
+        role: userRole?.role,
       };
     },
 

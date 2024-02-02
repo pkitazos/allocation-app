@@ -1,7 +1,7 @@
-import { slugify } from "@/lib/utils";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { groupParamsSchema } from "@/lib/validations/params";
 import { z } from "zod";
+import { slugify } from "@/lib/utils";
 
 export const groupRouter = createTRPCRouter({
   subGroupManagement: adminProcedure
@@ -14,20 +14,24 @@ export const groupRouter = createTRPCRouter({
         },
       }) => {
         const data = await ctx.db.allocationGroup.findFirstOrThrow({
-          where: { slug: group },
+          where: { id: group },
           select: {
             displayName: true,
             allocationSubGroups: true,
             groupAdmins: {
-              select: {
-                name: true,
-                email: true,
-              },
+              select: { user: { select: { name: true, email: true } } },
             },
           },
         });
-        const admin = ctx.session.user.role!;
-        return { admin, ...data };
+
+        const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            userId: ctx.session.user.id,
+          },
+          select: { adminLevel: true },
+        });
+        return { adminLevel, ...data };
       },
     ),
 
@@ -41,7 +45,7 @@ export const groupRouter = createTRPCRouter({
         },
       }) => {
         const data = await ctx.db.allocationGroup.findFirstOrThrow({
-          where: { slug: group },
+          where: { id: group },
           select: {
             allocationSubGroups: { select: { displayName: true } },
           },
@@ -63,7 +67,7 @@ export const groupRouter = createTRPCRouter({
         await ctx.db.allocationSubGroup.create({
           data: {
             displayName: name,
-            slug: slugify(name),
+            id: slugify(name),
             allocationGroupId: group,
           },
         });

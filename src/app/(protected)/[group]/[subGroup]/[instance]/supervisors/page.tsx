@@ -9,9 +9,7 @@ export default async function Page({ params }: { params: instanceParams }) {
 
   if (
     session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN" &&
+    session.user.role !== "ADMIN" &&
     session.user.role !== "SUPERVISOR"
   ) {
     return <Unauthorised message="You don't have access to this page" />;

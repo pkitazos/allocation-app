@@ -12,13 +12,13 @@ import { RunAlgorithmButton } from "./run-algorithm-button";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const { matchingData, selectedAlgName } =
-    await api.institution.instance.matchingData.query({ params });
+    await api.institution.instance.matching.data.query({ params });
 
-  const takenNames = await api.institution.instance.takenAlgorithmNames.query({
+  const takenNames = await api.institution.instance.algorithm.takenNames.query({
     params,
   });
 
-  const customAlgs = await api.institution.instance.customAlgs.query({
+  const customAlgs = await api.institution.instance.algorithm.customAlgs.query({
     params,
   });
 
@@ -50,13 +50,13 @@ export default async function Page({ params }: { params: instanceParams }) {
             algorithm={GreedyGenAlgorithm}
           />
           {customAlgs.map((alg, i) => (
-            // TODO: display configuration instead of description
             // TODO: add ability to delete custom algorithms
             <RunAlgorithmButton
               key={i}
               params={params}
               matchingData={matchingData}
               algorithm={alg}
+              custom
             />
           ))}
           <NewAlgorithmButton params={params} takenNames={takenNames} />

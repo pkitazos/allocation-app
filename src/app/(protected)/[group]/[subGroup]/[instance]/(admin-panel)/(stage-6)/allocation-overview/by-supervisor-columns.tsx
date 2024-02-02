@@ -2,24 +2,23 @@ import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-col
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface SupervisorData {
-  student: {
-    id: string;
-  };
   project: {
     id: string;
     title: string;
     supervisor: {
-      id: string;
-      name: string;
-      email: string;
-      // * to prevent this from being an array the db needs to be further denormalised
-      supervisorInInstance: {
+      user: {
+        id: string;
+        name: string | null;
+        email: string | null;
+      };
+      supervisorInstanceDetails: {
         projectAllocationLowerBound: number;
         projectAllocationTarget: number;
         projectAllocationUpperBound: number;
       }[];
     };
   };
+  userId: string;
   studentRanking: number;
 }
 [];
@@ -27,21 +26,21 @@ export interface SupervisorData {
 export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
   {
     id: "supervisorId",
-    accessorFn: ({ project }) => project.supervisor.id,
+    accessorFn: ({ project }) => project.supervisor.user.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor ID" />
     ),
   },
   {
     id: "supervisorName",
-    accessorFn: ({ project }) => project.supervisor.name,
+    accessorFn: ({ project }) => project.supervisor.user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),
   },
   {
     id: "supervisorEmail",
-    accessorFn: ({ project }) => project.supervisor.email,
+    accessorFn: ({ project }) => project.supervisor.user.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Email" />
     ),
@@ -49,7 +48,7 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
   {
     id: "supervisorLowerBound",
     accessorFn: ({ project: { supervisor } }) =>
-      supervisor.supervisorInInstance[0].projectAllocationLowerBound,
+      supervisor.supervisorInstanceDetails[0].projectAllocationLowerBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Lower Bound" />
     ),
@@ -57,7 +56,7 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
   {
     id: "supervisorTarget",
     accessorFn: ({ project: { supervisor } }) =>
-      supervisor.supervisorInInstance[0].projectAllocationTarget,
+      supervisor.supervisorInstanceDetails[0].projectAllocationTarget,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Target" />
     ),
@@ -65,7 +64,7 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
   {
     id: "supervisorUpperBound",
     accessorFn: ({ project: { supervisor } }) =>
-      supervisor.supervisorInInstance[0].projectAllocationUpperBound,
+      supervisor.supervisorInstanceDetails[0].projectAllocationUpperBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Upper bound" />
     ),
@@ -79,7 +78,7 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
   },
   {
     id: "studentId",
-    accessorFn: ({ student }) => student.id,
+    accessorFn: ({ userId }) => userId,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),

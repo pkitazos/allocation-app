@@ -1,93 +1,159 @@
-import { createTRPCRouter, publicProcedure } from "@/server/trpc";
+import { instanceParamsSchema } from "@/lib/validations/params";
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import { PreferenceType } from "@prisma/client";
 import { z } from "zod";
 
 export const preferenceRouter = createTRPCRouter({
-  add: publicProcedure
-    .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
-      const { _max: currentMax } = await ctx.db.preference.aggregate({
-        _max: {
-          rank: true,
-        },
-      });
-
-      return await ctx.db.preference.create({
-        data: {
-          projectId,
-          studentId,
-          rank: (currentMax.rank ?? 0) + 1,
-        },
-      });
-    }),
-
-  remove: publicProcedure
-    .input(z.object({ projectId: z.string(), studentId: z.string() }))
-    .mutation(async ({ ctx, input: { projectId, studentId } }) => {
-      await ctx.db.preference.delete({
-        where: {
-          projectId_studentId: {
-            projectId,
-            studentId,
-          },
-        },
-      });
-    }),
-
-  addfromShortlist: publicProcedure
+  update: protectedProcedure
     .input(
       z.object({
+        params: instanceParamsSchema,
         projectId: z.string(),
-        studentId: z.string(),
-        rank: z.number(),
+        preferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
       }),
     )
-    .mutation(async ({ ctx, input: { projectId, studentId, rank } }) => {
-      await ctx.db.shortlist.delete({
-        where: {
-          projectId_studentId: {
-            projectId,
-            studentId,
-          },
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          projectId,
+          preferenceType,
         },
-      });
+      }) => {
+        const userId = ctx.session.user.id;
 
-      if (rank === -1) {
-        const { _max: currentMax } = await ctx.db.preference.aggregate({
-          _max: {
-            rank: true,
+        if (preferenceType === "None") {
+          await ctx.db.preference.delete({
+            where: {
+              projectId_userId_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+                {
+                  allocationGroupId: group,
+                  allocationSubGroupId: subGroup,
+                  allocationInstanceId: instance,
+                  projectId,
+                  userId,
+                },
+            },
+          });
+          return;
+        }
+
+        const currentPreference = await ctx.db.preference.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            projectId,
+            userId,
           },
         });
-        rank = (currentMax.rank ?? 0) + 1;
-      }
 
-      return await ctx.db.preference.create({
-        data: {
-          projectId,
-          studentId,
-          rank,
-        },
-      });
-    }),
+        if (!currentPreference) {
+          await ctx.db.preference.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId,
+              type: preferenceType,
+              rank: 0,
+            },
+          });
+          return;
+        }
 
-  rerank: publicProcedure
+        await ctx.db.preference.update({
+          where: {
+            projectId_userId_allocationGroupId_allocationSubGroupId_allocationInstanceId:
+              {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                projectId,
+                userId,
+              },
+          },
+          data: { type: preferenceType, rank: 0 },
+        });
+        return;
+      },
+    ),
+
+  getForProject: protectedProcedure
     .input(
       z.object({
+        params: instanceParamsSchema,
         projectId: z.string(),
-        studentId: z.string(),
-        rank: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input: { projectId, studentId, rank } }) => {
-      return await ctx.db.preference.update({
-        where: {
-          projectId_studentId: {
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          projectId,
+        },
+      }) => {
+        const preference = await ctx.db.preference.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
             projectId,
-            studentId,
+            userId: ctx.session.user.id,
           },
+          select: { type: true },
+        });
+
+        return preference ? preference.type : "None";
+      },
+    ),
+
+  getLists: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
         },
-        data: {
-          rank,
-        },
-      });
-    }),
+      }) => {
+        const res = await ctx.db.preference.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: ctx.session.user.id,
+          },
+          select: {
+            project: { select: { id: true, title: true } },
+            rank: true,
+            type: true,
+          },
+        });
+
+        const data: Record<
+          PreferenceType,
+          {
+            rank: number;
+            project: {
+              id: string;
+              title: string;
+            };
+          }[]
+        > = {
+          PREFERENCE: [],
+          SHORTLIST: [],
+        };
+
+        res.forEach(({ type, ...rest }) => {
+          if (type === PreferenceType.PREFERENCE) data.PREFERENCE.push(rest);
+          if (type === PreferenceType.SHORTLIST) data.SHORTLIST.push(rest);
+        });
+
+        return data;
+      },
+    ),
 });

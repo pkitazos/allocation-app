@@ -10,11 +10,21 @@ export async function UserInstances() {
       <h2 className="mb-10 text-xl font-semibold underline decoration-secondary decoration-4">
         Your instances
       </h2>
-      {instances.map((instance, i) => (
-        <Button className="h-24 w-48" key={i} variant="outline" size="lg">
-          <Link href="">{instance.allocationInstanceId}</Link>
-        </Button>
-      ))}
+      <div className="flex gap-3">
+        {instances.map(({ group, subGroup, instance }, i) => (
+          <Link href={`/${group.id}/${subGroup.id}/${instance.id}`} key={i}>
+            <Button
+              className="flex h-max flex-col items-start gap-1 py-4"
+              variant="outline"
+              size="lg"
+            >
+              <p className="text-lg">{group.displayName}</p>
+              <p>{subGroup.displayName}</p>
+              <p>{instance.displayName}</p>
+            </Button>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,12 +1,11 @@
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
-import { slugify } from "@/lib/utils";
+import { getInstancePath, slugify } from "@/lib/utils";
 import { Stage } from "@prisma/client";
 import Link from "next/link";
+import { StageControl } from "./stage-control";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
@@ -17,26 +16,12 @@ const tabsRecord: Record<Stage, string[]> = {
   ALLOCATION_PUBLICATION: ["Allocation Overview"],
 };
 
-export default async function Layout({
+export default async function AdminPanel({
   params,
-  children,
 }: {
   params: { group: string; subGroup: string; instance: string };
-  children: React.ReactNode;
 }) {
-  const { group, subGroup, instance } = params;
-  const session = await auth();
-
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN"
-  ) {
-    return (
-      <Unauthorised message="You need to be a super-admin or group admin to access this page" />
-    );
-  }
+  const instancePath = getInstancePath(params);
 
   const stage = await api.institution.instance.currentStage.query({ params });
   const tabs = tabsRecord[stage];
@@ -46,23 +31,24 @@ export default async function Layout({
       <div className="col-span-1 mt-28 flex justify-center border-r">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
           <Button variant="outline" className="w-full" asChild>
-            <Link href={`/${group}/${subGroup}/${instance}`}>
-              Stage Control
-            </Link>
+            <Link href={instancePath}>Stage Control</Link>
           </Button>
           <Separator className="my-1 w-3/4" />
           {tabs.map((tab, i) => (
             <Button key={i} variant="outline" className="w-full" asChild>
-              <Link href={`/${group}/${subGroup}/${instance}/${slugify(tab)}`}>
-                {tab}
-              </Link>
+              <Link href={`${instancePath}/${slugify(tab)}`}>{tab}</Link>
             </Button>
           ))}
         </div>
       </div>
-      <section className="col-span-5 max-w-6xl">
-        <Heading title={instance} />
-        {children}
+      <section className="col-span-5 max-w-6xl pb-32">
+        <Heading title={params.instance} />
+        <StageControl
+          stage={stage}
+          group={params.group}
+          subGroup={params.subGroup}
+          instance={params.instance}
+        />
       </section>
     </div>
   );

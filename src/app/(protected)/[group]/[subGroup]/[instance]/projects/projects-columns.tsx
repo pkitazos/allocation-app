@@ -9,23 +9,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Role } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
 
 export interface ProjectTableData {
+  user: User & {
+    id: string;
+    role: Role | null | undefined;
+  };
   id: string;
   title: string;
   description: string;
   supervisor: {
-    id: string;
-    name: string;
+    user: {
+      id: string;
+      name: string | null;
+    };
   };
-  user: User;
 }
 
-export const columns: ColumnDef<ProjectTableData>[] = [
+export const projectColumns: ColumnDef<ProjectTableData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -63,7 +69,7 @@ export const columns: ColumnDef<ProjectTableData>[] = [
   },
   {
     id: "supervisor",
-    accessorFn: (row) => row.supervisor.name,
+    accessorFn: (row) => row.supervisor.user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor" />
     ),
@@ -92,7 +98,9 @@ export const columns: ColumnDef<ProjectTableData>[] = [
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
-            {role === "SUPER_ADMIN" && (
+            {/* // TODO: do proper checks */}
+            {/* // TODO: perhaps even move to trpc procedure */}
+            {role === "ADMIN" && (
               <DropdownMenuItem>
                 {/* // TODO: implement delete */}
                 <Button

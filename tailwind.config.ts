@@ -10,6 +10,10 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    tabSize: {
+      1: "1",
+      8: "8",
+    },
     extend: {
       screens: {
         "2xl": "1536px",
@@ -60,6 +64,15 @@ const config: Config = {
   plugins: [
     require("tailwindcss-animate"),
     plugin(function ({ addUtilities }) {
+      // matchUtilities(
+      //   {
+      //     ["-"]: (value) => ({
+      //       outline: "2px solid",
+      //       outlineColor: value,
+      //     }),
+      //   },
+      //   { type: "color", values: flattenColorPalette(theme("colors")) },
+      // );
       addUtilities({
         ".--orange-500": {
           outline: "2px solid",

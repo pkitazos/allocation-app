@@ -6,11 +6,8 @@ import { api } from "@/lib/trpc/server";
 export default async function Page({ params }: { params: { group: string } }) {
   const session = await auth();
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN"
-  ) {
+  // TODO: add persmission level check
+  if (session && session.user.role !== "ADMIN") {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );

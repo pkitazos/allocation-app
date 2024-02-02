@@ -8,14 +8,14 @@ export interface ProjectData {
     capacityLowerBound: number;
     capacityUpperBound: number;
     supervisor: {
-      id: string;
-      name: string;
+      user: {
+        id: string;
+        name: string | null;
+      };
     };
   };
-  student: {
-    id: string;
-  };
   studentRanking: number;
+  userId: string;
 }
 
 export const byProjectColumns: ColumnDef<ProjectData>[] = [
@@ -49,21 +49,21 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
   },
   {
     id: "supervisorId",
-    accessorFn: ({ project }) => project.supervisor.id,
+    accessorFn: ({ project }) => project.supervisor.user.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor ID" />
     ),
   },
   {
     id: "supervisorName",
-    accessorFn: ({ project }) => project.supervisor.name,
+    accessorFn: ({ project }) => project.supervisor.user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),
   },
   {
     id: "studentId",
-    accessorFn: ({ student }) => student.id,
+    accessorFn: ({ userId }) => userId,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student ID" />
     ),

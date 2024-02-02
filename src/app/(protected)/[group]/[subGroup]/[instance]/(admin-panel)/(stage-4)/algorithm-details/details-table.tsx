@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ServerResponse } from "@/lib/validations/algorithm";
+import { ServerResponse } from "@/lib/validations/matching";
 
 export function DetailsTable({ data }: { data: ServerResponse }) {
   return (

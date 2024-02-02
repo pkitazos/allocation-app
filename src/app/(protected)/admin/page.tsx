@@ -34,7 +34,7 @@ export default async function Page() {
 
         <div className="grid w-full grid-cols-3 gap-6">
           {groups.map((group, i) => (
-            <Link className="col-span-1" href={`/${group.slug}`} key={i}>
+            <Link className="col-span-1" href={`/${group.id}`} key={i}>
               <Button
                 className="h-20 w-full text-base font-semibold"
                 variant="outline"

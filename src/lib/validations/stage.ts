@@ -9,3 +9,7 @@ export const stageSchema = z.enum([
   Stage.ALLOCATION_ADJUSTMENT,
   Stage.ALLOCATION_PUBLICATION,
 ]);
+
+export const supervisorStages: Stage[] = [Stage.SETUP];
+
+export const studentStages: Stage[] = [Stage.SETUP, Stage.PROJECT_SUBMISSION];
