@@ -1,4 +1,4 @@
-import { AdminLevel, Role, Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { instanceParamsSchema } from "@/lib/validations/params";
@@ -11,6 +11,8 @@ import {
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -18,51 +20,34 @@ export const instanceRouter = createTRPCRouter({
 
   access: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
+    .query(async ({ ctx, input: { params } }) => {
+      const user = ctx.session.user;
+
+      const superAdmin = await isSuperAdmin(ctx.db, user.id);
+      if (superAdmin) return true;
+
+      const adminInSpace = await isAdminInSpace(ctx.db, user.id, params);
+      if (adminInSpace) return true;
+
+      const stage = ctx.stage;
+      const { group, subGroup, instance } = params;
+
+      const { role } = await ctx.db.userInInstance.findFirstOrThrow({
+        where: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
+          userId: user.id,
         },
-      }) => {
-        const user = ctx.session.user;
+        select: { role: true },
+      });
 
-        // if super-admin
-        const superAdmin = await ctx.db.adminInSpace.findFirst({
-          where: { userId: ctx.session.user.id, adminLevel: AdminLevel.SUPER },
-          select: { adminLevel: true },
-        });
-        if (superAdmin) return true;
+      if (role === Role.SUPERVISOR) return !supervisorStages.includes(stage);
 
-        // if admin
-        const adminInSpace = await ctx.db.adminInSpace.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            userId: user.id,
-          },
-        });
-        if (adminInSpace) return true;
+      if (role === Role.STUDENT) return !studentStages.includes(stage);
 
-        // if not admin
-        const stage = ctx.stage;
-        const { role } = await ctx.db.userInInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: user.id,
-          },
-          select: { role: true },
-        });
-
-        if (role === Role.SUPERVISOR) return !supervisorStages.includes(stage);
-
-        if (role === Role.STUDENT) return !studentStages.includes(stage);
-
-        return true;
-      },
-    ),
+      return true;
+    }),
 
   currentStage: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

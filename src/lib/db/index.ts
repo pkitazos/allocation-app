@@ -16,7 +16,3 @@ export const adminLevelOrd = {
   [AdminLevel.GROUP]: 2,
   [AdminLevel.SUB_GROUP]: 1,
 } as const;
-
-export function permissionCheck(level: AdminLevel, minimumLevel: AdminLevel) {
-  return adminLevelOrd[level] >= adminLevelOrd[minimumLevel];
-}

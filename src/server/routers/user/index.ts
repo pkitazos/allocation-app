@@ -1,4 +1,4 @@
-import { permissionCheck } from "@/lib/db";
+import { permissionCheck } from "@/lib/utils/permission-check";
 import {
   createTRPCRouter,
   protectedProcedure,

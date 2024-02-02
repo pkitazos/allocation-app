@@ -9,9 +9,9 @@ export const subGroupParamsSchema = z.object({
   subGroup: z.string(),
 });
 
-export const spaceParamSchema = groupParamsSchema.or(subGroupParamsSchema);
+export const spaceParamsSchema = groupParamsSchema.or(subGroupParamsSchema);
 
-export type SpaceParam = z.infer<typeof spaceParamSchema>;
+export type SpaceParams = z.infer<typeof spaceParamsSchema>;
 
 export const instanceParamsSchema = z.object({
   group: z.string(),
