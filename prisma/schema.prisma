@@ -226,7 +226,7 @@ model FlagOnStudent {
     // virtual fields
     flag                 Flag                   @relation(fields: [flagId], references: [id])
     studentDetails       StudentInstanceDetails @relation(map: "flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-    UserInInstance       UserInInstance         @relation(map: "userFlags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    UserInInstance       UserInInstance         @relation(map: "user_flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 
     @@id([flagId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
