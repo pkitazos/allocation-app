@@ -1,4 +1,4 @@
-import { Role, Stage } from "@prisma/client";
+import { AdminLevel, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { instanceParamsSchema } from "@/lib/validations/params";
@@ -27,6 +27,14 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         const user = ctx.session.user;
 
+        // if super-admin
+        const superAdmin = await ctx.db.adminInSpace.findFirst({
+          where: { userId: ctx.session.user.id, adminLevel: AdminLevel.SUPER },
+          select: { adminLevel: true },
+        });
+        if (superAdmin) return true;
+
+        // if admin
         const adminInSpace = await ctx.db.adminInSpace.findFirst({
           where: {
             allocationGroupId: group,
@@ -36,6 +44,7 @@ export const instanceRouter = createTRPCRouter({
         });
         if (adminInSpace) return true;
 
+        // if not admin
         const stage = ctx.stage;
         const { role } = await ctx.db.userInInstance.findFirstOrThrow({
           where: {

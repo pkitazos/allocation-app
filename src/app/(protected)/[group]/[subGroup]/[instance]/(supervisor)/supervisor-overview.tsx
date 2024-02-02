@@ -1,7 +1,5 @@
-export function SupervisorOverview({
-  params,
-}: {
-  params: { group: string; subGroup: string; instance: string };
-}) {
+import { instanceParams } from "@/lib/validations/params";
+
+export function SupervisorOverview({ params }: { params: instanceParams }) {
   return <>add supervisor details here</>;
 }

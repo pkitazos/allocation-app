@@ -7,18 +7,15 @@ import { toast } from "sonner";
 import { StageButton } from "@/components/stage-button";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
+import { instanceParams } from "@/lib/validations/params";
 import { stageSchema } from "@/lib/validations/stage";
 
 // TODO: change to combined instance params
 export function StageControl({
-  group,
-  subGroup,
-  instance,
+  params,
   stage,
 }: {
-  group: string;
-  subGroup: string;
-  instance: string;
+  params: instanceParams;
   stage: Stage;
 }) {
   const stages = stageSchema.options;
@@ -31,7 +28,7 @@ export function StageControl({
   const handleConfirmation = (idx: number) => {
     toast.promise(
       mutateAsync({
-        params: { group, subGroup, instance },
+        params,
         stage: stages[idx - 1],
       }).then(() => {
         setSelectedIdx(-1);
@@ -47,8 +44,8 @@ export function StageControl({
   };
 
   return (
-    <div className="mx-16 mt-20 flex justify-between px-6">
-      <ol className="flex flex-col gap-10">
+    <div className="mx-16 mt-12 flex justify-between px-6">
+      <ol className="flex flex-col gap-7">
         <StageButton
           title="Setup"
           num={1}

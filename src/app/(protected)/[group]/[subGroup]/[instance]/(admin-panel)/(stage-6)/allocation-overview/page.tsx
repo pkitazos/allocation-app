@@ -4,12 +4,9 @@ import { api } from "@/lib/trpc/server";
 import { ByProjectDataTable } from "./by-project-data-table";
 import { ByStudentDataTable } from "./by-student-data-table";
 import { BySupervisorDataTable } from "./by-supervisor-data-table";
+import { instanceParams } from "@/lib/validations/params";
 
-export default async function Page({
-  params,
-}: {
-  params: { group: string; subGroup: string; instance: string };
-}) {
+export default async function Page({ params }: { params: instanceParams }) {
   const { byStudent, byProject, bySupervisor } =
     await api.institution.instance.projectAllocations.query({ params });
 

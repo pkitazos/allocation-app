@@ -1,7 +1,5 @@
-export function StudentOverview({
-  params,
-}: {
-  params: { group: string; subGroup: string; instance: string };
-}) {
+import { instanceParams } from "@/lib/validations/params";
+
+export function StudentOverview({ params }: { params: instanceParams }) {
   return <>add student details here</>;
 }
