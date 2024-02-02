@@ -1,10 +1,21 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import { instanceParamsSchema } from "@/lib/validations/params";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  stageAwareProcedure,
+} from "@/server/trpc";
 import { z } from "zod";
 import { preferenceRouter } from "./preference";
-import { instanceParamsSchema } from "@/lib/validations/params";
 
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
+
+  overviewData: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx }) => {
+      const stage = ctx.stage;
+      return stage;
+    }),
 
   allocatedProject: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

@@ -9,7 +9,7 @@ export default async function Page({
   params: { group: string; subGroup: string; instance: string };
 }) {
   const { results, firstNonEmpty } =
-    await api.institution.instance.algorithmResultsGeneral.query({
+    await api.institution.instance.algorithm.allResults.query({
       params,
     });
 

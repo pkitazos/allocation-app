@@ -27,12 +27,13 @@ export function RunAlgorithmButton({
   const utils = api.useUtils();
 
   const refetch = () =>
-    utils.institution.instance.singleAlgorithmResult.refetch({
+    utils.institution.instance.algorithm.singleResult.refetch({
       algName: algorithm.algName,
       params,
     });
 
-  const { isPending, mutateAsync } = api.algorithm.run.useMutation();
+  const { isPending, mutateAsync: runAlgAsync } =
+    api.institution.instance.algorithm.run.useMutation();
 
   const Info = custom ? Flags : Description;
 
@@ -45,7 +46,7 @@ export function RunAlgorithmButton({
         disabled={isPending}
         onClick={() =>
           toast.promise(
-            mutateAsync({ params, algorithm, matchingData }).then(refetch),
+            runAlgAsync({ params, algorithm, matchingData }).then(refetch),
             {
               loading: "Running...",
               error: "Something went wrong",

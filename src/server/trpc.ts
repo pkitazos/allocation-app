@@ -9,11 +9,12 @@
 
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Session } from "next-auth";
+import { instanceParamsSchema } from "@/lib/validations/params";
 
 /**
  * 1. CONTEXT
@@ -167,6 +168,30 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
     },
   });
 });
+
+export const stageAwareProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .input(z.object({ params: instanceParamsSchema }))
+  .use(
+    async ({
+      ctx,
+      input: {
+        params: { group, subGroup, instance },
+      },
+      next,
+    }) => {
+      const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
+        where: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          id: instance,
+        },
+        select: { stage: true },
+      });
+
+      return next({ ctx: { stage } });
+    },
+  );
 
 // const studentProcedure = t.middleware(({ctx, next}) =>{
 //   //are they a student?

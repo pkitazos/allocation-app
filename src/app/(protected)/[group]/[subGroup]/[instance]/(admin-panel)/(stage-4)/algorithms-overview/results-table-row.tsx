@@ -22,13 +22,13 @@ export function ResultsTableRow({
   setSelectedMatching: Dispatch<SetStateAction<string | undefined>>;
 }) {
   const { isLoading, data } =
-    api.institution.instance.singleAlgorithmResult.useQuery({
+    api.institution.instance.algorithm.singleResult.useQuery({
       params,
       algName,
     });
 
   const { mutateAsync: selectMatchingAsync } =
-    api.institution.instance.selectMatching.useMutation();
+    api.institution.instance.matching.select.useMutation();
 
   const handleSelection = (algName: string) => {
     toast.promise(

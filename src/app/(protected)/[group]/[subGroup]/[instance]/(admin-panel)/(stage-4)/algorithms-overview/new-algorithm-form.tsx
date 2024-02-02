@@ -55,7 +55,7 @@ export function NewAlgorithmForm({
 }) {
   const { refresh } = useRouter();
   const { mutateAsync: createAlgorithmAsync } =
-    api.institution.instance.createAlgorithm.useMutation();
+    api.institution.instance.algorithm.create.useMutation();
 
   // TODO: derive this from existing algorithmSchema
   const FormSchema = z.object({

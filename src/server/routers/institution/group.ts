@@ -23,8 +23,15 @@ export const groupRouter = createTRPCRouter({
             },
           },
         });
-        const admin = ctx.session.user.role!;
-        return { admin, ...data };
+
+        const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            userId: ctx.session.user.id,
+          },
+          select: { adminLevel: true },
+        });
+        return { adminLevel, ...data };
       },
     ),
 
