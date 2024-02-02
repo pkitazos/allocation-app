@@ -1,17 +1,21 @@
-import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
+import { Role } from "@prisma/client";
 import { ReactNode } from "react";
 
-export default async function Layout({ children }: { children: ReactNode }) {
-  const session = await auth();
+import { Unauthorised } from "@/components/unauthorised";
+import { api } from "@/lib/trpc/server";
+import { instanceParams } from "@/lib/validations/params";
 
-  if (
-    session &&
-    session.user.role !== "SUPER_ADMIN" &&
-    session.user.role !== "GROUP_ADMIN" &&
-    session.user.role !== "SUB_GROUP_ADMIN" &&
-    session.user.role !== "SUPERVISOR"
-  ) {
+export default async function Layout({
+  params,
+  children,
+}: {
+  params: instanceParams;
+  children: ReactNode;
+}) {
+  const role = await api.user.role.query({ params });
+
+  // TODO: decide if supervisors should have access to this page
+  if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );

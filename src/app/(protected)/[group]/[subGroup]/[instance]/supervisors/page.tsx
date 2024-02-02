@@ -1,17 +1,14 @@
+import { Role } from "@prisma/client";
+
 import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
 import { SupervisorsDataTable } from "./supervisors-data-table";
 
 export default async function Page({ params }: { params: instanceParams }) {
-  const session = await auth();
+  const role = await api.user.role.query({ params });
 
-  if (
-    session &&
-    session.user.role !== "ADMIN" &&
-    session.user.role !== "SUPERVISOR"
-  ) {
+  if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
     return <Unauthorised message="You don't have access to this page" />;
   }
 

@@ -1,10 +1,13 @@
+import { Role } from "@prisma/client";
+
 import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
+import { api } from "@/lib/trpc/server";
+import { instanceParams } from "@/lib/validations/params";
 
-export default async function Page() {
-  const session = await auth();
+export default async function Page({ params }: { params: instanceParams }) {
+  const role = await api.user.role.query({ params });
 
-  if (session && session.user.role !== "SUPERVISOR") {
+  if (role === Role.SUPERVISOR) {
     return (
       <Unauthorised message="You need to be a Supervisor to access this page" />
     );

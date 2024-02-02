@@ -1,21 +1,21 @@
+import { Role } from "@prisma/client";
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import Link from "next/link";
 import { PreferenceButton } from "./preference-button";
-import { auth } from "@/lib/auth";
 
 interface pageParams extends instanceParams {
   id: string;
 }
 
 export default async function Project({ params }: { params: pageParams }) {
-  const session = await auth();
-  if (!session) return;
-
   const { id: projectId } = params;
+
   const project = await api.project.getById.query({ projectId });
+  const role = await api.user.role.query({ params });
 
   const preferenceStatus =
     await api.user.student.preference.getForProject.query({
@@ -27,7 +27,7 @@ export default async function Project({ params }: { params: pageParams }) {
     <div className="flex w-2/3 max-w-7xl flex-col">
       <div className="flex items-center justify-between rounded-md bg-accent px-6 py-5">
         <h1 className="text-5xl text-accent-foreground">{project.title}</h1>
-        {session && session.user.role && session.user.role === "STUDENT" && (
+        {role === Role.STUDENT && (
           <PreferenceButton
             params={params}
             projectId={projectId}
