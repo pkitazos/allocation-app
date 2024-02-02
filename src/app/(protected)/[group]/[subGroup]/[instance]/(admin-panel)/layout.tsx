@@ -1,3 +1,7 @@
+import { Stage } from "@prisma/client";
+import Link from "next/link";
+import { ReactNode } from "react";
+
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -5,9 +9,6 @@ import { api } from "@/lib/trpc/server";
 import { getInstancePath } from "@/lib/utils/get-instance-path";
 import { slugify } from "@/lib/utils/slugify";
 import { instanceParams } from "@/lib/validations/params";
-import { Stage } from "@prisma/client";
-import Link from "next/link";
-import { ReactNode } from "react";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
@@ -26,7 +27,6 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const instancePath = getInstancePath(params);
-
   const stage = await api.institution.instance.currentStage.query({ params });
   const tabs = tabsRecord[stage];
 

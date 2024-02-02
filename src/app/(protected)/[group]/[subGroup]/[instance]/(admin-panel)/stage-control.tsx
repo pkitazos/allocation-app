@@ -10,7 +10,6 @@ import { api } from "@/lib/trpc/client";
 import { instanceParams } from "@/lib/validations/params";
 import { stageSchema } from "@/lib/validations/stage";
 
-// TODO: change to combined instance params
 export function StageControl({
   params,
   stage,
