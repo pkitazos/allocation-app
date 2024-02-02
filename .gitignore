@@ -42,4 +42,3 @@ next-env.d.ts
 # project specific
 *.t.txt
 *.t.*
-/src/types/zod

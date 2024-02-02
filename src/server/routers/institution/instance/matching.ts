@@ -1,4 +1,4 @@
-import { serverResponseSchema } from "@/lib/validations/algorithm";
+import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { z } from "zod";

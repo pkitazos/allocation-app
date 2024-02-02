@@ -10,6 +10,7 @@ import {
 } from "@/server/trpc";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
+import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -46,49 +47,13 @@ export const instanceRouter = createTRPCRouter({
           select: { role: true },
         });
 
-        const supervisorStages: Stage[] = [Stage.SETUP];
         if (role === Role.SUPERVISOR) return !supervisorStages.includes(stage);
 
-        const studentStages: Stage[] = [Stage.SETUP, Stage.PROJECT_SUBMISSION];
         if (role === Role.STUDENT) return !studentStages.includes(stage);
 
         return true;
       },
     ),
-
-  // ! not in use
-  // algorithms: adminProcedure
-  //   .input(
-  //     z.object({
-  //       params: instanceParamsSchema,
-  //     }),
-  //   )
-  //   .query(
-  //     async ({
-  //       ctx,
-  //       input: {
-  //         params: { group, subGroup, instance },
-  //       },
-  //     }) => {
-  //       const data = await ctx.db.algorithm.findMany({
-  //         where: {
-  //           allocationGroupId: group,
-  //           allocationSubGroupId: subGroup,
-  //           allocationInstanceId: instance,
-  //           NOT: builtInAlgSchema.options.map((algName) => ({ algName })),
-  //         },
-  //         select: {
-  //           algName: true,
-  //           displayName: true,
-  //           description: true,
-  //           flag1: true,
-  //           flag2: true,
-  //           flag3: true,
-  //         },
-  //       });
-  //       return data;
-  //     },
-  //   ),
 
   currentStage: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

@@ -7,7 +7,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { api } from "@/lib/trpc/client";
-import { Algorithm, MatchingData } from "@/lib/validations/algorithm";
+import { Algorithm } from "@/lib/validations/algorithm";
+import { MatchingData } from "@/lib/validations/matching";
 import { instanceParams } from "@/lib/validations/params";
 import { InfoIcon } from "lucide-react";
 

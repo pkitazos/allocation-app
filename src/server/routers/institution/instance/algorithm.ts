@@ -1,13 +1,13 @@
+import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   ServerResponse,
-  algorithmSchema,
-  builtInAlgSchema,
   matchingDataSchema,
   serverResponseSchema,
-} from "@/lib/validations/algorithm";
+} from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { getMatching } from "@/server/utils/get-matching";
+
 import { z } from "zod";
 
 const blankResult: ServerResponse = {
