@@ -1,6 +1,5 @@
-import plugin from "tailwindcss/plugin";
-
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 const config: Config = {
   darkMode: "class",
@@ -64,15 +63,6 @@ const config: Config = {
   plugins: [
     require("tailwindcss-animate"),
     plugin(function ({ addUtilities }) {
-      // matchUtilities(
-      //   {
-      //     ["-"]: (value) => ({
-      //       outline: "2px solid",
-      //       outlineColor: value,
-      //     }),
-      //   },
-      //   { type: "color", values: flattenColorPalette(theme("colors")) },
-      // );
       addUtilities({
         ".--orange-500": {
           outline: "2px solid",
@@ -82,7 +72,6 @@ const config: Config = {
           outline: "2px solid",
           outlineColor: "#ea580c",
         },
-
         ".--amber-500": {
           outline: "2px solid",
           outlineColor: "#f59e0b",
