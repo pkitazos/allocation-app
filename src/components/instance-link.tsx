@@ -3,9 +3,9 @@ import { ReactNode } from "react";
 
 import { Button } from "./ui/button";
 
-type Props = LinkProps & { children: ReactNode };
+type props = LinkProps & { children: ReactNode };
 
-export function InstanceLink({ href, children }: Props) {
+export function InstanceLink({ href, children }: props) {
   return (
     <Link className="text-white hover:underline" href={href}>
       <Button variant="ghost">{children}</Button>

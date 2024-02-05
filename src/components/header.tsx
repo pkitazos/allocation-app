@@ -65,7 +65,7 @@ export async function Header() {
           )}
         </div>
       )}
-      <UserButton />
+      <UserButton role={role} />
     </nav>
   );
 }
