@@ -40,11 +40,9 @@ export const userRouter = createTRPCRouter({
   adminPanelRoute: publicProcedure
     .output(z.string().optional())
     .query(async ({ ctx }) => {
-      const session = ctx.session;
-      if (!session) return;
+      if (!ctx.session) return;
 
-      const user = session.user;
-
+      const user = ctx.session.user;
       if (!user.role) return;
 
       if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
@@ -75,7 +73,9 @@ export const userRouter = createTRPCRouter({
       return;
     }),
 
-  instances: protectedProcedure.query(async ({ ctx }) => {
+  instances: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) return [];
+
     const user = ctx.session.user;
 
     const { role } = await ctx.db.user.findFirstOrThrow({
