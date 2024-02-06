@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+// TODO: add fields for target and upper quota
 const NewSupervisorSchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -38,7 +39,10 @@ export function AddSupervisors() {
           <Button variant="outline">add file</Button>
           <p className="text-slate-500">
             (must contain header:{" "}
-            <code className="text-slate-600">full_name,email</code>)
+            <code className="text-slate-600">
+              full_name,email,target,upper_quota
+            </code>
+            )
           </p>
         </div>
       </div>
