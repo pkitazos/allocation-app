@@ -20,9 +20,9 @@ export default async function Page({ params }: { params: instanceParams }) {
   // TODO: split into separate pages
   return (
     <>
-      {stage === Stage.PROJECT_SELECTION && (
-        <PreferenceSelection params={params} />
-      )}
+      {/* {stage === Stage.PROJECT_SELECTION && ( */}
+      <PreferenceSelection params={params} />
+      {/* )} */}
       {stage === Stage.ALLOCATION_PUBLICATION && (
         <AllocatedProject params={params} />
       )}

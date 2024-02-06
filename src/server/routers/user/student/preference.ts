@@ -1,3 +1,4 @@
+import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { PreferenceType } from "@prisma/client";
@@ -111,7 +112,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  getLists: protectedProcedure
+  initialBoardState: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -134,26 +135,20 @@ export const preferenceRouter = createTRPCRouter({
           },
         });
 
-        const data: Record<
-          PreferenceType,
-          {
-            rank: number;
-            project: {
-              id: string;
-              title: string;
-            };
-          }[]
-        > = {
-          PREFERENCE: [],
-          SHORTLIST: [],
-        };
+        const initialColumns: BoardColumn[] = [
+          { id: PreferenceType.PREFERENCE, displayName: "Preferences" },
+          { id: PreferenceType.SHORTLIST, displayName: "Shortlist" },
+        ];
 
-        res.forEach(({ type, ...rest }) => {
-          if (type === PreferenceType.PREFERENCE) data.PREFERENCE.push(rest);
-          if (type === PreferenceType.SHORTLIST) data.SHORTLIST.push(rest);
-        });
+        const initialProjects: ProjectPreference[] = res.map((e) => ({
+          id: e.project.id,
+          title: e.project.title,
+          columnId: e.type,
+          rank: e.rank,
+          changed: false,
+        }));
 
-        return data;
+        return { initialColumns, initialProjects };
       },
     ),
 });
