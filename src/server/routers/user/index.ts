@@ -37,41 +37,40 @@ export const userRouter = createTRPCRouter({
         return userInInstance.role;
       },
     ),
-  adminPanelRoute: publicProcedure
-    .output(z.string().optional())
-    .query(async ({ ctx }) => {
-      if (!ctx.session) return;
 
-      const user = ctx.session.user;
-      if (!user.role) return;
+  adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) return;
 
-      if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
+    const user = ctx.session.user;
+    if (!user.role) return;
 
-      const adminSpaces = await ctx.db.adminInSpace.findMany({
-        where: { userId: user.id },
-        select: {
-          adminLevel: true,
-          allocationGroupId: true,
-          allocationSubGroupId: true,
-        },
-      });
+    if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
 
-      if (adminSpaces.length === 0) return;
+    const adminSpaces = await ctx.db.adminInSpace.findMany({
+      where: { userId: user.id },
+      select: {
+        adminLevel: true,
+        allocationGroupId: true,
+        allocationSubGroupId: true,
+      },
+    });
 
-      const {
-        adminLevel,
-        allocationGroupId: group,
-        allocationSubGroupId: subGroup,
-      } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
-        permissionCheck(a, b) ? 1 : 0,
-      )[0];
+    if (adminSpaces.length === 0) return;
 
-      if (adminLevel === "SUPER") return "/admin";
-      if (adminLevel === "GROUP") return `/${group}`;
-      if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
+    const {
+      adminLevel,
+      allocationGroupId: group,
+      allocationSubGroupId: subGroup,
+    } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
+      permissionCheck(a, b) ? 1 : 0,
+    )[0];
 
-      return;
-    }),
+    if (adminLevel === "SUPER") return "/admin";
+    if (adminLevel === "GROUP") return `/${group}`;
+    if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
+
+    return;
+  }),
 
   instances: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) return [];
