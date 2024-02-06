@@ -3,8 +3,9 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { useMemo } from "react";
 import { SortableContext } from "@dnd-kit/sortable";
-import { ProjectPreferenceCard } from "./project-preference-card";
+
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { ProjectPreferenceCard } from "./project-preference-card";
 
 export function ColumnContainer({
   column,

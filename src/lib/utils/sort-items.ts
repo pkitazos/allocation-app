@@ -1,4 +1,4 @@
-import { SortablePreference } from "../../preference-selection";
+import { SortablePreference } from "@/lib/validations/board";
 
 /***
  * sorts two items by their preference

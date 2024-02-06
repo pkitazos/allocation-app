@@ -1,14 +1,7 @@
 import { Heading } from "@/components/heading";
+import { KanbanBoard } from "@/components/kanban-board";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import { KanbanBoard } from "./_components/kanban-board";
-
-export type SortablePreference = {
-  id: string;
-  title: string;
-  rank: number;
-  changed?: boolean;
-};
 
 export async function PreferenceSelection({
   params,
