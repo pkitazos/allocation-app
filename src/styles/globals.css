@@ -37,4 +37,8 @@
 
     --radius: 0.5rem; /* might be useless */
   }
+
+  .dark {
+    --background: 229 84% 5%;
+  }
 }
