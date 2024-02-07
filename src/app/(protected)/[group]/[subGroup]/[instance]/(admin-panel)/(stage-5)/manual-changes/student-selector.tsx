@@ -1,4 +1,6 @@
 "use client";
+import { ClassValue } from "clsx";
+import { Plus } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -15,46 +17,45 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { StudentRow } from "./allocation-adjustment";
-import { Plus } from "lucide-react";
 
 type Student = { id: string; name: string };
 
-export function StudentSelectionSearch({
+export function StudentSelector({
   studentRows,
   setStudentRows,
+  className,
 }: {
   studentRows: StudentRow[];
   setStudentRows: Dispatch<SetStateAction<StudentRow[]>>;
+  className?: ClassValue;
 }) {
-  const students = studentRows.map(({ student }) => student);
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const students = studentRows.map(({ student }) => student);
 
   function updateRows(studentId: string) {
     setSelectedStudent(null);
-    const selectedPreference = studentRows.find(
-      ({ student }) => student.id === studentId,
-    );
-
-    if (!selectedPreference) return;
+    const selectedRow = studentRows.find((s) => s.student.id === studentId);
+    if (!selectedRow) return;
 
     setStudentRows((prev) => {
       const alreadySelected = prev
         .map(({ student: { id } }) => id)
-        .includes(selectedPreference.student.id);
-
-      return alreadySelected ? prev : [...prev, selectedPreference];
+        .includes(selectedRow.student.id);
+      return alreadySelected ? prev : [...prev, selectedRow];
     });
   }
 
-  function handleStudentSelection(studentId: string, students: Student[]) {
+  function handleStudentSelection(studentId: string) {
     const selectedStudent = students.find((s) => s.id === studentId) || null;
     setSelectedStudent(selectedStudent);
+    setOpen(true);
   }
 
   return (
-    <div className="flex items-center gap-5">
+    <div className={cn("flex items-center gap-5", className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -68,7 +69,6 @@ export function StudentSelectionSearch({
           <StudentList
             handleStudentSelection={handleStudentSelection}
             students={students}
-            setOpen={setOpen}
           />
         </PopoverContent>
       </Popover>
@@ -85,12 +85,11 @@ export function StudentSelectionSearch({
 
 function StudentList({
   students,
-  setOpen,
+
   handleStudentSelection,
 }: {
   students: Student[];
-  setOpen: (open: boolean) => void;
-  handleStudentSelection: (studentId: string, students: Student[]) => void;
+  handleStudentSelection: (studentId: string) => void;
 }) {
   return (
     <Command>
@@ -103,10 +102,7 @@ function StudentList({
               className="overflow-hidden text-ellipsis"
               key={student.id}
               value={student.id}
-              onSelect={(studentId) => {
-                handleStudentSelection(studentId, students);
-                setOpen(false);
-              }}
+              onSelect={handleStudentSelection}
             >
               {student.id}
             </CommandItem>

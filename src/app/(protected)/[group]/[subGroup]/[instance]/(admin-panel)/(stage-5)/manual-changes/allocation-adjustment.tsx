@@ -1,8 +1,8 @@
 "use client";
-
 import { useState } from "react";
+
 import { AdjustmentRow } from "./adjustment-row";
-import { StudentSelectionSearch } from "./student-search-bar";
+import { StudentSelector } from "./student-selector";
 
 export type StudentRow = {
   student: {
@@ -21,12 +21,11 @@ export function AllocationAdjustment({ allRows }: { allRows: StudentRow[] }) {
 
   return (
     <div className="flex w-full flex-col items-start gap-9">
-      <div className="mb-4">
-        <StudentSelectionSearch
-          studentRows={remainingStudentRows}
-          setStudentRows={setStudentRows}
-        />
-      </div>
+      <StudentSelector
+        className="mb-4"
+        studentRows={remainingStudentRows}
+        setStudentRows={setStudentRows}
+      />
       {studentRows.map((row, i) => (
         <AdjustmentRow key={i} studentRow={row} />
       ))}
