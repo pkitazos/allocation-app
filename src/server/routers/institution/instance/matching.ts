@@ -1,6 +1,7 @@
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 export const matchingRouter = createTRPCRouter({
@@ -169,6 +170,52 @@ export const matchingRouter = createTRPCRouter({
           },
           data: { selectedAlgName: algName },
         });
+      },
+    ),
+
+  preferences: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const data = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: {
+            user: { select: { id: true, name: true } },
+            studentPreferences: {
+              select: {
+                project: {
+                  select: {
+                    id: true,
+                    allocations: { select: { userId: true } },
+                  },
+                },
+                rank: true,
+              },
+              orderBy: { rank: "asc" },
+            },
+          },
+        });
+
+        return data.map((e) => ({
+          student: { id: e.user.id, name: e.user.name! },
+          projectPreferences: e.studentPreferences.map(
+            ({ project: { id, allocations } }) => ({
+              id,
+              selected:
+                allocations.filter((u) => u.userId === e.user.id).length === 1,
+            }),
+          ),
+        }));
       },
     ),
 });
