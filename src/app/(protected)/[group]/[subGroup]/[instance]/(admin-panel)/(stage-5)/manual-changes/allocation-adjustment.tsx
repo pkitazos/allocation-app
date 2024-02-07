@@ -15,19 +15,9 @@ export type StudentRow = {
   }[];
 };
 
-export function AllocationAdjustment({
-  allPreferences,
-}: {
-  allPreferences: StudentRow[];
-}) {
+export function AllocationAdjustment({ allRows }: { allRows: StudentRow[] }) {
   const [studentRows, setStudentRows] = useState<StudentRow[]>([]);
-
-  // TODO: clean this up
-  const selectedIds = new Set(studentRows.map(({ student: { id } }) => id));
-
-  const remainingStudentRows = allPreferences.filter(
-    ({ student: { id } }) => !selectedIds.has(id),
-  );
+  const remainingStudentRows = rowsDiff(allRows, studentRows);
 
   return (
     <div className="flex w-full flex-col items-start gap-9">
@@ -43,3 +33,8 @@ export function AllocationAdjustment({
     </div>
   );
 }
+
+const rowsDiff = (array: StudentRow[], subArray: StudentRow[]) => {
+  const ids = new Set(subArray.map(({ student }) => student.id));
+  return array.filter(({ student }) => !ids.has(student.id));
+};
