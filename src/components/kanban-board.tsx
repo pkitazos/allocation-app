@@ -52,9 +52,10 @@ export function KanbanBoard({
 
         // ? if statement perhaps unnecessary
         if (projects[activeIdx].columnId !== projects[overIdx].columnId) {
+          // TODO: perform type-changing mutation
           projects[activeIdx].columnId = projects[overIdx].columnId;
         }
-
+        // TODO: perform re-ordering mutation
         return arrayMove(projects, activeIdx, overIdx);
       });
     }
@@ -71,6 +72,7 @@ export function KanbanBoard({
           projects[activeIdx].columnId = over.id;
         }
 
+        // TODO: perform type-changing mutation
         return arrayMove(projects, activeIdx, activeIdx);
       });
     }
