@@ -1,8 +1,9 @@
+import { Role } from "@prisma/client";
+import { z } from "zod";
+
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { Role } from "@prisma/client";
-import { z } from "zod";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -216,6 +217,88 @@ export const matchingRouter = createTRPCRouter({
             }),
           ),
         }));
+      },
+    ),
+
+  // TODO: fetch all other necessary data
+
+  /* 
+      Stuff I need to know to display useful information
+
+      for each project in a student's preference list
+      
+      - whether it's been allocated to another student
+      - who that student is
+      - what the project's capacities are
+      - how a particular change affects the overall matching details (size, weight, etc.)
+    
+    */
+
+  allDetails: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const projectData = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            id: true,
+            capacityLowerBound: true,
+            capacityUpperBound: true,
+            supervisor: {
+              select: {
+                supervisorInstanceDetails: {
+                  where: {
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
+                  },
+                  select: {
+                    projectAllocationLowerBound: true,
+                    projectAllocationTarget: true,
+                    projectAllocationUpperBound: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { projectId: true, userId: true },
+        });
+
+        type details = {
+          capacityLowerBound: number;
+          capacityUpperBound: number;
+          supervisor: {
+            supervisorInstanceDetails: {
+              projectAllocationLowerBound: number;
+              projectAllocationTarget: number;
+              projectAllocationUpperBound: number;
+            }[];
+          };
+        };
+
+        const projectDetails: Record<string, details> = {};
+        projectData.forEach(({ id, ...rest }) => {
+          projectDetails[id] = rest;
+        });
+
+        return { allocationData, projectDetails };
       },
     ),
 });

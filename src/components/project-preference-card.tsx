@@ -37,7 +37,7 @@ export function ProjectPreferenceCard({
       <div
         ref={setNodeRef}
         style={style}
-        className="h-14 rounded-md bg-slate-300 opacity-50"
+        className="h-24 rounded-md bg-slate-300 opacity-50"
       />
     );
   }
