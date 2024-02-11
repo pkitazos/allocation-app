@@ -3,12 +3,13 @@ import { instanceParams } from "@/lib/validations/params";
 import { AllocationAdjustment } from "./allocation-adjustment";
 
 export default async function Page({ params }: { params: instanceParams }) {
-  const allPreferences =
-    await api.institution.instance.matching.preferences.query({ params });
+  const allRows = await api.institution.instance.matching.allTheThings.query({
+    params,
+  });
 
-  const allTheThings = await api.institution.instance.matching.allDetails.query(
-    { params },
-  );
+  const matchingInfo = await api.institution.instance.matching.info.query({
+    params,
+  });
 
   // TODO: fetch all other necessary data
 
@@ -18,7 +19,7 @@ export default async function Page({ params }: { params: instanceParams }) {
       for each project in a student's preference list
       
       - whether it's been allocated to another student
-      - who that sudent is
+      - who that student is
       - what the project's capacities are
       - how a particular change affects the overall matching details (size, weight, etc.)
     
@@ -26,7 +27,7 @@ export default async function Page({ params }: { params: instanceParams }) {
 
   return (
     <div className="mt-10 flex h-full justify-center px-20">
-      <AllocationAdjustment allRows={allPreferences} />
+      <AllocationAdjustment allRows={allRows} matchingInfo={matchingInfo} />
     </div>
   );
 }

@@ -27,11 +27,11 @@ export const matchingDataSchema = z.object({
 
 export type MatchingData = z.infer<typeof matchingDataSchema>;
 
-export const mathcingDataWithArgsSchema = matchingDataSchema.extend({
+export const matchingDataWithArgsSchema = matchingDataSchema.extend({
   args: z.array(z.string()),
 });
 
-export type MatchingDataWithArgs = z.infer<typeof mathcingDataWithArgsSchema>;
+export type MatchingDataWithArgs = z.infer<typeof matchingDataWithArgsSchema>;
 
 export const matchingDetailsSchema = z.object({
   student_id: z.string(),

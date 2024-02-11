@@ -1,9 +1,17 @@
-import { Role } from "@prisma/client";
+import { PreferenceType, Role } from "@prisma/client";
 import { z } from "zod";
 
-import { serverResponseSchema } from "@/lib/validations/matching";
+import {
+  ServerResponse,
+  serverResponseSchema,
+} from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { blankResult } from "./algorithm";
+import {
+  MatchingInfo,
+  ProjectDetails,
+} from "@/lib/validations/allocation-adjustment";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -18,11 +26,12 @@ export const matchingRouter = createTRPCRouter({
           allocationGroupId: group,
           allocationSubGroupId: subGroup,
           allocationInstanceId: instance,
+          role: Role.STUDENT,
         },
         select: {
           userId: true,
           studentPreferences: {
-            where: { type: { equals: "PREFERENCE" } },
+            where: { type: { equals: PreferenceType.PREFERENCE } },
             select: { projectId: true, rank: true },
             orderBy: { rank: "asc" },
           },
@@ -281,24 +290,165 @@ export const matchingRouter = createTRPCRouter({
           select: { projectId: true, userId: true },
         });
 
-        type details = {
-          capacityLowerBound: number;
-          capacityUpperBound: number;
-          supervisor: {
-            supervisorInstanceDetails: {
-              projectAllocationLowerBound: number;
-              projectAllocationTarget: number;
-              projectAllocationUpperBound: number;
-            }[];
-          };
-        };
-
-        const projectDetails: Record<string, details> = {};
-        projectData.forEach(({ id, ...rest }) => {
-          projectDetails[id] = rest;
+        const allocations: Record<string, string[]> = {};
+        allocationData.forEach(({ projectId, userId }) => {
+          if (!allocations[projectId]) allocations[projectId] = [];
+          allocations[projectId].push(userId);
         });
 
-        return { allocationData, projectDetails };
+        const projectDetails: Record<string, ProjectDetails> = {};
+        projectData.forEach(({ id, ...rest }) => {
+          projectDetails[id] = { ...rest, allocatedTo: allocations[id] || [] };
+        });
+
+        return projectDetails;
       },
     ),
+
+  allTheThings: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const studentData = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: {
+            user: { select: { id: true, name: true } },
+            studentPreferences: {
+              select: {
+                project: {
+                  select: {
+                    id: true,
+                    allocations: { select: { userId: true } },
+                  },
+                },
+                rank: true,
+              },
+              orderBy: { rank: "asc" },
+            },
+          },
+        });
+
+        const projectData = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            id: true,
+            capacityLowerBound: true,
+            capacityUpperBound: true,
+            supervisor: {
+              select: {
+                supervisorInstanceDetails: {
+                  where: {
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
+                  },
+                  select: {
+                    projectAllocationLowerBound: true,
+                    projectAllocationTarget: true,
+                    projectAllocationUpperBound: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { projectId: true, userId: true },
+        });
+
+        const allocationRecord: Record<string, string[]> = {};
+        allocationData.forEach(({ projectId, userId }) => {
+          if (!allocationRecord[projectId]) allocationRecord[projectId] = [];
+          allocationRecord[projectId].push(userId);
+        });
+
+        const projectDetails: Record<string, ProjectDetails> = {};
+        projectData.forEach(({ id, ...rest }) => {
+          projectDetails[id] = {
+            ...rest,
+            allocatedTo: allocationRecord[id] || [],
+          };
+        });
+
+        return studentData.map((e) => ({
+          student: { id: e.user.id, name: e.user.name! },
+          projectPreferences: e.studentPreferences.map(
+            ({ project: { id, allocations } }) => ({
+              id,
+              selected:
+                allocations.filter((u) => u.userId === e.user.id).length === 1,
+              ...projectDetails[id],
+            }),
+          ),
+        }));
+      },
+    ),
+
+  info: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
+    async ({
+      ctx,
+      input: {
+        params: { group, subGroup, instance },
+      },
+    }) => {
+      const { selectedAlgName } =
+        await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: { selectedAlgName: true },
+        });
+
+      if (!selectedAlgName) return getMatchingInfo(blankResult);
+
+      const { matchingResultData } = await ctx.db.algorithm.findFirstOrThrow({
+        where: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
+          algName: selectedAlgName,
+        },
+        select: { matchingResultData: true },
+      });
+
+      const result = serverResponseSchema.safeParse(
+        JSON.parse(matchingResultData as string),
+      );
+
+      if (!result.success) return getMatchingInfo(blankResult);
+
+      return getMatchingInfo(result.data);
+    },
+  ),
 });
+
+function getMatchingInfo(res: ServerResponse): MatchingInfo {
+  return {
+    profile: res.profile,
+    weight: res.weight,
+    isValid: true,
+    rowValidities: res.matching.map(() => true),
+  };
+}

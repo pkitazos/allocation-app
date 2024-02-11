@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { StudentRow } from "./allocation-adjustment";
+import { StudentRow } from "@/lib/validations/allocation-adjustment";
 
 type Student = { id: string; name: string };
 
