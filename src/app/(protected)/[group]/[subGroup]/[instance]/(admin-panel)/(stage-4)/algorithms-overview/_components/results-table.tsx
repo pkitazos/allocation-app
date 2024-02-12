@@ -52,15 +52,15 @@ export function ResultsTable({
           setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
-          algName={"minimum-cost"}
-          algDisplayName={"Minimum Cost"}
+          algName={"greedy-generous"}
+          algDisplayName={"Greedy-Generous"}
           params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
-          algName={"greedy-generous"}
-          algDisplayName={"Greedy-Generous"}
+          algName={"minimum-cost"}
+          algDisplayName={"Minimum Cost"}
           params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}

@@ -46,6 +46,7 @@ model UserInInstance {
     user                      User                        @relation(fields: [userId], references: [id])
     userId                    String                      @map("user_id")
     role                      Role
+    joined                    Boolean                     @default(false)
     // ---
     allocationGroupId         String                      @map("allocation_group_id")
     allocationSubGroupId      String                      @map("allocation_sub_group_id")
@@ -102,6 +103,8 @@ model AllocationInstance {
     stage                Stage              @default(SETUP)
     // has 1
     selectedAlgName      String?            @map("selected_alg_name")
+    supervisorsCanAccess Boolean            @default(false) @map("supervisors_can_access")
+    studentsCanAccess    Boolean            @default(false) @map("students_can_access")
     // belongs to 1
     allocationSubGroup   AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
     allocationGroupId    String             @map("allocation_group_id")
@@ -112,7 +115,7 @@ model AllocationInstance {
     // TODO: figure out why this breaks the seed script
     // users                UserInInstance[]
 
-    @@id([allocationGroupId, allocationSubGroupId, id])
+    @@id([allocationGroupId, allocationSubGroupId, id], name: "instanceId")
 }
 
 model SupervisorInstanceDetails {
