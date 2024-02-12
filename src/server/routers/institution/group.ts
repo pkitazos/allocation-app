@@ -1,7 +1,8 @@
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { groupParamsSchema } from "@/lib/validations/params";
 import { z } from "zod";
-import { slugify } from "@/lib/utils";
+
+import { slugify } from "@/lib/utils/slugify";
+import { groupParamsSchema } from "@/lib/validations/params";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 
 export const groupRouter = createTRPCRouter({
   subGroupManagement: adminProcedure

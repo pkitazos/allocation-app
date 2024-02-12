@@ -34,7 +34,7 @@ export default async function RootLayout({
           <SessionProvider>
             <TRPCReactProvider headers={headers()}>
               <Header />
-              <main className="flex h-[92dvh] flex-col justify-start gap-4">
+              <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
                 <Breadcrumbs />
                 <section className="mx-auto flex h-full w-full max-w-7xl justify-center pb-32 pt-6 3xl:max-w-9xl">
                   {children}

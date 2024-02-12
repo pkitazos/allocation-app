@@ -1,9 +1,12 @@
+import { AdminLevel } from "@prisma/client";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { permissionCheck } from "@/lib/utils/permission-check";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.spaceMembership.query({ params });
@@ -14,7 +17,7 @@ export default async function Page({ params }: { params: { group: string } }) {
     );
   }
 
-  const { allocationSubGroups, groupAdmins, displayName } =
+  const { allocationSubGroups, groupAdmins, displayName, adminLevel } =
     await api.institution.group.subGroupManagement.query({ params });
 
   return (
@@ -29,15 +32,14 @@ export default async function Page({ params }: { params: { group: string } }) {
               <div className="w-1/6 font-medium">{name}</div>
               <Separator orientation="vertical" />
               <div className="w-/4">{email}</div>
-              {
-                // admin === "SUPER_ADMIN" && // TODO: use adminLevel instead
+              {permissionCheck(adminLevel, AdminLevel.SUPER) && (
                 <>
                   <Separator orientation="vertical" />
                   <Button size="sm" className="ml-8" variant="destructive">
                     remove
                   </Button>
                 </>
-              }
+              )}
             </div>
           ))}
       </div>

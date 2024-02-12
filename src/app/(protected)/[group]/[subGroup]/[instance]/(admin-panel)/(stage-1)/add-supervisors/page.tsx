@@ -1,4 +1,4 @@
-import { AddSupervisors } from "./add-supervisors";
+import { AddSupervisors } from "./_components/add-supervisors";
 
 export default async function Page() {
   return (

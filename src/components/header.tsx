@@ -3,12 +3,10 @@ import Link from "next/link";
 
 import whiteLogo from "@/assets/uofg-white.png";
 import { auth } from "@/lib/auth";
-import { api } from "@/lib/trpc/server";
 import { HeaderTabs } from "./header-tabs";
 import { UserButton } from "./user-button";
 
 export async function Header() {
-  const adminPanel = await api.user.adminPanelRoute.query();
   const session = await auth();
 
   return (
@@ -22,10 +20,8 @@ export async function Header() {
           alt=""
         />
       </Link>
-      {session?.user && (
-        <HeaderTabs user={session.user} adminPanel={adminPanel} />
-      )}
-      <UserButton />
+      {session && <HeaderTabs />}
+      <UserButton session={session} />
     </nav>
   );
 }

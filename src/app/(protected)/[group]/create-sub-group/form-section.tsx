@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { slugify } from "@/lib/utils";
+import { slugify } from "@/lib/utils/slugify";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";

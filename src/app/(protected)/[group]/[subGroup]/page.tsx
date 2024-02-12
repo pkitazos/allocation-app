@@ -4,7 +4,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { permissionCheck } from "@/lib/db";
+import { permissionCheck } from "@/lib/utils/permission-check";
 import { AdminLevel } from "@prisma/client";
 
 export default async function Page({

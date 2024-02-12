@@ -1,30 +1,10 @@
-import { slugify } from "@/lib/utils";
-import { subGroupParamsSchema } from "@/lib/validations/params";
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { z } from "zod";
 
-export const subGroupRouter = createTRPCRouter({
-  // access: protectedProcedure
-  //   .input(z.object({ params: subGroupParamsSchema }))
-  //   .query(
-  //     async ({
-  //       ctx,
-  //       input: {
-  //         params: { group, subGroup },
-  //       },
-  //     }) => {
-  //       const access = await ctx.db.adminInSpace.findFirst({
-  //         where: {
-  //           allocationGroupId: group,
-  //           allocationSubGroupId: subGroup,
-  //           userId: ctx.session.user.id,
-  //         },
-  //         select: { adminLevel: true },
-  //       });
-  //       return access;
-  //     },
-  //   ),
+import { slugify } from "@/lib/utils/slugify";
+import { subGroupParamsSchema } from "@/lib/validations/params";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 
+export const subGroupRouter = createTRPCRouter({
   instanceManagement: adminProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(

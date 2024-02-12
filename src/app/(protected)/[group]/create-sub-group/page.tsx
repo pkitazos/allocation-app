@@ -1,13 +1,11 @@
 import { Unauthorised } from "@/components/unauthorised";
-import { auth } from "@/lib/auth";
-import { FormSection } from "./form-section";
 import { api } from "@/lib/trpc/server";
+import { FormSection } from "./form-section";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const session = await auth();
+  const access = await api.institution.spaceMembership.query({ params });
 
-  // TODO: add persmission level check
-  if (session && session.user.role !== "ADMIN") {
+  if (!access) {
     return (
       <Unauthorised message="You need to be a super-admin or group admin to access this page" />
     );

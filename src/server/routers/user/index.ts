@@ -1,4 +1,4 @@
-import { permissionCheck } from "@/lib/db";
+import { permissionCheck } from "@/lib/utils/permission-check";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -37,45 +37,44 @@ export const userRouter = createTRPCRouter({
         return userInInstance.role;
       },
     ),
-  adminPanelRoute: publicProcedure
-    .output(z.string().optional())
-    .query(async ({ ctx }) => {
-      const session = ctx.session;
-      if (!session) return;
 
-      const user = session.user;
+  adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) return;
 
-      if (!user.role) return;
+    const user = ctx.session.user;
+    if (!user.role) return;
 
-      if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
+    if (user.role === "STUDENT" || user.role === "SUPERVISOR") return;
 
-      const adminSpaces = await ctx.db.adminInSpace.findMany({
-        where: { userId: user.id },
-        select: {
-          adminLevel: true,
-          allocationGroupId: true,
-          allocationSubGroupId: true,
-        },
-      });
+    const adminSpaces = await ctx.db.adminInSpace.findMany({
+      where: { userId: user.id },
+      select: {
+        adminLevel: true,
+        allocationGroupId: true,
+        allocationSubGroupId: true,
+      },
+    });
 
-      if (adminSpaces.length === 0) return;
+    if (adminSpaces.length === 0) return;
 
-      const {
-        adminLevel,
-        allocationGroupId: group,
-        allocationSubGroupId: subGroup,
-      } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
-        permissionCheck(a, b) ? 1 : 0,
-      )[0];
+    const {
+      adminLevel,
+      allocationGroupId: group,
+      allocationSubGroupId: subGroup,
+    } = adminSpaces.sort(({ adminLevel: a }, { adminLevel: b }) =>
+      permissionCheck(a, b) ? 1 : 0,
+    )[0];
 
-      if (adminLevel === "SUPER") return "/admin";
-      if (adminLevel === "GROUP") return `/${group}`;
-      if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
+    if (adminLevel === "SUPER") return "/admin";
+    if (adminLevel === "GROUP") return `/${group}`;
+    if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
 
-      return;
-    }),
+    return;
+  }),
 
-  instances: protectedProcedure.query(async ({ ctx }) => {
+  instances: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) return [];
+
     const user = ctx.session.user;
 
     const { role } = await ctx.db.user.findFirstOrThrow({

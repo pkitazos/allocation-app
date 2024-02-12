@@ -2,12 +2,9 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
 import { DetailsTable } from "./details-table";
+import { instanceParams } from "@/lib/validations/params";
 
-export default async function Page({
-  params,
-}: {
-  params: { group: string; subGroup: string; instance: string };
-}) {
+export default async function Page({ params }: { params: instanceParams }) {
   const { results, firstNonEmpty } =
     await api.institution.instance.algorithm.allResults.query({
       params,

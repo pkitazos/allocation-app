@@ -1,102 +1,17 @@
-"use client";
-import { CompositeUser } from "@/lib/db";
-import { Role } from "@prisma/client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Button } from "./ui/button";
+import { api } from "@/lib/trpc/server";
+import { getSpaceParams } from "@/lib/utils/get-space-params";
+import { InstanceLink } from "./instance-link";
+import { InstanceTabs } from "./instance-tabs";
 
-export const accessibleBy = (user: CompositeUser, rolesAllowed: Role[]) => {
-  if (!user.role) return false;
-  return rolesAllowed.includes(user.role);
-};
+export async function HeaderTabs() {
+  const adminPanel = await api.user.adminPanelRoute.query();
+  const { inInstance, spaceParams: params } = await getSpaceParams();
 
-export function HeaderTabs({
-  user,
-  adminPanel,
-}: {
-  user: CompositeUser;
-  adminPanel: string | undefined;
-}) {
-  const pathname = usePathname();
-  const routes = pathname.split("/");
-
-  const inInstance = routes.length >= 4 && routes[3] !== "create-instance";
-  const fullInstance = inInstance ? routes.slice(1, 4).join("/") : undefined;
-
-  // console.log("------------ pathname", { pathname });
-  // console.log("------------ routes", { routes });
-
+  console.log("-------->>", { adminPanel });
   return (
     <div className="flex items-center gap-6">
-      {inInstance && (
-        <>
-          {accessibleBy(user, [
-            "SUPER_ADMIN",
-            "GROUP_ADMIN",
-            "SUB_GROUP_ADMIN",
-            "SUPERVISOR",
-            "STUDENT",
-          ]) && (
-            <Link
-              className="text-white hover:underline"
-              href={`/${fullInstance}/projects`}
-            >
-              <Button variant="ghost">Projects</Button>
-            </Link>
-          )}
-          {accessibleBy(user, [
-            "SUPER_ADMIN",
-            "GROUP_ADMIN",
-            "SUB_GROUP_ADMIN",
-            "SUPERVISOR",
-          ]) && (
-            <Link
-              className="text-white hover:underline"
-              href={`/${fullInstance}/supervisors`}
-            >
-              <Button variant="ghost">Supervisors</Button>
-            </Link>
-          )}
-          {accessibleBy(user, ["STUDENT"]) && (
-            <Link
-              className="text-white hover:underline"
-              href={`/${fullInstance}/my-preferences`}
-            >
-              <Button variant="ghost">My Preferences</Button>
-            </Link>
-          )}
-
-          {accessibleBy(user, ["SUPERVISOR"]) && (
-            <Link
-              className="text-white hover:underline"
-              href={`/${fullInstance}/my-projects`}
-            >
-              <Button variant="ghost">My Projects</Button>
-            </Link>
-          )}
-          {accessibleBy(user, [
-            "SUPER_ADMIN",
-            "GROUP_ADMIN",
-            "SUB_GROUP_ADMIN",
-            "SUPERVISOR",
-          ]) && (
-            <Link
-              className="text-white hover:underline"
-              href={`/${fullInstance}/students`}
-            >
-              <Button variant="ghost">Students</Button>
-            </Link>
-          )}
-        </>
-      )}
-      {accessibleBy(user, ["SUPER_ADMIN", "GROUP_ADMIN", "SUB_GROUP_ADMIN"]) &&
-        adminPanel && (
-          <>
-            <Link className="text-white hover:underline" href={adminPanel}>
-              <Button variant="ghost">Admin Panel</Button>
-            </Link>
-          </>
-        )}
+      {inInstance && <InstanceTabs params={params} />}
+      {adminPanel && <InstanceLink href={adminPanel}>Admin Panel</InstanceLink>}
     </div>
   );
 }
