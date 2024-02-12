@@ -1,7 +1,7 @@
 "use client";
 import { ClassValue } from "clsx";
 import { Plus } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,32 +20,45 @@ import {
 import { cn } from "@/lib/utils";
 import { StudentRow } from "@/lib/validations/allocation-adjustment";
 
+import { useAllocDetails } from "../allocation-store";
+import React from "react";
+
 type Student = { id: string; name: string };
 
 export function StudentSelector({
-  studentRows,
-  setStudentRows,
+  remainingRows,
   className,
 }: {
-  studentRows: StudentRow[];
-  setStudentRows: Dispatch<SetStateAction<StudentRow[]>>;
+  remainingRows: StudentRow[];
   className?: ClassValue;
 }) {
+  const students = remainingRows.map(({ student }) => student);
+  const visibleRows = useAllocDetails((s) => s.visibleRows);
+  const updateVisibleRows = useAllocDetails((s) => s.updateVisibleRows);
+
+  const rowConflicts = useAllocDetails((s) => s.rowConflicts);
+  const updateRowConflicts = useAllocDetails((s) => s.updateRowConflicts);
+
   const [open, setOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const students = studentRows.map(({ student }) => student);
 
   function updateRows(studentId: string) {
     setSelectedStudent(null);
-    const selectedRow = studentRows.find((s) => s.student.id === studentId);
+
+    const selectedRow = remainingRows.find((s) => s.student.id === studentId);
     if (!selectedRow) return;
 
-    setStudentRows((prev) => {
-      const alreadySelected = prev
-        .map(({ student: { id } }) => id)
-        .includes(selectedRow.student.id);
-      return alreadySelected ? prev : [...prev, selectedRow];
-    });
+    const alreadySelected = visibleRows
+      .map(({ student: { id } }) => id)
+      .includes(selectedRow.student.id);
+
+    const updatedRows = alreadySelected
+      ? visibleRows
+      : [...visibleRows, selectedRow];
+    updateVisibleRows(updatedRows);
+
+    const updatedRowConflicts = [...rowConflicts, []];
+    updateRowConflicts(updatedRowConflicts);
   }
 
   function handleStudentSelection(studentId: string) {
@@ -85,7 +98,6 @@ export function StudentSelector({
 
 function StudentList({
   students,
-
   handleStudentSelection,
 }: {
   students: Student[];

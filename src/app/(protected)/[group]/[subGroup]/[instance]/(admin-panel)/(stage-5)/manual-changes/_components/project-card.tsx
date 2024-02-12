@@ -5,8 +5,9 @@ import { useDroppable } from "@dnd-kit/core";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { RowProject } from "@/lib/validations/allocation-adjustment";
-import { allocationWithinBounds } from "../adjustment-row";
-import { useAllocDetailsContext } from "../allocation-store";
+
+import { useAllocDetails } from "../allocation-store";
+import { allocationWithinBounds } from "@/lib/utils/allocation-within-bounds";
 
 export function ProjectCard({
   project,
@@ -15,10 +16,12 @@ export function ProjectCard({
   project: RowProject;
   studentId: string;
 }) {
-  const conflictingWith = useAllocDetailsContext((s) => s.conflictingWith);
   const { setNodeRef, isOver } = useDroppable({ id: project.id });
+
+  const conflictingWith = useAllocDetails((s) => s.conflictingWith);
   const withinBounds = allocationWithinBounds(project);
   const isConflicting = conflictingWith.includes(studentId);
+
   return (
     <div className="flex  flex-col">
       <Card

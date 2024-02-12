@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useAllocDetailsContext } from "../allocation-store";
+import { useAllocDetails } from "../allocation-store";
 
 export function SubmitButton() {
-  const isValid = useAllocDetailsContext((s) => s.isValid);
+  const isValid = useAllocDetails((s) => s.validOverall);
   return <Button disabled={!isValid}>Submit Changes</Button>;
 }
