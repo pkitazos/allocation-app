@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import DataTable from "@/components/ui/data-table/data-table";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CSVUploadButton } from "./csv-upload-button";
-import { SimpleTable } from "./simple-table";
+import { columns } from "./new-student-columns";
 
 const NewStudentSchema = z.object({
   fullName: z.string(),
@@ -33,6 +34,10 @@ export function AddStudents() {
     setNewStudents((prev) => [data, ...prev]);
     reset();
   };
+
+  function handleRowRemoval(idx: number) {
+    setNewStudents((prev) => prev.toSpliced(idx, 1));
+  }
 
   return (
     <div className="flex flex-col px-6">
@@ -71,7 +76,8 @@ export function AddStudents() {
       </form>
       <Separator className="my-14" />
       {newStudents.length !== 0 && (
-        <SimpleTable students={newStudents} setStudents={setNewStudents} />
+        <DataTable columns={columns(handleRowRemoval)} data={newStudents} />
+        // <SimpleTable students={newStudents} setStudents={setNewStudents} />
       )}
       <div className="flex justify-end">
         {/* // TODO: hook up procedure to create invites */}
