@@ -5,14 +5,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import DataTable from "@/components/ui/data-table/data-table";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { CSVUploadButton } from "./csv-upload-button";
-import { columns } from "./new-supervisor-columns";
+import { SimpleTable } from "./simple-table";
 
 const NewSupervisorSchema = z.object({
   fullName: z.string(),
@@ -92,7 +91,11 @@ export function AddSupervisors() {
       </form>
       <Separator className="my-14" />
       {newSupervisors.length !== 0 && (
-        <DataTable columns={columns} data={newSupervisors} />
+        <SimpleTable
+          supervisors={newSupervisors}
+          setSupervisors={setNewSupervisors}
+        />
+        // <DataTable columns={columns} data={newSupervisors} />
       )}
       <div className="mt-2 flex justify-end">
         {/* // TODO: hook up procedure to create invites */}

@@ -35,6 +35,10 @@ export function AddStudents() {
     reset();
   };
 
+  function handleRowRemoval(idx: number) {
+    setNewStudents((prev) => prev.toSpliced(idx, 1));
+  }
+
   return (
     <div className="flex flex-col px-6">
       <div className="flex flex-col gap-6">
@@ -72,7 +76,8 @@ export function AddStudents() {
       </form>
       <Separator className="my-14" />
       {newStudents.length !== 0 && (
-        <DataTable columns={columns} data={newStudents} />
+        <DataTable columns={columns(handleRowRemoval)} data={newStudents} />
+        // <SimpleTable students={newStudents} setStudents={setNewStudents} />
       )}
       <div className="flex justify-end">
         {/* // TODO: hook up procedure to create invites */}

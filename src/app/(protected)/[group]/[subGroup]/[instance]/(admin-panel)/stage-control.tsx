@@ -37,7 +37,7 @@ export function StageControl({
       {
         loading: "Updating Stage...",
         error: "Something went wrong",
-        success: "Succcess",
+        success: "Success",
       },
     );
   };

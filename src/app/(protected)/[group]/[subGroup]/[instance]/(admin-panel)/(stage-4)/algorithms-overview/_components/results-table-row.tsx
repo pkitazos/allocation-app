@@ -41,7 +41,7 @@ export function ResultsTableRow({
       {
         loading: "Running...",
         error: "Something went wrong",
-        success: "Succcess",
+        success: "Success",
       },
     );
   };
