@@ -89,7 +89,7 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.allocationInstance.update({
           where: {
-            allocationGroupId_allocationSubGroupId_id: {
+            instanceId: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               id: instance,
@@ -238,6 +238,140 @@ export const instanceRouter = createTRPCRouter({
           },
           select: {
             user: { select: { id: true, name: true, email: true } },
+          },
+        });
+      },
+    ),
+
+  invitedSupervisors: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const invitedUsers = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.SUPERVISOR,
+          },
+          select: { user: true, joined: true },
+        });
+
+        const { supervisorsCanAccess: platformAccess } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: { supervisorsCanAccess: true },
+          });
+
+        const supervisors = invitedUsers.map(({ user, joined }) => ({
+          id: user.id,
+          name: user.name!,
+          email: user.email!,
+          joined,
+        }));
+
+        return { supervisors, platformAccess };
+      },
+    ),
+
+  toggleSupervisorPlatformAccess: adminProcedure
+    .input(
+      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          platformAccess,
+        },
+      }) => {
+        await ctx.db.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+          },
+          data: {
+            supervisorsCanAccess: platformAccess,
+          },
+        });
+      },
+    ),
+
+  invitedStudents: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const invitedUsers = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: { user: true, joined: true },
+        });
+
+        const { studentsCanAccess: platformAccess } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: { studentsCanAccess: true },
+          });
+
+        const students = invitedUsers.map(({ user, joined }) => ({
+          id: user.id,
+          name: user.name!,
+          email: user.email!,
+          joined,
+        }));
+
+        return { students, platformAccess };
+      },
+    ),
+
+  toggleStudentPlatformAccess: adminProcedure
+    .input(
+      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          platformAccess,
+        },
+      }) => {
+        await ctx.db.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+          },
+          data: {
+            studentsCanAccess: platformAccess,
           },
         });
       },
