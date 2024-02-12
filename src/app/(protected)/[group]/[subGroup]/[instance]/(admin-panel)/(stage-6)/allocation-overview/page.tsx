@@ -1,10 +1,13 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
-import { ByProjectDataTable } from "./by-project-data-table";
-import { ByStudentDataTable } from "./by-student-data-table";
-import { BySupervisorDataTable } from "./by-supervisor-data-table";
+
 import { instanceParams } from "@/lib/validations/params";
+import {
+  ByProjectDataTable,
+  ByStudentDataTable,
+  BySupervisorDataTable,
+} from "./_components";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const { byStudent, byProject, bySupervisor } =

@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: instanceParams }) {
     <div className="mt-20 flex flex-col items-center">
       <div className="flex w-1/2 flex-col gap-3">
         <h2 className="mb-6 text-2xl font-semibold">Algorithm Results</h2>
-        <Tabs defaultValue={results[firstNonEmpty].algName}>
+        <Tabs defaultValue={results[firstNonEmpty]?.algName ?? ""}>
           <TabsList className="w-full">
             {results.map((result, i) => (
               <TabsTrigger
@@ -26,24 +26,6 @@ export default async function Page({ params }: { params: instanceParams }) {
                 {result.displayName}
               </TabsTrigger>
             ))}
-            {/* <TabsTrigger
-              className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-              value="greedy"
-            >
-              Greedy
-            </TabsTrigger>
-            <TabsTrigger
-              className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-              value="minimum-cost"
-            >
-              Minimum Cost
-            </TabsTrigger>
-            <TabsTrigger
-              className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-              value="greedy-generous"
-            >
-              Greedy-Generous
-            </TabsTrigger> */}
           </TabsList>
           <Separator className="my-4" />
           {results.map((result, i) => (
@@ -51,16 +33,6 @@ export default async function Page({ params }: { params: instanceParams }) {
               <DetailsTable data={result.data} />
             </TabsContent>
           ))}
-          {/*           
-          <TabsContent value="greedy">
-            <DetailsTable data={results[1].data} />
-          </TabsContent>
-          <TabsContent value="minimum-cost">
-            <DetailsTable data={results[2].data} />
-          </TabsContent>
-          <TabsContent value="greedy-generous">
-            <DetailsTable data={results[3].data} />
-          </TabsContent> */}
         </Tabs>
       </div>
     </div>
