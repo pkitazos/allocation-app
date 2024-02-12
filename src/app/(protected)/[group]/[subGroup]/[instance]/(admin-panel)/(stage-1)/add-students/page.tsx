@@ -1,4 +1,4 @@
-import { AddStudents } from "./add-students";
+import { AddStudents } from "./_components/add-students";
 
 export default async function Page() {
   return (

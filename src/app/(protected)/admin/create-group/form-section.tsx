@@ -54,7 +54,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
       {
         loading: "Loading",
         error: "Something went wrong",
-        success: "Succcess",
+        success: "Success",
       },
     );
   };

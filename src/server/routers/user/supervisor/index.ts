@@ -32,4 +32,35 @@ export const supervisorRouter = createTRPCRouter({
         });
       },
     ),
+  projects: protectedProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const userId = ctx.session.user.id;
+        const targets = 5;
+        const projects = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            supervisorId: userId,
+          },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+          },
+        });
+        return { projects, targets };
+      },
+    ),
 });

@@ -51,7 +51,7 @@ export function RunAlgorithmButton({
             {
               loading: "Running...",
               error: "Something went wrong",
-              success: "Succcess",
+              success: "Success",
             },
           )
         }

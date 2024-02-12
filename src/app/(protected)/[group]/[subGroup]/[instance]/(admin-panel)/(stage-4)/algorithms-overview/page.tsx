@@ -6,9 +6,11 @@ import {
 } from "@/lib/algorithms";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import { NewAlgorithmButton } from "./new-algorithm-button";
-import { ResultsTable } from "./results-table";
-import { RunAlgorithmButton } from "./run-algorithm-button";
+import {
+  NewAlgorithmButton,
+  ResultsTable,
+  RunAlgorithmButton,
+} from "./_components";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const { matchingData, selectedAlgName } =
@@ -42,12 +44,12 @@ export default async function Page({ params }: { params: instanceParams }) {
           <RunAlgorithmButton
             params={params}
             matchingData={matchingData}
-            algorithm={MinCostAlgorithm}
+            algorithm={GreedyGenAlgorithm}
           />
           <RunAlgorithmButton
             params={params}
             matchingData={matchingData}
-            algorithm={GreedyGenAlgorithm}
+            algorithm={MinCostAlgorithm}
           />
           {customAlgs.map((alg, i) => (
             // TODO: add ability to delete custom algorithms

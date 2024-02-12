@@ -172,7 +172,7 @@ export const matchingRouter = createTRPCRouter({
 
         await ctx.db.allocationInstance.update({
           where: {
-            allocationGroupId_allocationSubGroupId_id: {
+            instanceId: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               id: instance,

@@ -4,22 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import DataTable from "@/components/ui/data-table/data-table";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { CSVUploadButton } from "./csv-upload-button";
+import { columns } from "./new-student-columns";
 
 const NewStudentSchema = z.object({
-  name: z.string(),
+  fullName: z.string(),
   schoolId: z.string(),
   email: z.string().email(),
 });
 
-type NewStudent = z.infer<typeof NewStudentSchema>;
+export type NewStudent = z.infer<typeof NewStudentSchema>;
+
+export const csvHeaders = ["full_name", "school_id", "email"];
 
 export function AddStudents() {
-  const [, setNewStudents] = useState<NewStudent[]>([]);
+  const [newStudents, setNewStudents] = useState<NewStudent[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewStudent>({
     resolver: zodResolver(NewStudentSchema),
@@ -30,16 +35,20 @@ export function AddStudents() {
     reset();
   };
 
+  function handleRowRemoval(idx: number) {
+    setNewStudents((prev) => prev.toSpliced(idx, 1));
+  }
+
   return (
     <div className="flex flex-col px-6">
       <div className="flex flex-col gap-6">
         <h3 className="text-xl">Upload using CSV</h3>
         <div className="flex items-center gap-6">
-          <Button variant="outline">add file</Button>
-          <p className="text-slate-500">
-            (must contain header:{" "}
-            <code className="text-slate-600">full_name,school_id,email</code>)
-          </p>
+          <CSVUploadButton setNewStudents={setNewStudents} />
+          <div className="flex flex-col items-start">
+            <p className="text-slate-500">must contain header: </p>
+            <code className="text-slate-600">{csvHeaders.join(",")}</code>
+          </div>
         </div>
       </div>
       <LabelledSeparator label="or" className="my-6" />
@@ -49,10 +58,14 @@ export function AddStudents() {
       >
         <h3 className="text-xl">Manually create Student</h3>
         <div className="flex w-full items-center justify-start gap-5">
-          <Input className="w-1/4" placeholder="Name" {...register("name")} />
+          <Input
+            className="w-1/4"
+            placeholder="Full Name"
+            {...register("fullName")}
+          />
           <Input
             className="w-1/6"
-            placeholder="1234567a"
+            placeholder="School ID"
             {...register("schoolId")}
           />
           <Input className="w-2/5" placeholder="Email" {...register("email")} />
@@ -62,8 +75,13 @@ export function AddStudents() {
         </div>
       </form>
       <Separator className="my-14" />
+      {newStudents.length !== 0 && (
+        <DataTable columns={columns(handleRowRemoval)} data={newStudents} />
+        // <SimpleTable students={newStudents} setStudents={setNewStudents} />
+      )}
       <div className="flex justify-end">
-        <Button>invite</Button>
+        {/* // TODO: hook up procedure to create invites */}
+        <Button disabled={newStudents.length === 0}>invite</Button>
       </div>
     </div>
   );
