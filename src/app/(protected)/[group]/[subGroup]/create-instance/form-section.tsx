@@ -154,7 +154,7 @@ export function FormSection({
       {
         loading: "Loading",
         error: "Something went wrong",
-        success: "Succcess",
+        success: "Success",
       },
     );
   };
