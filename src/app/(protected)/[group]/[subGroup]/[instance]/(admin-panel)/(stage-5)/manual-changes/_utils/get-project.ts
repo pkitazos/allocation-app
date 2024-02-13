@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { withinBounds } from "@/lib/utils/allocation-within-bounds";
 import {
   ProjectInfo,
   RowProject,
 } from "@/lib/validations/allocation-adjustment";
 
 export function getProjectInfo(allProjects: ProjectInfo[], projectId: string) {
-  console.log("how???", { allProjects });
   return allProjects.find((p) => p.id === projectId)!;
 }
 
@@ -43,4 +43,8 @@ export function replaceUpdated(
     const idx = updatedProjects.findIndex(({ id }) => id === row.id);
     return idx === -1 ? row : updatedProjects[idx];
   });
+}
+
+export function allValid(allProjects: ProjectInfo[]) {
+  return allProjects.map(withinBounds).every(Boolean);
 }

@@ -7,20 +7,14 @@ import {
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
 
-type Conflict = {
-  projectId: string;
-  studentId: string;
-};
-
 interface AllocDetailsProps {
   profile: number[];
   weight: number;
 
   projects: ProjectInfo[];
+  studentsBackup: StudentRow[];
   students: StudentRow[];
   selectedStudentIds: string[];
-
-  conflicts: Conflict[];
 }
 
 interface AllocDetailsState extends AllocDetailsProps {
@@ -29,8 +23,6 @@ interface AllocDetailsState extends AllocDetailsProps {
 
   setSelectedStudentIds: (ids: string[]) => void;
   updateProjects: (projects: ProjectInfo[]) => void;
-
-  // addToProject: (projectId: string, studentId: string) => void;
 }
 
 type AllocDetailsStore = ReturnType<typeof createAllocDetailsStore>;
@@ -40,8 +32,7 @@ const createAllocDetailsStore = (initProps?: Partial<AllocDetailsProps>) => {
     profile: [],
     weight: NaN,
 
-    conflicts: [],
-
+    studentsBackup: [],
     projects: [],
     students: [],
     selectedStudentIds: [],
@@ -56,18 +47,6 @@ const createAllocDetailsStore = (initProps?: Partial<AllocDetailsProps>) => {
 
     setSelectedStudentIds: (val) => set(() => ({ selectedStudentIds: val })),
     updateProjects: (projects) => set(() => ({ projects })),
-
-    // addToProject: (projectId, studentId) =>
-    //   set(({ projects }) => {
-    //     const projectIdx = projects.findIndex((p) => p.id === projectId);
-    //     const project = projects[projectIdx];
-
-    //     projects[projectIdx] = {
-    //       ...project,
-    //       allocatedTo: [...project.allocatedTo, studentId],
-    //     };
-    //     return { projects };
-    //   }),
   }));
 };
 

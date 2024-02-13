@@ -22,9 +22,9 @@ export default async function Page({ params }: { params: instanceParams }) {
         profile={profile}
         weight={weight}
         students={students}
+        studentsBackup={structuredClone(students)}
         projects={projects}
         selectedStudentIds={[]}
-        conflicts={[]}
       >
         <AdjustmentSpace />
       </AllocDetailsProvider>

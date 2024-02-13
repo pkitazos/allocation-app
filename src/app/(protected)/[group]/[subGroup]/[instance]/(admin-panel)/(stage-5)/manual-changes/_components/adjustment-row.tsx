@@ -7,6 +7,7 @@ import { removedItem } from "@/lib/utils/removed-item";
 
 import { getProjectInfo, replaceUpdated } from "../_utils/get-project";
 import { getStudent, inAllocatedTo } from "../_utils/get-student";
+import { handleProfileChange } from "../_utils/matching-info";
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";
@@ -21,6 +22,10 @@ export function AdjustmentRow({
 }) {
   const [dragging, setDragging] = useState(false);
 
+  const profile = useAllocDetails((s) => s.profile);
+  const setProfile = useAllocDetails((s) => s.setProfile);
+  const setWeight = useAllocDetails((s) => s.setWeight);
+
   const allStudents = useAllocDetails((s) => s.students);
   const allProjects = useAllocDetails((s) => s.projects);
   const updateProjects = useAllocDetails((s) => s.updateProjects);
@@ -31,43 +36,14 @@ export function AdjustmentRow({
     selected: p.selected,
   }));
 
-  console.log("row projects ------->>", { projects });
-
-  // function handleProfileChange(prevIdx: number, newIdx: number) {
-  //   if (prevIdx === newIdx) return;
-
-  //   const updatedProfile = profile.map((num, i) => {
-  //     if (i === prevIdx) return profile[prevIdx] - 1;
-  //     if (i === newIdx) return profile[newIdx] + 1;
-  //     else return num;
-  //   });
-
-  //   const updatedWeight = updatedProfile.reduce((acc, val, i) => {
-  //     return acc + val * (i + 1);
-  //   }, 0);
-
-  //   setWeight(updatedWeight);
-  //   setProfile(updatedProfile);
-  // }
-
-  // function handleValidityChange(activeProjects: RowProject[]) {
-  //   const isValid = activeProjects.reduce((acc, val) => {
-  //     return acc && allocationWithinBounds(val);
-  //   }, true);
-
-  //   const updatedRowValidities = rowValidities.map((row, i) => {
-  //     return i === rowIdx ? isValid : row;
-  //   });
-  //   setRowValidities(updatedRowValidities);
-
-  //   const allValid = updatedRowValidities.every(Boolean);
-  //   setValidity(allValid);
-  // }
+  function updateProfile(prevIdx: number, newIdx: number) {
+    return handleProfileChange(profile, prevIdx, newIdx, setProfile, setWeight);
+  }
 
   function onDragEnd({ over }: DragEndEvent) {
     if (!over) return;
 
-    const newProjects = projects.slice();
+    const newProjects = structuredClone(projects);
     const selectedIdx = inAllocatedTo(newProjects, studentId);
     const overIdx = newProjects.findIndex((e) => e.id === over.id);
 
@@ -78,7 +54,7 @@ export function AdjustmentRow({
 
     newProjects[selectedIdx] = {
       ...restPrevProject,
-      selected: false,
+      // selected: false,
       allocatedTo: removedItem(prevAllocatedTo, studentId),
     };
 
@@ -87,29 +63,14 @@ export function AdjustmentRow({
 
     newProjects[overIdx] = {
       ...restNewProject,
-      selected: true,
+      // selected: true,
       allocatedTo: [...newAllocatedTo, studentId],
     };
 
     const updatedProjects = replaceUpdated(allProjects, newProjects);
 
+    updateProfile(selectedIdx, overIdx);
     updateProjects(updatedProjects);
-    // handleValidityChange(projects);
-    // updateConflicts(newAllocatedTo);
-
-    // const updatedRows = visibleRows.map((row, i) => {
-    //   if (i === rowIdx) return { ...row, projectPreferences: projects };
-    //   else return row;
-    // });
-
-    // const updatedRowConflicts = rowConflicts.map((row, i) => {
-    //   if (i === rowIdx) return newAllocatedTo;
-    //   else return row;
-    // });
-
-    // updateProjects(updatedRows);
-    // updateRowConflicts(updatedRowConflicts);
-
     setDragging(false);
   }
 
