@@ -25,14 +25,19 @@ export type StudentRow = {
     id: string;
     name: string;
   };
-  projectPreferences: {
+  projects: {
     id: string;
-    capacityLowerBound: number;
-    capacityUpperBound: number;
-    allocatedTo: string[];
     selected: boolean;
   }[];
 };
 
-// TODO: remove string indexing
-export type RowProject = StudentRow["projectPreferences"][number];
+export type ProjectInfo = {
+  id: string;
+  capacityLowerBound: number;
+  capacityUpperBound: number;
+  allocatedTo: string[];
+};
+
+export type RowProject = ProjectInfo & {
+  selected: boolean;
+};

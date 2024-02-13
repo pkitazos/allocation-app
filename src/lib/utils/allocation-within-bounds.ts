@@ -1,6 +1,6 @@
-import { RowProject } from "@/lib/validations/allocation-adjustment";
+import { ProjectInfo } from "@/lib/validations/allocation-adjustment";
 
-export function allocationWithinBounds(project: RowProject) {
+export function withinBounds(project: ProjectInfo) {
   const { capacityLowerBound, capacityUpperBound, allocatedTo } = project;
   return (
     capacityLowerBound <= allocatedTo.length &&

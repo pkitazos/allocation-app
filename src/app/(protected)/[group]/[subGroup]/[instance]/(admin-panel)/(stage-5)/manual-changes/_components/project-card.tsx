@@ -4,23 +4,28 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { RowProject } from "@/lib/validations/allocation-adjustment";
-
-import { useAllocDetails } from "../allocation-store";
-import { allocationWithinBounds } from "@/lib/utils/allocation-within-bounds";
+import { withinBounds } from "@/lib/utils/allocation-within-bounds";
+import { useAllocDetails } from "./allocation-store";
+import { getProjectInfo } from "../_utils/get-project";
 
 export function ProjectCard({
-  project,
+  project: { id: projectId, selected: originallySelected },
   studentId,
 }: {
-  project: RowProject;
+  project: { id: string; selected: boolean };
   studentId: string;
 }) {
-  const { setNodeRef, isOver } = useDroppable({ id: project.id });
+  const { setNodeRef, isOver } = useDroppable({ id: projectId });
 
-  const conflictingWith = useAllocDetails((s) => s.conflictingWith);
-  const withinBounds = allocationWithinBounds(project);
-  const isConflicting = conflictingWith.includes(studentId);
+  const allProjects = useAllocDetails((s) => s.projects);
+  const projectInfo = getProjectInfo(allProjects, projectId);
+
+  if (!projectInfo.allocatedTo) {
+    console.log("blows up here ------>>", { projectInfo });
+  }
+
+  const currentlySelected = projectInfo.allocatedTo.includes(studentId);
+  const invalid = currentlySelected && !withinBounds(projectInfo);
 
   return (
     <div className="flex  flex-col">
@@ -28,20 +33,21 @@ export function ProjectCard({
         ref={setNodeRef}
         className={cn(
           "w-32 overflow-hidden p-3 text-center",
-          project.selected && "bg-primary text-primary-foreground",
-          !withinBounds && "bg-destructive text-destructive-foreground",
-          project.selected && isConflicting && "bg-orange-500 text-white",
+          originallySelected && "bg-primary/50 text-primary-foreground",
+          currentlySelected && "bg-primary text-primary-foreground",
+          invalid && "bg-destructive text-destructive-foreground",
           isOver && "outline outline-[3px] outline-sky-500",
         )}
       >
-        {project.id}
+        {projectInfo.id}
       </Card>
       <div className="w-32">
-        <p>{project.selected.toString()}</p>
-        <p>{project.capacityLowerBound}</p>
-        <p>{project.capacityUpperBound}</p>
-        {project.allocatedTo.map((item, i) => (
-          <p key={i}>{item}</p>
+        <p>{projectInfo.capacityLowerBound}</p>
+        <p>{projectInfo.capacityUpperBound}</p>
+        {projectInfo.allocatedTo.map((item, i) => (
+          <p key={i} className={cn(item === studentId && "font-bold")}>
+            {item}
+          </p>
         ))}
       </div>
     </div>

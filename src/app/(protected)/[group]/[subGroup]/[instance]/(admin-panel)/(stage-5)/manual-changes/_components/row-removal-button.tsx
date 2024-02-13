@@ -1,29 +1,16 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { useAllocDetails } from "../allocation-store";
 import { X } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { useAllocDetails } from "./allocation-store";
+
 export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
-  const allOriginalRows = useAllocDetails((s) => s.allOriginalRows);
-  const allWorkingRows = useAllocDetails((s) => s.allWorkingRows);
-  const visibleRows = useAllocDetails((s) => s.visibleRows);
+  const selectedStudentIds = useAllocDetails((s) => s.selectedStudentIds);
+  const setSelectedStudentIds = useAllocDetails((s) => s.setSelectedStudentIds);
 
-  const updateWorkingRows = useAllocDetails((s) => s.updateWorkingRows);
-  const updateVisibleRows = useAllocDetails((s) => s.updateVisibleRows);
-
-  const rowConflicts = useAllocDetails((s) => s.rowConflicts);
-  const updateRowConflicts = useAllocDetails((s) => s.updateRowConflicts);
-
-  // TODO: make sure validity check runs after row removal
+  // TODO: discard changes when row is removed
   function handleRowRemoval(idx: number) {
-    const updatedWorkingRows = allWorkingRows.map((row, i) => {
-      return i === idx ? allOriginalRows[idx] : row;
-    });
-
-    updateWorkingRows(updatedWorkingRows);
-    updateVisibleRows(visibleRows.toSpliced(idx, 1));
-
-    updateRowConflicts(rowConflicts.toSpliced(idx, 1));
+    setSelectedStudentIds(selectedStudentIds.toSpliced(idx, 1));
   }
 
   return (

@@ -3,108 +3,112 @@ import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-import { removedItem } from "@/lib/utils/remove-item";
-import { RowProject } from "@/lib/validations/allocation-adjustment";
+import { removedItem } from "@/lib/utils/removed-item";
 
-import { useAllocDetails } from "../allocation-store";
+import { getProjectInfo, replaceUpdated } from "../_utils/get-project";
+import { getStudent, inAllocatedTo } from "../_utils/get-student";
+import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
-import { StudentCard } from "./student-card";
 import { RowRemovalButton } from "./row-removal-button";
-import { allocationWithinBounds } from "@/lib/utils/allocation-within-bounds";
+import { StudentCard } from "./student-card";
 
-export function AdjustmentRow({ rowIdx }: { rowIdx: number }) {
-  const visibleRows = useAllocDetails((s) => s.visibleRows);
-  const updateVisibleRows = useAllocDetails((s) => s.updateVisibleRows);
-  const { student, projectPreferences } = visibleRows[rowIdx];
-
-  const profile = useAllocDetails((s) => s.profile);
-  const setProfile = useAllocDetails((s) => s.setProfile);
-  const setWeight = useAllocDetails((s) => s.setWeight);
-
-  const setValidity = useAllocDetails((s) => s.setValidOverall);
-  const rowValidities = useAllocDetails((s) => s.rowValidities);
-  const setRowValidities = useAllocDetails((s) => s.setRowValidities);
-
-  const rowConflicts = useAllocDetails((s) => s.rowConflicts);
-  const updateRowConflicts = useAllocDetails((s) => s.updateRowConflicts);
-
-  const updateConflicts = useAllocDetails((s) => s.updateConflicts);
-
+export function AdjustmentRow({
+  rowIdx,
+  studentId,
+}: {
+  rowIdx: number;
+  studentId: string;
+}) {
   const [dragging, setDragging] = useState(false);
 
-  function handleProfileChange(prevIdx: number, newIdx: number) {
-    if (prevIdx === newIdx) return;
+  const allStudents = useAllocDetails((s) => s.students);
+  const allProjects = useAllocDetails((s) => s.projects);
+  const updateProjects = useAllocDetails((s) => s.updateProjects);
 
-    const updatedProfile = profile.map((num, i) => {
-      if (i === prevIdx) return profile[prevIdx] - 1;
-      if (i === newIdx) return profile[newIdx] + 1;
-      else return num;
-    });
+  const rowStudent = getStudent(allStudents, studentId);
+  const projects = rowStudent.projects.map((p) => ({
+    ...getProjectInfo(allProjects, p.id),
+    selected: p.selected,
+  }));
 
-    const updatedWeight = updatedProfile.reduce((acc, val, i) => {
-      return acc + val * (i + 1);
-    }, 0);
+  console.log("row projects ------->>", { projects });
 
-    setWeight(updatedWeight);
-    setProfile(updatedProfile);
-  }
+  // function handleProfileChange(prevIdx: number, newIdx: number) {
+  //   if (prevIdx === newIdx) return;
 
-  function handleValidityChange(activeProjects: RowProject[]) {
-    const isValid = activeProjects.reduce((acc, val) => {
-      return acc && allocationWithinBounds(val);
-    }, true);
+  //   const updatedProfile = profile.map((num, i) => {
+  //     if (i === prevIdx) return profile[prevIdx] - 1;
+  //     if (i === newIdx) return profile[newIdx] + 1;
+  //     else return num;
+  //   });
 
-    const updatedRowValidities = rowValidities.map((row, i) => {
-      return i === rowIdx ? isValid : row;
-    });
-    setRowValidities(updatedRowValidities);
+  //   const updatedWeight = updatedProfile.reduce((acc, val, i) => {
+  //     return acc + val * (i + 1);
+  //   }, 0);
 
-    const allValid = updatedRowValidities.every(Boolean);
-    setValidity(allValid);
-  }
+  //   setWeight(updatedWeight);
+  //   setProfile(updatedProfile);
+  // }
+
+  // function handleValidityChange(activeProjects: RowProject[]) {
+  //   const isValid = activeProjects.reduce((acc, val) => {
+  //     return acc && allocationWithinBounds(val);
+  //   }, true);
+
+  //   const updatedRowValidities = rowValidities.map((row, i) => {
+  //     return i === rowIdx ? isValid : row;
+  //   });
+  //   setRowValidities(updatedRowValidities);
+
+  //   const allValid = updatedRowValidities.every(Boolean);
+  //   setValidity(allValid);
+  // }
 
   function onDragEnd({ over }: DragEndEvent) {
     if (!over) return;
 
-    const projects = projectPreferences.slice();
-    const selectedIdx = projects.findIndex((e) => e.selected);
-    const overIdx = projects.findIndex((e) => e.id === over.id);
+    const newProjects = projects.slice();
+    const selectedIdx = inAllocatedTo(newProjects, studentId);
+    const overIdx = newProjects.findIndex((e) => e.id === over.id);
 
-    handleProfileChange(selectedIdx, overIdx);
+    if (selectedIdx === overIdx) return;
 
     const { allocatedTo: prevAllocatedTo, ...restPrevProject } =
-      projects[selectedIdx];
+      newProjects[selectedIdx];
 
-    projects[selectedIdx] = {
+    newProjects[selectedIdx] = {
       ...restPrevProject,
       selected: false,
-      allocatedTo: removedItem(prevAllocatedTo, student.id),
+      allocatedTo: removedItem(prevAllocatedTo, studentId),
     };
 
     const { allocatedTo: newAllocatedTo, ...restNewProject } =
-      projects[overIdx];
+      newProjects[overIdx];
 
-    projects[overIdx] = {
+    newProjects[overIdx] = {
       ...restNewProject,
       selected: true,
-      allocatedTo: [...newAllocatedTo, student.id],
+      allocatedTo: [...newAllocatedTo, studentId],
     };
 
-    handleValidityChange(projects);
-    updateConflicts(newAllocatedTo);
+    const updatedProjects = replaceUpdated(allProjects, newProjects);
 
-    const updatedRows = visibleRows.map((row, i) => {
-      if (i === rowIdx) return { ...row, projectPreferences: projects };
-      else return row;
-    });
+    updateProjects(updatedProjects);
+    // handleValidityChange(projects);
+    // updateConflicts(newAllocatedTo);
 
-    const updatedRowConflicts = rowConflicts.map((row, i) => {
-      if (i === rowIdx) return newAllocatedTo;
-      else return row;
-    });
+    // const updatedRows = visibleRows.map((row, i) => {
+    //   if (i === rowIdx) return { ...row, projectPreferences: projects };
+    //   else return row;
+    // });
 
-    updateVisibleRows(updatedRows);
-    updateRowConflicts(updatedRowConflicts);
+    // const updatedRowConflicts = rowConflicts.map((row, i) => {
+    //   if (i === rowIdx) return newAllocatedTo;
+    //   else return row;
+    // });
+
+    // updateProjects(updatedRows);
+    // updateRowConflicts(updatedRowConflicts);
 
     setDragging(false);
   }
@@ -114,15 +118,15 @@ export function AdjustmentRow({ rowIdx }: { rowIdx: number }) {
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-2 border-r pr-3">
           <RowRemovalButton rowIdx={rowIdx} />
-          <StudentCard studentId={student.id} />
+          <StudentCard studentId={studentId} />
         </div>
-        {projectPreferences.map((p, i) => (
-          <ProjectCard key={i} project={p} studentId={student.id} />
+        {rowStudent.projects.map((p, i) => (
+          <ProjectCard key={i} project={p} studentId={studentId} />
         ))}
       </div>
       {createPortal(
         <DragOverlay>
-          {dragging && <StudentCard studentId={student.id} />}
+          {dragging && <StudentCard studentId={studentId} />}
         </DragOverlay>,
         document.body,
       )}

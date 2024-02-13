@@ -305,7 +305,7 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  allTheThings: adminProcedure
+  rowData: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -390,17 +390,25 @@ export const matchingRouter = createTRPCRouter({
           };
         });
 
-        return studentData.map((e) => ({
+        const students = studentData.map((e) => ({
           student: { id: e.user.id, name: e.user.name! },
-          projectPreferences: e.studentPreferences.map(
+          projects: e.studentPreferences.map(
             ({ project: { id, allocations } }) => ({
               id,
               selected:
                 allocations.filter((u) => u.userId === e.user.id).length === 1,
-              ...projectDetails[id],
             }),
           ),
         }));
+
+        const projects = projectData.map((p) => ({
+          id: p.id,
+          capacityLowerBound: p.capacityLowerBound,
+          capacityUpperBound: p.capacityUpperBound,
+          allocatedTo: allocationRecord[p.id] ?? [],
+        }));
+
+        return { students, projects };
       },
     ),
 

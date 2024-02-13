@@ -1,19 +1,33 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import { AllocationAdjustment } from "./adjustment-context";
+
+import { AllocDetailsProvider } from "./_components/allocation-store";
+import { AdjustmentSpace } from "./_components/adjustment-space";
 
 export default async function Page({ params }: { params: instanceParams }) {
-  const allRows = await api.institution.instance.matching.allTheThings.query({
-    params,
-  });
+  const { students, projects } =
+    await api.institution.instance.matching.rowData.query({
+      params,
+    });
 
-  const matchingInfo = await api.institution.instance.matching.info.query({
-    params,
-  });
+  const { profile, weight } =
+    await api.institution.instance.matching.info.query({
+      params,
+    });
 
   return (
     <div className="mt-10 flex h-full justify-center px-20">
-      <AllocationAdjustment allRows={allRows} matchingInfo={matchingInfo} />
+      <AllocDetailsProvider
+        profile={profile}
+        weight={weight}
+        students={students}
+        projects={projects}
+        selectedStudentIds={[]}
+        conflicts={[]}
+      >
+        <AdjustmentSpace />
+      </AllocDetailsProvider>
     </div>
   );
 }

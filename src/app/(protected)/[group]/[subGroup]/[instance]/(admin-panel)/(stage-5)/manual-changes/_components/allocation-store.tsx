@@ -1,69 +1,73 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
-  MatchingInfo,
+  ProjectInfo,
   StudentRow,
 } from "@/lib/validations/allocation-adjustment";
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
 
+type Conflict = {
+  projectId: string;
+  studentId: string;
+};
+
 interface AllocDetailsProps {
-  validOverall: boolean;
-  rowValidities: boolean[];
   profile: number[];
   weight: number;
-  conflictingWith: string[];
 
-  rowConflicts: string[][];
-  allOriginalRows: StudentRow[];
-  allWorkingRows: StudentRow[];
-  visibleRows: StudentRow[];
-  changedRows: StudentRow[];
+  projects: ProjectInfo[];
+  students: StudentRow[];
+  selectedStudentIds: string[];
+
+  conflicts: Conflict[];
 }
 
 interface AllocDetailsState extends AllocDetailsProps {
-  setValidOverall: (isValid: boolean) => void;
   setWeight: (weight: number) => void;
   setProfile: (profile: number[]) => void;
-  setRowValidities: (validities: boolean[]) => void;
-  updateConflicts: (conflicts: string[]) => void;
 
-  updateVisibleRows: (updatedRows: StudentRow[]) => void;
-  updateWorkingRows: (updatedRows: StudentRow[]) => void;
+  setSelectedStudentIds: (ids: string[]) => void;
+  updateProjects: (projects: ProjectInfo[]) => void;
 
-  updateMatchingInfo: (rows: MatchingInfo) => void;
-  updateRowConflicts: (rows: string[][]) => void;
+  // addToProject: (projectId: string, studentId: string) => void;
 }
 
 type AllocDetailsStore = ReturnType<typeof createAllocDetailsStore>;
 
 const createAllocDetailsStore = (initProps?: Partial<AllocDetailsProps>) => {
   const DEFAULT_PROPS: AllocDetailsProps = {
-    validOverall: true,
-    rowValidities: [],
     profile: [],
     weight: NaN,
-    conflictingWith: [],
 
-    rowConflicts: [],
-    allOriginalRows: [],
-    allWorkingRows: [],
-    visibleRows: [],
-    changedRows: [],
+    conflicts: [],
+
+    projects: [],
+    students: [],
+    selectedStudentIds: [],
   };
+
   return createStore<AllocDetailsState>()((set) => ({
     ...DEFAULT_PROPS,
     ...initProps,
-    setValidOverall: (val) => set(() => ({ validOverall: val })),
-    setRowValidities: (val) => set(() => ({ rowValidities: val })),
+
     setWeight: (val) => set(() => ({ weight: val })),
     setProfile: (val) => set(() => ({ profile: val })),
-    updateConflicts: (val) => set(() => ({ conflictingWith: val })),
 
-    updateVisibleRows: (val) => set(() => ({ visibleRows: val })),
-    updateWorkingRows: (val) => set(() => ({ allWorkingRows: val })),
+    setSelectedStudentIds: (val) => set(() => ({ selectedStudentIds: val })),
+    updateProjects: (projects) => set(() => ({ projects })),
 
-    updateMatchingInfo: (val) => set(() => ({ ...val })),
-    updateRowConflicts: (val) => set(() => ({ rowConflicts: val })),
+    // addToProject: (projectId, studentId) =>
+    //   set(({ projects }) => {
+    //     const projectIdx = projects.findIndex((p) => p.id === projectId);
+    //     const project = projects[projectIdx];
+
+    //     projects[projectIdx] = {
+    //       ...project,
+    //       allocatedTo: [...project.allocatedTo, studentId],
+    //     };
+    //     return { projects };
+    //   }),
   }));
 };
 

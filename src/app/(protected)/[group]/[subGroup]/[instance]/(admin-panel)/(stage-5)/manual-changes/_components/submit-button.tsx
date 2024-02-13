@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { useAllocDetails } from "../allocation-store";
+import { useAllocDetails } from "./allocation-store";
+import { withinBounds } from "@/lib/utils/allocation-within-bounds";
 
 export function SubmitButton() {
-  const isValid = useAllocDetails((s) => s.validOverall);
-  return <Button disabled={!isValid}>Submit Changes</Button>;
+  const allProjects = useAllocDetails((s) => s.projects);
+  const valid = allProjects.map(withinBounds).every(Boolean);
+
+  return <Button disabled={!valid}>Submit Changes</Button>;
 }
