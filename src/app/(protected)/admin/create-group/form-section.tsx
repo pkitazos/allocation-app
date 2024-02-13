@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { slugify } from "@/lib/utils/slugify";
+import { slugify } from "@/lib/utils/general/slugify";
 
 export function FormSection({ takenNames }: { takenNames: string[] }) {
   const router = useRouter();

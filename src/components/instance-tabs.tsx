@@ -1,9 +1,10 @@
 import { Role } from "@prisma/client";
 
 import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/get-instance-path";
-import { roleCheck } from "@/lib/utils/role-check";
+import { getInstancePath } from "@/lib/utils/general/get-instance-path";
+import { roleCheck } from "@/lib/utils/permissions/role-check";
 import { instanceParams } from "@/lib/validations/params";
+
 import { InstanceLink } from "./instance-link";
 
 export async function InstanceTabs({ params }: { params: instanceParams }) {

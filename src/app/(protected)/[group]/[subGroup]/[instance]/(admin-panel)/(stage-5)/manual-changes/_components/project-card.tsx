@@ -4,10 +4,10 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { withinBounds } from "@/lib/utils/within-bounds";
+import { getProjectInfo } from "@/lib/utils/allocation-adjustment";
+import { withinBounds } from "@/lib/utils/allocation-adjustment/within-bounds";
 
 import { useAllocDetails } from "./allocation-store";
-import { getProjectInfo } from "../_utils";
 
 export function ProjectCard({
   project: { id: projectId, selected: originallySelected },

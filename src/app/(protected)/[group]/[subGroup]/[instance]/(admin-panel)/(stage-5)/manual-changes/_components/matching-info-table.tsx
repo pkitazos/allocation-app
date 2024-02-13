@@ -1,9 +1,13 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { zeros } from "@/lib/utils/zeros";
+import {
+  allValid,
+  getPreferenceRank,
+  getUpdatedWeight,
+} from "@/lib/utils/allocation-adjustment";
+import { zeros } from "@/lib/utils/general/zeros";
 
 import { useAllocDetails } from "./allocation-store";
-import { allValid, getPreferenceRank, getUpdatedWeight } from "../_utils";
 
 export function MatchingInfoTable() {
   const allProjects = useAllocDetails((s) => s.projects);

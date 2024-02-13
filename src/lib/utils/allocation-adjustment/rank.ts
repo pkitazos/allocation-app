@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import {
   ProjectInfo,
   StudentRow,
 } from "@/lib/validations/allocation-adjustment";
-import { getStudent } from "./get-student";
+import { getStudent } from "./student";
 
 function getStudentProjectIds(row: StudentRow): string[] {
   return row.projects.map((p) => p.id);

@@ -34,3 +34,5 @@ The server is built using:
 - and how to switch to production mode
 
 - spa.optimalmatching.com
+
+- add directions for setting up Postgres db

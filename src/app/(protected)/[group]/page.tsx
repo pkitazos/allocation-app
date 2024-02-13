@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { permissionCheck } from "@/lib/utils/permission-check";
+import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.spaceMembership.query({ params });

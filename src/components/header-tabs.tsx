@@ -1,5 +1,6 @@
 import { api } from "@/lib/trpc/server";
-import { getSpaceParams } from "@/lib/utils/get-space-params";
+import { getSpaceParams } from "@/lib/utils/general/get-space-params";
+
 import { InstanceLink } from "./instance-link";
 import { InstanceTabs } from "./instance-tabs";
 
