@@ -1,25 +1,18 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import DataTable from "@/components/ui/data-table/data-table";
-import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import DataTable from "@/components/ui/data-table/data-table";
+import { Input } from "@/components/ui/input";
+import { LabelledSeparator } from "@/components/ui/labelled-separator";
+import { Separator } from "@/components/ui/separator";
+import { NewStudent, NewStudentSchema } from "@/lib/validations/csv";
+
 import { CSVUploadButton } from "./csv-upload-button";
 import { columns } from "./new-student-columns";
-
-const NewStudentSchema = z.object({
-  fullName: z.string(),
-  schoolId: z.string(),
-  email: z.string().email(),
-});
-
-export type NewStudent = z.infer<typeof NewStudentSchema>;
 
 export const csvHeaders = ["full_name", "school_id", "email"];
 

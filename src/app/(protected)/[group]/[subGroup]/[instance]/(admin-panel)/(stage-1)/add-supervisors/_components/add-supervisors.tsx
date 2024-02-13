@@ -1,27 +1,17 @@
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { NewSupervisor, NewSupervisorSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./csv-upload-button";
 import { SimpleTable } from "./simple-table";
-
-const NewSupervisorSchema = z.object({
-  fullName: z.string(),
-  schoolId: z.string(),
-  email: z.string().email(),
-  projectTarget: z.number().int(),
-  projectUpperQuota: z.number().int(),
-});
-
-export type NewSupervisor = z.infer<typeof NewSupervisorSchema>;
 
 export const csvHeaders = [
   "full_name",
