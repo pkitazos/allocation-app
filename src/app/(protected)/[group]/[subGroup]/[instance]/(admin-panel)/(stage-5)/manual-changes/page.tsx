@@ -1,32 +1,24 @@
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import { AllocationAdjustment } from "./allocation-adjustment";
+
+import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
 
 export default async function Page({ params }: { params: instanceParams }) {
-  const allPreferences =
-    await api.institution.instance.matching.preferences.query({ params });
-
-  const allTheThings = await api.institution.instance.matching.allDetails.query(
-    { params },
-  );
-
-  // TODO: fetch all other necessary data
-
-  /* 
-      Stuff I need to know to display useful information
-
-      for each project in a student's preference list
-      
-      - whether it's been allocated to another student
-      - who that sudent is
-      - what the project's capacities are
-      - how a particular change affects the overall matching details (size, weight, etc.)
-    
-    */
+  const { students, projects } =
+    await api.institution.instance.matching.rowData.query({
+      params,
+    });
 
   return (
     <div className="mt-10 flex h-full justify-center px-20">
-      <AllocationAdjustment allRows={allPreferences} />
+      <AllocDetailsProvider
+        students={students}
+        projects={projects}
+        studentsBackup={structuredClone(students)}
+        selectedStudentIds={[]}
+      >
+        <AdjustmentSpace params={params} />
+      </AllocDetailsProvider>
     </div>
   );
 }

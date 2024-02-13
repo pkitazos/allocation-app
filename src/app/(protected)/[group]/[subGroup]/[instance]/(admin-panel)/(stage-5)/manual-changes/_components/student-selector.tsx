@@ -1,7 +1,7 @@
 "use client";
 import { ClassValue } from "clsx";
 import { Plus } from "lucide-react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,39 +18,36 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { StudentRow } from "./allocation-adjustment";
 
-type Student = { id: string; name: string };
+import { useAllocDetails } from "./allocation-store";
 
-export function StudentSelector({
-  studentRows,
-  setStudentRows,
-  className,
-}: {
-  studentRows: StudentRow[];
-  setStudentRows: Dispatch<SetStateAction<StudentRow[]>>;
-  className?: ClassValue;
-}) {
+export function StudentSelector({ className }: { className?: ClassValue }) {
   const [open, setOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const students = studentRows.map(({ student }) => student);
+  const [menuStudentId, setMenuStudentId] = useState<string | null>(null);
+
+  const students = useAllocDetails((s) => s.students);
+  const selectedStudentIds = useAllocDetails((s) => s.selectedStudentIds);
+  const setSelectedStudentIds = useAllocDetails((s) => s.setSelectedStudentIds);
+
+  const availableStudents = students.filter(
+    (e) => !selectedStudentIds.includes(e.student.id),
+  );
 
   function updateRows(studentId: string) {
-    setSelectedStudent(null);
-    const selectedRow = studentRows.find((s) => s.student.id === studentId);
-    if (!selectedRow) return;
-
-    setStudentRows((prev) => {
-      const alreadySelected = prev
-        .map(({ student: { id } }) => id)
-        .includes(selectedRow.student.id);
-      return alreadySelected ? prev : [...prev, selectedRow];
-    });
+    setMenuStudentId(null);
+    const newStudent = availableStudents.find(
+      ({ student }) => student.id === studentId,
+    );
+    if (!newStudent) return;
+    setSelectedStudentIds([...selectedStudentIds, newStudent.student.id]);
   }
 
   function handleStudentSelection(studentId: string) {
-    const selectedStudent = students.find((s) => s.id === studentId) || null;
-    setSelectedStudent(selectedStudent);
+    const selectedStudent =
+      availableStudents.find((s) => s.student.id === studentId) || null;
+    if (!selectedStudent) return;
+
+    setMenuStudentId(selectedStudent.student.id);
     setOpen(true);
   }
 
@@ -62,20 +59,20 @@ export function StudentSelector({
             variant="outline"
             className="w-[200px] justify-center overflow-hidden pr-1"
           >
-            {selectedStudent ? selectedStudent.id : "Select Student"}
+            {menuStudentId ? menuStudentId : "Select Student"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0" align="start">
           <StudentList
             handleStudentSelection={handleStudentSelection}
-            students={students}
+            students={availableStudents.map(({ student }) => student.id)}
           />
         </PopoverContent>
       </Popover>
       <Button
-        disabled={!selectedStudent}
+        disabled={!menuStudentId}
         size="icon"
-        onClick={() => updateRows(selectedStudent!.id)}
+        onClick={() => updateRows(menuStudentId!)}
       >
         <Plus className="h-5 w-5 font-bold" />
       </Button>
@@ -85,10 +82,9 @@ export function StudentSelector({
 
 function StudentList({
   students,
-
   handleStudentSelection,
 }: {
-  students: Student[];
+  students: string[];
   handleStudentSelection: (studentId: string) => void;
 }) {
   return (
@@ -97,14 +93,14 @@ function StudentList({
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
-          {students.map((student) => (
+          {students.map((studentId) => (
             <CommandItem
               className="overflow-hidden text-ellipsis"
-              key={student.id}
-              value={student.id}
+              key={studentId}
+              value={studentId}
               onSelect={handleStudentSelection}
             >
-              {student.id}
+              {studentId}
             </CommandItem>
           ))}
         </CommandGroup>

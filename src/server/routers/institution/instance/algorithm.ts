@@ -10,7 +10,7 @@ import { getMatching } from "@/server/utils/get-matching";
 
 import { z } from "zod";
 
-const blankResult: ServerResponse = {
+export const blankResult: ServerResponse = {
   profile: [],
   degree: NaN,
   size: NaN,

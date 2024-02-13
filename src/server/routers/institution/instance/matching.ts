@@ -1,6 +1,15 @@
-import { Role } from "@prisma/client";
+import { PreferenceType, Role } from "@prisma/client";
 import { z } from "zod";
 
+import {
+  getAllocPairs,
+  getStudentRank,
+} from "@/app/(protected)/[group]/[subGroup]/[instance]/(admin-panel)/(stage-5)/manual-changes/_utils/rank";
+import {
+  ProjectDetails,
+  projectInfoSchema,
+  studentRowSchema,
+} from "@/lib/validations/allocation-adjustment";
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
@@ -18,11 +27,12 @@ export const matchingRouter = createTRPCRouter({
           allocationGroupId: group,
           allocationSubGroupId: subGroup,
           allocationInstanceId: instance,
+          role: Role.STUDENT,
         },
         select: {
           userId: true,
           studentPreferences: {
-            where: { type: { equals: "PREFERENCE" } },
+            where: { type: { equals: PreferenceType.PREFERENCE } },
             select: { projectId: true, rank: true },
             orderBy: { rank: "asc" },
           },
@@ -281,24 +291,182 @@ export const matchingRouter = createTRPCRouter({
           select: { projectId: true, userId: true },
         });
 
-        type details = {
-          capacityLowerBound: number;
-          capacityUpperBound: number;
-          supervisor: {
-            supervisorInstanceDetails: {
-              projectAllocationLowerBound: number;
-              projectAllocationTarget: number;
-              projectAllocationUpperBound: number;
-            }[];
-          };
-        };
-
-        const projectDetails: Record<string, details> = {};
-        projectData.forEach(({ id, ...rest }) => {
-          projectDetails[id] = rest;
+        const allocations: Record<string, string[]> = {};
+        allocationData.forEach(({ projectId, userId }) => {
+          if (!allocations[projectId]) allocations[projectId] = [];
+          allocations[projectId].push(userId);
         });
 
-        return { allocationData, projectDetails };
+        const projectDetails: Record<string, ProjectDetails> = {};
+        projectData.forEach(({ id, ...rest }) => {
+          projectDetails[id] = { ...rest, allocatedTo: allocations[id] || [] };
+        });
+
+        return projectDetails;
+      },
+    ),
+
+  rowData: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const studentData = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: {
+            user: { select: { id: true, name: true } },
+            studentPreferences: {
+              select: {
+                project: {
+                  select: {
+                    id: true,
+                    allocations: { select: { userId: true } },
+                  },
+                },
+                rank: true,
+              },
+              orderBy: { rank: "asc" },
+            },
+          },
+        });
+
+        const projectData = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            id: true,
+            capacityLowerBound: true,
+            capacityUpperBound: true,
+            supervisor: {
+              select: {
+                supervisorInstanceDetails: {
+                  where: {
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
+                  },
+                  select: {
+                    projectAllocationLowerBound: true,
+                    projectAllocationTarget: true,
+                    projectAllocationUpperBound: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { projectId: true, userId: true },
+        });
+
+        const allocationRecord: Record<string, string[]> = {};
+        allocationData.forEach(({ projectId, userId }) => {
+          if (!allocationRecord[projectId]) allocationRecord[projectId] = [];
+          allocationRecord[projectId].push(userId);
+        });
+
+        const projectDetails: Record<string, ProjectDetails> = {};
+        projectData.forEach(({ id, ...rest }) => {
+          projectDetails[id] = {
+            ...rest,
+            allocatedTo: allocationRecord[id] || [],
+          };
+        });
+
+        const students = studentData.map((e) => ({
+          student: { id: e.user.id, name: e.user.name! },
+          projects: e.studentPreferences.map(
+            ({ project: { id, allocations } }) => ({
+              id,
+              selected:
+                allocations.filter((u) => u.userId === e.user.id).length === 1,
+            }),
+          ),
+        }));
+
+        const projects = projectData.map((p) => ({
+          id: p.id,
+          capacityLowerBound: p.capacityLowerBound,
+          capacityUpperBound: p.capacityUpperBound,
+          allocatedTo: allocationRecord[p.id] ?? [],
+        }));
+
+        return { students, projects };
+      },
+    ),
+
+  updateAllocation: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        allProjects: z.array(projectInfoSchema),
+        allStudents: z.array(studentRowSchema),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          allProjects,
+          allStudents,
+        },
+      }) => {
+        /**
+         * ? How do I calculate the updated allocations?
+         *
+         * obviously that information is encoded in the updated projects supplied to the procedure
+         * but the projects themselves have no notion of what position in each student's preference list
+         * they were
+         *
+         * that information exists on the student rows which is why they too are supplied to the procedure
+         * so what I need to do is generate the new flat array from the projects and for each student in the projects
+         * find what position they ranked the project they've been assigned to
+         */
+        const allocPairs = getAllocPairs(allProjects);
+
+        const updatedAllocations = allocPairs.map(({ projectId, userId }) => {
+          return {
+            projectId,
+            userId,
+            studentRanking: getStudentRank(allStudents, userId, projectId),
+          };
+        });
+
+        await ctx.db.projectAllocation.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        await ctx.db.projectAllocation.createMany({
+          data: updatedAllocations.map((e) => ({
+            ...e,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          })),
+        });
       },
     ),
 });

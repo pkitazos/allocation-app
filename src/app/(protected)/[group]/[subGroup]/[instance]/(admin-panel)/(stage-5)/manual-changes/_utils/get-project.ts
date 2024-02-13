@@ -1,0 +1,49 @@
+import { withinBounds } from "@/lib/utils/within-bounds";
+import {
+  ProjectInfo,
+  RowProject,
+} from "@/lib/validations/allocation-adjustment";
+
+export function getProjectInfo(allProjects: ProjectInfo[], projectId: string) {
+  return allProjects.find((p) => p.id === projectId)!;
+}
+
+export function toProjectInfos(
+  allProjects: ProjectInfo[],
+  projectIds: string[],
+) {
+  return allProjects.filter((p) => projectIds.includes(p.id));
+}
+
+export function getRowProject(
+  studentProjects: RowProject[],
+  projectId: string,
+) {
+  return studentProjects.find((p) => p.id === projectId)!;
+}
+
+export function toRowProjects(projects: RowProject[], projectIds: string[]) {
+  return projects.filter((p) => projectIds.includes(p.id));
+}
+
+export function getAsProjects(
+  allProjects: ProjectInfo[],
+  rowProjects: RowProject[],
+) {
+  const projectIds = rowProjects.map((p) => p.id);
+  return toProjectInfos(allProjects, projectIds);
+}
+
+export function replaceUpdated(
+  oldProjects: ProjectInfo[],
+  updatedProjects: ProjectInfo[],
+) {
+  return oldProjects.map((row) => {
+    const idx = updatedProjects.findIndex(({ id }) => id === row.id);
+    return idx === -1 ? row : updatedProjects[idx];
+  });
+}
+
+export function allValid(allProjects: ProjectInfo[]) {
+  return allProjects.map(withinBounds).every(Boolean);
+}

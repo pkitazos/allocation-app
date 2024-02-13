@@ -1,5 +1,12 @@
+import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
 
-export function SupervisorOverview({ params }: { params: instanceParams }) {
-  return <>add supervisor details here</>;
+export async function SupervisorOverview({
+  params,
+}: {
+  params: instanceParams;
+}) {
+  const stage = await api.institution.instance.currentStage.query({ params });
+
+  return <>{stage}</>;
 }
