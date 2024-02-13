@@ -58,7 +58,7 @@ export function AddStudents() {
           />
           <Input
             className="w-1/6"
-            placeholder="School ID"
+            placeholder="University ID"
             {...register("schoolId")}
           />
           <Input className="w-2/5" placeholder="Email" {...register("email")} />

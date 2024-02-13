@@ -59,7 +59,7 @@ export function AddSupervisors() {
           />
           <Input
             className="w-1/6"
-            placeholder="School ID"
+            placeholder="University ID"
             {...register("schoolId")}
           />
           <Input className="w-1/4" placeholder="Email" {...register("email")} />

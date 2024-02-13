@@ -2,7 +2,7 @@
 
 ## Overview
 
-As part of my fourth year individual project at UofG, I'm building a web app for preference based matching. The web app centralises all the administrative functionality in a single location as well as hosts a platform for supervisors to uplaod their projects and students to submit preference lists over those projects. It's currently under production.
+As part of my fourth year individual project at UofG, I'm building a web app for preference based matching. The web app centralises all the administrative functionality in a single location as well as hosts a platform for supervisors to upload their projects and students to submit preference lists over those projects. It's currently under production.
 
 ## Tech Stack
 
@@ -27,12 +27,3 @@ The server is built using:
 - FastAPI
 - Pydantic
 - [matchingproblems](https://github.com/fmcooper/matchingproblems)
-
-// TODO:
-
-- indicate how to configure the domain
-- and how to switch to production mode
-
-- spa.optimalmatching.com
-
-- add directions for setting up Postgres db

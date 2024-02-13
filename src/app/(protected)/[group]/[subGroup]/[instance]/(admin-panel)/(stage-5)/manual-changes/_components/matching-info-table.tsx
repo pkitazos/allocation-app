@@ -20,6 +20,7 @@ export function MatchingInfoTable() {
   pref.forEach((idx) => (profile[idx] += 1));
 
   const weight = getUpdatedWeight(profile);
+  const size = profile.reduce((acc, val) => acc + val, 0);
 
   return (
     <div className={cn("flex flex-col", !isValid && "text-destructive")}>
@@ -27,6 +28,7 @@ export function MatchingInfoTable() {
       <p>isValid: {isValid.toString()}</p>
       <p>profile: {`(${profile.join(",")})`}</p>
       <p>weight: {weight}</p>
+      <p>size: {size}</p>
     </div>
   );
 }
