@@ -2,9 +2,9 @@ import { PreferenceType, Role } from "@prisma/client";
 import { z } from "zod";
 
 import {
-  getPreferenceRank,
-  getSelectedProject,
-} from "@/app/(protected)/[group]/[subGroup]/[instance]/(admin-panel)/(stage-5)/manual-changes/_utils";
+  getAllocPairs,
+  getStudentRank,
+} from "@/app/(protected)/[group]/[subGroup]/[instance]/(admin-panel)/(stage-5)/manual-changes/_utils/rank";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -430,12 +430,24 @@ export const matchingRouter = createTRPCRouter({
           allStudents,
         },
       }) => {
-        const updatedAllocations = allStudents.map((row) => {
-          const project = getSelectedProject(allProjects, row);
+        /**
+         * ? How do I calculate the updated allocations?
+         *
+         * obviously that information is encoded in the updated projects supplied to the procedure
+         * but the projects themselves have no notion of what position in each student's preference list
+         * they were
+         *
+         * that information exists on the student rows which is why they too are supplied to the procedure
+         * so what I need to do is generate the new flat array from the projects and for each student in the projects
+         * find what position they ranked the project they've been assigned to
+         */
+        const allocPairs = getAllocPairs(allProjects);
+
+        const updatedAllocations = allocPairs.map(({ projectId, userId }) => {
           return {
-            userId: row.student.id,
-            projectId: project.id,
-            studentRanking: getPreferenceRank(allProjects, row),
+            projectId,
+            userId,
+            studentRanking: getStudentRank(allStudents, userId, projectId),
           };
         });
 

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 
 import { allValid } from "../_utils";
@@ -15,6 +16,13 @@ export function SubmitButton({ params }: { params: instanceParams }) {
   const { mutateAsync } =
     api.institution.instance.matching.updateAllocation.useMutation();
 
+  // TODO: fix refetch bug
+  const utils = api.useUtils();
+  const refetch = () =>
+    utils.institution.instance.matching.rowData.refetch({
+      params,
+    });
+
   async function handleSubmission() {
     setSelectedStudentIds([]);
     void toast.promise(
@@ -22,7 +30,7 @@ export function SubmitButton({ params }: { params: instanceParams }) {
         params,
         allProjects: allProjects,
         allStudents: allStudents,
-      }),
+      }).then(refetch),
       {
         loading: "Updating project allocations",
         error: "Something went wrong",
