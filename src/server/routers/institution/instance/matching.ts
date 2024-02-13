@@ -2,16 +2,17 @@ import { PreferenceType, Role } from "@prisma/client";
 import { z } from "zod";
 
 import {
-  ServerResponse,
-  serverResponseSchema,
-} from "@/lib/validations/matching";
+  getPreferenceRank,
+  getSelectedProject,
+} from "@/app/(protected)/[group]/[subGroup]/[instance]/(admin-panel)/(stage-5)/manual-changes/_utils";
+import {
+  ProjectDetails,
+  projectInfoSchema,
+  studentRowSchema,
+} from "@/lib/validations/allocation-adjustment";
+import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { blankResult } from "./algorithm";
-import {
-  MatchingInfo,
-  ProjectDetails,
-} from "@/lib/validations/allocation-adjustment";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -412,51 +413,48 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  info: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
-    async ({
-      ctx,
-      input: {
-        params: { group, subGroup, instance },
-      },
-    }) => {
-      const { selectedAlgName } =
-        await ctx.db.allocationInstance.findFirstOrThrow({
+  updateAllocation: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        allProjects: z.array(projectInfoSchema),
+        allStudents: z.array(studentRowSchema),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          allProjects,
+          allStudents,
+        },
+      }) => {
+        const updatedAllocations = allStudents.map((row) => {
+          const project = getSelectedProject(allProjects, row);
+          return {
+            userId: row.student.id,
+            projectId: project.id,
+            studentRanking: getPreferenceRank(allProjects, row),
+          };
+        });
+
+        await ctx.db.projectAllocation.deleteMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
-            id: instance,
+            allocationInstanceId: instance,
           },
-          select: { selectedAlgName: true },
         });
 
-      if (!selectedAlgName) return getMatchingInfo(blankResult);
-
-      const { matchingResultData } = await ctx.db.algorithm.findFirstOrThrow({
-        where: {
-          allocationGroupId: group,
-          allocationSubGroupId: subGroup,
-          allocationInstanceId: instance,
-          algName: selectedAlgName,
-        },
-        select: { matchingResultData: true },
-      });
-
-      const result = serverResponseSchema.safeParse(
-        JSON.parse(matchingResultData as string),
-      );
-
-      if (!result.success) return getMatchingInfo(blankResult);
-
-      return getMatchingInfo(result.data);
-    },
-  ),
+        await ctx.db.projectAllocation.createMany({
+          data: updatedAllocations.map((e) => ({
+            ...e,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          })),
+        });
+      },
+    ),
 });
-
-function getMatchingInfo(res: ServerResponse): MatchingInfo {
-  return {
-    profile: res.profile,
-    weight: res.weight,
-    isValid: true,
-    rowValidities: res.matching.map(() => true),
-  };
-}

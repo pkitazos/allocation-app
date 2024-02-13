@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
 
@@ -18,7 +17,7 @@ export default async function Page({ params }: { params: instanceParams }) {
         studentsBackup={structuredClone(students)}
         selectedStudentIds={[]}
       >
-        <AdjustmentSpace />
+        <AdjustmentSpace params={params} />
       </AllocDetailsProvider>
     </div>
   );
