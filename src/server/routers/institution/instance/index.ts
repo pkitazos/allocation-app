@@ -229,7 +229,7 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.userInInstance.findMany({
+        const studentData = await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -240,6 +240,10 @@ export const instanceRouter = createTRPCRouter({
             user: { select: { id: true, name: true, email: true } },
           },
         });
+
+        return studentData.map(({ user }) => ({
+          user: { id: user.id, name: user.name!, email: user.email! },
+        }));
       },
     ),
 

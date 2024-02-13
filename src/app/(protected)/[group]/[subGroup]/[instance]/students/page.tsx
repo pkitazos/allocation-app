@@ -1,5 +1,5 @@
 import { api } from "@/lib/trpc/server";
-import { StudentsDataTable } from "./students-data-table";
+import { StudentsDataTable } from "./_components/students-data-table";
 import { instanceParams } from "@/lib/validations/params";
 
 export default async function Students({ params }: { params: instanceParams }) {

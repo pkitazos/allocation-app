@@ -14,7 +14,7 @@ import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export interface StudentData {
-  student: {
+  user: {
     id: string;
     name: string;
     email: string;
@@ -43,14 +43,14 @@ export const columns: ColumnDef<StudentData>[] = [
   },
   {
     id: "name",
-    accessorFn: ({ student }) => student.name,
+    accessorFn: ({ user }) => user.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Name" canFilter />
     ),
     cell: ({
       row: {
         original: {
-          student: { id, name },
+          user: { id, name },
         },
       },
     }) => (
@@ -61,14 +61,14 @@ export const columns: ColumnDef<StudentData>[] = [
   },
   {
     id: "id",
-    accessorFn: ({ student }) => student.id,
+    accessorFn: ({ user }) => user.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ID" />
     ),
   },
   {
     id: "email",
-    accessorFn: ({ student }) => student.email,
+    accessorFn: ({ user }) => user.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Email" />
     ),
@@ -81,7 +81,7 @@ export const columns: ColumnDef<StudentData>[] = [
     },
     cell: ({
       row: {
-        original: { student },
+        original: { user },
       },
     }) => {
       return (
@@ -96,7 +96,7 @@ export const columns: ColumnDef<StudentData>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <a href={`/students/${student.id}`}>
+              <a href={`/students/${user.id}`}>
                 <Button variant="link">View Details</Button>
               </a>
             </DropdownMenuItem>
