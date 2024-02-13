@@ -1,13 +1,21 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { zeros } from "@/lib/utils/zeros";
+
 import { useAllocDetails } from "./allocation-store";
-import { allValid } from "../_utils/get-project";
+import { allValid, getPreferenceRank, getUpdatedWeight } from "../_utils";
 
 export function MatchingInfoTable() {
-  const profile = useAllocDetails((s) => s.profile);
-  const weight = useAllocDetails((s) => s.weight);
   const allProjects = useAllocDetails((s) => s.projects);
+  const allStudents = useAllocDetails((s) => s.students);
   const isValid = allValid(allProjects);
+
+  const pref = allStudents.map((row) => getPreferenceRank(allProjects, row));
+
+  const profile = zeros(Math.max(...pref) + 1);
+  pref.forEach((idx) => (profile[idx] += 1));
+
+  const weight = getUpdatedWeight(profile);
 
   return (
     <div className={cn("flex flex-col", !isValid && "text-destructive")}>

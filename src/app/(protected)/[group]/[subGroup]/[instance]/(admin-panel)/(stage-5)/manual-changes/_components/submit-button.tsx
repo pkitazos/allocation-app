@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { allValid } from "../_utils/get-project";
+
+import { allValid } from "../_utils";
 import { useAllocDetails } from "./allocation-store";
 
 export function SubmitButton() {

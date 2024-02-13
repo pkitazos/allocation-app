@@ -2,8 +2,7 @@
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
 
-import { AllocDetailsProvider } from "./_components/allocation-store";
-import { AdjustmentSpace } from "./_components/adjustment-space";
+import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const { students, projects } =
@@ -11,19 +10,12 @@ export default async function Page({ params }: { params: instanceParams }) {
       params,
     });
 
-  const { profile, weight } =
-    await api.institution.instance.matching.info.query({
-      params,
-    });
-
   return (
     <div className="mt-10 flex h-full justify-center px-20">
       <AllocDetailsProvider
-        profile={profile}
-        weight={weight}
         students={students}
-        studentsBackup={structuredClone(students)}
         projects={projects}
+        studentsBackup={structuredClone(students)}
         selectedStudentIds={[]}
       >
         <AdjustmentSpace />

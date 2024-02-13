@@ -1,6 +1,8 @@
-import { Card } from "@/components/ui/card";
+"use client";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+
+import { Card } from "@/components/ui/card";
 
 export function StudentCard({ studentId }: { studentId: string }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =

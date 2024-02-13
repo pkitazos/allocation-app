@@ -5,9 +5,12 @@ import { createPortal } from "react-dom";
 
 import { removedItem } from "@/lib/utils/removed-item";
 
-import { getProjectInfo, replaceUpdated } from "../_utils/get-project";
-import { getStudent, inAllocatedTo } from "../_utils/get-student";
-import { handleProfileChange } from "../_utils/matching-info";
+import {
+  getProjectInfo,
+  getStudent,
+  inAllocatedTo,
+  replaceUpdated,
+} from "../_utils";
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";
@@ -22,10 +25,6 @@ export function AdjustmentRow({
 }) {
   const [dragging, setDragging] = useState(false);
 
-  const profile = useAllocDetails((s) => s.profile);
-  const setProfile = useAllocDetails((s) => s.setProfile);
-  const setWeight = useAllocDetails((s) => s.setWeight);
-
   const allStudents = useAllocDetails((s) => s.students);
   const allProjects = useAllocDetails((s) => s.projects);
   const updateProjects = useAllocDetails((s) => s.updateProjects);
@@ -35,10 +34,6 @@ export function AdjustmentRow({
     ...getProjectInfo(allProjects, p.id),
     selected: p.selected,
   }));
-
-  function updateProfile(prevIdx: number, newIdx: number) {
-    return handleProfileChange(profile, prevIdx, newIdx, setProfile, setWeight);
-  }
 
   function onDragEnd({ over }: DragEndEvent) {
     if (!over) return;
@@ -69,7 +64,6 @@ export function AdjustmentRow({
 
     const updatedProjects = replaceUpdated(allProjects, newProjects);
 
-    updateProfile(selectedIdx, overIdx);
     updateProjects(updatedProjects);
     setDragging(false);
   }

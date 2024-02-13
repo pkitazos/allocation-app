@@ -1,3 +1,11 @@
+import {
+  ProjectInfo,
+  StudentRow,
+} from "@/lib/validations/allocation-adjustment";
+
+import { getAsProjects } from "./get-project";
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
 function getUpdatedProfile(profile: number[], prevIdx: number, newIdx: number) {
   if (prevIdx === newIdx) return profile;
 
@@ -8,7 +16,7 @@ function getUpdatedProfile(profile: number[], prevIdx: number, newIdx: number) {
   });
 }
 
-function getUpdatedWeight(profile: number[]) {
+export function getUpdatedWeight(profile: number[]) {
   return profile.reduce((acc, val, i) => {
     return acc + val * (i + 1);
   }, 0);
@@ -28,4 +36,22 @@ export function handleProfileChange(
 
   setWeight(updatedWeight);
   setProfile(updatedProfile);
+}
+
+function getStudentProjects(allProjects: ProjectInfo[], row: StudentRow) {
+  return getAsProjects(allProjects, row.projects);
+}
+
+function getProjectAllocations(projects: ProjectInfo[]) {
+  return projects.map((e) => e.allocatedTo);
+}
+
+function getStudentAllocationIndex(alloc: string[][], studentId: string) {
+  return alloc.findIndex((a) => a.includes(studentId));
+}
+
+export function getPreferenceRank(allProjects: ProjectInfo[], row: StudentRow) {
+  const studentProjects = getStudentProjects(allProjects, row);
+  const allocations = getProjectAllocations(studentProjects);
+  return getStudentAllocationIndex(allocations, row.student.id);
 }

@@ -38,6 +38,7 @@ export type ProjectInfo = {
   allocatedTo: string[];
 };
 
-export type RowProject = ProjectInfo & {
+export type RowProject = {
+  id: string;
   selected: boolean;
 };

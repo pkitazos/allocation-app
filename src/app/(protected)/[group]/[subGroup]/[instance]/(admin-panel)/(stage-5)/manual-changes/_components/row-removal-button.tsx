@@ -1,20 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAllocDetails } from "./allocation-store";
-import { ProjectInfo } from "@/lib/validations/allocation-adjustment";
-import { removedItem } from "@/lib/utils/removed-item";
-import { getProjectInfo, replaceUpdated } from "../_utils/get-project";
 import {
   addToAllocations,
   findAllocation,
   getSelectedProject,
   getStudent,
   removeFromAllocations,
-} from "../_utils/get-student";
-import { handleProfileChange } from "../_utils/matching-info";
+} from "../_utils";
+import { useAllocDetails } from "./allocation-store";
 
 export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
   const studentsBackup = useAllocDetails((s) => s.studentsBackup);
@@ -23,14 +18,6 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
   const selectedStudentIds = useAllocDetails((s) => s.selectedStudentIds);
   const setSelectedStudentIds = useAllocDetails((s) => s.setSelectedStudentIds);
   const updateProjects = useAllocDetails((s) => s.updateProjects);
-
-  const profile = useAllocDetails((s) => s.profile);
-  const setProfile = useAllocDetails((s) => s.setProfile);
-  const setWeight = useAllocDetails((s) => s.setWeight);
-
-  function updateProfile(prevIdx: number, newIdx: number) {
-    return handleProfileChange(profile, prevIdx, newIdx, setProfile, setWeight);
-  }
 
   function handleRowRemoval(idx: number) {
     /**
@@ -65,7 +52,6 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
       updateProjects(projects);
     }
 
-    updateProfile(currentIdx, originalIdx);
     setSelectedStudentIds(selectedStudentIds.toSpliced(idx, 1));
     return;
   }

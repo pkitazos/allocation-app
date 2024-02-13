@@ -4,9 +4,10 @@ import { useDroppable } from "@dnd-kit/core";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { withinBounds } from "@/lib/utils/allocation-within-bounds";
+import { withinBounds } from "@/lib/utils/within-bounds";
+
 import { useAllocDetails } from "./allocation-store";
-import { getProjectInfo } from "../_utils/get-project";
+import { getProjectInfo } from "../_utils";
 
 export function ProjectCard({
   project: { id: projectId, selected: originallySelected },
@@ -19,10 +20,6 @@ export function ProjectCard({
 
   const allProjects = useAllocDetails((s) => s.projects);
   const projectInfo = getProjectInfo(allProjects, projectId);
-
-  if (!projectInfo.allocatedTo) {
-    console.log("blows up here ------>>", { projectInfo });
-  }
 
   const currentlySelected = projectInfo.allocatedTo.includes(studentId);
   const invalid = currentlySelected && !withinBounds(projectInfo);

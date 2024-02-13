@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { withinBounds } from "@/lib/utils/allocation-within-bounds";
+import { withinBounds } from "@/lib/utils/within-bounds";
 import {
   ProjectInfo,
   RowProject,
