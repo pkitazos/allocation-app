@@ -13,10 +13,12 @@ import { matchingRouter } from "./matching";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import { projectRouter } from "./project";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
   algorithm: algorithmRouter,
+  project: projectRouter,
 
   access: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
