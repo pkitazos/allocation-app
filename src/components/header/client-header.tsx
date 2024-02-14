@@ -1,14 +1,15 @@
 "use client";
 import { Role } from "@prisma/client";
 import { useParams } from "next/navigation";
-import { InstanceLink } from "./instance-link";
 
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { roleCheck } from "@/lib/utils/permissions/role-check";
 import { instanceParams, instanceParamsSchema } from "@/lib/validations/params";
 
-export function ClientHeader() {
+import { InstanceLink } from "./instance-link";
+
+export function InstanceTabs() {
   const params = useParams<instanceParams>();
   const instancePath = formatParamsAsPath(params);
   const result = instanceParamsSchema.safeParse(params);

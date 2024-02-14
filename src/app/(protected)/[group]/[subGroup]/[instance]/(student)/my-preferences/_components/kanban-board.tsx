@@ -9,9 +9,10 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
+import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+
 import { ColumnContainer } from "./column-container";
 import { ProjectPreferenceCard } from "./project-preference-card";
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 
 export function KanbanBoard({
   initialColumns,

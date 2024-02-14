@@ -4,7 +4,7 @@ import Link from "next/link";
 import whiteLogo from "@/assets/uofg-white.png";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
-import { ClientHeader } from "./client-header";
+import { InstanceTabs } from "./client-header";
 import { InstanceLink } from "./instance-link";
 import { UserButton } from "./user-button";
 
@@ -25,14 +25,13 @@ export async function Header() {
       </Link>
       {session && (
         <div className="flex items-center gap-6">
-          <ClientHeader />
+          <InstanceTabs />
           {adminPanel && (
             <InstanceLink href={adminPanel}>Admin Panel</InstanceLink>
           )}
         </div>
       )}
-
-      <UserButton session={session} />
+      <UserButton />
     </nav>
   );
 }

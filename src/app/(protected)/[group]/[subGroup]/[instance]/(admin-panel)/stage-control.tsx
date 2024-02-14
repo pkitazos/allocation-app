@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { StageButton } from "@/components/stage-button";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 import { instanceParams } from "@/lib/validations/params";
 import { stageSchema } from "@/lib/validations/stage";
+
+import { StageButton } from "./_components/stage-button";
 
 export function StageControl({
   params,

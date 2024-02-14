@@ -1,7 +1,8 @@
 import { Heading } from "@/components/heading";
-import { KanbanBoard } from "@/components/kanban-board";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
+
+import { KanbanBoard } from "./kanban-board";
 
 export async function PreferenceSelection({
   params,

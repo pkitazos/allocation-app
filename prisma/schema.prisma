@@ -107,20 +107,23 @@ model AllocationSubGroup {
 }
 
 model AllocationInstance {
-    id                   String
-    displayName          String             @map("display_name")
-    stage                Stage              @default(SETUP)
+    id                          String
+    displayName                 String             @map("display_name")
+    stage                       Stage              @default(SETUP)
     // has 1
-    selectedAlgName      String?            @map("selected_alg_name")
-    supervisorsCanAccess Boolean            @default(false) @map("supervisors_can_access")
-    studentsCanAccess    Boolean            @default(false) @map("students_can_access")
+    selectedAlgName             String?            @map("selected_alg_name")
+    minPreferences              Int                @map("min_preferences")
+    maxPreferences              Int                @map("max_preferences")
+    maxPreferencesPerSupervisor Int                @map("max_preferences_per_supervisor")
+    supervisorsCanAccess        Boolean            @default(false) @map("supervisors_can_access")
+    studentsCanAccess           Boolean            @default(false) @map("students_can_access")
     // belongs to 1
-    allocationSubGroup   AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
-    allocationGroupId    String             @map("allocation_group_id")
-    allocationSubGroupId String             @map("allocation_sub_group_id")
+    allocationSubGroup          AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
+    allocationGroupId           String             @map("allocation_group_id")
+    allocationSubGroupId        String             @map("allocation_sub_group_id")
     // has many
-    projects             Project[]
-    algorithms           Algorithm[]
+    projects                    Project[]
+    algorithms                  Algorithm[]
     // TODO: figure out why this breaks the seed script
     // users                UserInInstance[]
 

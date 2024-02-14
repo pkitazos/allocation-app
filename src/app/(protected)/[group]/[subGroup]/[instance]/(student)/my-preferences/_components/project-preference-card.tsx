@@ -1,12 +1,13 @@
 "use client";
 
-import { ProjectPreference } from "@/lib/validations/board";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType } from "@prisma/client";
-import { Button } from "./ui/button";
 import { X } from "lucide-react";
 import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { ProjectPreference } from "@/lib/validations/board";
 
 export function ProjectPreferenceCard({
   project,

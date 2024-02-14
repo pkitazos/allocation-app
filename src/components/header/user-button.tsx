@@ -1,10 +1,10 @@
 "use client";
 import { User2 } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { Session } from "next-auth/types";
-import { SignInButton } from "./sign-in-button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { signOut, useSession } from "next-auth/react";
+
+import { SignInButton } from "@/components/sign-in-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,9 +12,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
-export function UserButton({ session }: { session: Session | null }) {
+export function UserButton() {
+  const { data: session } = useSession();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -25,7 +27,7 @@ export function UserButton({ session }: { session: Session | null }) {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="mt-3 w-60">
+      <DropdownMenuContent className="mt-3 max-w-60 p-2">
         {session?.user && (
           <>
             <DropdownMenuLabel className="py-4">
@@ -41,7 +43,7 @@ export function UserButton({ session }: { session: Session | null }) {
             </DropdownMenuLabel>
           </>
         )}
-        <DropdownMenuItem>
+        <DropdownMenuItem asChild>
           {session ? (
             <Button
               className="w-full"
