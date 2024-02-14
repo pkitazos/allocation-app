@@ -1,5 +1,4 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { Role } from "@prisma/client";
 import NextAuth from "next-auth";
 
 import { db } from "@/lib/db";
@@ -11,19 +10,21 @@ export const {
 } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(db),
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user, trigger }) {
       const dbUser = await db.user.findFirst({
-        where: {
-          email: token.email,
-        },
+        where: { email: token.email },
       });
 
       if (trigger === "signUp") {
-        // check email
+        const invite = await db.invitation.findFirst({
+          where: { email: user.email ?? "" },
+        });
+
+        if (!invite) {
+          throw new Error("You haven't been invited to the platform");
+        }
       }
 
       if (!dbUser) {
@@ -33,17 +34,11 @@ export const {
         return token;
       }
 
-      const userRole = await db.invitation.findFirst({
-        where: { userEmail: dbUser.email! },
-        select: { role: true },
-      });
-
       return {
         id: dbUser.id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-        role: userRole?.role,
       };
     },
 
@@ -55,7 +50,6 @@ export const {
         name: token.name,
         email: token.email,
         image: token.picture,
-        role: token.role as Role,
       },
     }),
   },

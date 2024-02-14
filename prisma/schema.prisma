@@ -42,8 +42,17 @@ enum PreferenceType {
     PREFERENCE
 }
 
+model Invitation {
+    email                String
+    allocationGroupId    String @map("allocation_group_id")
+    allocationSubGroupId String @map("allocation_sub_group_id")
+    allocationInstanceId String @map("allocation_instance_id")
+
+    @@id([email, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+}
+
 model UserInInstance {
-    user                      User                        @relation(fields: [userId], references: [id])
+    user                      User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId                    String                      @map("user_id")
     role                      Role
     joined                    Boolean                     @default(false)
@@ -149,24 +158,25 @@ model StudentInstanceDetails {
 }
 
 model Project {
-    id                   String              @id @default(uuid())
-    title                String
-    description          String
-    capacityLowerBound   Int                 @map("capacity_lower_bound")
-    capacityUpperBound   Int                 @map("capacity_upper_bound")
-    supervisorId         String              @map("supervisor_id")
+    id                    String              @id @default(uuid())
+    title                 String
+    description           String
+    capacityLowerBound    Int                 @map("capacity_lower_bound")
+    capacityUpperBound    Int                 @map("capacity_upper_bound")
+    supervisorId          String              @map("supervisor_id")
+    preAllocatedStudentId String?             @map("pre_allocated_student_id")
     // ---
-    allocationInstance   AllocationInstance  @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
-    supervisor           UserInInstance      @relation(fields: [supervisorId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    allocationInstance    AllocationInstance  @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
+    supervisor            UserInInstance      @relation(fields: [supervisorId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
     // ---
-    allocationGroupId    String              @map("allocation_group_id")
-    allocationSubGroupId String              @map("allocation_sub_group_id")
-    allocationInstanceId String              @map("allocation_instance_id")
+    allocationGroupId     String              @map("allocation_group_id")
+    allocationSubGroupId  String              @map("allocation_sub_group_id")
+    allocationInstanceId  String              @map("allocation_instance_id")
     // ---
-    flagOnProjects       FlagOnProject[]
-    tagOnProject         TagOnProject[]
-    inStudentPreferences Preference[]
-    allocations          ProjectAllocation[]
+    flagOnProjects        FlagOnProject[]
+    tagOnProject          TagOnProject[]
+    inStudentPreferences  Preference[]
+    allocations           ProjectAllocation[]
 }
 
 model Preference {
@@ -267,13 +277,6 @@ model Algorithm {
     @@id([algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
-model Invitation {
-    userEmail String @id @map("user_email")
-    role      Role
-
-    @@unique([userEmail, role])
-}
-
 model Account {
     id                String  @id @default(cuid())
     userId            String
@@ -307,7 +310,7 @@ model User {
     email           String?          @unique
     emailVerified   DateTime?
     image           String?
-    role            Role?
+    // role            Role?
     accounts        Account[]
     sessions        Session[]
     userInInstances UserInInstance[]

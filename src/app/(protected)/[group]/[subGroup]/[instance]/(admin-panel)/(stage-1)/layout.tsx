@@ -2,7 +2,7 @@ import { Stage } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/general/get-instance-path";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { instanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -13,7 +13,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const stage = await api.institution.instance.currentStage.query({ params });
-  const instancePath = getInstancePath(params);
+  const instancePath = formatParamsAsPath(params);
 
   if (stage !== Stage.SETUP) redirect(`${instancePath}/`);
 

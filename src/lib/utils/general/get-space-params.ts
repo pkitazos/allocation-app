@@ -11,7 +11,10 @@ export async function getSpaceParams() {
   const [, end] = getStartEnd(fullUrl, domain);
 
   const routes = fullUrl.slice(end + 1).split("/");
-  const inInstance = routes.length >= 4 && routes[3] !== "create-instance";
+  const inInstance =
+    routes.length >= 4 &&
+    routes[3] !== "create-instance" &&
+    routes[0] !== "api";
 
   const spaceParams = inInstance
     ? generateParams(routes.slice(1, 4))

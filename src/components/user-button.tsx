@@ -1,6 +1,8 @@
 "use client";
 import { User2 } from "lucide-react";
-import { signIn, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { Session } from "next-auth/types";
+import { SignInButton } from "./sign-in-button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
@@ -11,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Session } from "next-auth/types";
 
 export function UserButton({ session }: { session: Session | null }) {
   return (
@@ -50,13 +51,7 @@ export function UserButton({ session }: { session: Session | null }) {
               Sign out
             </Button>
           ) : (
-            <Button
-              className="w-full"
-              variant="outline"
-              onClick={async () => await signIn("google")}
-            >
-              Sign In
-            </Button>
+            <SignInButton />
           )}
         </DropdownMenuItem>
       </DropdownMenuContent>

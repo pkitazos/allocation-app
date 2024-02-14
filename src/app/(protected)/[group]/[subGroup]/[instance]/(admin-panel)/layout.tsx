@@ -6,7 +6,7 @@ import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/general/get-instance-path";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { slugify } from "@/lib/utils/general/slugify";
 import { instanceParams } from "@/lib/validations/params";
 
@@ -26,7 +26,7 @@ export default async function Layout({
   params: instanceParams;
   children: ReactNode;
 }) {
-  const instancePath = getInstancePath(params);
+  const instancePath = formatParamsAsPath(params);
   const stage = await api.institution.instance.currentStage.query({ params });
   const tabs = tabsRecord[stage];
 

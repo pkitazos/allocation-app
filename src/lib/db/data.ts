@@ -1,4 +1,4 @@
-import { PreferenceType, Role } from "@prisma/client";
+import { PreferenceType } from "@prisma/client";
 import {
   GenerousAlgorithm,
   GreedyAlgorithm,
@@ -90,11 +90,11 @@ export const projectData = [
 ];
 
 export const invitationData = [
-  { userEmail: "super.allocationapp@gmail.com", role: Role.ADMIN },
-  { userEmail: "group.allocationapp@gmail.com", role: Role.ADMIN },
-  { userEmail: "subgroup.allocationapp@gmail.com", role: Role.ADMIN },
-  { userEmail: "supervisor.allocationapp@gmail.com", role: Role.SUPERVISOR },
-  { userEmail: "student.allocationapp@gmail.com", role: Role.STUDENT },
+  { email: "super.allocationapp@gmail.com" },
+  { email: "group.allocationapp@gmail.com" },
+  { email: "subgroup.allocationapp@gmail.com" },
+  { email: "supervisor.allocationapp@gmail.com" },
+  { email: "student.allocationapp@gmail.com" },
 ];
 
 export const testSuperAdmin = {
