@@ -1,14 +1,16 @@
-import { permissionCheck } from "@/lib/utils/permission-check";
+import { Role } from "@prisma/client";
+import { z } from "zod";
+
+import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+import { instanceParamsSchema } from "@/lib/validations/params";
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/trpc";
-import { z } from "zod";
+
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
-import { instanceParamsSchema } from "@/lib/validations/params";
-import { Role } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,

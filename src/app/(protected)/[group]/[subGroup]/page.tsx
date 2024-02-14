@@ -1,11 +1,12 @@
+import { AdminLevel } from "@prisma/client";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { Plus } from "lucide-react";
-import Link from "next/link";
-import { permissionCheck } from "@/lib/utils/permission-check";
-import { AdminLevel } from "@prisma/client";
+import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 
 export default async function Page({
   params,

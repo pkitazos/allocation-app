@@ -3,7 +3,8 @@ import { Role } from "@prisma/client";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
-import { SupervisorsDataTable } from "./supervisors-data-table";
+
+import { SupervisorsDataTable } from "./_components/supervisors-data-table";
 
 export default async function Page({ params }: { params: instanceParams }) {
   const role = await api.user.role.query({ params });

@@ -41,7 +41,7 @@ export function InviteTable({ users }: { users: InvitedUser[] }) {
               {joined ? (
                 <Badge className="bg-green-700">joined</Badge>
               ) : (
-                <Badge className="bg-slate-500">waiting</Badge>
+                <Badge className="bg-slate-500">invited</Badge>
               )}
             </TableCell>
           </TableRow>

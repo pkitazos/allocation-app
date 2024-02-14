@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 
-import { allValid } from "../_utils";
+import { allValid } from "../../../../../../../../../lib/utils/allocation-adjustment";
 import { useAllocDetails } from "./allocation-store";
 import { api } from "@/lib/trpc/client";
 import { toast } from "sonner";

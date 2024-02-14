@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { slugify } from "@/lib/utils/slugify";
+import { slugify } from "@/lib/utils/general/slugify";
 import { subGroupParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 

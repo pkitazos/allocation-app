@@ -1,6 +1,7 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { FormSection } from "./form-section";
+
+import { FormSection } from "./_components/form-section";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.spaceMembership.query({ params });

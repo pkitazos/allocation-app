@@ -1,4 +1,4 @@
-import { withinBounds } from "@/lib/utils/within-bounds";
+import { withinBounds } from "@/lib/utils/allocation-adjustment/within-bounds";
 import {
   ProjectInfo,
   RowProject,

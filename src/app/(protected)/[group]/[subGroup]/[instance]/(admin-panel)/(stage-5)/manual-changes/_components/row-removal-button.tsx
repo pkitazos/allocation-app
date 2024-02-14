@@ -8,7 +8,7 @@ import {
   getSelectedProject,
   getStudent,
   removeFromAllocations,
-} from "../_utils";
+} from "../../../../../../../../../lib/utils/allocation-adjustment";
 import { useAllocDetails } from "./allocation-store";
 
 export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {

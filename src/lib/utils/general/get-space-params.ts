@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
-import { instanceParams } from "../validations/params";
+
+import { instanceParams } from "@/lib/validations/params";
 
 export async function getSpaceParams() {
   const headersList = headers();

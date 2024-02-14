@@ -18,18 +18,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { slugify } from "@/lib/utils/slugify";
+import { slugify } from "@/lib/utils/general/slugify";
+import { groupParams } from "@/lib/validations/params";
 
-export function FormSection({ takenNames }: { takenNames: string[] }) {
+export function FormSection({
+  takenNames,
+  params,
+}: {
+  takenNames: string[];
+  params: groupParams;
+}) {
   const router = useRouter();
   const FormSchema = z.object({
-    groupName: z
+    subGroupName: z
       .string()
       .min(1, "Please enter a name")
       .refine((item) => {
         const setOfNames = new Set(takenNames);
-        const nameAllowed = !setOfNames.has(item);
-        return nameAllowed;
+        return !setOfNames.has(item);
       }, "This name is already taken"),
   });
 
@@ -38,19 +44,20 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      groupName: "",
+      subGroupName: "",
     },
   });
 
-  const { mutateAsync: createGroupAsync } =
-    api.institution.createGroup.useMutation();
+  const { mutateAsync: createSubGroupAsync } =
+    api.institution.group.createSubGroup.useMutation();
 
-  const onSubmit = ({ groupName }: { groupName: string }) => {
-    console.log(groupName);
+  const onSubmit = ({ subGroupName }: { subGroupName: string }) => {
+    console.log(subGroupName);
     void toast.promise(
-      createGroupAsync({ groupName }).then(() =>
-        router.push(`/${slugify(groupName)}`),
-      ),
+      createSubGroupAsync({
+        params,
+        name: subGroupName,
+      }).then(() => router.push(`/${params.group}/${slugify(subGroupName)}`)),
       {
         loading: "Loading",
         error: "Something went wrong",
@@ -68,17 +75,18 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
         <div className="flex flex-col items-start gap-3">
           <FormField
             control={form.control}
-            name="groupName"
+            name="subGroupName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-2xl">
-                  Allocation Group Name
+                  Allocation Sub-Group Name
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Group Name" {...field} />
+                  <Input placeholder="Sub-Group Name" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Please select a unique name for this group
+                  Please select a unique name within the group for this
+                  sub-group
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -86,10 +94,9 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
           />
         </div>
         <Separator className="my-14" />
-        {/* <AdminInviteForm /> */}
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            create new group
+            create new sub-group
           </Button>
         </div>
       </form>

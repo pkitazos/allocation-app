@@ -1,5 +1,10 @@
 "use client";
-import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,32 +15,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { slugify } from "@/lib/utils/slugify";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { slugify } from "@/lib/utils/general/slugify";
 
-import { z } from "zod";
-import { toast } from "sonner";
-import { groupParams } from "@/lib/validations/params";
-
-export function FormSection({
-  takenNames,
-  params,
-}: {
-  takenNames: string[];
-  params: groupParams;
-}) {
+export function FormSection({ takenNames }: { takenNames: string[] }) {
   const router = useRouter();
   const FormSchema = z.object({
-    subGroupName: z
+    groupName: z
       .string()
       .min(1, "Please enter a name")
       .refine((item) => {
         const setOfNames = new Set(takenNames);
-        return !setOfNames.has(item);
+        const nameAllowed = !setOfNames.has(item);
+        return nameAllowed;
       }, "This name is already taken"),
   });
 
@@ -44,20 +38,19 @@ export function FormSection({
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      subGroupName: "",
+      groupName: "",
     },
   });
 
-  const { mutateAsync: createSubGroupAsync } =
-    api.institution.group.createSubGroup.useMutation();
+  const { mutateAsync: createGroupAsync } =
+    api.institution.createGroup.useMutation();
 
-  const onSubmit = ({ subGroupName }: { subGroupName: string }) => {
-    console.log(subGroupName);
+  const onSubmit = ({ groupName }: { groupName: string }) => {
+    console.log(groupName);
     void toast.promise(
-      createSubGroupAsync({
-        params,
-        name: subGroupName,
-      }).then(() => router.push(`/${params.group}/${slugify(subGroupName)}`)),
+      createGroupAsync({ groupName }).then(() =>
+        router.push(`/${slugify(groupName)}`),
+      ),
       {
         loading: "Loading",
         error: "Something went wrong",
@@ -75,18 +68,17 @@ export function FormSection({
         <div className="flex flex-col items-start gap-3">
           <FormField
             control={form.control}
-            name="subGroupName"
+            name="groupName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-2xl">
-                  Allocation Sub-Group Name
+                  Allocation Group Name
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Sub-Group Name" {...field} />
+                  <Input placeholder="Group Name" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Please select a unique name within the group for this
-                  sub-group
+                  Please select a unique name for this group
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -94,9 +86,10 @@ export function FormSection({
           />
         </div>
         <Separator className="my-14" />
+        {/* <AdminInviteForm /> */}
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            create new sub-group
+            create new group
           </Button>
         </div>
       </form>

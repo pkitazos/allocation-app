@@ -2,7 +2,7 @@ import { Stage } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/get-instance-path";
+import { getInstancePath } from "@/lib/utils/general/get-instance-path";
 import { instanceParams } from "@/lib/validations/params";
 
 export default async function Layout({

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { slugify } from "@/lib/utils/slugify";
+import { slugify } from "@/lib/utils/general/slugify";
 import { spaceParamsSchema } from "@/lib/validations/params";
 import {
   adminProcedure,
@@ -9,6 +9,7 @@ import {
 } from "@/server/trpc";
 import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+
 import { groupRouter } from "./group";
 import { instanceRouter } from "./instance";
 import { subGroupRouter } from "./sub-group";

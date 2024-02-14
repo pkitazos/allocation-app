@@ -1,5 +1,6 @@
 import { api } from "@/lib/trpc/server";
-import { FormSection } from "./form-section";
+
+import { FormSection } from "./_components/form-section";
 
 export default async function Page() {
   const takenNames = await api.institution.takenNames.query();

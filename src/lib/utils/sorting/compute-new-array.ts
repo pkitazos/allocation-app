@@ -1,6 +1,7 @@
 import { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { SortablePreference } from "../validations/board";
+
+import { SortablePreference } from "@/lib/validations/board";
 
 /***
  * ? assume there are at least 2 elements in items

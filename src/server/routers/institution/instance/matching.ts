@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   getAllocPairs,
   getStudentRank,
-} from "@/app/(protected)/[group]/[subGroup]/[instance]/(admin-panel)/(stage-5)/manual-changes/_utils/rank";
+} from "@/lib/utils/allocation-adjustment/rank";
 import {
   ProjectDetails,
   projectInfoSchema,

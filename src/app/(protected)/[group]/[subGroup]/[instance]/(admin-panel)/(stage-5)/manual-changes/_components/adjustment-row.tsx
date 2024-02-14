@@ -3,14 +3,14 @@ import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-import { removedItem } from "@/lib/utils/removed-item";
-
 import {
   getProjectInfo,
   getStudent,
   inAllocatedTo,
   replaceUpdated,
-} from "../_utils";
+} from "@/lib/utils/allocation-adjustment";
+import { removedItem } from "@/lib/utils/general/removed-item";
+
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";

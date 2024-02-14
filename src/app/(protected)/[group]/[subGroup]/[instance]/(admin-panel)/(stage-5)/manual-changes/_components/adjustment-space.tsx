@@ -1,11 +1,11 @@
 "use client";
+import { instanceParams } from "@/lib/validations/params";
 
 import { AdjustmentRow } from "./adjustment-row";
-import { StudentSelector } from "./student-selector";
-import { SubmitButton } from "./submit-button";
 import { useAllocDetails } from "./allocation-store";
 import { MatchingInfoTable } from "./matching-info-table";
-import { instanceParams } from "@/lib/validations/params";
+import { StudentSelector } from "./student-selector";
+import { SubmitButton } from "./submit-button";
 
 export function AdjustmentSpace({ params }: { params: instanceParams }) {
   const selectedStudents = useAllocDetails((s) => s.selectedStudentIds);

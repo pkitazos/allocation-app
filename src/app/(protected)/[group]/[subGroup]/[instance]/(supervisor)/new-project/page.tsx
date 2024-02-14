@@ -9,7 +9,7 @@ export default async function Page({ params }: { params: instanceParams }) {
   const stage = await api.institution.instance.currentStage.query({ params });
 
   if (stage !== Stage.PROJECT_SUBMISSION) return;
-
+  // submissionTarget = 2*(t-p)
   return (
     <div className="w-full max-w-5xl">
       <Heading title="New Project" />
