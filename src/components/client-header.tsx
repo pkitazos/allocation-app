@@ -1,17 +1,24 @@
+"use client";
 import { Role } from "@prisma/client";
-
-import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/general/get-instance-path";
-import { roleCheck } from "@/lib/utils/permissions/role-check";
-import { instanceParams } from "@/lib/validations/params";
-
+import { useParams } from "next/navigation";
 import { InstanceLink } from "./instance-link";
 
-export async function InstanceTabs({ params }: { params: instanceParams }) {
-  const instancePath = getInstancePath(params);
-  const role = await api.user.role.query({ params });
+import { api } from "@/lib/trpc/client";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { roleCheck } from "@/lib/utils/permissions/role-check";
+import { instanceParams, instanceParamsSchema } from "@/lib/validations/params";
 
-  console.log("---------------------------- in instance -------");
+export function ClientHeader() {
+  const params = useParams<instanceParams>();
+  const instancePath = formatParamsAsPath(params);
+  const result = instanceParamsSchema.safeParse(params);
+
+  const { data: role, isError } = api.user.role.useQuery(
+    { params },
+    { refetchOnWindowFocus: false, retry: false },
+  );
+
+  if (!result.success || isError || !role) return;
 
   return (
     <>
@@ -26,7 +33,6 @@ export async function InstanceTabs({ params }: { params: instanceParams }) {
           My Preferences
         </InstanceLink>
       )}
-
       {roleCheck(role, [Role.SUPERVISOR]) && (
         <InstanceLink href={`${instancePath}/my-projects`}>
           My Projects

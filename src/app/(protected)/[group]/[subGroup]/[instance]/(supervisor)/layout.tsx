@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { getInstancePath } from "@/lib/utils/general/get-instance-path";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { instanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -24,7 +24,7 @@ export default async function Layout({
     );
   }
 
-  const instancePath = getInstancePath(params);
+  const instancePath = formatParamsAsPath(params);
 
   return (
     <div className="grid w-full grid-cols-6">

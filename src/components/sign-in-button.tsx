@@ -7,7 +7,7 @@ export function SignInButton() {
     <Button
       variant="outline"
       size="lg"
-      onClick={async () => await signIn("google")}
+      onClick={async () => await signIn("credentials")}
     >
       Sign in
     </Button>

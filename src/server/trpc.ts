@@ -124,12 +124,12 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
     });
   }
 
-  if (!ctx.session.user.role) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "User is not registered",
-    });
-  }
+  // if (!ctx.session.user.role) {
+  //   throw new TRPCError({
+  //     code: "UNAUTHORIZED",
+  //     message: "User is not registered",
+  //   });
+  // }
 
   return next({
     ctx: {
@@ -137,7 +137,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
       session: {
         ...ctx.session,
         user: ctx.session.user,
-        role: ctx.session.user.role,
+        // role: ctx.session.user.role,
       },
     },
   });
@@ -151,19 +151,20 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
     });
   }
 
-  if (ctx.session.user.role !== "ADMIN") {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "User is not an admin",
-    });
-  }
+  // if (ctx.session.user.role !== "ADMIN") {
+  //   throw new TRPCError({
+  //     code: "UNAUTHORIZED",
+  //     message: "User is not an admin",
+  //   });
+  // }
+
+  // const role = ctx.db.
   return next({
     ctx: {
       // infers the `session` as non-nullable
       session: {
         ...ctx.session,
         user: ctx.session.user,
-        role: ctx.session.user.role,
       },
     },
   });

@@ -26,7 +26,26 @@ function dbg<T>(label: string, obj?: T) {
   if (mode) console.log(`------------ ${label}`, obj ?? "");
 }
 
+const inviteFlag = process.argv.includes("--invite");
+
 async function main() {
+  if (inviteFlag) {
+    console.log("---------->> SEEDING invites");
+
+    await db.invitation.createMany({
+      data: invitationData.map(({ email }) => ({
+        email,
+        allocationGroupId: testGroup.id,
+        allocationSubGroupId: testSubGroup.id,
+        allocationInstanceId: testInstance.id,
+      })),
+    });
+
+    console.log("ok");
+    console.log("<<---------- SEEDING invites COMPLETE");
+    return;
+  }
+
   console.log("---------->> SEEDING");
 
   const superAdmin = await db.adminInSpace.create({
@@ -329,17 +348,6 @@ async function main() {
     })),
   });
   dbg("PREFERENCES");
-
-  await db.invitation.createMany({
-    data: invitationData,
-  });
-
-  for (const invite of invitationData) {
-    await db.user.update({
-      where: { email: invite.userEmail },
-      data: { role: invite.role },
-    });
-  }
 
   console.log("ok");
   console.log("<<---------- SEEDING COMPLETE");
