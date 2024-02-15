@@ -47,7 +47,7 @@ export default async function Page({
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
                   {permissionCheck(adminLevel, AdminLevel.GROUP) && (
                     <TableCell className="flex w-1/3 justify-end">
-                      <AdminRemovalButton params={params} userId={id} />
+                      <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
                   )}
                 </TableRow>

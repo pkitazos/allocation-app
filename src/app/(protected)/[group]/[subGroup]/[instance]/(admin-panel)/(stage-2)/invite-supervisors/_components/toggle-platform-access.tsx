@@ -1,16 +1,17 @@
 "use client";
-import { Switch } from "@/components/ui/switch";
-import { api } from "@/lib/trpc/client";
-import { instanceParams } from "@/lib/validations/params";
 import { toast } from "sonner";
 
+import { useInstanceParams } from "@/components/params-context";
+import { Switch } from "@/components/ui/switch";
+import { api } from "@/lib/trpc/client";
+
 export function TogglePlatformAccess({
-  params,
   platformAccess,
 }: {
-  params: instanceParams;
   platformAccess: boolean;
 }) {
+  const params = useInstanceParams();
+
   const { mutateAsync: toggleAsync } =
     api.institution.instance.toggleSupervisorPlatformAccess.useMutation();
 

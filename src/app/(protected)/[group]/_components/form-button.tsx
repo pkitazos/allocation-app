@@ -38,8 +38,9 @@ const NewAdminSchema = z.object({
 type NewAdmin = z.infer<typeof NewAdminSchema>;
 
 export function FormButton({ params }: { params: groupParams }) {
-  const [open, setOpen] = useState(false);
   const router = useRouter();
+
+  const [open, setOpen] = useState(false);
 
   const form = useForm<NewAdmin>({
     resolver: zodResolver(NewAdminSchema),

@@ -32,22 +32,18 @@ export default async function Page({ params }: { params: instanceParams }) {
         </h2>
         <div className="flex w-[45rem] flex-col gap-5">
           <RunAlgorithmButton
-            params={params}
             matchingData={matchingData}
             algorithm={GenerousAlgorithm}
           />
           <RunAlgorithmButton
-            params={params}
             matchingData={matchingData}
             algorithm={GreedyAlgorithm}
           />
           <RunAlgorithmButton
-            params={params}
             matchingData={matchingData}
             algorithm={GreedyGenAlgorithm}
           />
           <RunAlgorithmButton
-            params={params}
             matchingData={matchingData}
             algorithm={MinCostAlgorithm}
           />
@@ -55,17 +51,15 @@ export default async function Page({ params }: { params: instanceParams }) {
             // TODO: add ability to delete custom algorithms
             <RunAlgorithmButton
               key={i}
-              params={params}
               matchingData={matchingData}
               algorithm={alg}
               custom
             />
           ))}
-          <NewAlgorithmButton params={params} takenNames={takenNames} />
+          <NewAlgorithmButton takenNames={takenNames} />
           <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
           <ResultsTable
             selectedAlgName={selectedAlgName}
-            params={params}
             customAlgs={customAlgs}
           />
         </div>

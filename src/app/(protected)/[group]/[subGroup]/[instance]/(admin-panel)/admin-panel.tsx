@@ -12,7 +12,7 @@ export default async function AdminPanel({
 
   return (
     <Layout params={params}>
-      <StageControl stage={stage} params={params} />
+      <StageControl stage={stage} />
     </Layout>
   );
 }

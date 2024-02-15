@@ -8,16 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { instanceParams } from "@/lib/validations/params";
-import { ResultsTableRow } from "./results-table-row";
 import { Algorithm } from "@/lib/validations/algorithm";
+import { ResultsTableRow } from "./results-table-row";
 
 export function ResultsTable({
-  params,
   selectedAlgName,
   customAlgs,
 }: {
-  params: instanceParams;
   selectedAlgName: string | undefined;
   customAlgs: Algorithm[];
 }) {
@@ -40,28 +37,24 @@ export function ResultsTable({
         <ResultsTableRow
           algName={"generous"}
           algDisplayName={"Generous"}
-          params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"greedy"}
           algDisplayName={"Greedy"}
-          params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"greedy-generous"}
           algDisplayName={"Greedy-Generous"}
-          params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}
         />
         <ResultsTableRow
           algName={"minimum-cost"}
           algDisplayName={"Minimum Cost"}
-          params={params}
           selectedAlgName={selectedAlg}
           setSelectedMatching={setSelectedAlg}
         />
@@ -69,7 +62,6 @@ export function ResultsTable({
           <ResultsTableRow
             algName={algName}
             algDisplayName={displayName}
-            params={params}
             selectedAlgName={selectedAlg}
             setSelectedMatching={setSelectedAlg}
             key={i}

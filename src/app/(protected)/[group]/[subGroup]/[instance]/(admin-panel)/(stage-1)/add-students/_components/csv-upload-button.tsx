@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import Papa from "papaparse";
 import React, { Dispatch, SetStateAction } from "react";
 import { z } from "zod";
-import { NewStudent, csvHeaders } from "./add-students";
+import { csvHeaders } from "./add-students";
+import { NewStudent } from "@/lib/validations/csv";
 
 const csvRowSchema = z.object({
   full_name: z.string(),

@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: { group: string } }) {
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
                   {permissionCheck(adminLevel, AdminLevel.SUPER) && (
                     <TableCell className="flex w-1/3 justify-end">
-                      <AdminRemovalButton params={params} userId={id} />
+                      <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
                   )}
                 </TableRow>
@@ -90,7 +90,7 @@ export default async function Page({ params }: { params: { group: string } }) {
         </div>
       </div>
       <div className="mt-16">
-        <DangerZone spaceTitle="Group" params={params} />
+        <DangerZone spaceTitle="Group" />
       </div>
     </div>
   );

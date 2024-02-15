@@ -1,4 +1,5 @@
 "use client";
+import { useInstanceParams } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,22 +10,20 @@ import {
 import { api } from "@/lib/trpc/client";
 import { Algorithm } from "@/lib/validations/algorithm";
 import { MatchingData } from "@/lib/validations/matching";
-import { instanceParams } from "@/lib/validations/params";
 import { InfoIcon } from "lucide-react";
 
 import { toast } from "sonner";
 
 export function RunAlgorithmButton({
-  params,
   matchingData,
   algorithm,
   custom = false,
 }: {
-  params: instanceParams;
   matchingData: MatchingData;
   algorithm: Algorithm;
   custom?: boolean;
 }) {
+  const params = useInstanceParams();
   const utils = api.useUtils();
 
   const refetch = () =>

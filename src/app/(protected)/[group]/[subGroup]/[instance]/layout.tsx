@@ -1,6 +1,7 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { instanceParams } from "@/lib/validations/params";
+import { InstanceParamsProvider } from "@/components/params-context";
 
 export default async function Layout({
   children,
@@ -16,5 +17,7 @@ export default async function Layout({
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );
   }
-  return <>{children}</>;
+  return (
+    <InstanceParamsProvider params={params}>{children}</InstanceParamsProvider>
+  );
 }

@@ -1,18 +1,13 @@
 "use client";
 import { DestructiveButton } from "@/components/destructive-button";
+import { useInstanceParams } from "@/components/params-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/trpc/client";
-import { groupParams } from "@/lib/validations/params";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function DangerZone({
-  spaceTitle,
-  params,
-}: {
-  spaceTitle: string;
-  params: groupParams;
-}) {
+export function DangerZone({ spaceTitle }: { spaceTitle: string }) {
+  const params = useInstanceParams();
   const router = useRouter();
   const { mutateAsync: deleteAsync } =
     api.institution.deleteGroup.useMutation();

@@ -17,7 +17,7 @@ export default async function Page({ params }: { params: instanceParams }) {
         studentsBackup={structuredClone(students)}
         selectedStudentIds={[]}
       >
-        <AdjustmentSpace params={params} />
+        <AdjustmentSpace />
       </AllocDetailsProvider>
     </div>
   );

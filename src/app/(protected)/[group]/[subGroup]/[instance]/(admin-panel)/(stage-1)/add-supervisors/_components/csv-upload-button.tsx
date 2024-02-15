@@ -5,7 +5,8 @@ import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
 
-import { NewSupervisor, csvHeaders } from "./add-supervisors";
+import { csvHeaders } from "./add-supervisors";
+import { NewSupervisor } from "@/lib/validations/csv";
 
 const csvRowSchema = z.object({
   full_name: z.string(),

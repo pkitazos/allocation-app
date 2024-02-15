@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { subGroupParams } from "@/lib/validations/params";
+import { groupParams } from "@/lib/validations/params";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,12 +10,12 @@ export function AdminRemovalButton({
   params,
   userId,
 }: {
-  params: subGroupParams;
+  params: groupParams;
   userId: string;
 }) {
   const router = useRouter();
 
-  const { mutateAsync } = api.institution.subGroup.removeAdmin.useMutation();
+  const { mutateAsync } = api.institution.group.removeAdmin.useMutation();
 
   //   const utils = api.useUtils();
 

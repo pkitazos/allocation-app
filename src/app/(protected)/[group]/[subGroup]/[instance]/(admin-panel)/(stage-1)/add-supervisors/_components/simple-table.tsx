@@ -10,7 +10,7 @@ import {
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { NewSupervisor } from "./add-supervisors";
+import { NewSupervisor } from "@/lib/validations/csv";
 
 export function SimpleTable({
   supervisors,
