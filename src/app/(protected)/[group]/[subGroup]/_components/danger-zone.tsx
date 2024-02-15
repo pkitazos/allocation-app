@@ -2,7 +2,7 @@
 import { DestructiveButton } from "@/components/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/trpc/client";
-import { subGroupParams } from "@/lib/validations/params";
+import { SubGroupParams } from "@/lib/validations/params";
 import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ export function DangerZone({
   params,
 }: {
   spaceTitle: string;
-  params: subGroupParams;
+  params: SubGroupParams;
 }) {
   const router = useRouter();
   const { mutateAsync: deleteAsync } =

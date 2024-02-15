@@ -1,8 +1,8 @@
 import { api } from "@/lib/trpc/server";
 import { ProjectsDataTable } from "./supervisor-projects-data-table";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
-interface pageParams extends instanceParams {
+interface pageParams extends InstanceParams {
   id: string;
 }
 

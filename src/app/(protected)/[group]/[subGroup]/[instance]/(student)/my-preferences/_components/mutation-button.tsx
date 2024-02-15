@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 export function MutationButton({
   params,
@@ -15,7 +15,7 @@ export function MutationButton({
   updatedStatus,
   children,
 }: {
-  params: instanceParams;
+  params: InstanceParams;
   projectId: string;
   updatedStatus?: PreferenceType;
   children: ReactNode;

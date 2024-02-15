@@ -5,14 +5,14 @@ import {
   MinCostAlgorithm,
 } from "@/lib/algorithms";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 import {
   NewAlgorithmButton,
   ResultsTable,
   RunAlgorithmButton,
 } from "./_components";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const { matchingData, selectedAlgName } =
     await api.institution.instance.matching.data.query({ params });
 

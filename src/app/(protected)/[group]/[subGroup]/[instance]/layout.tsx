@@ -1,6 +1,6 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 import { InstanceParamsProvider } from "@/components/params-context";
 
 export default async function Layout({
@@ -8,7 +8,7 @@ export default async function Layout({
   params,
 }: {
   children: React.ReactNode;
-  params: instanceParams;
+  params: InstanceParams;
 }) {
   const access = await api.institution.instance.access.query({ params });
 

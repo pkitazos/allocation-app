@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { PreferenceButton } from "./preference-button";
 
-interface pageParams extends instanceParams {
+interface pageParams extends InstanceParams {
   id: string;
 }
 

@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { groupParams } from "@/lib/validations/params";
+import { GroupParams } from "@/lib/validations/params";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -37,7 +37,7 @@ const NewAdminSchema = z.object({
 
 type NewAdmin = z.infer<typeof NewAdminSchema>;
 
-export function FormButton({ params }: { params: groupParams }) {
+export function FormButton({ params }: { params: GroupParams }) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);

@@ -1,10 +1,10 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { subGroupParams } from "@/lib/validations/params";
+import { SubGroupParams } from "@/lib/validations/params";
 
 import { FormSection } from "./_components/form-section";
 
-export default async function Page({ params }: { params: subGroupParams }) {
+export default async function Page({ params }: { params: SubGroupParams }) {
   const access = await api.institution.spaceMembership.query({ params });
 
   if (!access) {

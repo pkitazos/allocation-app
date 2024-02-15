@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { groupParams } from "@/lib/validations/params";
+import { GroupParams } from "@/lib/validations/params";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ export function AdminRemovalButton({
   params,
   userId,
 }: {
-  params: groupParams;
+  params: GroupParams;
   userId: string;
 }) {
   const router = useRouter();

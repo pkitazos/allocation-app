@@ -19,14 +19,14 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
 import { slugify } from "@/lib/utils/general/slugify";
-import { groupParams } from "@/lib/validations/params";
+import { GroupParams } from "@/lib/validations/params";
 
 export function FormSection({
   takenNames,
   params,
 }: {
   takenNames: string[];
-  params: groupParams;
+  params: GroupParams;
 }) {
   const router = useRouter();
   const FormSchema = z.object({

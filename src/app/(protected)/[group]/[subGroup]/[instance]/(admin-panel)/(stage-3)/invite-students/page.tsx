@@ -2,9 +2,9 @@ import { InviteTable } from "@/components/invite-table";
 import { Card } from "@/components/ui/card";
 import { api } from "@/lib/trpc/server";
 import { TogglePlatformAccess } from "./_components/toggle-platform-access";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const { students, platformAccess } =
     await api.institution.instance.invitedStudents.query({
       params,

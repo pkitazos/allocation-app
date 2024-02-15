@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
   params,
   children,
 }: {
-  params: instanceParams;
+  params: InstanceParams;
   children: ReactNode;
 }) {
   const role = await api.user.role.query({ params });

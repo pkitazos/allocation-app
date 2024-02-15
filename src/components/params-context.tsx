@@ -1,8 +1,8 @@
 "use client";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 import { ReactNode, createContext, useContext } from "react";
 
-const InstanceParamsContext = createContext<instanceParams | undefined>(
+const InstanceParamsContext = createContext<InstanceParams | undefined>(
   undefined,
 );
 
@@ -11,7 +11,7 @@ export function InstanceParamsProvider({
   params,
 }: {
   children: ReactNode;
-  params: instanceParams;
+  params: InstanceParams;
 }) {
   return (
     <InstanceParamsContext.Provider value={params}>

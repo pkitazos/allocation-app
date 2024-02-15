@@ -2,12 +2,12 @@ import { Role, Stage } from "@prisma/client";
 
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { AllocatedProject } from "./_components/allocated-project";
 import { PreferenceSelection } from "./_components/preference-selection";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const role = await api.user.role.query({ params });
 
   if (role !== Role.STUDENT) {

@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { slugify } from "@/lib/utils/general/slugify";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
@@ -23,7 +23,7 @@ export default async function Layout({
   params,
   children,
 }: {
-  params: instanceParams;
+  params: InstanceParams;
   children: ReactNode;
 }) {
   const instancePath = formatParamsAsPath(params);

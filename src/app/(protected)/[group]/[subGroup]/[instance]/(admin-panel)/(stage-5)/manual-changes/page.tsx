@@ -1,9 +1,9 @@
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const { students, projects } =
     await api.institution.instance.matching.rowData.query({
       params,

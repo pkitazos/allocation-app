@@ -1,10 +1,10 @@
 import { Heading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { ProjectsDataTable } from "./_components/projects-data-table";
 
-export default async function Projects({ params }: { params: instanceParams }) {
+export default async function Projects({ params }: { params: InstanceParams }) {
   const tableData = await api.project.getTableData.query({ params });
 
   return (

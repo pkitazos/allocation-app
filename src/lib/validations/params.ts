@@ -19,8 +19,8 @@ export const instanceParamsSchema = z.object({
   instance: z.string(),
 });
 
-export type groupParams = z.infer<typeof groupParamsSchema>;
+export type GroupParams = z.infer<typeof groupParamsSchema>;
 
-export type subGroupParams = z.infer<typeof subGroupParamsSchema>;
+export type SubGroupParams = z.infer<typeof subGroupParamsSchema>;
 
-export type instanceParams = z.infer<typeof instanceParamsSchema>;
+export type InstanceParams = z.infer<typeof instanceParamsSchema>;

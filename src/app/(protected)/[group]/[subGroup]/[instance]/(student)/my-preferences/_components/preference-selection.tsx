@@ -1,13 +1,13 @@
 import { Heading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { KanbanBoard } from "./kanban-board";
 
 export async function PreferenceSelection({
   params,
 }: {
-  params: instanceParams;
+  params: InstanceParams;
 }) {
   const { initialColumns, initialProjects } =
     await api.user.student.preference.initialBoardState.query({ params });

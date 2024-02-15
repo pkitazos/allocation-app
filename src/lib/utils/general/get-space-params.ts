@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 export async function getSpaceParams() {
   const headersList = headers();
@@ -18,7 +18,7 @@ export async function getSpaceParams() {
 
   const spaceParams = inInstance
     ? generateParams(routes.slice(1, 4))
-    : ({} as instanceParams);
+    : ({} as InstanceParams);
 
   return { inInstance, spaceParams };
 }
