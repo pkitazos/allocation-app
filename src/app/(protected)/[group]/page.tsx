@@ -2,7 +2,7 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { DangerZone } from "@/components/danger-zone";
+import { DangerZone } from "./_components/danger-zone";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,7 +86,7 @@ export default async function Page({ params }: { params: { group: string } }) {
         </div>
       </div>
       <div className="mt-16">
-        <DangerZone spaceTitle="Group" action={() => {}} />
+        <DangerZone spaceTitle="Group" params={params} />
       </div>
     </div>
   );

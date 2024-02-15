@@ -83,7 +83,7 @@ export const groupRouter = createTRPCRouter({
 
   deleteSubGroup: adminProcedure
     .input(z.object({ params: subGroupParamsSchema }))
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {
