@@ -38,7 +38,9 @@ export function DangerZone({
         <DestructiveButton action={destructiveAction}>
           {spaceTitle}
         </DestructiveButton>
-        <p>Once you delete an Allocation {spaceTitle} there is no going back</p>
+        <p>
+          Once you delete an Allocation {spaceTitle}, there is no going back.
+        </p>
       </CardContent>
     </Card>
   );

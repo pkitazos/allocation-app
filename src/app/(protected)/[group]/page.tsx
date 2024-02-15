@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: { group: string } }) {
     );
   }
 
-  const { allocationSubGroups, groupAdmins, displayName, adminLevel } =
+  const { allocationSubGroups, displayName, adminLevel, groupAdmins } =
     await api.institution.group.subGroupManagement.query({ params });
 
   return (

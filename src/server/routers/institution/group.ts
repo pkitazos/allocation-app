@@ -23,24 +23,30 @@ export const groupRouter = createTRPCRouter({
 
         const data = await ctx.db.allocationGroup.findFirstOrThrow({
           where: { id: group },
-          select: {
-            displayName: true,
-            allocationSubGroups: true,
-            groupAdmins: {
-              select: { user: { select: { name: true, email: true } } },
-            },
+          select: { displayName: true, allocationSubGroups: true },
+        });
+
+        const groupAdmins = await ctx.db.adminInSpace.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: null,
+            adminLevel: AdminLevel.GROUP,
           },
+          select: { user: { select: { name: true, email: true } } },
         });
 
         const superAdmin = await isSuperAdmin(ctx.db, userId);
-        if (superAdmin) return { adminLevel: AdminLevel.SUPER, ...data };
+        if (superAdmin) {
+          const adminLevel = AdminLevel.SUPER;
+          return { adminLevel, groupAdmins, ...data };
+        }
 
         const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
           where: { allocationGroupId: group, userId: userId },
           select: { adminLevel: true },
         });
 
-        return { adminLevel, ...data };
+        return { adminLevel, groupAdmins, ...data };
       },
     ),
 
