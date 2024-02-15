@@ -21,7 +21,7 @@ export default async function Page({ params }: { params: instanceParams }) {
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <Heading title="My Projects" />
+      <Heading>My Projects</Heading>
       <Card className="flex justify-between px-10 py-5">
         <h2>targets</h2>
         <p>{targets}</p>

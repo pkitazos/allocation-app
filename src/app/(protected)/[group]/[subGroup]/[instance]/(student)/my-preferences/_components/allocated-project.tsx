@@ -10,7 +10,7 @@ export async function AllocatedProject({ params }: { params: instanceParams }) {
   if (!allocatedProject)
     return (
       <section className="flex w-2/3 max-w-7xl flex-col">
-        <Heading title="Project Allocation" />
+        <Heading>Project Allocation</Heading>
         <p className="grid h-full place-items-center text-lg">
           You have not been allocated a project. Please contact the instance
           administrator
@@ -20,7 +20,7 @@ export async function AllocatedProject({ params }: { params: instanceParams }) {
 
   return (
     <section className="flex w-2/3 max-w-7xl flex-col">
-      <Heading title="Project Allocation" />
+      <Heading>Project Allocation</Heading>
       <div className="grid h-full place-items-center text-lg">
         <div className="flex flex-col items-start">
           <p className="text-xl font-semibold">

@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Role } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import { User } from "next-auth";
@@ -18,7 +17,6 @@ import Link from "next/link";
 export interface ProjectTableData {
   user: User & {
     id: string;
-    role: Role | null | undefined;
   };
   id: string;
   title: string;
@@ -81,7 +79,6 @@ export const projectColumns: ColumnDef<ProjectTableData>[] = [
       return <div className="text-xs text-gray-500">Actions</div>;
     },
     cell: ({ row }) => {
-      const role = row.original.user.role;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -100,7 +97,7 @@ export const projectColumns: ColumnDef<ProjectTableData>[] = [
             </DropdownMenuItem>
             {/* // TODO: do proper checks */}
             {/* // TODO: perhaps even move to trpc procedure */}
-            {role === "ADMIN" && (
+            {false && (
               <DropdownMenuItem>
                 {/* // TODO: implement delete */}
                 <Button

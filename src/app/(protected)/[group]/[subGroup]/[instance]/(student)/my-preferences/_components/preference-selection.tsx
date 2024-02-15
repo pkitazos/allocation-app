@@ -14,7 +14,7 @@ export async function PreferenceSelection({
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
-      <Heading title="Preference Lists" />
+      <Heading>Preference</Heading>
       <div className="my-2">&nbsp;</div>
       <KanbanBoard
         initialColumns={initialColumns}

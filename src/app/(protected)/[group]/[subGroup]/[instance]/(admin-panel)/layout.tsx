@@ -46,7 +46,7 @@ export default async function Layout({
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">
-        <Heading title={params.instance} />
+        <Heading>{params.instance}</Heading>
         {children}
       </section>
     </div>
