@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
-import { spaceParamsSchema } from "@/lib/validations/params";
+import { groupParamsSchema, spaceParamsSchema } from "@/lib/validations/params";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -59,4 +59,19 @@ export const institutionRouter = createTRPCRouter({
         },
       });
     }),
+
+  deleteGroup: adminProcedure
+    .input(z.object({ params: groupParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group },
+        },
+      }) => {
+        await ctx.db.allocationGroup.delete({
+          where: { id: group },
+        });
+      },
+    ),
 });

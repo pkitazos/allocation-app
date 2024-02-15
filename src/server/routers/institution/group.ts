@@ -1,8 +1,13 @@
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
-import { groupParamsSchema } from "@/lib/validations/params";
+import {
+  groupParamsSchema,
+  subGroupParamsSchema,
+} from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { AdminLevel } from "@prisma/client";
 
 export const groupRouter = createTRPCRouter({
   subGroupManagement: adminProcedure
@@ -14,6 +19,8 @@ export const groupRouter = createTRPCRouter({
           params: { group },
         },
       }) => {
+        const userId = ctx.session.user.id;
+
         const data = await ctx.db.allocationGroup.findFirstOrThrow({
           where: { id: group },
           select: {
@@ -25,13 +32,14 @@ export const groupRouter = createTRPCRouter({
           },
         });
 
+        const superAdmin = await isSuperAdmin(ctx.db, userId);
+        if (superAdmin) return { adminLevel: AdminLevel.SUPER, ...data };
+
         const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            userId: ctx.session.user.id,
-          },
+          where: { allocationGroupId: group, userId: userId },
           select: { adminLevel: true },
         });
+
         return { adminLevel, ...data };
       },
     ),
@@ -47,9 +55,7 @@ export const groupRouter = createTRPCRouter({
       }) => {
         const data = await ctx.db.allocationGroup.findFirstOrThrow({
           where: { id: group },
-          select: {
-            allocationSubGroups: { select: { displayName: true } },
-          },
+          select: { allocationSubGroups: { select: { displayName: true } } },
         });
         return data.allocationSubGroups.map((item) => item.displayName);
       },
@@ -71,6 +77,46 @@ export const groupRouter = createTRPCRouter({
             id: slugify(name),
             allocationGroupId: group,
           },
+        });
+      },
+    ),
+
+  deleteSubGroup: adminProcedure
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+        },
+      }) => {
+        await ctx.db.allocationSubGroup.delete({
+          where: {
+            subGroupId: {
+              allocationGroupId: group,
+              id: subGroup,
+            },
+          },
+        });
+      },
+    ),
+
+  removeAdmin: adminProcedure
+    .input(z.object({ params: groupParamsSchema, userId: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group },
+          userId,
+        },
+      }) => {
+        const { systemId } = await ctx.db.adminInSpace.findFirstOrThrow({
+          where: { allocationGroupId: group, userId },
+        });
+
+        await ctx.db.adminInSpace.delete({
+          where: { systemId },
         });
       },
     ),

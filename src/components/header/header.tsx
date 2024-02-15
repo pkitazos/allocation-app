@@ -13,7 +13,7 @@ export async function Header() {
   const adminPanel = await api.user.adminPanelRoute.query();
 
   return (
-    <nav className="sticky top-0 z-50 flex h-[8dvh] max-h-[5rem] w-full items-center justify-between gap-6 bg-primary px-10 py-5">
+    <nav className="sticky top-0 z-50 flex h-[8dvh] max-h-[5rem] w-full items-center justify-between gap-6 bg-primary px-10 py-5 shadow-md">
       <Link href="/">
         <Image
           className="max-w-[10rem] object-scale-down"

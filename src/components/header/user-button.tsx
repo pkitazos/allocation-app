@@ -1,10 +1,8 @@
 "use client";
-import { User2 } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { LogIn, LogOut, User2 } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
-import { SignInButton } from "@/components/sign-in-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +25,7 @@ export function UserButton() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="mt-3 max-w-60 p-2">
+      <DropdownMenuContent className="mr-4 mt-3 w-fit min-w-40 max-w-60">
         {session?.user && (
           <>
             <DropdownMenuLabel className="py-4">
@@ -39,23 +37,27 @@ export function UserButton() {
                   {session?.user.email}
                 </p>
               </div>
-              <DropdownMenuSeparator />
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem asChild>
-          {session ? (
-            <Button
-              className="w-full"
-              variant="outline"
-              onClick={async () => await signOut()}
-            >
-              Sign out
-            </Button>
-          ) : (
-            <SignInButton />
-          )}
-        </DropdownMenuItem>
+        {session ? (
+          <DropdownMenuItem
+            className="flex items-center gap-2 text-base "
+            onClick={async () => await signOut()}
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sign out</span>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            className="flex items-center gap-2 text-base "
+            onClick={async () => await signIn()}
+          >
+            <LogIn className="h-4 w-4" />
+            <span>Sign in</span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

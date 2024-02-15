@@ -2,17 +2,18 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
+
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
-import { studentStages, supervisorStages } from "@/lib/validations/stage";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
 import { projectRouter } from "./project";
 
 export const instanceRouter = createTRPCRouter({
@@ -249,6 +250,42 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
+  addSupervisorDetails: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        details: z.array(
+          z.object({
+            userId: z.string(),
+            target: z.number(),
+            upperQuota: z.number(),
+          }),
+        ),
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          details,
+        },
+      }) => {
+        await ctx.db.supervisorInstanceDetails.createMany({
+          data: details.map((e) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: e.userId,
+            projectAllocationLowerBound: 0,
+            projectAllocationTarget: e.target,
+            projectAllocationUpperBound: e.upperQuota,
+          })),
+          skipDuplicates: true,
+        });
+      },
+    ),
+
   invitedSupervisors: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -312,6 +349,56 @@ export const instanceRouter = createTRPCRouter({
           data: {
             supervisorsCanAccess: platformAccess,
           },
+        });
+      },
+    ),
+
+  removeUser: adminProcedure
+    .input(z.object({ params: instanceParamsSchema, userId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          userId,
+        },
+      }) => {
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId,
+            },
+          },
+        });
+      },
+    ),
+
+  addStudentDetails: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        details: z.array(z.object({ userId: z.string() })),
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          details,
+        },
+      }) => {
+        await ctx.db.studentInstanceDetails.createMany({
+          data: details.map(({ userId }) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId,
+          })),
+          skipDuplicates: true,
         });
       },
     ),

@@ -48,7 +48,7 @@ model Invitation {
     allocationSubGroupId String @map("allocation_sub_group_id")
     allocationInstanceId String @map("allocation_instance_id")
 
-    @@id([email, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "invitationId", [email, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model UserInInstance {
@@ -62,15 +62,14 @@ model UserInInstance {
     allocationInstanceId      String                      @map("allocation_instance_id")
     // ---
     studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
-    // TODO: figure out why this breaks the seed script
-    // allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id]) 
+    // ---
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")
     supervisorProjects        Project[]
     studentInstanceDetails    StudentInstanceDetails[]
     studentFlags              FlagOnStudent[]
     studentPreferences        Preference[]
 
-    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "instanceMembership", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model AdminInSpace {
@@ -103,7 +102,7 @@ model AllocationSubGroup {
     allocationInstances AllocationInstance[]
     subGroupAdmins      AdminInSpace[]
 
-    @@id([allocationGroupId, id])
+    @@id(name: "subGroupId", [allocationGroupId, id])
 }
 
 model AllocationInstance {
@@ -124,10 +123,8 @@ model AllocationInstance {
     // has many
     projects                    Project[]
     algorithms                  Algorithm[]
-    // TODO: figure out why this breaks the seed script
-    // users                UserInInstance[]
 
-    @@id([allocationGroupId, allocationSubGroupId, id], name: "instanceId")
+    @@id(name: "instanceId", [allocationGroupId, allocationSubGroupId, id])
 }
 
 model SupervisorInstanceDetails {
@@ -143,7 +140,7 @@ model SupervisorInstanceDetails {
     projectAllocationTarget     Int            @map("project_allocation_target")
     projectAllocationUpperBound Int            @map("project_allocation_upper_bound")
 
-    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model StudentInstanceDetails {
@@ -157,7 +154,7 @@ model StudentInstanceDetails {
     // actual data
     flags                FlagOnStudent[]
 
-    @@id([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Project {
@@ -196,7 +193,7 @@ model Preference {
     rank                 Float
     type                 PreferenceType
 
-    @@id([projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "preferenceId", [projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model ProjectAllocation {
@@ -211,7 +208,7 @@ model ProjectAllocation {
     allocationInstanceId String         @map("allocation_instance_id")
     // ---
 
-    @@id([projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "allocationId", [projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
     @@unique([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
@@ -244,7 +241,7 @@ model FlagOnStudent {
     studentDetails       StudentInstanceDetails @relation(map: "flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
     UserInInstance       UserInInstance         @relation(map: "user_flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 
-    @@id([flagId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "studentFlagId", [flagId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Tag {
@@ -275,9 +272,9 @@ model Algorithm {
     allocationSubGroupId String             @map("allocation_sub_group_id")
     allocationInstanceId String             @map("allocation_instance_id")
     // --- belongs to 1
-    allocationInstances  AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
+    allocationInstance   AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id])
 
-    @@id([algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+    @@id(name: "algorithmId", [algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Account {
