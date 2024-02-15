@@ -9,7 +9,7 @@ export default async function Projects({ params }: { params: instanceParams }) {
 
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">
-      <Heading title="Projects" />
+      <Heading>Projects</Heading>
       <ProjectsDataTable data={tableData} />
     </div>
   );

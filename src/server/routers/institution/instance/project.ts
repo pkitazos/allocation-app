@@ -1,5 +1,6 @@
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
@@ -55,6 +56,53 @@ export const projectRouter = createTRPCRouter({
             ...e,
           };
         });
+      },
+    ),
+
+  preferenceInfo: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const preferenceCapacities =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              minPreferences: true,
+              maxPreferences: true,
+              maxPreferencesPerSupervisor: true,
+            },
+          });
+
+        const data = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: {
+            userId: true,
+            studentPreferences: true,
+          },
+        });
+
+        const studentData = data.map(({ userId, studentPreferences }) => {
+          return {
+            userId,
+            submissionCount: studentPreferences.length,
+            alreadySubmitted: studentPreferences.length !== 0,
+          };
+        });
+        return { studentData, preferenceCapacities };
       },
     ),
 });

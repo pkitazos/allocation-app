@@ -2,8 +2,11 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
+import { DangerZone } from "@/components/danger-zone";
+import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -27,38 +30,47 @@ export default async function Page({
   const { group, subGroup } = params;
 
   return (
-    <div className="--red mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
-      <h1 className="text-4xl">{displayName}</h1>
-      <div className="my-10 flex flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
-        <h3 className="mb-3 text-2xl underline">Sub-Group Admins</h3>
-        {subGroupAdmins.map(({ user: { name, email } }, i) => (
-          <div className="flex items-center gap-5" key={i}>
-            <div className="w-1/6 font-medium">{name}</div>
-            <Separator orientation="vertical" />
-            <div className="w-/4">{email}</div>
-            {permissionCheck(adminLevel, AdminLevel.GROUP) && (
-              <>
-                <Separator orientation="vertical" />
-                <Button className="ml-8" variant="destructive">
-                  remove
-                </Button>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      <h2 className="text-3xl">Manage Allocation Instances</h2>
+    <div className="mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
+      <Heading>{displayName}</Heading>
+      <Card className="my-10 flex flex-col gap-2">
+        <CardHeader className="-mb-3 mt-3">
+          <CardTitle>Sub-Group Admins</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table className="flex items-center gap-5">
+            <TableBody className="w-full text-base">
+              {subGroupAdmins.map(({ user: { name, email } }, i) => (
+                <TableRow key={i}>
+                  <TableCell className="w-1/6 font-medium">{name}</TableCell>
+                  <TableCell className="text-center">{email}</TableCell>
+                  {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+                    <TableCell className="flex justify-end">
+                      <Button className="ml-8" variant="destructive">
+                        remove
+                      </Button>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
+      <h2 className="text-3xl font-medium leading-none tracking-tight underline decoration-secondary underline-offset-4">
+        Manage Allocation Instances
+      </h2>
       <div className="flex w-full flex-col gap-6">
         <Link href={`/${group}/${subGroup}/create-instance`} className="w-fit">
           <Button
+            size="lg"
             variant="outline"
-            className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"
+            className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
           >
             <Plus className="h-6 w-6 stroke-[3px]" />
+            <p className="text-lg">Create Instance</p>
           </Button>
         </Link>
-
         <div className="grid grid-cols-3 gap-6">
           {allocationInstances.map((instance, i) => (
             <Link
@@ -76,6 +88,10 @@ export default async function Page({
             </Link>
           ))}
         </div>
+      </div>
+
+      <div className="mt-16">
+        <DangerZone spaceTitle="Sub-Group" action={() => {}} />
       </div>
     </div>
   );

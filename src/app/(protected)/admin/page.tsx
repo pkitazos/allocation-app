@@ -1,5 +1,7 @@
+import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { api } from "@/lib/trpc/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -8,27 +10,41 @@ export default async function Page() {
   const { superAdmin, groups } = await api.institution.groupManagement.query();
 
   return (
-    <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6 pb-20">
-      <h1 className="text-4xl">University of Glasgow</h1>
+    <div className="mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
+      <Heading>University of Glasgow</Heading>
 
-      <div className="my-10 flex min-h-40 flex-col gap-2 rounded-md bg-accent/50 px-5 pb-7 pt-5">
-        <h3 className="mb-4 text-2xl underline">Super-Admins</h3>
-        <div className="flex h-9 items-center gap-5">
-          <div className="w-1/6 font-medium">{superAdmin.name}</div>
-          <Separator orientation="vertical" />
-          <div className="w-/4">{superAdmin.email}</div>
-        </div>
-      </div>
+      <Card className="my-10 flex flex-col gap-2 ">
+        <CardHeader className="-mb-3 mt-3">
+          <CardTitle>Super-Admins</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table className="flex items-center gap-5">
+            <TableBody className="w-full text-base">
+              <TableRow>
+                <TableCell className="w-1/6 font-medium">
+                  {superAdmin.name}
+                </TableCell>
+                <TableCell className="text-center">
+                  {superAdmin.email}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      <h2 className="text-3xl">Manage Allocation Groups</h2>
-
+      <h2 className="text-3xl font-medium leading-none tracking-tight underline decoration-secondary underline-offset-4">
+        Manage Allocation Groups{" "}
+      </h2>
       <div className="flex w-full flex-col gap-6">
         <Link href="/admin/create-group" className="w-fit">
           <Button
+            size="lg"
             variant="outline"
-            className="h-20 w-40 rounded-lg bg-accent/60 hover:bg-accent"
+            className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
           >
-            <Plus className="h-6 w-6 stroke-[3px]" />
+            <Plus className="h-6 w-6 stroke-[3px]" />{" "}
+            <p className="text-lg">Create Group</p>
           </Button>
         </Link>
 

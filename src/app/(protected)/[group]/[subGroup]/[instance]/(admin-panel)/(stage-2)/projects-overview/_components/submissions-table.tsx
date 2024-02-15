@@ -25,15 +25,17 @@ export function SubmissionsTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Already Submitted</TableHead>
-          <TableHead>Submission Target</TableHead>
+          <TableHead className="font-semibold">Supervisor ID</TableHead>
+          <TableHead className="text-center">Already Submitted</TableHead>
+          <TableHead className="text-center">Submission Target</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {capacities.map((c, i) => (
           <TableRow key={i}>
-            <TableCell>{c.alreadySubmitted}</TableCell>
-            <TableCell>{c.submissionTarget}</TableCell>
+            <TableCell>{c.userId}</TableCell>
+            <TableCell className="text-center">{c.alreadySubmitted}</TableCell>
+            <TableCell className="text-center">{c.submissionTarget}</TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -97,6 +97,9 @@ async function main() {
       allocationSubGroupId: allocationSubGroup.id,
       id: testInstance.id,
       displayName: testInstance.displayName,
+      minPreferences: 1,
+      maxPreferences: 10,
+      maxPreferencesPerSupervisor: 10,
     },
   });
   dbg("INSTANCE", allocationInstance);
