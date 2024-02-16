@@ -2,25 +2,26 @@
 import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
+import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { instanceParams } from "@/lib/validations/params";
 
 export function ResultsTableRow({
   algName,
   algDisplayName,
-  params,
+
   selectedAlgName,
   setSelectedMatching,
 }: {
   algName: string;
   algDisplayName: string;
-  params: instanceParams;
   selectedAlgName: string | undefined;
   setSelectedMatching: Dispatch<SetStateAction<string | undefined>>;
 }) {
+  const params = useInstanceParams();
+
   const { isLoading, data } =
     api.institution.instance.algorithm.singleResult.useQuery({
       params,

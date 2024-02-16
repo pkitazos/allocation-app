@@ -2,7 +2,6 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { DangerZone } from "@/components/danger-zone";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,10 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+
+import { AdminRemovalButton } from "./_components/admin-removal-button";
+import { DangerZone } from "./_components/danger-zone";
+import { FormButton } from "./_components/form-button";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.spaceMembership.query({ params });
@@ -20,7 +23,7 @@ export default async function Page({ params }: { params: { group: string } }) {
     );
   }
 
-  const { allocationSubGroups, groupAdmins, displayName, adminLevel } =
+  const { allocationSubGroups, displayName, adminLevel, groupAdmins } =
     await api.institution.group.subGroupManagement.query({ params });
 
   return (
@@ -34,21 +37,22 @@ export default async function Page({ params }: { params: { group: string } }) {
         <CardContent>
           <Table className="flex items-center gap-5">
             <TableBody className="w-full text-base">
-              {groupAdmins.map(({ user: { name, email } }, i) => (
-                <TableRow key={i}>
-                  <TableCell className="w-1/6 font-medium">{name}</TableCell>
-                  <TableCell className="text-center">{email}</TableCell>
+              {groupAdmins.map(({ user: { id, name, email } }, i) => (
+                <TableRow className="flex w-full items-center" key={i}>
+                  <TableCell className="w-1/3 font-medium">{name}</TableCell>
+                  <TableCell className="w-1/3 text-start">{email}</TableCell>
                   {permissionCheck(adminLevel, AdminLevel.SUPER) && (
-                    <TableCell className="flex justify-end">
-                      <Button className="ml-8" variant="destructive">
-                        remove
-                      </Button>
+                    <TableCell className="flex w-1/3 justify-end">
+                      <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
                   )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          <div className="mt-2">
+            <FormButton params={params} />
+          </div>
         </CardContent>
       </Card>
 
@@ -86,7 +90,7 @@ export default async function Page({ params }: { params: { group: string } }) {
         </div>
       </div>
       <div className="mt-16">
-        <DangerZone spaceTitle="Group" action={() => {}} />
+        <DangerZone spaceTitle="Group" />
       </div>
     </div>
   );

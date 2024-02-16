@@ -7,10 +7,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { NewStudent } from "./add-students";
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { NewStudent } from "@/lib/validations/csv";
 
 export function SimpleTable({
   students,

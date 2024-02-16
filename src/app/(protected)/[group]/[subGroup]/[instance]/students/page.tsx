@@ -1,8 +1,8 @@
 import { api } from "@/lib/trpc/server";
 import { StudentsDataTable } from "./_components/students-data-table";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
-export default async function Students({ params }: { params: instanceParams }) {
+export default async function Students({ params }: { params: InstanceParams }) {
   const tableData = await api.institution.instance.students.query({ params });
   return (
     <div className="flex w-2/3 max-w-7xl flex-col">

@@ -2,11 +2,11 @@ import { Role } from "@prisma/client";
 
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { SupervisorsDataTable } from "./_components/supervisors-data-table";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const role = await api.user.role.query({ params });
 
   if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {

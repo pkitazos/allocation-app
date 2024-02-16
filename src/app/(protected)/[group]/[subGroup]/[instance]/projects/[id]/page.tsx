@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
+
 import { PreferenceButton } from "./preference-button";
 
-interface pageParams extends instanceParams {
+interface pageParams extends InstanceParams {
   id: string;
 }
 
@@ -29,7 +30,6 @@ export default async function Project({ params }: { params: pageParams }) {
         <h1 className="text-5xl text-accent-foreground">{project.title}</h1>
         {role === Role.STUDENT && (
           <PreferenceButton
-            params={params}
             projectId={projectId}
             defaultStatus={preferenceStatus}
           />

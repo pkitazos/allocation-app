@@ -1,8 +1,8 @@
 import { Heading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
-export async function AllocatedProject({ params }: { params: instanceParams }) {
+export async function AllocatedProject({ params }: { params: InstanceParams }) {
   const allocatedProject = await api.user.student.allocatedProject.query({
     params,
   });

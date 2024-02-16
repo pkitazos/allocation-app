@@ -1,5 +1,4 @@
 "use client";
-import { instanceParams } from "@/lib/validations/params";
 
 import { AdjustmentRow } from "./adjustment-row";
 import { useAllocDetails } from "./allocation-store";
@@ -7,7 +6,7 @@ import { MatchingInfoTable } from "./matching-info-table";
 import { StudentSelector } from "./student-selector";
 import { SubmitButton } from "./submit-button";
 
-export function AdjustmentSpace({ params }: { params: instanceParams }) {
+export function AdjustmentSpace() {
   const selectedStudents = useAllocDetails((s) => s.selectedStudentIds);
 
   return (
@@ -15,7 +14,7 @@ export function AdjustmentSpace({ params }: { params: instanceParams }) {
       <div className="flex w-full items-center justify-between">
         <StudentSelector className="mb-4" />
         <div className="flex gap-2">
-          <SubmitButton params={params} />
+          <SubmitButton />
           <MatchingInfoTable />
         </div>
       </div>

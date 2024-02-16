@@ -5,6 +5,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -20,20 +21,19 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { AlgorithmFlag } from "@prisma/client";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 import { api } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 import { algorithmFlagSchema } from "@/lib/validations/algorithm";
-import { instanceParams } from "@/lib/validations/params";
-import { Dispatch, SetStateAction } from "react";
+import { AlgorithmFlag } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 
 const allFlags = [
   { label: "GRE", value: AlgorithmFlag.GRE },
@@ -45,14 +45,13 @@ const allFlags = [
 ] as const;
 
 export function NewAlgorithmForm({
-  params,
   takenNames,
   setShowForm,
 }: {
-  params: instanceParams;
   takenNames: string[];
   setShowForm: Dispatch<SetStateAction<boolean>>;
 }) {
+  const params = useInstanceParams();
   const { refresh } = useRouter();
   const { mutateAsync: createAlgorithmAsync } =
     api.institution.instance.algorithm.create.useMutation();

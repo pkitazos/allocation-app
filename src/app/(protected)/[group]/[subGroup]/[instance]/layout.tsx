@@ -1,13 +1,14 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
+import { InstanceParamsProvider } from "@/components/params-context";
 
 export default async function Layout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: instanceParams;
+  params: InstanceParams;
 }) {
   const access = await api.institution.instance.access.query({ params });
 
@@ -16,5 +17,7 @@ export default async function Layout({
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );
   }
-  return <>{children}</>;
+  return (
+    <InstanceParamsProvider params={params}>{children}</InstanceParamsProvider>
+  );
 }

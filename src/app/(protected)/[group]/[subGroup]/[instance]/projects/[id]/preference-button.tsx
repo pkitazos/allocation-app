@@ -1,4 +1,5 @@
 "use client";
+import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/lib/trpc/client";
-import { instanceParams } from "@/lib/validations/params";
 import { PreferenceType } from "@prisma/client";
 
 import { useState } from "react";
@@ -18,14 +18,13 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export function PreferenceButton({
-  params,
   projectId,
   defaultStatus,
 }: {
-  params: instanceParams;
   projectId: string;
   defaultStatus: string;
 }) {
+  const params = useInstanceParams();
   const [selectStatus, setSelectStatus] = useState(defaultStatus);
 
   const { mutateAsync: updateAsync } =

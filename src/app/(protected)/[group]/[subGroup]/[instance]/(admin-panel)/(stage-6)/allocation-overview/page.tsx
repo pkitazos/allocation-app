@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
 import {
   ByProjectDataTable,
@@ -9,7 +9,7 @@ import {
   BySupervisorDataTable,
 } from "./_components";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const { byStudent, byProject, bySupervisor } =
     await api.institution.instance.projectAllocations.query({ params });
 

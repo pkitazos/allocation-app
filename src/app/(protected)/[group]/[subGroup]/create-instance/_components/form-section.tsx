@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
-import { subGroupParams } from "@/lib/validations/params";
+import { SubGroupParams } from "@/lib/validations/params";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ export function FormSection({
   params,
 }: {
   takenNames: string[];
-  params: subGroupParams;
+  params: SubGroupParams;
 }) {
   // TODO: needs major refactor
 

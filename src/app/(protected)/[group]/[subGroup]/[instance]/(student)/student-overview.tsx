@@ -1,9 +1,9 @@
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 import { Stage } from "@prisma/client";
 
-export async function StudentOverview({ params }: { params: instanceParams }) {
+export async function StudentOverview({ params }: { params: InstanceParams }) {
   const stage = await api.institution.instance.currentStage.query({ params });
 
   if (stage === Stage.PROJECT_SELECTION) {

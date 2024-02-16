@@ -8,6 +8,7 @@ import {
 } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
 
 export const subGroupRouter = createTRPCRouter({
   instanceManagement: adminProcedure
@@ -29,7 +30,9 @@ export const subGroupRouter = createTRPCRouter({
             displayName: true,
             allocationInstances: true,
             subGroupAdmins: {
-              select: { user: { select: { name: true, email: true } } },
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+              },
             },
           },
         });
@@ -118,6 +121,66 @@ export const subGroupRouter = createTRPCRouter({
               allocationSubGroupId: subGroup,
               id: instance,
             },
+          },
+        });
+      },
+    ),
+
+  addAdmin: adminProcedure
+    .input(
+      z.object({
+        params: subGroupParamsSchema,
+        schoolId: z.string(),
+        name: z.string(),
+        email: z.string(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+          schoolId,
+          name,
+          email,
+        },
+      }) => {
+        /**
+         * check if user is already an admin in this group
+         *  -> do nothing
+         *
+         * if user exists but is not an admin in this group
+         *  -> make them an admin in this group
+         *
+         * if the user does not exist
+         *  -> invite them
+         *  -> make them an admin in this group
+         *
+         * */
+
+        const alreadyAdmin = await isAdminInSpace(ctx.db, schoolId, { group });
+        if (alreadyAdmin) return;
+
+        let user = await ctx.db.user.findFirst({
+          where: { id: schoolId },
+        });
+
+        if (!user) {
+          // TODO: if user does not exist
+          user = await ctx.db.user.create({
+            data: { id: schoolId, name, email },
+          });
+          // -> add them to invitation list
+          // -> send them an email
+          // -> make them an admin in this group
+        }
+
+        await ctx.db.adminInSpace.create({
+          data: {
+            userId: user.id,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            adminLevel: AdminLevel.GROUP,
           },
         });
       },

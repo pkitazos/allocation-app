@@ -20,11 +20,11 @@ export default async function Page() {
         <CardContent>
           <Table className="flex items-center gap-5">
             <TableBody className="w-full text-base">
-              <TableRow>
-                <TableCell className="w-1/6 font-medium">
+              <TableRow className="flex w-full items-center">
+                <TableCell className="w-full font-medium">
                   {superAdmin.name}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-full text-start">
                   {superAdmin.email}
                 </TableCell>
               </TableRow>

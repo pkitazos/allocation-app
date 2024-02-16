@@ -6,20 +6,16 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { instanceParams } from "@/lib/validations/params";
 import { stageSchema } from "@/lib/validations/stage";
 
+import { useInstanceParams } from "@/components/params-context";
 import { StageButton } from "./_components/stage-button";
 
-export function StageControl({
-  params,
-  stage,
-}: {
-  params: instanceParams;
-  stage: Stage;
-}) {
-  const stages = stageSchema.options;
+export function StageControl({ stage }: { stage: Stage }) {
+  const params = useInstanceParams();
+
   const router = useRouter();
+  const stages = stageSchema.options;
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
 

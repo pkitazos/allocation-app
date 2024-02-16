@@ -2,9 +2,9 @@ import { InviteTable } from "@/components/invite-table";
 import { Card } from "@/components/ui/card";
 import { api } from "@/lib/trpc/server";
 import { TogglePlatformAccess } from "./_components/toggle-platform-access";
-import { instanceParams } from "@/lib/validations/params";
+import { InstanceParams } from "@/lib/validations/params";
 
-export default async function Page({ params }: { params: instanceParams }) {
+export default async function Page({ params }: { params: InstanceParams }) {
   const { students, platformAccess } =
     await api.institution.instance.invitedStudents.query({
       params,
@@ -17,7 +17,7 @@ export default async function Page({ params }: { params: instanceParams }) {
       </h1>
       <Card className="flex w-full items-center justify-between gap-8 px-10 py-5">
         <p>Students can access platform</p>
-        <TogglePlatformAccess params={params} platformAccess={platformAccess} />
+        <TogglePlatformAccess platformAccess={platformAccess} />
       </Card>
 
       <h1 className="mb-4 mt-10 text-2xl underline decoration-secondary underline-offset-4">
