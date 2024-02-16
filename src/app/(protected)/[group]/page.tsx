@@ -90,7 +90,7 @@ export default async function Page({ params }: { params: { group: string } }) {
         </div>
       </div>
       <div className="mt-16">
-        <DangerZone spaceTitle="Group" />
+        <DangerZone spaceTitle="Group" params={params} />
       </div>
     </div>
   );

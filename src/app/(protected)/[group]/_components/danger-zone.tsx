@@ -1,13 +1,18 @@
 "use client";
 import { DestructiveButton } from "@/components/destructive-button";
-import { useInstanceParams } from "@/components/params-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/trpc/client";
+import { GroupParams } from "@/lib/validations/params";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function DangerZone({ spaceTitle }: { spaceTitle: string }) {
-  const params = useInstanceParams();
+export function DangerZone({
+  spaceTitle,
+  params,
+}: {
+  spaceTitle: string;
+  params: GroupParams;
+}) {
   const router = useRouter();
   const { mutateAsync: deleteAsync } =
     api.institution.deleteGroup.useMutation();
@@ -16,9 +21,9 @@ export function DangerZone({ spaceTitle }: { spaceTitle: string }) {
     void toast.promise(
       deleteAsync({ params }).then(() => router.push(`/admin`)),
       {
-        loading: "Deleting Group",
+        loading: `Deleting ${spaceTitle}`,
         error: "Something went wrong",
-        success: "Successfully deleted Group",
+        success: `Successfully deleted ${spaceTitle}`,
       },
     );
   }

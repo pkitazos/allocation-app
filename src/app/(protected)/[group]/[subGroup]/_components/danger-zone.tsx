@@ -22,9 +22,9 @@ export function DangerZone({
     void toast.promise(
       deleteAsync({ params }).then(() => router.push(`/${params.group}`)),
       {
-        loading: "Deleting Sub-Group",
+        loading: `Deleting ${spaceTitle}`,
         error: "Something went wrong",
-        success: "Successfully deleted Sub-Group",
+        success: `Successfully deleted ${spaceTitle}`,
       },
     );
   }
