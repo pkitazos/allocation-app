@@ -1,32 +1,59 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import DataTable from "@/components/ui/data-table/data-table";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
-import { NewSupervisor, NewSupervisorSchema } from "@/lib/validations/csv";
+import { NewSupervisor, newSupervisorSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./csv-upload-button";
-import { SimpleTable } from "./simple-table";
+import { columns } from "./new-supervisor-columns";
+import { api } from "@/lib/trpc/client";
+import { toast } from "sonner";
+import { useInstanceParams } from "@/components/params-context";
 
 export const csvHeaders = [
   "full_name",
-  "school_id",
+  "university_id",
   "email",
   "project_target",
   "project_upper_quota",
 ];
 
 export function AddSupervisors() {
+  const params = useInstanceParams();
   const [newSupervisors, setNewSupervisors] = useState<NewSupervisor[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewSupervisor>({
-    resolver: zodResolver(NewSupervisorSchema),
+    resolver: zodResolver(newSupervisorSchema),
   });
+
+  function handleRowRemoval(idx: number) {
+    setNewSupervisors((prev) => prev.toSpliced(idx, 1));
+  }
+
+  const { mutateAsync } =
+    api.institution.instance.addSupervisorDetails.useMutation();
+
+  async function handleMutation() {
+    void toast.promise(
+      mutateAsync({
+        params,
+        newSupervisors,
+      }).then(() => setNewSupervisors([])),
+      {
+        loading: "Adding Supervisors...",
+        error: "Something went wrong",
+        success: "Success",
+      },
+    );
+  }
 
   const onSubmit = (data: NewSupervisor) => {
     setNewSupervisors((prev) => [data, ...prev]);
@@ -80,16 +107,16 @@ export function AddSupervisors() {
         </div>
       </form>
       <Separator className="my-14" />
-      {newSupervisors.length !== 0 && (
-        <SimpleTable
-          supervisors={newSupervisors}
-          setSupervisors={setNewSupervisors}
-        />
-        // <DataTable columns={columns} data={newSupervisors} />
-      )}
+
+      <DataTable
+        columns={columns(handleRowRemoval, () => setNewSupervisors([]))}
+        data={newSupervisors}
+      />
+
       <div className="mt-2 flex justify-end">
-        {/* // TODO: hook up procedure to create invites */}
-        <Button disabled={newSupervisors.length === 0}>invite</Button>
+        <Button onClick={handleMutation} disabled={newSupervisors.length === 0}>
+          invite
+        </Button>
       </div>
     </div>
   );

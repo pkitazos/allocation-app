@@ -1,12 +1,15 @@
+"use client";
+import { ColumnDef } from "@tanstack/react-table";
+import { X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { NewStudent } from "@/lib/validations/csv";
-import { ColumnDef } from "@tanstack/react-table";
-import { X } from "lucide-react";
 
 export function columns(
   removeRow: (idx: number) => void,
+  clearTable: () => void,
 ): ColumnDef<NewStudent>[] {
   return [
     {
@@ -52,8 +55,18 @@ export function columns(
     {
       accessorKey: "actions",
       id: "Actions",
-      // TODO: add remove all function
-      header: () => <div className="w-fit" />,
+      header: ({ table }) => {
+        const allSelected = table.getIsAllRowsSelected();
+
+        if (allSelected)
+          return (
+            <Button variant="ghost" size="icon" onClick={clearTable}>
+              <X className="h-5 w-5" />
+            </Button>
+          );
+
+        return <div className="w-fit" />;
+      },
       cell: ({ row: { index } }) => {
         return (
           <Button variant="ghost" size="icon" onClick={() => removeRow(index)}>

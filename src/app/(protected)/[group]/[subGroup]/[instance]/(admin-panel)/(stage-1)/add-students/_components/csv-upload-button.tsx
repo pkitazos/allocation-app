@@ -1,25 +1,27 @@
 "use client";
-import { Input } from "@/components/ui/input";
+
 import Papa from "papaparse";
 import React, { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
-import { csvHeaders } from "./add-students";
+
+import { Input } from "@/components/ui/input";
 import { NewStudent } from "@/lib/validations/csv";
+
+import { csvHeaders } from "./add-students";
 
 const csvRowSchema = z.object({
   full_name: z.string(),
-  school_id: z.string(),
+  university_id: z.string(),
   email: z.string().email(),
 });
-
-type csvRow = z.infer<typeof csvRowSchema>;
 
 export function CSVUploadButton({
   setNewStudents,
 }: {
   setNewStudents: Dispatch<SetStateAction<NewStudent[]>>;
 }) {
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -27,34 +29,36 @@ export function CSVUploadButton({
         complete: (res) => {
           const headers = res.meta.fields;
           if (!headers) {
-            // TODO: display error in toast
-            console.error("CSV does not contain headers");
+            toast.error("CSV does not contain headers");
             return;
           }
 
-          const isValid = csvHeaders.every((field) => headers.includes(field));
-
-          if (!isValid) {
-            // TODO: display error in toast
-            console.error("CSV does not have the required headers");
+          if (csvHeaders.join() !== headers.join()) {
+            toast.error("CSV does not have the required headers");
             return;
           }
 
           const result = z.array(csvRowSchema).safeParse(res.data);
           if (!result.success) {
-            // TODO: display error in toast
-            console.error("CSV data was not formatted correctly");
+            toast.error("CSV data was not formatted correctly");
             return;
           }
 
-          setNewStudents(toCamelCaseRows(result.data));
+          setNewStudents(
+            result.data.map((e) => ({
+              fullName: e.full_name,
+              schoolId: e.university_id,
+              email: e.email,
+            })),
+          );
+          toast.success("CSV parsed successfully!");
         },
         header: true,
         skipEmptyLines: true,
         dynamicTyping: true,
       });
     }
-  };
+  }
 
   return (
     <Input
@@ -64,12 +68,4 @@ export function CSVUploadButton({
       onChange={handleFileChange}
     />
   );
-}
-
-function toCamelCaseRows(someData: csvRow[]) {
-  return someData.map((e) => ({
-    fullName: e.full_name,
-    schoolId: e.school_id,
-    email: e.email,
-  }));
 }

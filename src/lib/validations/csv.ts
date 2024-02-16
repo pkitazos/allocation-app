@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const NewStudentSchema = z.object({
+export const newStudentSchema = z.object({
   fullName: z.string(),
   schoolId: z.string(),
   email: z.string().email(),
 });
 
-export const NewSupervisorSchema = z.object({
+export const newSupervisorSchema = z.object({
   fullName: z.string(),
   schoolId: z.string(),
   email: z.string().email(),
@@ -14,6 +14,6 @@ export const NewSupervisorSchema = z.object({
   projectUpperQuota: z.number().int(),
 });
 
-export type NewStudent = z.infer<typeof NewStudentSchema>;
+export type NewStudent = z.infer<typeof newStudentSchema>;
 
-export type NewSupervisor = z.infer<typeof NewSupervisorSchema>;
+export type NewSupervisor = z.infer<typeof newSupervisorSchema>;

@@ -9,18 +9,22 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
-import { NewStudent, NewStudentSchema } from "@/lib/validations/csv";
+import { NewStudent, newStudentSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./csv-upload-button";
 import { columns } from "./new-student-columns";
+import { api } from "@/lib/trpc/client";
+import { toast } from "sonner";
+import { useInstanceParams } from "@/components/params-context";
 
-export const csvHeaders = ["full_name", "school_id", "email"];
+export const csvHeaders = ["full_name", "university_id", "email"];
 
 export function AddStudents() {
+  const params = useInstanceParams();
   const [newStudents, setNewStudents] = useState<NewStudent[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewStudent>({
-    resolver: zodResolver(NewStudentSchema),
+    resolver: zodResolver(newStudentSchema),
   });
 
   const onSubmit = (data: NewStudent) => {
@@ -30,6 +34,23 @@ export function AddStudents() {
 
   function handleRowRemoval(idx: number) {
     setNewStudents((prev) => prev.toSpliced(idx, 1));
+  }
+
+  const { mutateAsync } =
+    api.institution.instance.addStudentDetails.useMutation();
+
+  async function handleMutation() {
+    void toast.promise(
+      mutateAsync({
+        params,
+        newStudents,
+      }).then(() => setNewStudents([])),
+      {
+        loading: "Adding students...",
+        error: "Something went wrong",
+        success: "Success",
+      },
+    );
   }
 
   return (
@@ -62,19 +83,20 @@ export function AddStudents() {
             {...register("schoolId")}
           />
           <Input className="w-2/5" placeholder="Email" {...register("email")} />
-          <Button size="icon" variant="secondary">
+          <Button type="submit" size="icon" variant="secondary">
             <Plus className="h-4 w-4 stroke-white stroke-[3]" />
           </Button>
         </div>
       </form>
       <Separator className="my-14" />
-      {newStudents.length !== 0 && (
-        <DataTable columns={columns(handleRowRemoval)} data={newStudents} />
-        // <SimpleTable students={newStudents} setStudents={setNewStudents} />
-      )}
+      <DataTable
+        columns={columns(handleRowRemoval, () => setNewStudents([]))}
+        data={newStudents}
+      />
       <div className="flex justify-end">
-        {/* // TODO: hook up procedure to create invites */}
-        <Button disabled={newStudents.length === 0}>invite</Button>
+        <Button onClick={handleMutation} disabled={newStudents.length === 0}>
+          Add Students
+        </Button>
       </div>
     </div>
   );

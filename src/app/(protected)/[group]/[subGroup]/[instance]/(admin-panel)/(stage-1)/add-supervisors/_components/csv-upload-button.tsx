@@ -1,22 +1,22 @@
 "use client";
+
 import Papa from "papaparse";
 import React, { Dispatch, SetStateAction } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
+import { NewSupervisor } from "@/lib/validations/csv";
 
 import { csvHeaders } from "./add-supervisors";
-import { NewSupervisor } from "@/lib/validations/csv";
 
 const csvRowSchema = z.object({
   full_name: z.string(),
-  school_id: z.string(),
+  university_id: z.string(),
   email: z.string().email(),
   project_target: z.number().int(),
   project_upper_quota: z.number().int(),
 });
-
-type csvRow = z.infer<typeof csvRowSchema>;
 
 export function CSVUploadButton({
   setNewSupervisors,
@@ -31,27 +31,32 @@ export function CSVUploadButton({
         complete: (res) => {
           const headers = res.meta.fields;
           if (!headers) {
-            // TODO: display error in toast
-            console.error("CSV does not contain headers");
+            toast.error("CSV does not contain headers");
             return;
           }
 
-          const isValid = csvHeaders.every((field) => headers.includes(field));
-
-          if (!isValid) {
-            // TODO: display error in toast
-            console.error("CSV does not have the required headers");
+          console.log(headers);
+          if (csvHeaders.join() !== headers.join()) {
+            toast.error("CSV does not have the required headers");
             return;
           }
 
           const result = z.array(csvRowSchema).safeParse(res.data);
           if (!result.success) {
-            // TODO: display error in toast
-            console.error("CSV data was not formatted correctly");
+            toast.error("CSV data was not formatted correctly");
             return;
           }
 
-          setNewSupervisors(toCamelCaseRows(result.data));
+          setNewSupervisors(
+            result.data.map((e) => ({
+              fullName: e.full_name,
+              schoolId: e.university_id,
+              email: e.email,
+              projectTarget: e.project_target,
+              projectUpperQuota: e.project_upper_quota,
+            })),
+          );
+          toast.success("CSV parsed successfully!");
         },
         header: true,
         skipEmptyLines: true,
@@ -68,14 +73,4 @@ export function CSVUploadButton({
       onChange={handleFileChange}
     />
   );
-}
-
-function toCamelCaseRows(someData: csvRow[]): NewSupervisor[] {
-  return someData.map((e) => ({
-    fullName: e.full_name,
-    schoolId: e.school_id,
-    email: e.email,
-    projectTarget: e.project_target,
-    projectUpperQuota: e.project_upper_quota,
-  }));
 }

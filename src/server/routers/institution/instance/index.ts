@@ -15,6 +15,7 @@ import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -254,32 +255,59 @@ export const instanceRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        details: z.array(
-          z.object({
-            userId: z.string(),
-            target: z.number(),
-            upperQuota: z.number(),
-          }),
-        ),
+        newSupervisors: z.array(newSupervisorSchema),
       }),
     )
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
-          details,
+          newSupervisors: addedSupervisors,
         },
       }) => {
-        await ctx.db.supervisorInstanceDetails.createMany({
-          data: details.map((e) => ({
+        const currentSupervisors = await ctx.db.userInInstance.findMany({
+          where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            userId: e.userId,
+            role: Role.SUPERVISOR,
+          },
+          select: { user: { select: { id: true } } },
+        });
+
+        const supervisorIds = currentSupervisors.map(({ user }) => user.id);
+        const newSupervisors = addedSupervisors.filter((s) => {
+          return !supervisorIds.includes(s.schoolId);
+        });
+
+        await ctx.db.user.createMany({
+          data: newSupervisors.map((e) => ({
+            id: e.schoolId,
+            name: e.fullName,
+            email: e.email,
+          })),
+        });
+
+        await ctx.db.userInInstance.createMany({
+          data: newSupervisors.map(({ schoolId }) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: schoolId,
+            role: Role.SUPERVISOR,
+          })),
+        });
+
+        await ctx.db.supervisorInstanceDetails.createMany({
+          data: newSupervisors.map((e) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: e.schoolId,
             projectAllocationLowerBound: 0,
-            projectAllocationTarget: e.target,
-            projectAllocationUpperBound: e.upperQuota,
+            projectAllocationTarget: e.projectTarget,
+            projectAllocationUpperBound: e.projectUpperQuota,
           })),
           skipDuplicates: true,
         });
@@ -380,23 +408,56 @@ export const instanceRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        details: z.array(z.object({ userId: z.string() })),
+        newStudents: z.array(newStudentSchema),
       }),
     )
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
-          details,
+          newStudents: addedStudents,
         },
       }) => {
-        await ctx.db.studentInstanceDetails.createMany({
-          data: details.map(({ userId }) => ({
+        const currentStudents = await ctx.db.userInInstance.findMany({
+          where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            userId,
+            role: Role.STUDENT,
+          },
+          select: { user: { select: { id: true } } },
+        });
+
+        const studentIds = currentStudents.map(({ user }) => user.id);
+        const newStudents = addedStudents.filter((s) => {
+          return !studentIds.includes(s.schoolId);
+        });
+
+        await ctx.db.user.createMany({
+          data: newStudents.map((e) => ({
+            id: e.schoolId,
+            name: e.fullName,
+            email: e.email,
+          })),
+        });
+
+        await ctx.db.userInInstance.createMany({
+          data: newStudents.map(({ schoolId }) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: schoolId,
+            role: Role.STUDENT,
+          })),
+        });
+
+        await ctx.db.studentInstanceDetails.createMany({
+          data: newStudents.map(({ schoolId }) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: schoolId,
           })),
           skipDuplicates: true,
         });
