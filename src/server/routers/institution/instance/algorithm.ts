@@ -49,13 +49,12 @@ export const algorithmRouter = createTRPCRouter({
 
         await ctx.db.algorithm.update({
           where: {
-            algName_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-              {
-                algName: algorithm.algName,
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-              },
+            algorithmId: {
+              algName: algorithm.algName,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
           },
           data: {
             matchingResultData: JSON.stringify(serverResult),

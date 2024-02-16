@@ -154,7 +154,7 @@ async function main() {
       projectAllocationUpperBound: testSupervisor.projectAllocationUpperBound,
       userInInstance: {
         connect: {
-          userId_allocationGroupId_allocationSubGroupId_allocationInstanceId: {
+          instanceMembership: {
             allocationGroupId: allocationGroup.id,
             allocationSubGroupId: allocationSubGroup.id,
             allocationInstanceId: allocationInstance.id,
@@ -173,13 +173,12 @@ async function main() {
         projectAllocationUpperBound: item.projectAllocationUpperBound,
         userInInstance: {
           connect: {
-            userId_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-              {
-                allocationGroupId: allocationGroup.id,
-                allocationSubGroupId: allocationSubGroup.id,
-                allocationInstanceId: allocationInstance.id,
-                userId: item.id,
-              },
+            instanceMembership: {
+              allocationGroupId: allocationGroup.id,
+              allocationSubGroupId: allocationSubGroup.id,
+              allocationInstanceId: allocationInstance.id,
+              userId: item.id,
+            },
           },
         },
       },

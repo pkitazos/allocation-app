@@ -27,14 +27,13 @@ export const preferenceRouter = createTRPCRouter({
         if (preferenceType === "None") {
           await ctx.db.preference.delete({
             where: {
-              projectId_userId_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-                {
-                  allocationGroupId: group,
-                  allocationSubGroupId: subGroup,
-                  allocationInstanceId: instance,
-                  projectId,
-                  userId,
-                },
+              preferenceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                projectId,
+                userId,
+              },
             },
           });
           return;
@@ -67,14 +66,13 @@ export const preferenceRouter = createTRPCRouter({
 
         await ctx.db.preference.update({
           where: {
-            projectId_userId_allocationGroupId_allocationSubGroupId_allocationInstanceId:
-              {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                projectId,
-                userId,
-              },
+            preferenceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId,
+            },
           },
           data: { type: preferenceType, rank: 0 },
         });
