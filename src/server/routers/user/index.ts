@@ -46,6 +46,30 @@ export const userRouter = createTRPCRouter({
       },
     ),
 
+  userRole: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const user = ctx.session.user;
+        const userInInstance = await ctx.db.userInInstance.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: user.id,
+          },
+        });
+
+        if (!userInInstance) return { user, role: Role.ADMIN };
+        return { user, role: userInInstance.role };
+      },
+    ),
+
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) return;
 

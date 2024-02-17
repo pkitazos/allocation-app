@@ -7,7 +7,7 @@ import { InstanceParams } from "@/lib/validations/params";
 import { SupervisorsDataTable } from "./_components/supervisors-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const role = await api.user.role.query({ params });
+  const { user, role } = await api.user.userRole.query({ params });
 
   if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
     return <Unauthorised message="You don't have access to this page" />;
@@ -22,7 +22,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
       <div className="flex rounded-md bg-accent px-6 py-5">
         <h1 className="text-5xl text-accent-foreground">Supervisors</h1>
       </div>
-      <SupervisorsDataTable data={tableData} />
+      <SupervisorsDataTable data={tableData} user={user} role={role} />
     </div>
   );
 }

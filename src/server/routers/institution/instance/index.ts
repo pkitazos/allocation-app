@@ -16,6 +16,7 @@ import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
+import { stageOrd } from "@/lib/db";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -91,6 +92,9 @@ export const instanceRouter = createTRPCRouter({
           stage,
         },
       }) => {
+        const supervisorsCanAccess = stageOrd[stage] >= 2;
+        const studentsCanAccess = stageOrd[stage] >= 3;
+
         await ctx.db.allocationInstance.update({
           where: {
             instanceId: {
@@ -99,7 +103,11 @@ export const instanceRouter = createTRPCRouter({
               id: instance,
             },
           },
-          data: { stage },
+          data: {
+            stage,
+            supervisorsCanAccess,
+            studentsCanAccess,
+          },
         });
       },
     ),
@@ -210,7 +218,7 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.userInInstance.findMany({
+        const supervisors = await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -221,6 +229,12 @@ export const instanceRouter = createTRPCRouter({
             user: { select: { id: true, name: true, email: true } },
           },
         });
+
+        return supervisors.map(({ user }) => ({
+          id: user.id,
+          name: user.name!,
+          email: user.email!,
+        }));
       },
     ),
 
