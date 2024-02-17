@@ -96,7 +96,7 @@ model AllocationSubGroup {
     id                  String
     displayName         String               @map("display_name")
     // belongs to 1
-    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id])
+    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
     allocationGroupId   String               @map("allocation_group_id")
     // includes many
     allocationInstances AllocationInstance[]
@@ -121,7 +121,7 @@ model AllocationInstance {
     preferenceSubmissionDeadline DateTime           @map("preference_submission_deadline")
     studentsCanAccess            Boolean            @default(false) @map("students_can_access")
     // belongs to 1
-    allocationSubGroup           AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
+    allocationSubGroup           AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
     allocationGroupId            String             @map("allocation_group_id")
     allocationSubGroupId         String             @map("allocation_sub_group_id")
     // has many

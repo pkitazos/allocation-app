@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format } from "date-fns";
@@ -169,9 +167,7 @@ export function FormSection({
                       </div>
                     </FormControl>
                     <p className="text-sm font-medium text-destructive">
-                      {/* @ts-ignore */}
-                      {form.formState.errors.flags?.at(idx)?.flag?.message ??
-                        ""}
+                      {form.formState.errors.flags?.[idx]?.flag?.message ?? ""}
                     </p>
                   </FormItem>
                 )}
@@ -218,8 +214,7 @@ export function FormSection({
                       </div>
                     </FormControl>
                     <p className="text-sm font-medium text-destructive">
-                      {/* @ts-ignore */}
-                      {form.formState.errors.tags?.at(idx)?.tag?.message ?? ""}
+                      {form.formState.errors.tags?.[idx]?.tag?.message ?? ""}
                     </p>
                   </FormItem>
                 )}
@@ -401,7 +396,6 @@ export function FormSection({
         </div>
         <Separator className="my-10" />
         <div className="flex justify-end">
-          {/* // TODO: hook up procedure */}
           <Button type="submit" size="lg" onClick={() => {}}>
             create new instance
           </Button>
