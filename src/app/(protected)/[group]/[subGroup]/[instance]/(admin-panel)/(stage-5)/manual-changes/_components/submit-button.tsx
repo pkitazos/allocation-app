@@ -4,16 +4,20 @@ import { toast } from "sonner";
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
-import { allValid } from "@/lib/utils/allocation-adjustment";
+import { allProjectsValid } from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from "./allocation-store";
+import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
 
 export function SubmitButton() {
   const params = useInstanceParams();
   const allProjects = useAllocDetails((s) => s.projects);
   const allStudents = useAllocDetails((s) => s.students);
+  const allSupervisors = useAllocDetails((s) => s.supervisors);
   const setSelectedStudentIds = useAllocDetails((s) => s.setSelectedStudentIds);
-  const valid = allValid(allProjects);
+  const valid =
+    allProjectsValid(allProjects) &&
+    allSupervisorsValid(allProjects, allSupervisors);
 
   const { mutateAsync } =
     api.institution.instance.matching.updateAllocation.useMutation();

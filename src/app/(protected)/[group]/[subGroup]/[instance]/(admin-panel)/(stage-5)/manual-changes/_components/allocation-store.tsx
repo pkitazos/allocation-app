@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { createContext, useContext, useRef } from "react";
 import { createStore, useStore } from "zustand";
@@ -6,12 +5,14 @@ import { createStore, useStore } from "zustand";
 import {
   ProjectInfo,
   StudentRow,
+  SupervisorDetails,
 } from "@/lib/validations/allocation-adjustment";
 
 interface AllocDetailsProps {
   projects: ProjectInfo[];
   studentsBackup: StudentRow[];
   students: StudentRow[];
+  supervisors: SupervisorDetails[];
   selectedStudentIds: string[];
 }
 
@@ -27,6 +28,7 @@ const createAllocDetailsStore = (initProps?: Partial<AllocDetailsProps>) => {
     studentsBackup: [],
     projects: [],
     students: [],
+    supervisors: [],
     selectedStudentIds: [],
   };
 

@@ -4,12 +4,13 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
+  addToAllocations,
   getProjectInfo,
   getStudent,
   inAllocatedTo,
+  removeFromAllocations,
   replaceUpdated,
 } from "@/lib/utils/allocation-adjustment";
-import { removedItem } from "@/lib/utils/general/removed-item";
 
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
@@ -30,10 +31,9 @@ export function AdjustmentRow({
   const updateProjects = useAllocDetails((s) => s.updateProjects);
 
   const rowStudent = getStudent(allStudents, studentId);
-  const projects = rowStudent.projects.map((p) => ({
-    ...getProjectInfo(allProjects, p.id),
-    selected: p.selected,
-  }));
+  const projects = rowStudent.projects.map((p) =>
+    getProjectInfo(allProjects, p.id),
+  );
 
   function onDragEnd({ over }: DragEndEvent) {
     if (!over) return;
@@ -44,23 +44,13 @@ export function AdjustmentRow({
 
     if (selectedIdx === overIdx) return;
 
-    const { allocatedTo: prevAllocatedTo, ...restPrevProject } =
-      newProjects[selectedIdx];
+    const overProject = newProjects[overIdx];
+    const selectedProject = newProjects[selectedIdx];
+    const updatedSelected = removeFromAllocations(selectedProject, studentId);
+    const updatedOver = addToAllocations(overProject, studentId);
 
-    newProjects[selectedIdx] = {
-      ...restPrevProject,
-      // selected: false,
-      allocatedTo: removedItem(prevAllocatedTo, studentId),
-    };
-
-    const { allocatedTo: newAllocatedTo, ...restNewProject } =
-      newProjects[overIdx];
-
-    newProjects[overIdx] = {
-      ...restNewProject,
-      // selected: true,
-      allocatedTo: [...newAllocatedTo, studentId],
-    };
+    newProjects[selectedIdx] = updatedSelected;
+    newProjects[overIdx] = updatedOver;
 
     const updatedProjects = replaceUpdated(allProjects, newProjects);
 

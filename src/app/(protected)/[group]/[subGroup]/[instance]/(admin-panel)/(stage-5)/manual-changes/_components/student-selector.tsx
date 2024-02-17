@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { useAllocDetails } from "./allocation-store";
 
 export function StudentSelector({ className }: { className?: ClassValue }) {
@@ -52,29 +53,39 @@ export function StudentSelector({ className }: { className?: ClassValue }) {
   }
 
   return (
-    <div className={cn("flex items-center gap-5", className)}>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-[200px] justify-center overflow-hidden pr-1"
-          >
-            {menuStudentId ? menuStudentId : "Select Student"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
-          <StudentList
-            handleStudentSelection={handleStudentSelection}
-            students={availableStudents.map(({ student }) => student.id)}
-          />
-        </PopoverContent>
-      </Popover>
+    <div className={cn("flex flex-col gap-3", className)}>
+      <div className="flex items-center gap-5">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-[200px] justify-center overflow-hidden pr-1"
+            >
+              {menuStudentId ? menuStudentId : "Select Student"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0" align="start">
+            <StudentList
+              handleStudentSelection={handleStudentSelection}
+              students={availableStudents.map(({ student }) => student.id)}
+            />
+          </PopoverContent>
+        </Popover>
+        <Button
+          disabled={!menuStudentId}
+          size="icon"
+          onClick={() => updateRows(menuStudentId!)}
+        >
+          <Plus className="h-5 w-5 font-bold" />
+        </Button>
+      </div>
+      <LabelledSeparator label="or" />
       <Button
-        disabled={!menuStudentId}
-        size="icon"
-        onClick={() => updateRows(menuStudentId!)}
+        className="w-full"
+        variant="outline"
+        onClick={() => setSelectedStudentIds(students.map((s) => s.student.id))}
       >
-        <Plus className="h-5 w-5 font-bold" />
+        Select all Students
       </Button>
     </div>
   );
