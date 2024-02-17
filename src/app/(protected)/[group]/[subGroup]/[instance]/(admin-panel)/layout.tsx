@@ -9,6 +9,7 @@ import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { slugify } from "@/lib/utils/general/slugify";
 import { InstanceParams } from "@/lib/validations/params";
+import { Settings } from "lucide-react";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
@@ -34,14 +35,31 @@ export default async function Layout({
     <div className="grid w-full grid-cols-6">
       <div className="col-span-1 mt-28 flex justify-center border-r">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
-          <Button variant="outline" className="w-full" asChild>
-            <Link href={instancePath}>Stage Control</Link>
-          </Button>
+          <Link href={`${instancePath}/settings`} className="w-full">
+            <Button
+              variant="outline"
+              className="flex w-full items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              <p>Settings</p>
+            </Button>
+          </Link>
+          <Link href={instancePath} className="w-full">
+            <Button variant="outline" className="w-full">
+              Stage Control
+            </Button>
+          </Link>
           <Separator className="my-1 w-3/4" />
           {tabs.map((tab, i) => (
-            <Button key={i} variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/${slugify(tab)}`}>{tab}</Link>
-            </Button>
+            <Link
+              key={i}
+              href={`${instancePath}/${slugify(tab)}`}
+              className="w-full"
+            >
+              <Button variant="outline" className="w-full">
+                {tab}
+              </Button>
+            </Link>
           ))}
         </div>
       </div>

@@ -1,5 +1,17 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 "use client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { addDays, format } from "date-fns";
+import { CalendarIcon, Plus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+import { SubHeading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -10,15 +22,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 import { SubGroupParams } from "@/lib/validations/params";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
+import { buildFormSchema } from "./form-schema";
+import { slugify } from "@/lib/utils/general/slugify";
 
 export function FormSection({
   takenNames,
@@ -27,80 +41,10 @@ export function FormSection({
   takenNames: string[];
   params: SubGroupParams;
 }) {
-  // TODO: needs major refactor
-
+  const { group, subGroup } = params;
   const router = useRouter();
-  const FormSchema = z
-    .object({
-      instanceName: z
-        .string()
-        .min(1, "Please enter a name")
-        .refine((item) => {
-          const setOfNames = new Set(takenNames);
-          return !setOfNames.has(item);
-        }, "This name is already taken"),
-      flags: z.array(
-        z.object({ flag: z.string().min(1, "Please add a flag") }),
-      ),
-      tags: z.array(z.object({ tag: z.string().min(1, "Please add a tag") })),
-      minNumProjects: z.coerce.number().int().positive(),
-      maxNumProjects: z.coerce.number().int().positive(),
-      // projectUploadDeadline: z
-      //   .date()
-      //   .refine(
-      //     (item) => isAfter(item, new Date()),
-      //     "Project Upload deadline can't be today",
-      //   ),
-      minNumPreferences: z.coerce.number().int().positive(),
-      maxNumPreferences: z.coerce.number().int().positive(),
-      maxNumPerSupervisor: z.coerce.number().int().positive(),
-      // preferenceSubmissionDeadline: z.date(),
-    })
-    .refine(
-      ({ minNumProjects, maxNumProjects }) => minNumProjects <= maxNumProjects,
-      {
-        message:
-          "Maximum Number of Projects can't be less than Minimum Number of Projects",
-        path: ["maxNumProjects"],
-      },
-    )
-    .refine(
-      ({ minNumPreferences, maxNumPreferences }) =>
-        minNumPreferences <= maxNumPreferences,
-      {
-        message:
-          "Maximum Number of Preferences can't be less than Minimum Number of Preferences",
-        path: ["maxNumPreferences"],
-      },
-    )
-    .refine(
-      ({ maxNumPreferences, maxNumPerSupervisor }) =>
-        maxNumPreferences >= maxNumPerSupervisor,
-      {
-        message:
-          "Maximum Number of Preferences per supervisor can't be more than Maximum Number of Preferences",
-        path: ["maxNumPerSupervisor"],
-      },
-    )
-    // .refine(
-    //   ({ projectUploadDeadline, preferenceSubmissionDeadline }) =>
-    //     isAfter(preferenceSubmissionDeadline, projectUploadDeadline),
-    //   {
-    //     message:
-    //       "Preference Submission deadline can't be before Project Upload deadline",
-    //     path: ["preferenceSubmissionDeadline"],
-    //   },
-    // )
-    .refine(
-      ({ flags }) => {
-        const flagSet = new Set(flags);
-        return flags.length === flagSet.size;
-      },
-      {
-        message: "Flags must have distinct values",
-        path: ["flags.0.flag"],
-      },
-    );
+
+  const FormSchema = buildFormSchema(takenNames);
 
   type FormData = z.infer<typeof FormSchema>;
 
@@ -110,15 +54,14 @@ export function FormSection({
       instanceName: "",
       flags: [{ flag: "" }],
       tags: [{ tag: "" }],
-      minNumProjects: 0,
-      maxNumProjects: 0,
-      // projectUploadDeadline: new Date(),
+      projectSubmissionDeadline: addDays(new Date(), 1),
       minNumPreferences: 0,
       maxNumPreferences: 0,
       maxNumPerSupervisor: 0,
-      // preferenceSubmissionDeadline: new Date(),
+      preferenceSubmissionDeadline: addDays(new Date(), 1),
     },
   });
+
   const {
     fields: flagFields,
     append: appendFlag,
@@ -131,6 +74,7 @@ export function FormSection({
       validate: (array) => array.length !== 0,
     },
   });
+
   const {
     fields: tagFields,
     append: appendTag,
@@ -143,21 +87,28 @@ export function FormSection({
   const { mutateAsync: createInstanceAsync } =
     api.institution.subGroup.createInstance.useMutation();
 
-  const onSubmit = async ({ ...formData }: FormData) => {
-    console.log(formData);
-    console.log("boom");
+  async function onSubmit(f: FormData) {
     void toast.promise(
       createInstanceAsync({
         params,
-        name: formData.instanceName,
-      }).then(() => router.push(`/${params.group}/${params.subGroup}`)),
+        name: f.instanceName,
+        flags: f.flags,
+        tags: f.tags,
+        projectSubmissionDeadline: f.projectSubmissionDeadline,
+        minPreferences: f.minNumPreferences,
+        maxPreferences: f.maxNumPreferences,
+        maxPreferencesPerSupervisor: f.maxNumPerSupervisor,
+        preferenceSubmissionDeadline: f.preferenceSubmissionDeadline,
+      }).then(() =>
+        router.push(`/${group}/${subGroup}/${slugify(f.instanceName)}`),
+      ),
       {
-        loading: "Loading",
+        loading: "Creating Instance...",
         error: "Something went wrong",
         success: "Success",
       },
     );
-  };
+  }
 
   return (
     <Form {...form}>
@@ -187,24 +138,20 @@ export function FormSection({
           />
         </div>
         <Separator className="my-14" />
-        <h3 className="text-2xl">Project Restrictions</h3>
-        <div className="flex flex-col gap-2">
-          <p>Add Project Flags</p>
-          <div className="flex w-1/3 flex-col gap-2">
-            <Button
-              size="icon"
-              type="button"
-              onClick={() => appendFlag({ flag: "" })}
-            >
-              <Plus />
-            </Button>
+        <SubHeading className="text-2xl">Project Details</SubHeading>
+        <div className="grid w-full grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <FormLabel className="text-base">Project Flags</FormLabel>
+            <FormDescription>
+              What kind of student is this project suitable for
+            </FormDescription>
             {flagFields.map((item, idx) => (
               <FormField
                 key={item.id}
                 control={form.control}
                 name="flags"
                 render={() => (
-                  <FormItem>
+                  <FormItem className="w-80">
                     <FormControl>
                       <div className="flex gap-2">
                         <Input
@@ -212,38 +159,48 @@ export function FormSection({
                           {...form.register(`flags.${idx}.flag`)}
                         />
                         <Button
-                          variant="destructive"
+                          variant="ghost"
                           size="icon"
+                          disabled={flagFields.length === 1}
                           onClick={() => removeFlag(idx)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <p className="text-sm font-medium text-destructive">
+                      {/* @ts-ignore */}
+                      {form.formState.errors.flags?.at(idx)?.flag?.message ??
+                        ""}
+                    </p>
                   </FormItem>
                 )}
               />
             ))}
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <p>Add Project Tags</p>
-          <div className="flex w-1/3 flex-col gap-2">
             <Button
-              size="icon"
+              className="flex w-80 items-center gap-2"
+              variant="outline"
               type="button"
-              onClick={() => appendTag({ tag: "" })}
+              onClick={() => appendFlag({ flag: "" })}
             >
               <Plus />
+              <p>Add new Flag</p>
             </Button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <FormLabel className="text-base">Project Tags</FormLabel>
+            <FormDescription>
+              A starting selection of tags Supervisors can use to label their
+              projects
+            </FormDescription>
             {tagFields.map((item, idx) => (
               <FormField
                 key={item.id}
                 control={form.control}
                 name="tags"
                 render={() => (
-                  <FormItem>
+                  <FormItem className="w-80">
                     <FormControl>
                       <div className="flex gap-2">
                         <Input
@@ -251,157 +208,201 @@ export function FormSection({
                           {...form.register(`tags.${idx}.tag`)}
                         />
                         <Button
-                          variant="destructive"
+                          variant="ghost"
                           size="icon"
+                          disabled={tagFields.length === 1}
                           onClick={() => removeTag(idx)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    <p className="text-sm font-medium text-destructive">
+                      {/* @ts-ignore */}
+                      {form.formState.errors.tags?.at(idx)?.tag?.message ?? ""}
+                    </p>
                   </FormItem>
                 )}
               />
             ))}
+            <Button
+              className="flex w-80 items-center gap-2"
+              variant="outline"
+              type="button"
+              onClick={() => appendTag({ tag: "" })}
+            >
+              <Plus />
+              <p>Add new Tag</p>
+            </Button>
           </div>
         </div>
         <Separator className="my-14" />
-        <h3 className="text-2xl">Supervisor Restrictions</h3>
-        <div className="grid w-1/2 grid-cols-2 gap-5">
-          <p className="place-self-end self-center">
-            Minimum number of Projects:
-          </p>
-          <FormField
-            control={form.control}
-            name="minNumProjects"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="w-10 self-center"
-                    placeholder="1"
-                    {...field}
+        <SubHeading className="text-2xl">Supervisor Restrictions</SubHeading>
+        <FormField
+          control={form.control}
+          name="projectSubmissionDeadline"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel className="text-base">
+                Project Submission deadline
+              </FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <p className="place-self-end self-center">
-            Maximum number of Projects:
-          </p>
-          <FormField
-            control={form.control}
-            name="maxNumProjects"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="w-10 self-center"
-                    placeholder="1"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* <p className="place-self-end self-center">Project upload deadline:</p>
-          <FormField
-            control={form.control}
-            name="projectUploadDeadline"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <DatePicker className="self-center" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-        </div>
+                </PopoverContent>
+              </Popover>
+              <FormDescription>
+                The last day students will be able to submit their preference
+                list
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Separator className="my-14" />
-        <h3 className="text-2xl">Student Restrictions</h3>
-        <div className="grid w-1/2 grid-cols-2 gap-5">
-          <p className="place-self-end self-center">
-            Minimum number of Preferences:
-          </p>
-          <FormField
-            control={form.control}
-            name="minNumPreferences"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="w-10 self-center"
-                    placeholder="1"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <p className="place-self-end self-center">
-            Maximum number of Preferences:
-          </p>
-          <FormField
-            control={form.control}
-            name="maxNumPreferences"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="w-10 self-center"
-                    placeholder="1"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <p className="place-self-end self-center">per Supervisor:</p>
-          <FormField
-            control={form.control}
-            name="maxNumPerSupervisor"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    className="w-10 self-center"
-                    placeholder="1"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* <p className="place-self-end self-center">
-            Preference submission deadline:
-          </p>
+        <SubHeading className="text-2xl">Student Restrictions</SubHeading>
+        <div className="grid w-full grid-cols-2">
+          <div className="flex flex-col gap-4">
+            <FormField
+              control={form.control}
+              name="minNumPreferences"
+              render={({ field }) => (
+                <FormItem className="w-96">
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel className="text-base">
+                      Minimum number of Preferences:
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-20 text-center"
+                        placeholder="1"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxNumPreferences"
+              render={({ field }) => (
+                <FormItem className="w-96">
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel className="text-base">
+                      Maximum number of Preferences:
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-20 text-center"
+                        placeholder="1"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxNumPerSupervisor"
+              render={({ field }) => (
+                <FormItem className="w-96">
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel className="text-base">per Supervisor:</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="w-20 text-center"
+                        placeholder="1"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormDescription>
+                    The maximum number of projects belonging to the same
+                    supervisor a student is able to select
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormField
             control={form.control}
             name="preferenceSubmissionDeadline"
             render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <DatePicker className="self-center" {...field} />
-                </FormControl>
+              <FormItem className="flex flex-col">
+                <FormLabel className="text-base">
+                  Preference Submission deadline
+                </FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormDescription>
+                  The last day students will be able to submit their preference
+                  list
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
-          /> */}
+          />
         </div>
         <Separator className="my-10" />
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            size="lg"
-            onClick={() => console.log(form.formState.errors)}
-          >
+          {/* // TODO: hook up procedure */}
+          <Button type="submit" size="lg" onClick={() => {}}>
             create new instance
           </Button>
         </div>

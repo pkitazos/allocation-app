@@ -100,6 +100,8 @@ async function main() {
       minPreferences: 1,
       maxPreferences: 10,
       maxPreferencesPerSupervisor: 10,
+      projectSubmissionDeadline: new Date("2024-02-20"),
+      preferenceSubmissionDeadline: new Date("2024-03-20"),
     },
   });
   dbg("INSTANCE", allocationInstance);
@@ -187,12 +189,26 @@ async function main() {
   dbg("SUPERVISORS - DETAILS");
 
   const flags = await db.flag
-    .createMany({ data: flagData })
+    .createMany({
+      data: flagData.map((e) => ({
+        allocationGroupId: allocationGroup.id,
+        allocationSubGroupId: allocationSubGroup.id,
+        allocationInstanceId: allocationInstance.id,
+        ...e,
+      })),
+    })
     .then(async () => await db.flag.findMany({}));
   dbg("FLAGS");
 
   const tags = await db.tag
-    .createMany({ data: tagData })
+    .createMany({
+      data: tagData.map((e) => ({
+        allocationGroupId: allocationGroup.id,
+        allocationSubGroupId: allocationSubGroup.id,
+        allocationInstanceId: allocationInstance.id,
+        ...e,
+      })),
+    })
     .then(async () => await db.tag.findMany({}));
   dbg("TAGS");
 

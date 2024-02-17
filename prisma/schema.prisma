@@ -106,23 +106,27 @@ model AllocationSubGroup {
 }
 
 model AllocationInstance {
-    id                          String
-    displayName                 String             @map("display_name")
-    stage                       Stage              @default(SETUP)
+    id                           String
+    displayName                  String             @map("display_name")
+    stage                        Stage              @default(SETUP)
     // has 1
-    selectedAlgName             String?            @map("selected_alg_name")
-    minPreferences              Int                @map("min_preferences")
-    maxPreferences              Int                @map("max_preferences")
-    maxPreferencesPerSupervisor Int                @map("max_preferences_per_supervisor")
-    supervisorsCanAccess        Boolean            @default(false) @map("supervisors_can_access")
-    studentsCanAccess           Boolean            @default(false) @map("students_can_access")
+    selectedAlgName              String?            @map("selected_alg_name")
+    // supervisor details
+    projectSubmissionDeadline    DateTime           @map("project_submission_deadline")
+    supervisorsCanAccess         Boolean            @default(false) @map("supervisors_can_access")
+    // student details
+    minPreferences               Int                @map("min_preferences")
+    maxPreferences               Int                @map("max_preferences")
+    maxPreferencesPerSupervisor  Int                @map("max_preferences_per_supervisor")
+    preferenceSubmissionDeadline DateTime           @map("preference_submission_deadline")
+    studentsCanAccess            Boolean            @default(false) @map("students_can_access")
     // belongs to 1
-    allocationSubGroup          AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
-    allocationGroupId           String             @map("allocation_group_id")
-    allocationSubGroupId        String             @map("allocation_sub_group_id")
+    allocationSubGroup           AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
+    allocationGroupId            String             @map("allocation_group_id")
+    allocationSubGroupId         String             @map("allocation_sub_group_id")
     // has many
-    projects                    Project[]
-    algorithms                  Algorithm[]
+    projects                     Project[]
+    algorithms                   Algorithm[]
 
     @@id(name: "instanceId", [allocationGroupId, allocationSubGroupId, id])
 }
@@ -213,11 +217,17 @@ model ProjectAllocation {
 }
 
 model Flag {
-    id             String          @id @default(uuid())
-    title          String          @unique
+    id                   String          @id @default(uuid())
+    title                String
     // ---
-    flagOnProjects FlagOnProject[]
-    flagOnStudents FlagOnStudent[]
+    allocationGroupId    String          @map("allocation_group_id")
+    allocationSubGroupId String          @map("allocation_sub_group_id")
+    allocationInstanceId String          @map("allocation_instance_id")
+    // ---
+    flagOnProjects       FlagOnProject[]
+    flagOnStudents       FlagOnStudent[]
+
+    @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model FlagOnProject {
@@ -245,9 +255,16 @@ model FlagOnStudent {
 }
 
 model Tag {
-    id           String         @id @default(uuid())
-    title        String         @unique
-    tagOnProject TagOnProject[]
+    id                   String         @id @default(uuid())
+    title                String
+    // ---
+    allocationGroupId    String         @map("allocation_group_id")
+    allocationSubGroupId String         @map("allocation_sub_group_id")
+    allocationInstanceId String         @map("allocation_instance_id")
+    // ---
+    tagOnProject         TagOnProject[]
+
+    @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model TagOnProject {

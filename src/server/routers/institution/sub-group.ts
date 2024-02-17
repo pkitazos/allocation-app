@@ -7,8 +7,8 @@ import {
   subGroupParamsSchema,
 } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
   instanceManagement: adminProcedure
@@ -78,6 +78,10 @@ export const subGroupRouter = createTRPCRouter({
         minPreferences: z.number(),
         maxPreferences: z.number(),
         maxPreferencesPerSupervisor: z.number(),
+        preferenceSubmissionDeadline: z.date(),
+        projectSubmissionDeadline: z.date(),
+        flags: z.array(z.object({ flag: z.string() })),
+        tags: z.array(z.object({ tag: z.string() })),
       }),
     )
     .mutation(
@@ -89,25 +93,50 @@ export const subGroupRouter = createTRPCRouter({
           minPreferences,
           maxPreferences,
           maxPreferencesPerSupervisor,
+          preferenceSubmissionDeadline,
+          projectSubmissionDeadline,
+          flags,
+          tags,
         },
       }) => {
+        const instance = slugify(name);
         await ctx.db.allocationInstance.create({
           data: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
-            id: slugify(name),
+            id: instance,
             displayName: name,
             minPreferences,
             maxPreferences,
             maxPreferencesPerSupervisor,
+            preferenceSubmissionDeadline,
+            projectSubmissionDeadline,
           },
+        });
+
+        await ctx.db.flag.createMany({
+          data: flags.map(({ flag }) => ({
+            title: flag,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          })),
+        });
+
+        await ctx.db.tag.createMany({
+          data: tags.map(({ tag }) => ({
+            title: tag,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          })),
         });
       },
     ),
 
   deleteInstance: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {

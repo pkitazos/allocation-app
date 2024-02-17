@@ -18,7 +18,7 @@ export default async function Page({ params }: { params: SubGroupParams }) {
   });
 
   return (
-    <div className="mb-40 mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">
+    <div className="mb-40 mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
       <h2 className="text-4xl">
         Create new{" "}
         <span className="font-semibold text-sky-500">Allocation Instance</span>
