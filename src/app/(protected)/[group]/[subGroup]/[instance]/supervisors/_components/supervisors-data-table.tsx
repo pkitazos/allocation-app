@@ -1,13 +1,15 @@
 "use client";
-import DataTable from "@/components/ui/data-table/data-table";
-import { SupervisorData, supervisorColumns } from "./supervisors-columns";
-import { User } from "next-auth";
 import { Role } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { User } from "next-auth";
+import { toast } from "sonner";
+
 import { useInstanceParams } from "@/components/params-context";
+import DataTable from "@/components/ui/data-table/data-table";
+
 import { api } from "@/lib/trpc/client";
 
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { supervisorColumns,SupervisorData } from "./supervisors-columns";
 
 export function SupervisorsDataTable({
   data,

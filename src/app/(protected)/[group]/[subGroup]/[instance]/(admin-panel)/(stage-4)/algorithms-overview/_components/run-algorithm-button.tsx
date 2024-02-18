@@ -1,4 +1,7 @@
 "use client";
+import { InfoIcon } from "lucide-react";
+import { toast } from "sonner";
+
 import { useInstanceParams } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,12 +10,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
 import { api } from "@/lib/trpc/client";
 import { Algorithm } from "@/lib/validations/algorithm";
 import { MatchingData } from "@/lib/validations/matching";
-import { InfoIcon } from "lucide-react";
-
-import { toast } from "sonner";
 
 export function RunAlgorithmButton({
   matchingData,

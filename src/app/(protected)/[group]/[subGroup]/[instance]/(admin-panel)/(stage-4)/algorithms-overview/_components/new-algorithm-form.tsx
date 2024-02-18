@@ -1,8 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlgorithmFlag } from "@prisma/client";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -27,13 +31,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { algorithmFlagSchema } from "@/lib/validations/algorithm";
-import { AlgorithmFlag } from "@prisma/client";
-import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction } from "react";
-import { toast } from "sonner";
 
 const allFlags = [
   { label: "GRE", value: AlgorithmFlag.GRE },

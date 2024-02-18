@@ -1,4 +1,5 @@
 import { PreferenceType } from "@prisma/client";
+
 import {
   GenerousAlgorithm,
   GreedyAlgorithm,

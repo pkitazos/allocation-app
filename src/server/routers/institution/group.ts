@@ -1,3 +1,4 @@
+import { AdminLevel } from "@prisma/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
@@ -5,14 +6,14 @@ import {
   groupParamsSchema,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
+
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { AdminLevel } from "@prisma/client";
 import { adminAccess } from "@/server/utils/admin-access";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const groupRouter = createTRPCRouter({
   access: protectedProcedure

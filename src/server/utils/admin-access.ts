@@ -1,9 +1,10 @@
+import { PrismaClient } from "@prisma/client";
+
 import {
-  SpaceParams,
   groupParamsSchema,
+  SpaceParams,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
-import { PrismaClient } from "@prisma/client";
 
 export async function adminAccess(
   db: PrismaClient,

@@ -1,11 +1,13 @@
+import { Role } from "@prisma/client";
+import { z } from "zod";
+
 import { instanceParamsSchema } from "@/lib/validations/params";
+
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { Role } from "@prisma/client";
-import { z } from "zod";
 
 export const projectRouter = createTRPCRouter({
   submissionInfo: adminProcedure

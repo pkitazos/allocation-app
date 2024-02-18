@@ -1,9 +1,9 @@
 "use client";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format } from "date-fns";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -26,11 +26,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { SubGroupParams } from "@/lib/validations/params";
-import { buildFormSchema } from "./form-schema";
 import { slugify } from "@/lib/utils/general/slugify";
+import { SubGroupParams } from "@/lib/validations/params";
+
+import { buildFormSchema } from "./form-schema";
 
 export function FormSection({
   takenNames,

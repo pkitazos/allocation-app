@@ -1,21 +1,22 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
+import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table/data-table";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
+
+import { api } from "@/lib/trpc/client";
 import { NewStudent, newStudentSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./csv-upload-button";
 import { columns } from "./new-student-columns";
-import { api } from "@/lib/trpc/client";
-import { toast } from "sonner";
-import { useInstanceParams } from "@/components/params-context";
 
 export const csvHeaders = ["full_name", "university_id", "email"];
 

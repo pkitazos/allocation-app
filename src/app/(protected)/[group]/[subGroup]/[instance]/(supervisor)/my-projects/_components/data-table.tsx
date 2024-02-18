@@ -1,12 +1,15 @@
 "use client";
 
-import DataTable from "@/components/ui/data-table/data-table";
 import { Project } from "@prisma/client";
-import { columns } from "./project-columns";
-import { api } from "@/lib/trpc/client";
-import { toast } from "sonner";
-import { useInstanceParams } from "@/components/params-context";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { useInstanceParams } from "@/components/params-context";
+import DataTable from "@/components/ui/data-table/data-table";
+
+import { api } from "@/lib/trpc/client";
+
+import { columns } from "./project-columns";
 
 export function ProjectsDataTable({
   projects,

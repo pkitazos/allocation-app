@@ -1,18 +1,19 @@
 "use client";
+import { Separator } from "@/components/ui/separator";
+
 import { cn } from "@/lib/utils";
 import {
   allProjectsValid,
   getPreferenceRank,
   getUpdatedWeight,
 } from "@/lib/utils/allocation-adjustment";
-import { zeros } from "@/lib/utils/general/zeros";
-
-import { Separator } from "@/components/ui/separator";
 import {
   allSupervisorsValid,
   getCurrentCapacity,
   withinCapacity,
 } from "@/lib/utils/allocation-adjustment/supervisor";
+import { zeros } from "@/lib/utils/general/zeros";
+
 import { useAllocDetails } from "./allocation-store";
 
 export function MatchingInfoTable() {

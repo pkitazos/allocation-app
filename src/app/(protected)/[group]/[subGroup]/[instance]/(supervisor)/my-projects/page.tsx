@@ -1,11 +1,13 @@
 import { Role } from "@prisma/client";
 
+import { Heading } from "@/components/heading";
+import { PanelWrapper } from "@/components/panel-wrapper";
+import { Card } from "@/components/ui/card";
 import { Unauthorised } from "@/components/unauthorised";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { Heading } from "@/components/heading";
-import { Card } from "@/components/ui/card";
-import { PanelWrapper } from "@/components/panel-wrapper";
+
 import { ProjectsDataTable } from "./_components/data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {

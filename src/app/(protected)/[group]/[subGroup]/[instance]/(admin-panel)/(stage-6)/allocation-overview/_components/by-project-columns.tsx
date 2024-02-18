@@ -1,6 +1,7 @@
 "use client";
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { ColumnDef } from "@tanstack/react-table";
+
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
 export interface ProjectData {
   project: {

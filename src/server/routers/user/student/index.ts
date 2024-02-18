@@ -1,10 +1,13 @@
+import { z } from "zod";
+
 import { instanceParamsSchema } from "@/lib/validations/params";
+
 import {
   createTRPCRouter,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { z } from "zod";
+
 import { preferenceRouter } from "./preference";
 
 export const studentRouter = createTRPCRouter({

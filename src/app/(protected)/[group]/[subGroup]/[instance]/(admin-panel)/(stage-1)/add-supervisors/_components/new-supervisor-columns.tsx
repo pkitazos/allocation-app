@@ -1,9 +1,11 @@
+import { ColumnDef } from "@tanstack/react-table";
+import { X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+
 import { NewSupervisor } from "@/lib/validations/csv";
-import { ColumnDef } from "@tanstack/react-table";
-import { X } from "lucide-react";
 
 export function columns(
   removeRow: (idx: number) => void,

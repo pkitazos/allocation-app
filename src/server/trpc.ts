@@ -8,12 +8,12 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
+import { Session } from "next-auth";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { Session } from "next-auth";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 /**

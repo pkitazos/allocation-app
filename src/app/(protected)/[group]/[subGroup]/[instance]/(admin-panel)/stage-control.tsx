@@ -1,14 +1,15 @@
 "use client";
+import { useState } from "react";
 import { Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 
+import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
+
 import { api } from "@/lib/trpc/client";
 import { stageSchema } from "@/lib/validations/stage";
 
-import { useInstanceParams } from "@/components/params-context";
 import { StageButton } from "./_components/stage-button";
 
 export function StageControl({ stage }: { stage: Stage }) {

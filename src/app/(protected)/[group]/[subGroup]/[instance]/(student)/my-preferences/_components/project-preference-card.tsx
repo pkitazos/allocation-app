@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+
 import { ProjectPreference } from "@/lib/validations/board";
 
 export function ProjectPreferenceCard({

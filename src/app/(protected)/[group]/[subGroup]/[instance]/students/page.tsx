@@ -1,6 +1,7 @@
 import { api } from "@/lib/trpc/server";
-import { StudentsDataTable } from "./_components/students-data-table";
 import { InstanceParams } from "@/lib/validations/params";
+
+import { StudentsDataTable } from "./_components/students-data-table";
 
 export default async function Students({ params }: { params: InstanceParams }) {
   const tableData = await api.institution.instance.students.query({ params });

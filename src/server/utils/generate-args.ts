@@ -1,6 +1,7 @@
-import { algorithmSchema } from "@/lib/validations/algorithm";
 import { AlgorithmFlag } from "@prisma/client";
 import { z } from "zod";
+
+import { algorithmSchema } from "@/lib/validations/algorithm";
 
 const toArg = (flag: AlgorithmFlag) => `-${flag.toLowerCase()}`;
 

@@ -1,7 +1,8 @@
-import { Role } from "@prisma/client";
 import { ReactNode } from "react";
+import { Role } from "@prisma/client";
 
 import { Unauthorised } from "@/components/unauthorised";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 

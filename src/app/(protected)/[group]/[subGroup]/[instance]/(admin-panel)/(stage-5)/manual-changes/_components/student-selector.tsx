@@ -1,7 +1,7 @@
 "use client";
+import { useState } from "react";
 import { ClassValue } from "clsx";
 import { Plus } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,14 +12,15 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
 import { cn } from "@/lib/utils";
 
-import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { useAllocDetails } from "./allocation-store";
 
 export function StudentSelector({ className }: { className?: ClassValue }) {

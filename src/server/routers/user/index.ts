@@ -3,20 +3,21 @@ import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
+
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from "@/server/trpc";
-
-import { studentRouter } from "./student";
-import { supervisorRouter } from "./supervisor";
 import {
   formatInstanceData,
   getGroupInstances,
   getSubGroupInstances,
   getUserInstances,
 } from "@/server/utils/user-instances";
+
+import { studentRouter } from "./student";
+import { supervisorRouter } from "./supervisor";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,

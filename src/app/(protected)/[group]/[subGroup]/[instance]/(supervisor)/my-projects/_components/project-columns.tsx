@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { Project } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
 export function columns(
   removeRow: (id: string) => void,
