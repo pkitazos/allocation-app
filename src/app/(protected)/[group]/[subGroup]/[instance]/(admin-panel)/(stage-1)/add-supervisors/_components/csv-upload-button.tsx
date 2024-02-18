@@ -35,7 +35,6 @@ export function CSVUploadButton({
             return;
           }
 
-          console.log(headers);
           if (csvHeaders.join() !== headers.join()) {
             toast.error("CSV does not have the required headers");
             return;

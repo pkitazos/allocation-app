@@ -96,7 +96,6 @@ export function NewAlgorithmForm({
           "You successfully created a new custom Algorithm configuration",
       },
     );
-    console.log(data);
   }
 
   return (

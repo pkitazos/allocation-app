@@ -46,7 +46,6 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
     api.institution.createGroup.useMutation();
 
   const onSubmit = ({ groupName }: { groupName: string }) => {
-    console.log(groupName);
     void toast.promise(
       createGroupAsync({ groupName }).then(() =>
         router.push(`/${slugify(groupName)}`),

@@ -1,12 +1,12 @@
 import { env } from "@/env";
 
-import { generateArgs } from "@/server/utils/generate-args";
-import { Algorithm, builtInAlgSchema } from "../../lib/validations/algorithm";
+import { Algorithm, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   MatchingData,
   MatchingDataWithArgs,
   serverResponseSchema,
 } from "@/lib/validations/matching";
+import { generateArgs } from "@/server/utils/generate-args";
 
 export async function getMatching({
   algorithm: { algName, flag1, flag2, flag3 },
@@ -32,11 +32,8 @@ export async function getMatching({
     body: JSON.stringify(matchingData),
   }).then((res) => res.json());
 
-  console.log("PARSING -------------", res.data);
-
   const result = serverResponseSchema.safeParse(res.data);
 
   if (!result.success) return;
-
   return result.data;
 }

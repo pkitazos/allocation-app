@@ -12,10 +12,50 @@ export const studentRouter = createTRPCRouter({
 
   overviewData: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx }) => {
-      const stage = ctx.stage;
-      return stage;
-    }),
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: {
+            displayName: true,
+            preferenceSubmissionDeadline: true,
+          },
+        });
+      },
+    ),
+
+  preferenceRestrictions: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: {
+            minPreferences: true,
+            maxPreferences: true,
+            maxPreferencesPerSupervisor: true,
+          },
+        });
+      },
+    ),
 
   allocatedProject: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

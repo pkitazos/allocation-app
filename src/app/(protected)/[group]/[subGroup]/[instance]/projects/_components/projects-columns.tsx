@@ -79,6 +79,19 @@ export function projectColumns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
       ),
+      cell: ({
+        row: {
+          original: {
+            supervisor: {
+              user: { id, name },
+            },
+          },
+        },
+      }) => (
+        <Button variant="link">
+          <Link href={`supervisors/${id}`}>{name}</Link>
+        </Button>
+      ),
     },
     {
       accessorKey: "actions",
@@ -98,8 +111,7 @@ export function projectColumns(
       cell: ({ row }) => {
         const project = row.original;
         const supervisor = row.original.supervisor.user;
-        console.log("Project Supervisor --------", supervisor.id);
-        console.log("current user --------", user.id);
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

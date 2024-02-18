@@ -9,14 +9,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
       params,
     });
 
-  console.log("-- -- -- -- -- -- -- --");
-  console.log(supervisors[0]);
-  console.log("-- -- -- -- -- -- -- --");
-  console.log(supervisors[1]);
-  console.log("-- -- -- -- -- -- -- --");
-  console.log(supervisors[2]);
-  console.log("-- -- -- -- -- -- -- --");
-
   return (
     <div className="mt-10 flex h-full justify-center px-20">
       <AllocDetailsProvider

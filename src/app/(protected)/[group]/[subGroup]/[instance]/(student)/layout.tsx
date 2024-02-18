@@ -1,5 +1,5 @@
 import { Role, Stage } from "@prisma/client";
-import { Home, Plus } from "lucide-react";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -8,6 +8,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { InstanceParams } from "@/lib/validations/params";
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
 export default async function Layout({
   params,
@@ -19,9 +20,14 @@ export default async function Layout({
   const role = await api.user.role.query({ params });
   const stage = await api.institution.instance.currentStage.query({ params });
 
-  if (role !== Role.SUPERVISOR) {
+  if (role !== Role.STUDENT) {
     return (
-      <Unauthorised message="You need to be a Supervisor to access this page" />
+      <Unauthorised message="You need to be a Student to access this page" />
+    );
+  }
+  if (!stageCheck(stage, Stage.PROJECT_SELECTION)) {
+    return (
+      <Unauthorised message="You are not allowed to access the platform at this time" />
     );
   }
 
@@ -38,25 +44,11 @@ export default async function Layout({
             </Link>
           </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link href={`${instancePath}/my-projects`}>My Projects</Link>
+            <Link href={`${instancePath}/my-preferences`}>My Preferences</Link>
           </Button>
-          {(stage === Stage.PROJECT_SUBMISSION ||
-            stage === Stage.PROJECT_SELECTION) && (
-            <Button variant="secondary" className="w-full" asChild>
-              <Link
-                className="flex items-center gap-2"
-                href={`${instancePath}/new-project`}
-              >
-                <Plus className="h-4 w-4" />
-                <p>New Project</p>
-              </Link>
-            </Button>
-          )}
           {stage === Stage.ALLOCATION_PUBLICATION && (
             <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/my-allocations`}>
-                My Allocations
-              </Link>
+              <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
             </Button>
           )}
         </div>

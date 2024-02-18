@@ -1,3 +1,4 @@
+import { dbg } from "@/lib/utils/general/console-debug";
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   ServerResponse,
@@ -42,10 +43,10 @@ export const algorithmRouter = createTRPCRouter({
         },
       }) => {
         const serverResult = await getMatching({ algorithm, matchingData });
-        console.log("from RUN ----------------------", serverResult);
+        dbg("from RUN ----------------------", { serverResult });
         if (!serverResult) return undefined;
 
-        console.log("from RUN ----------------------", serverResult);
+        dbg("from RUN ----------------------", { serverResult });
 
         await ctx.db.algorithm.update({
           where: {
@@ -177,14 +178,14 @@ export const algorithmRouter = createTRPCRouter({
           select: { matchingResultData: true },
         });
 
-        console.log("from getAlgorithmResult", res);
+        dbg("from getAlgorithmResult", res);
         if (!res) return blankResult;
 
         const result = serverResponseSchema.safeParse(
           JSON.parse(res.matchingResultData as string),
         );
-        console.log("RECEIVED -------->>", res.matchingResultData);
-        console.log("from getAlgorithmResult", result);
+        dbg("RECEIVED -------->>", res.matchingResultData);
+        dbg("from getAlgorithmResult", result);
 
         if (!result.success) return blankResult;
 

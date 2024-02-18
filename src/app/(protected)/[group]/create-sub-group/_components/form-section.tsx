@@ -52,7 +52,6 @@ export function FormSection({
     api.institution.group.createSubGroup.useMutation();
 
   const onSubmit = ({ subGroupName }: { subGroupName: string }) => {
-    console.log(subGroupName);
     void toast.promise(
       createSubGroupAsync({
         params,
