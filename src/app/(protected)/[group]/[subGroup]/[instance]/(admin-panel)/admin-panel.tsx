@@ -1,7 +1,8 @@
 import { api } from "@/lib/trpc/server";
+import { InstanceParams } from "@/lib/validations/params";
+
 import Layout from "./layout";
 import { StageControl } from "./stage-control";
-import { InstanceParams } from "@/lib/validations/params";
 
 export default async function AdminPanel({
   params,

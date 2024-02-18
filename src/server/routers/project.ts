@@ -1,6 +1,8 @@
-import { instanceParamsSchema } from "@/lib/validations/params";
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { z } from "zod";
+
+import { instanceParamsSchema } from "@/lib/validations/params";
+
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
   getTableData: protectedProcedure

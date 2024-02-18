@@ -1,7 +1,7 @@
 "use client";
+import { useMemo } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import { useMemo } from "react";
 
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 

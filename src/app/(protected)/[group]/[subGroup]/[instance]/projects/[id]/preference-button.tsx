@@ -1,4 +1,9 @@
 "use client";
+import { useState } from "react";
+import { PreferenceType } from "@prisma/client";
+import { toast } from "sonner";
+import { z } from "zod";
+
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { api } from "@/lib/trpc/client";
-import { PreferenceType } from "@prisma/client";
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
+import { api } from "@/lib/trpc/client";
 
 export function PreferenceButton({
   projectId,

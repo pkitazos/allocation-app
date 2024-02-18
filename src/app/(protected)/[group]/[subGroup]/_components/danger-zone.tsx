@@ -1,11 +1,12 @@
 "use client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { DestructiveButton } from "@/components/destructive-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { api } from "@/lib/trpc/client";
 import { SubGroupParams } from "@/lib/validations/params";
-import { useRouter } from "next/navigation";
-
-import { toast } from "sonner";
 
 export function DangerZone({
   spaceTitle,

@@ -5,10 +5,10 @@ import { useParams } from "next/navigation";
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { roleCheck } from "@/lib/utils/permissions/role-check";
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams, instanceParamsSchema } from "@/lib/validations/params";
 
 import { InstanceLink } from "./instance-link";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
 export function InstanceTabs() {
   const params = useParams<InstanceParams>();

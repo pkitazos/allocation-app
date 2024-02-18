@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { Switch } from "@/components/ui/switch";
+
 import { api } from "@/lib/trpc/client";
 
 export function TogglePlatformAccess({

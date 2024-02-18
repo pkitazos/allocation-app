@@ -1,8 +1,9 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { api } from "@/lib/trpc/server";
 
+import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+
 import { DetailsTable } from "./_components/details-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {

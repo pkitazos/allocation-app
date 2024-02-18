@@ -8,7 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Algorithm } from "@/lib/validations/algorithm";
+
 import { ResultsTableRow } from "./results-table-row";
 
 export function ResultsTable({

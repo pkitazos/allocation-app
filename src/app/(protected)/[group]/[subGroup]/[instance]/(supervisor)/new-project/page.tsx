@@ -1,10 +1,12 @@
 import { Stage } from "@prisma/client";
 
 import { Heading } from "@/components/heading";
+import { Unauthorised } from "@/components/unauthorised";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+
 import { CreateProjectForm } from "./_components/create-project-form";
-import { Unauthorised } from "@/components/unauthorised";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { flags, tags, students } =

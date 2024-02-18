@@ -1,7 +1,8 @@
+import { InstanceParamsProvider } from "@/components/params-context";
 import { Unauthorised } from "@/components/unauthorised";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { InstanceParamsProvider } from "@/components/params-context";
 
 export default async function Layout({
   children,

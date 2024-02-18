@@ -1,3 +1,5 @@
+import { Check, Minus } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -6,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, Minus } from "lucide-react";
 
 type SubmissionsInfo = {
   userId: string;

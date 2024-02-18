@@ -1,9 +1,11 @@
-import { InstanceParams } from "@/lib/validations/params";
-import { AllocatedProject } from "./allocated-project";
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { api } from "@/lib/trpc/server";
+import { InstanceParams } from "@/lib/validations/params";
+
+import { AllocatedProject } from "./allocated-project";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const allocatedProject = await api.user.student.allocatedProject.query({

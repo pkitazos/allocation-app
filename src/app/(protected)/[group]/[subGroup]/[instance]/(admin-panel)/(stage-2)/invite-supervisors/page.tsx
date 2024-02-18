@@ -1,9 +1,10 @@
+import { InviteTable } from "@/components/invite-table";
 import { Card } from "@/components/ui/card";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { TogglePlatformAccess } from "./_components/toggle-platform-access";
-import { InviteTable } from "@/components/invite-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { supervisors, platformAccess } =

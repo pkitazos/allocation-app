@@ -3,11 +3,12 @@ import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
+
 import { api } from "@/lib/trpc/client";
 import { allProjectsValid } from "@/lib/utils/allocation-adjustment";
+import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
 
 import { useAllocDetails } from "./allocation-store";
-import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
 
 export function SubmitButton() {
   const params = useInstanceParams();

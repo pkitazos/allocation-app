@@ -1,8 +1,10 @@
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
-import { instanceParamsSchema } from "@/lib/validations/params";
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 import { PreferenceType } from "@prisma/client";
 import { z } from "zod";
+
+import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { instanceParamsSchema } from "@/lib/validations/params";
+
+import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
 
 export const preferenceRouter = createTRPCRouter({
   update: protectedProcedure

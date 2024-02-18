@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import whiteLogo from "@/assets/uofg-white.png";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
+
 import { InstanceTabs } from "./client-header";
 import { InstanceLink } from "./instance-link";
 import { UserButton } from "./user-button";
+
+import whiteLogo from "@/assets/uofg-white.png";
 
 export async function Header() {
   const session = await auth();

@@ -5,6 +5,7 @@ import {
   getAllocPairs,
   getStudentRank,
 } from "@/lib/utils/allocation-adjustment/rank";
+import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -12,8 +13,8 @@ import {
 } from "@/lib/validations/allocation-adjustment";
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
+
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(

@@ -1,6 +1,7 @@
 import { SignInButton } from "@/components/sign-in-button";
 import { Separator } from "@/components/ui/separator";
 import { UserInstances } from "@/components/user-instances";
+
 import { auth } from "@/lib/auth";
 
 export default async function Home() {

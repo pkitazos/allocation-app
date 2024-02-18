@@ -1,6 +1,7 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { Dispatch, SetStateAction } from "react";
+
+import { cn } from "@/lib/utils";
 
 export function StageButton({
   title,

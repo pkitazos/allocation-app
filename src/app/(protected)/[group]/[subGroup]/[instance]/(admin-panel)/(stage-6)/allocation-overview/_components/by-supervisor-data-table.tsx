@@ -1,7 +1,8 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table/data-table";
-import { SupervisorData, bySupervisorColumns } from "./by-supervisor-columns";
+
+import { bySupervisorColumns,SupervisorData } from "./by-supervisor-columns";
 
 export function BySupervisorDataTable({ data }: { data: SupervisorData[] }) {
   return (

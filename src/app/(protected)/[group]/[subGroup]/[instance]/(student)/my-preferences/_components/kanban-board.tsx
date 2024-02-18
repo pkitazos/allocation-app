@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   DndContext,
   DragOverEvent,
@@ -6,8 +8,6 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { useState } from "react";
-import { createPortal } from "react-dom";
 
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 

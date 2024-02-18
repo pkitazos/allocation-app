@@ -1,15 +1,16 @@
-import { Stage } from "@prisma/client";
-import Link from "next/link";
 import { ReactNode } from "react";
+import { Stage } from "@prisma/client";
+import { Settings } from "lucide-react";
+import Link from "next/link";
 
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { slugify } from "@/lib/utils/general/slugify";
 import { InstanceParams } from "@/lib/validations/params";
-import { Settings } from "lucide-react";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
