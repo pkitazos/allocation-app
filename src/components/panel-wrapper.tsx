@@ -13,7 +13,7 @@ export function PanelWrapper({
   return (
     <div
       className={cn(
-        "mt-16 flex h-max w-full flex-col gap-4 px-8 pb-20",
+        "flex h-max w-full max-w-6xl flex-col gap-4 px-8 pb-20",
         className,
       )}
     >

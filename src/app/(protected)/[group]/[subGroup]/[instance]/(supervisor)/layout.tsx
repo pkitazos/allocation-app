@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { Plus } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -30,6 +30,15 @@ export default async function Layout({
     <div className="grid w-full grid-cols-6">
       <div className="col-span-1 mt-28 flex justify-center border-r">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
+          <Button variant="outline" className="w-full" asChild>
+            <Link className="flex items-center gap-2" href={instancePath}>
+              <Home className="h-4 w-4" />
+              <p>Home</p>
+            </Link>
+          </Button>
+          <Button variant="outline" className="w-full" asChild>
+            <Link href={`${instancePath}/my-projects`}>My Projects</Link>
+          </Button>
           <Button variant="secondary" className="w-full" asChild>
             <Link
               className="flex items-center gap-2"

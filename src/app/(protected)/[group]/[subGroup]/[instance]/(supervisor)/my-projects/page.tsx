@@ -5,6 +5,8 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { Heading } from "@/components/heading";
 import { Card } from "@/components/ui/card";
+import { PanelWrapper } from "@/components/panel-wrapper";
+import { ProjectsDataTable } from "./_components/data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const role = await api.user.role.query({ params });
@@ -15,20 +17,23 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
-  const { projects, targets } = await api.user.supervisor.projects.query({
-    params,
-  });
+  const { projects, submissionTarget } =
+    await api.user.supervisor.projects.query({
+      params,
+    });
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    <>
       <Heading>My Projects</Heading>
-      <Card className="flex justify-between px-10 py-5">
-        <h2>targets</h2>
-        <p>{targets}</p>
-      </Card>
-      {projects.map((e) => (
-        <p key={e.id}>{e.title}</p>
-      ))}
-    </div>
+      <PanelWrapper className="pt-6">
+        <Card className="flex justify-between px-10 py-5">
+          <h2 className="text-lg font-medium">Submission Target</h2>
+          <p className="text-lg">
+            {projects.length} / {submissionTarget}
+          </p>
+        </Card>
+        <ProjectsDataTable projects={projects} />
+      </PanelWrapper>
+    </>
   );
 }

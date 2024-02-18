@@ -4,6 +4,29 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 
 export const supervisorRouter = createTRPCRouter({
+  instancePage: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: {
+            displayName: true,
+            projectSubmissionDeadline: true,
+          },
+        });
+      },
+    ),
+
   instanceData: protectedProcedure
     .input(
       z.object({
@@ -48,7 +71,6 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const userId = ctx.session.user.id;
-        const targets = 5;
         const projects = await ctx.db.project.findMany({
           where: {
             allocationGroupId: group,
@@ -60,9 +82,30 @@ export const supervisorRouter = createTRPCRouter({
             id: true,
             title: true,
             description: true,
+            capacityLowerBound: true,
+            capacityUpperBound: true,
+            preAllocatedStudentId: true,
           },
         });
-        return { projects, targets };
+
+        const { projectAllocationTarget: target } =
+          await ctx.db.supervisorInstanceDetails.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId,
+            },
+            select: { projectAllocationTarget: true },
+          });
+
+        const preAllocated = projects.reduce(
+          (acc, val) => (val.preAllocatedStudentId ? acc + 1 : acc),
+          0,
+        );
+        const submissionTarget = 2 * (target - preAllocated);
+
+        return { projects, submissionTarget };
       },
     ),
 
