@@ -8,7 +8,7 @@ export function PanelWrapper({
   children,
 }: {
   className?: ClassValue;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <div

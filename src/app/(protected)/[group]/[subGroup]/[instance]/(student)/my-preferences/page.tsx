@@ -1,10 +1,9 @@
-import { Role, Stage } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { AllocatedProject } from "./_components/allocated-project";
 import { PreferenceSelection } from "./_components/preference-selection";
 
 export default async function Page({ params }: { params: InstanceParams }) {
@@ -24,9 +23,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
       {/* {stage === Stage.PROJECT_SELECTION && ( */}
       <PreferenceSelection params={params} />
       {/* )} */}
-      {stage === Stage.ALLOCATION_PUBLICATION && (
-        <AllocatedProject params={params} />
-      )}
     </>
   );
 }

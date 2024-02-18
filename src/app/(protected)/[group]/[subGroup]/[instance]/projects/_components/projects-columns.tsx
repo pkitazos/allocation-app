@@ -79,6 +79,19 @@ export function projectColumns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
       ),
+      cell: ({
+        row: {
+          original: {
+            supervisor: {
+              user: { id, name },
+            },
+          },
+        },
+      }) => (
+        <Button variant="link">
+          <Link href={`supervisors/${id}`}>{name}</Link>
+        </Button>
+      ),
     },
     {
       accessorKey: "actions",

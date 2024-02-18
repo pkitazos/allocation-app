@@ -28,7 +28,9 @@ export function InstanceTabs() {
 
   return (
     <>
-      {stageCheck(stage, Stage.PROJECT_SUBMISSION) && (
+      {((roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) &&
+        stageCheck(stage, Stage.PROJECT_SUBMISSION)) ||
+        stageCheck(stage, Stage.PROJECT_SELECTION)) && (
         <InstanceLink href={`${instancePath}/projects`}>Projects</InstanceLink>
       )}
       {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
@@ -36,19 +38,32 @@ export function InstanceTabs() {
           Supervisors
         </InstanceLink>
       )}
-      {roleCheck(role, [Role.STUDENT]) && (
-        <InstanceLink href={`${instancePath}/my-preferences`}>
-          My Preferences
-        </InstanceLink>
+      {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
+        <InstanceLink href={`${instancePath}/students`}>Students</InstanceLink>
       )}
+      {roleCheck(role, [Role.STUDENT]) &&
+        stageCheck(stage, Stage.PROJECT_SELECTION) && (
+          <InstanceLink href={`${instancePath}/my-preferences`}>
+            My Preferences
+          </InstanceLink>
+        )}
+      {roleCheck(role, [Role.STUDENT]) &&
+        stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
+          <InstanceLink href={`${instancePath}/my-allocation`}>
+            My Allocation
+          </InstanceLink>
+        )}
       {roleCheck(role, [Role.SUPERVISOR]) && (
         <InstanceLink href={`${instancePath}/my-projects`}>
           My Projects
         </InstanceLink>
       )}
-      {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}/students`}>Students</InstanceLink>
-      )}
+      {roleCheck(role, [Role.SUPERVISOR]) &&
+        stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
+          <InstanceLink href={`${instancePath}/my-allocations`}>
+            My Allocations
+          </InstanceLink>
+        )}
     </>
   );
 }

@@ -151,4 +151,25 @@ export const supervisorRouter = createTRPCRouter({
         });
       },
     ),
+
+  allocations: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const user = ctx.session.user;
+        return await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            project: { supervisorId: user.id },
+          },
+        });
+      },
+    ),
 });

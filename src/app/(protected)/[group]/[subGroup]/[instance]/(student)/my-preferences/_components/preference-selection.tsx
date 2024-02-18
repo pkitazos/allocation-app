@@ -13,7 +13,7 @@ export async function PreferenceSelection({
     await api.user.student.preference.initialBoardState.query({ params });
 
   return (
-    <div className="flex w-2/3 max-w-7xl flex-col">
+    <div className="flex w-full max-w-7xl flex-col">
       <Heading>Preference</Heading>
       <div className="my-2">&nbsp;</div>
       <KanbanBoard
