@@ -111,8 +111,7 @@ export function projectColumns(
       cell: ({ row }) => {
         const project = row.original;
         const supervisor = row.original.supervisor.user;
-        console.log("Project Supervisor --------", supervisor.id);
-        console.log("current user --------", user.id);
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
