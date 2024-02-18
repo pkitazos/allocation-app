@@ -15,7 +15,7 @@ import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const access = await api.institution.spaceMembership.query({ params });
+  const access = await api.institution.group.access.query({ params });
 
   if (!access) {
     return (

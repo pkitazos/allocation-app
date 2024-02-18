@@ -60,6 +60,7 @@ model UserInInstance {
     allocationGroupId         String                      @map("allocation_group_id")
     allocationSubGroupId      String                      @map("allocation_sub_group_id")
     allocationInstanceId      String                      @map("allocation_instance_id")
+    allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
     studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
     // ---
@@ -125,6 +126,7 @@ model AllocationInstance {
     allocationGroupId            String             @map("allocation_group_id")
     allocationSubGroupId         String             @map("allocation_sub_group_id")
     // has many
+    users                        UserInInstance[]
     projects                     Project[]
     algorithms                   Algorithm[]
     flags                        Flag[]

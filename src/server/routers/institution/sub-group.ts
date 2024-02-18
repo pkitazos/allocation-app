@@ -6,11 +6,46 @@ import {
   instanceParamsSchema,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+} from "@/server/trpc";
+import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
+  access: protectedProcedure
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+        },
+      }) => {
+        const user = ctx.session.user;
+
+        const groupAdmin = await ctx.db.adminInSpace.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: null,
+            userId: user.id,
+          },
+        });
+        if (groupAdmin) return true;
+
+        const subGroupAdmin = await ctx.db.adminInSpace.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            userId: user.id,
+          },
+        });
+        return !!subGroupAdmin;
+      },
+    ),
+
   instanceManagement: adminProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(
@@ -40,10 +75,14 @@ export const subGroupRouter = createTRPCRouter({
         const superAdmin = await isSuperAdmin(ctx.db, userId);
         if (superAdmin) return { adminLevel: AdminLevel.SUPER, ...data };
 
+        // TODO: fix admin access problem
         const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
           where: {
             allocationGroupId: group,
-            allocationSubGroupId: subGroup,
+            OR: [
+              { allocationSubGroupId: subGroup },
+              { allocationSubGroupId: null },
+            ],
             userId: userId,
           },
           select: { adminLevel: true },
@@ -187,7 +226,7 @@ export const subGroupRouter = createTRPCRouter({
          *
          * */
 
-        const alreadyAdmin = await isAdminInSpace(ctx.db, schoolId, { group });
+        const alreadyAdmin = await adminAccess(ctx.db, schoolId, { group });
         if (alreadyAdmin) return;
 
         let user = await ctx.db.user.findFirst({

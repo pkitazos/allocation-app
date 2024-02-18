@@ -1,6 +1,8 @@
 import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageOrd } from "@/lib/db";
+import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import {
@@ -9,14 +11,12 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
-import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
-import { stageOrd } from "@/lib/db";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -31,7 +31,7 @@ export const instanceRouter = createTRPCRouter({
       const superAdmin = await isSuperAdmin(ctx.db, user.id);
       if (superAdmin) return true;
 
-      const adminInSpace = await isAdminInSpace(ctx.db, user.id, params);
+      const adminInSpace = await adminAccess(ctx.db, user.id, params);
       if (adminInSpace) return true;
 
       const stage = ctx.stage;

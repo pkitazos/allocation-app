@@ -4,7 +4,7 @@ import { api } from "@/lib/trpc/server";
 import { FormSection } from "./_components/form-section";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const access = await api.institution.spaceMembership.query({ params });
+  const access = await api.institution.group.access.query({ params });
 
   if (!access) {
     return (
