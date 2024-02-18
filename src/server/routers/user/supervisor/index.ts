@@ -1,5 +1,6 @@
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 export const supervisorRouter = createTRPCRouter({
@@ -32,6 +33,7 @@ export const supervisorRouter = createTRPCRouter({
         });
       },
     ),
+
   projects: protectedProcedure
     .input(
       z.object({
@@ -61,6 +63,49 @@ export const supervisorRouter = createTRPCRouter({
           },
         });
         return { projects, targets };
+      },
+    ),
+
+  delete: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorId,
+        },
+      }) => {
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: supervisorId,
+            },
+          },
+        });
+      },
+    ),
+
+  deleteAll: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.SUPERVISOR,
+          },
+        });
       },
     ),
 });

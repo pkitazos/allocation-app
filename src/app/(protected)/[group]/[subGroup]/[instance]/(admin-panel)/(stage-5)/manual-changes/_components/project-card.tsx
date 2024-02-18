@@ -5,9 +5,9 @@ import { useDroppable } from "@dnd-kit/core";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getProjectInfo } from "@/lib/utils/allocation-adjustment";
-import { withinBounds } from "@/lib/utils/allocation-adjustment/within-bounds";
 
 import { useAllocDetails } from "./allocation-store";
+import { withinBounds } from "@/lib/utils/allocation-adjustment/project";
 
 export function ProjectCard({
   project: { id: projectId, selected: originallySelected },
@@ -39,8 +39,13 @@ export function ProjectCard({
         {projectInfo.id}
       </Card>
       <div className="w-32">
+        <p>project</p>
         <p>{projectInfo.capacityLowerBound}</p>
         <p>{projectInfo.capacityUpperBound}</p>
+        <p>supervisor</p>
+        <p>{projectInfo.projectAllocationLowerBound}</p>
+        <p>{projectInfo.projectAllocationTarget}</p>
+        <p>{projectInfo.projectAllocationUpperBound}</p>
         {projectInfo.allocatedTo.map((item, i) => (
           <p key={i} className={cn(item === studentId && "font-bold")}>
             {item}

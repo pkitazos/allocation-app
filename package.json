@@ -14,6 +14,7 @@
     "db:push": "prisma db push",
     "db:reset": "prisma db push --force-reset",
     "db:seed": "tsx src/lib/db/seed.ts",
+    "test": "tsx src/lib/db/test.ts",
     "db:restart": "prisma migrate reset; prisma generate; prisma db push; tsx src/lib/db/seed.ts"
   },
   "dependencies": {

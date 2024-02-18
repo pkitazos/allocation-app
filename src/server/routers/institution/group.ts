@@ -5,12 +5,41 @@ import {
   groupParamsSchema,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+} from "@/server/trpc";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { AdminLevel } from "@prisma/client";
-import { isAdminInSpace } from "@/server/utils/is-admin-in-space";
+import { adminAccess } from "@/server/utils/admin-access";
 
 export const groupRouter = createTRPCRouter({
+  access: protectedProcedure
+    .input(z.object({ params: groupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group },
+        },
+      }) => {
+        const user = ctx.session.user;
+
+        const superAdmin = await isSuperAdmin(ctx.db, user.id);
+        if (superAdmin) return true;
+
+        const admin = await ctx.db.adminInSpace.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: null,
+            userId: user.id,
+          },
+        });
+        return !!admin;
+      },
+    ),
+
   subGroupManagement: adminProcedure
     .input(z.object({ params: groupParamsSchema }))
     .query(
@@ -140,7 +169,9 @@ export const groupRouter = createTRPCRouter({
          *
          * */
 
-        const alreadyAdmin = await isAdminInSpace(ctx.db, schoolId, { group });
+        const alreadyAdmin = await adminAccess(ctx.db, schoolId, {
+          group,
+        });
         if (alreadyAdmin) return;
 
         let user = await ctx.db.user.findFirst({
@@ -148,7 +179,7 @@ export const groupRouter = createTRPCRouter({
         });
 
         if (!user) {
-          // TODO: if user does not exist
+          // * if user does not exist
           user = await ctx.db.user.create({
             data: { id: schoolId, name, email },
           });

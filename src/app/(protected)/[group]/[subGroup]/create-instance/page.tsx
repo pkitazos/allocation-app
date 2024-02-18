@@ -5,7 +5,7 @@ import { SubGroupParams } from "@/lib/validations/params";
 import { FormSection } from "./_components/form-section";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
-  const access = await api.institution.spaceMembership.query({ params });
+  const access = await api.institution.subGroup.access.query({ params });
 
   if (!access) {
     return (

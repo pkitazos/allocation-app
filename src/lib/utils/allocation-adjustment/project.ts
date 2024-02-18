@@ -1,8 +1,15 @@
-import { withinBounds } from "@/lib/utils/allocation-adjustment/within-bounds";
 import {
   ProjectInfo,
   RowProject,
 } from "@/lib/validations/allocation-adjustment";
+
+export function withinBounds(project: ProjectInfo) {
+  const { capacityLowerBound, capacityUpperBound, allocatedTo } = project;
+  return (
+    capacityLowerBound <= allocatedTo.length &&
+    allocatedTo.length <= capacityUpperBound
+  );
+}
 
 export function getProjectInfo(allProjects: ProjectInfo[], projectId: string) {
   return allProjects.find((p) => p.id === projectId)!;
@@ -44,6 +51,6 @@ export function replaceUpdated(
   });
 }
 
-export function allValid(allProjects: ProjectInfo[]) {
+export function allProjectsValid(allProjects: ProjectInfo[]) {
   return allProjects.map(withinBounds).every(Boolean);
 }

@@ -9,20 +9,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Role } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import { User } from "next-auth";
 import Link from "next/link";
 
-export interface SupervisorData {
-  user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  };
-}
+export type SupervisorData = {
+  id: string;
+  name: string;
+  email: string;
+};
 
-export const supervisorColumns: ColumnDef<SupervisorData>[] = [
-  {
+export function supervisorColumns(
+  user: User,
+  role: Role,
+  deleteSupervisor: (id: string) => void,
+  deleteAllSupervisors: () => void,
+): ColumnDef<SupervisorData>[] {
+  const selectRow: ColumnDef<SupervisorData> = {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -40,77 +45,97 @@ export const supervisorColumns: ColumnDef<SupervisorData>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
-  },
-  {
-    id: "name",
-    accessorFn: ({ user }) => user.name,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" canFilter />
-    ),
-    cell: ({
-      row: {
-        original: {
-          user: { id, name },
+  };
+
+  const userCols: ColumnDef<SupervisorData>[] = [
+    {
+      id: "name",
+      accessorFn: ({ name }) => name,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" canFilter />
+      ),
+      cell: ({
+        row: {
+          original: { id, name },
         },
-      },
-    }) => (
-      <Button variant="link">
-        <Link href={`supervisors/${id}`}>{name}</Link>
-      </Button>
-    ),
-  },
-  {
-    id: "email",
-    accessorFn: ({ user }) => user.email,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-  },
-  {
-    id: "actions",
-    accessorKey: "actions",
-    header: () => {
-      return <div className="text-xs text-gray-500">Actions</div>;
+      }) => (
+        <Button variant="link">
+          <Link href={`supervisors/${id}`}>{name}</Link>
+        </Button>
+      ),
     },
-    cell: ({
-      row: {
-        original: { user },
+    {
+      id: "email",
+      accessorFn: ({ email }) => email,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Email" />
+      ),
+    },
+    {
+      id: "actions",
+      accessorKey: "actions",
+      header: ({ table }) => {
+        const allSelected = table.getIsAllRowsSelected();
+
+        if (allSelected)
+          return (
+            <div className="flex justify-center">
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={deleteAllSupervisors}
+              >
+                <Trash2 className="h-4 w-4" />
+                <p>Delete All</p>
+              </Button>
+            </div>
+          );
+
+        return (
+          <div className="flex justify-center text-xs text-gray-500">
+            Actions
+          </div>
+        );
       },
-    }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <a href={`/supervisors/${user.id}`}>
-                <Button variant="link">View Details</Button>
-              </a>
-            </DropdownMenuItem>
-            {false && (
-              <DropdownMenuItem>
-                {/* // TODO: implement delete */}
-                <Button
-                  className="w-full"
-                  variant="destructive"
-                  onClick={() => {
-                    return;
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
+      cell: ({ row: { original: supervisor } }) => {
+        return (
+          <div className="flex justify-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost">
+                  <span className="sr-only">Open menu</span>
+                  <LucideMoreHorizontal className="h-4 w-4" />
                 </Button>
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link href={`supervisors/${supervisor.id}`}>
+                    <Button variant="link">View Details</Button>
+                  </Link>
+                </DropdownMenuItem>
+                {(role === Role.ADMIN || user.id === supervisor.id) && (
+                  <DropdownMenuItem>
+                    <Button
+                      className="flex w-full items-center gap-2"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteSupervisor(supervisor.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <p>Delete</p>
+                    </Button>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
-  },
-];
+  ];
+
+  return role === Role.ADMIN ? [selectRow, ...userCols] : userCols;
+}

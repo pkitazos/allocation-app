@@ -2,7 +2,6 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { DangerZone } from "./_components/danger-zone";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +9,9 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+
 import { AdminRemovalButton } from "./_components/admin-removal-button";
+import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
 
 export default async function Page({
@@ -18,7 +19,7 @@ export default async function Page({
 }: {
   params: { group: string; subGroup: string };
 }) {
-  const access = await api.institution.spaceMembership.query({ params });
+  const access = await api.institution.subGroup.access.query({ params });
 
   if (!access) {
     return (
@@ -92,10 +93,11 @@ export default async function Page({
           ))}
         </div>
       </div>
-
-      <div className="mt-16">
-        <DangerZone spaceTitle="Sub-Group" params={params} />
-      </div>
+      {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+        <div className="mt-16">
+          <DangerZone spaceTitle="Sub-Group" params={params} />
+        </div>
+      )}
     </div>
   );
 }

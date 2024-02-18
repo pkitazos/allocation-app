@@ -1,4 +1,7 @@
 import { AdminLevel, PrismaClient, Role } from "@prisma/client";
+
+import { dbg } from "@/lib/utils/general/console-debug";
+
 import {
   allAlgorithms,
   flagData,
@@ -20,11 +23,6 @@ import {
 } from "./data";
 
 const db = new PrismaClient();
-
-function dbg<T>(label: string, obj?: T) {
-  const mode = true;
-  if (mode) console.log(`------------ ${label}`, obj ?? "");
-}
 
 const inviteFlag = process.argv.includes("--invite");
 
@@ -106,13 +104,17 @@ async function main() {
   });
   dbg("INSTANCE", allocationInstance);
 
+  const supervisorUser = await db.user.findFirstOrThrow({
+    where: { email: testSupervisor.email },
+  });
+
   const supervisor = await db.userInInstance.create({
     data: {
       allocationGroupId: allocationGroup.id,
       allocationSubGroupId: allocationSubGroup.id,
       allocationInstanceId: allocationInstance.id,
       role: Role.SUPERVISOR,
-      user: { connect: { email: testSupervisor.email } },
+      userId: supervisorUser.id,
     },
   });
   dbg("SUPERVISOR", supervisor);
@@ -212,13 +214,17 @@ async function main() {
     .then(async () => await db.tag.findMany({}));
   dbg("TAGS");
 
+  const studentUser = await db.user.findFirstOrThrow({
+    where: { email: testStudent.email },
+  });
+
   const student = await db.userInInstance.create({
     data: {
       allocationGroupId: allocationGroup.id,
       allocationSubGroupId: allocationSubGroup.id,
       allocationInstanceId: allocationInstance.id,
       role: Role.STUDENT,
-      user: { connect: { email: testStudent.email } },
+      userId: studentUser.id,
     },
   });
   dbg("STUDENT", student);

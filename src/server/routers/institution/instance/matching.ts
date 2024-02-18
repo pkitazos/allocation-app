@@ -13,6 +13,7 @@ import {
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -368,6 +369,32 @@ export const matchingRouter = createTRPCRouter({
           },
         });
 
+        const supervisorData = await ctx.db.supervisorInstanceDetails.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            projectAllocationLowerBound: true,
+            projectAllocationTarget: true,
+            projectAllocationUpperBound: true,
+            userId: true,
+            userInInstance: {
+              select: {
+                supervisorProjects: {
+                  select: {
+                    id: true,
+                    allocations: { select: { userId: true } },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const supervisors = supervisorData.map((s) => toSupervisorDetails(s));
+
         const allocationData = await ctx.db.projectAllocation.findMany({
           where: {
             allocationGroupId: group,
@@ -402,14 +429,20 @@ export const matchingRouter = createTRPCRouter({
           ),
         }));
 
-        const projects = projectData.map((p) => ({
-          id: p.id,
-          capacityLowerBound: p.capacityLowerBound,
-          capacityUpperBound: p.capacityUpperBound,
-          allocatedTo: allocationRecord[p.id] ?? [],
-        }));
+        const projects = projectData.map((p) => {
+          const supervisor = p.supervisor.supervisorInstanceDetails[0];
+          return {
+            id: p.id,
+            capacityLowerBound: p.capacityLowerBound,
+            capacityUpperBound: p.capacityUpperBound,
+            allocatedTo: allocationRecord[p.id] ?? [],
+            projectAllocationLowerBound: supervisor.projectAllocationLowerBound,
+            projectAllocationTarget: supervisor.projectAllocationTarget,
+            projectAllocationUpperBound: supervisor.projectAllocationUpperBound,
+          };
+        });
 
-        return { students, projects };
+        return { students, projects, supervisors };
       },
     ),
 
