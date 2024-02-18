@@ -82,8 +82,8 @@ model AdminInSpace {
     allocationGroupId    String?             @map("allocation_group_id")
     allocationSubGroupId String?             @map("allocation_sub_group_id")
     // ---
-    allocationGroup      AllocationGroup?    @relation(fields: [allocationGroupId], references: [id])
-    allocationSubGroup   AllocationSubGroup? @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id])
+    allocationGroup      AllocationGroup?    @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
+    allocationSubGroup   AllocationSubGroup? @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
 }
 
 model AllocationGroup {

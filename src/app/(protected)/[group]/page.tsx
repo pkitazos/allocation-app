@@ -89,9 +89,11 @@ export default async function Page({ params }: { params: { group: string } }) {
           ))}
         </div>
       </div>
-      <div className="mt-16">
-        <DangerZone spaceTitle="Group" params={params} />
-      </div>
+      {permissionCheck(adminLevel, AdminLevel.SUPER) && (
+        <div className="mt-16">
+          <DangerZone spaceTitle="Group" params={params} />
+        </div>
+      )}
     </div>
   );
 }

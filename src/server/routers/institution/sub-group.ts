@@ -26,6 +26,9 @@ export const subGroupRouter = createTRPCRouter({
       }) => {
         const user = ctx.session.user;
 
+        const superAdmin = await isSuperAdmin(ctx.db, user.id);
+        if (superAdmin) return true;
+
         const groupAdmin = await ctx.db.adminInSpace.findFirst({
           where: {
             allocationGroupId: group,
