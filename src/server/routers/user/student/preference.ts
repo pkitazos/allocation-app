@@ -136,7 +136,7 @@ export const preferenceRouter = createTRPCRouter({
         });
 
         const initialColumns: BoardColumn[] = [
-          { id: PreferenceType.PREFERENCE, displayName: "Preferences" },
+          { id: PreferenceType.PREFERENCE, displayName: "Preference List" },
           { id: PreferenceType.SHORTLIST, displayName: "Shortlist" },
         ];
 

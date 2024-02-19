@@ -12,6 +12,7 @@ export default async function Layout({
   params: InstanceParams;
 }) {
   const access = await api.institution.instance.access.query({ params });
+  const stage = await api.institution.instance.currentStage.query({ params });
 
   if (!access) {
     return (
@@ -19,6 +20,8 @@ export default async function Layout({
     );
   }
   return (
-    <InstanceParamsProvider params={params}>{children}</InstanceParamsProvider>
+    <InstanceParamsProvider params={{ params, stage }}>
+      {children}
+    </InstanceParamsProvider>
   );
 }

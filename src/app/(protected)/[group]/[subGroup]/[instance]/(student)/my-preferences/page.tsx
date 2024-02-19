@@ -1,5 +1,7 @@
 import { Role } from "@prisma/client";
 
+import { Heading } from "@/components/heading";
+import { PanelWrapper } from "@/components/panel-wrapper";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
@@ -16,14 +18,12 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
-  const stage = await api.institution.instance.currentStage.query({ params });
-
-  // TODO: split into separate pages
   return (
     <>
-      {/* {stage === Stage.PROJECT_SELECTION && ( */}
-      <PreferenceSelection params={params} />
-      {/* )} */}
+      <Heading>My Preferences</Heading>
+      <PanelWrapper className="mt-10 h-full">
+        <PreferenceSelection params={params} />
+      </PanelWrapper>
     </>
   );
 }
