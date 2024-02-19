@@ -59,6 +59,77 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
+  createProject: protectedProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        title: z.string(),
+        description: z.string(),
+        flagIds: z.array(z.string()),
+        tags: z.array(z.object({ id: z.string(), title: z.string() })),
+        capacityUpperBound: z.number().nullable(),
+        preAllocatedStudentId: z.string().nullable(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          title,
+          description,
+          flagIds,
+          tags,
+          capacityUpperBound,
+          preAllocatedStudentId,
+        },
+      }) => {
+        const user = ctx.session.user;
+        const project = await ctx.db.project.create({
+          data: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            supervisorId: user.id,
+            title,
+            description,
+            capacityLowerBound: 0,
+            capacityUpperBound: capacityUpperBound ?? 1,
+            preAllocatedStudentId,
+          },
+        });
+
+        await ctx.db.flagOnProject.createMany({
+          data: flagIds.map((flagId) => ({ flagId, projectId: project.id })),
+        });
+
+        const existingTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newTags = tags.filter((t) => {
+          return !existingTags.map((e) => e.id).includes(t.id);
+        });
+
+        await ctx.db.tag.createMany({
+          data: newTags.map((tag) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            ...tag,
+          })),
+        });
+
+        await ctx.db.tagOnProject.createMany({
+          data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
+        });
+      },
+    ),
+
   projects: protectedProcedure
     .input(
       z.object({
