@@ -68,8 +68,10 @@ export function AddSupervisors() {
         <div className="flex items-center gap-6">
           <CSVUploadButton setNewSupervisors={setNewSupervisors} />
           <div className="flex flex-col items-start">
-            <p className="text-slate-500">must contain header: </p>
-            <code className="text-slate-600">{csvHeaders.join(",")}</code>
+            <p className="text-muted-foreground">must contain header: </p>
+            <code className="text-muted-foreground">
+              {csvHeaders.join(",")}
+            </code>
           </div>
         </div>
       </div>

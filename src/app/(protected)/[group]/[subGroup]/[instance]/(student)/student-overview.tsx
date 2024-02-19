@@ -38,7 +38,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
               <ul className="ml-6 list-disc [&>li]:mt-2">
                 <li>
                   Submit your preference list{" "}
-                  <span className="text-slate-600">
+                  <span className="text-muted-foreground">
                     (between {minPreferences} and {maxPreferences} inclusive)
                   </span>
                 </li>
