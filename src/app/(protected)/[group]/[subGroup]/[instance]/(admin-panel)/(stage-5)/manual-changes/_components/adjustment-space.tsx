@@ -4,7 +4,6 @@ import { AdjustmentRow } from "./adjustment-row";
 import { useAllocDetails } from "./allocation-store";
 import { MatchingInfoTable } from "./matching-info-table";
 import { StudentSelector } from "./student-selector";
-import { SubmitButton } from "./submit-button";
 
 export function AdjustmentSpace() {
   const selectedStudents = useAllocDetails((s) => s.selectedStudentIds);
@@ -13,8 +12,7 @@ export function AdjustmentSpace() {
     <div className="flex w-full flex-col items-start gap-9">
       <div className="flex w-full items-center justify-between">
         <StudentSelector className="mb-4" />
-        <div className="flex gap-2">
-          <SubmitButton />
+        <div className="flex w-1/2 gap-2">
           <MatchingInfoTable />
         </div>
       </div>

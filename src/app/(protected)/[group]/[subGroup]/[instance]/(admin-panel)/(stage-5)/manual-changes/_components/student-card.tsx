@@ -3,6 +3,12 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 import { Card } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function StudentCard({ studentId }: { studentId: string }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -24,14 +30,23 @@ export function StudentCard({ studentId }: { studentId: string }) {
   }
 
   return (
-    <Card
-      ref={setNodeRef}
-      className="w-32 bg-secondary px-5 py-3 text-secondary-foreground"
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      <p className="max-w-[124px] overflow-hidden">{studentId}</p>
-    </Card>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Card
+            ref={setNodeRef}
+            className="w-32 bg-secondary px-5 py-3 text-secondary-foreground"
+            style={style}
+            {...attributes}
+            {...listeners}
+          >
+            <p className="max-w-[124px] overflow-hidden">{studentId}</p>
+          </Card>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{studentId}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
