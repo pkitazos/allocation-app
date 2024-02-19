@@ -112,6 +112,7 @@ export function AddSupervisors() {
       <Separator className="my-14" />
 
       <DataTable
+        searchableColumn={{ id: "full Name", displayName: "Supervisor Names" }}
         columns={columns(handleRowRemoval, () => setNewSupervisors([]))}
         data={newSupervisors}
       />

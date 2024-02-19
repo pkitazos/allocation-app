@@ -1,10 +1,13 @@
-import { Role } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import Link from "next/link";
 
+import { Heading, SubHeading } from "@/components/heading";
+import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/server";
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { PreferenceButton } from "./_components/preference-button";
@@ -19,6 +22,7 @@ export default async function Project({ params }: { params: pageParams }) {
 
   const project = await api.project.getById.query({ projectId });
   const { user, role } = await api.user.userRole.query({ params });
+  const stage = await api.institution.instance.currentStage.query({ params });
 
   const preferenceStatus =
     await api.user.student.preference.getForProject.query({
@@ -27,25 +31,24 @@ export default async function Project({ params }: { params: pageParams }) {
     });
 
   return (
-    <div className="flex w-2/3 max-w-7xl flex-col">
-      <div className="flex items-center justify-between rounded-md bg-accent px-6 py-5">
-        <h1 className="text-5xl text-accent-foreground">{project.title}</h1>
-        {role === Role.STUDENT && (
+    <PageWrapper>
+      <Heading className="flex items-center justify-between">
+        {project.title}
+        {role === Role.STUDENT && stage === Stage.PROJECT_SELECTION && (
           <PreferenceButton
             projectId={projectId}
             defaultStatus={preferenceStatus}
           />
         )}
-        {role === Role.SUPERVISOR && project.supervisor.user.id === user.id && (
-          <ProjectRemovalButton projectId={projectId} />
-        )}
-      </div>
+        {(role === Role.ADMIN || project.supervisor.user.id === user.id) &&
+          !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
+            <ProjectRemovalButton projectId={projectId} />
+          )}
+      </Heading>
       <div className="mt-6 flex gap-6">
         <div className="w-3/4">
-          <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
-            Description:
-          </h2>
-          <p>{project.description}</p>
+          <SubHeading>Description</SubHeading>
+          <p className="mt-6">{project.description}</p>
         </div>
         <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
           <div>
@@ -80,6 +83,6 @@ export default async function Project({ params }: { params: pageParams }) {
           </div>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

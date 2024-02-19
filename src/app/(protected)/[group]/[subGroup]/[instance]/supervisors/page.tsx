@@ -1,5 +1,7 @@
 import { Role } from "@prisma/client";
 
+import { Heading } from "@/components/heading";
+import { PageWrapper } from "@/components/page-wrapper";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
@@ -13,17 +15,20 @@ export default async function Page({ params }: { params: InstanceParams }) {
   if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
     return <Unauthorised message="You don't have access to this page" />;
   }
-
+  const stage = await api.institution.instance.currentStage.query({ params });
   const tableData = await api.institution.instance.supervisors.query({
     params,
   });
 
   return (
-    <div className="flex w-2/3 max-w-7xl flex-col">
-      <div className="flex rounded-md bg-accent px-6 py-5">
-        <h1 className="text-5xl text-accent-foreground">Supervisors</h1>
-      </div>
-      <SupervisorsDataTable data={tableData} user={user} role={role} />
-    </div>
+    <PageWrapper>
+      <Heading>Supervisors</Heading>
+      <SupervisorsDataTable
+        stage={stage}
+        user={user}
+        role={role}
+        data={tableData}
+      />
+    </PageWrapper>
   );
 }

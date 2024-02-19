@@ -85,7 +85,7 @@ export function columns(
       id: "title",
       accessorFn: ({ title }) => title,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Title" canFilter />
+        <DataTableColumnHeader column={column} title="Title" />
       ),
       cell: ({
         row: {
@@ -98,14 +98,14 @@ export function columns(
       ),
     },
     {
-      id: "preAllocatedStudentId",
+      id: "Pre-Allocated StudentId",
       accessorFn: ({ preAllocatedStudentId }) => preAllocatedStudentId,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Pre-allocated Student" />
       ),
     },
     {
-      id: "capacityUpperBound",
+      id: "Capacity Upper Bound",
       accessorFn: ({ capacityUpperBound }) => capacityUpperBound,
       header: ({ column }) => (
         <DataTableColumnHeader

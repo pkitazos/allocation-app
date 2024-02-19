@@ -8,8 +8,12 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { SearchableColumn } from "@/lib/validations/table";
 
-import { columns, SupervisorProjectData } from "./supervisor-projects-columns";
+import {
+  SupervisorProjectData,
+  supervisorProjectsColumns,
+} from "./supervisor-projects-columns";
 
 export function SupervisorProjectsDataTable({
   user,
@@ -51,10 +55,17 @@ export function SupervisorProjectsDataTable({
       },
     );
   }
+
+  const primaryColumn: SearchableColumn = {
+    id: "title",
+    displayName: "Project Titles",
+  };
+
   return (
     <DataTable
       className="w-full"
-      columns={columns(
+      searchableColumn={primaryColumn}
+      columns={supervisorProjectsColumns(
         user,
         role,
         stage,

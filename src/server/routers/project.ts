@@ -72,6 +72,7 @@ export const projectRouter = createTRPCRouter({
         },
       }) => {
         if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.project.delete({
           where: {
             allocationGroupId: group,
@@ -93,6 +94,7 @@ export const projectRouter = createTRPCRouter({
         },
       }) => {
         if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.project.deleteMany({
           where: {
             allocationGroupId: group,

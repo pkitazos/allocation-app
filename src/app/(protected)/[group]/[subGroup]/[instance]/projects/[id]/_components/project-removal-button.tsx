@@ -1,4 +1,5 @@
 "use client";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -30,8 +31,13 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
     );
   }
   return (
-    <Button onClick={handleDelete} variant="destructive">
-      Delete Project
+    <Button
+      className="flex items-center gap-2"
+      onClick={handleDelete}
+      variant="destructive"
+    >
+      <Trash2 className="h-4 w-4" />
+      <p>Delete Project</p>
     </Button>
   );
 }

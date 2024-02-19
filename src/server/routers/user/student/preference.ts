@@ -1,13 +1,17 @@
-import { PreferenceType } from "@prisma/client";
+import { PreferenceType, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  stageAwareProcedure,
+} from "@/server/trpc";
 
 export const preferenceRouter = createTRPCRouter({
-  update: protectedProcedure
+  update: stageAwareProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -24,6 +28,8 @@ export const preferenceRouter = createTRPCRouter({
           preferenceType,
         },
       }) => {
+        if (ctx.stage !== Stage.PROJECT_SELECTION) return;
+
         const userId = ctx.session.user.id;
 
         if (preferenceType === "None") {

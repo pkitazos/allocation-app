@@ -93,6 +93,7 @@ export function AddStudents() {
       </form>
       <Separator className="my-14" />
       <DataTable
+        searchableColumn={{ id: "full Name", displayName: "Student Names" }}
         columns={columns(handleRowRemoval, () => setNewStudents([]))}
         data={newStudents}
       />

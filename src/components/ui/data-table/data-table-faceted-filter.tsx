@@ -94,13 +94,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                         selectedValues.add(option.id);
                       }
 
-                      dbg("selected values", selectedValues);
+                      // dbg("selected values", selectedValues);
                       const filterValues = Array.from(selectedValues);
-                      dbg("filter values", filterValues);
-                      console.log(
-                        "filter value --------->>",
-                        column?.getFilterValue(),
-                      );
+                      // dbg("filter values", filterValues);
+
+                      // console.log(
+                      //   "filter value --------->>",
+                      //   column?.getFilterValue(),
+                      // );
                       column?.setFilterValue(
                         filterValues.length ? filterValues : undefined,
                       );

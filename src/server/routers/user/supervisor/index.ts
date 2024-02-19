@@ -1,9 +1,14 @@
-import { Role } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  stageAwareProcedure,
+} from "@/server/trpc";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -53,7 +58,19 @@ export const supervisorRouter = createTRPCRouter({
           },
           select: {
             user: { select: { id: true, name: true, email: true } },
-            supervisorProjects: { select: { id: true, title: true } },
+            supervisorProjects: {
+              select: {
+                id: true,
+                title: true,
+                supervisor: { select: { userId: true } },
+                flagOnProjects: {
+                  select: { flag: { select: { id: true, title: true } } },
+                },
+                tagOnProject: {
+                  select: { tag: { select: { id: true, title: true } } },
+                },
+              },
+            },
           },
         });
       },
@@ -182,7 +199,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  delete: protectedProcedure
+  delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
     .mutation(
       async ({
@@ -192,6 +209,8 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.userInInstance.delete({
           where: {
             instanceMembership: {
@@ -205,7 +224,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: protectedProcedure
+  deleteAll: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -214,6 +233,8 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.userInInstance.deleteMany({
           where: {
             allocationGroupId: group,

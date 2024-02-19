@@ -8,7 +8,7 @@ import { byProjectColumns, ProjectData } from "./by-project-columns";
 
 export function ByProjectDataTable({ data }: { data: ProjectData[] }) {
   const primaryColumn: SearchableColumn = {
-    id: "projectTitle",
+    id: "project Title",
     displayName: "Project Titles",
   };
 

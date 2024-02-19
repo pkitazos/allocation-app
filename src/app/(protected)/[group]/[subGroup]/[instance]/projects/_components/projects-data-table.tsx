@@ -8,6 +8,7 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { SearchableColumn } from "@/lib/validations/table";
 
 import { projectColumns, ProjectTableData } from "./projects-columns";
 
@@ -49,8 +50,15 @@ export function ProjectsDataTable({
       },
     );
   }
+
+  const primaryColumn: SearchableColumn = {
+    id: "title",
+    displayName: "Project Titles",
+  };
+
   return (
     <DataTable
+      searchableColumn={primaryColumn}
       className="w-full"
       columns={projectColumns(user, role, stage, handleDelete, handleDeleteAll)}
       data={data}

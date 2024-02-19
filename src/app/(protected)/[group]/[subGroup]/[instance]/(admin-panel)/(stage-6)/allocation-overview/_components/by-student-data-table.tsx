@@ -8,7 +8,7 @@ import { byStudentColumns, StudentData } from "./by-student-columns";
 
 export function ByStudentDataTable({ data }: { data: StudentData[] }) {
   const primaryColumn: SearchableColumn = {
-    id: "studentId",
+    id: "student ID",
     displayName: "Students IDs",
   };
 
