@@ -28,6 +28,12 @@ export const projectRouter = createTRPCRouter({
             id: true,
             title: true,
             description: true,
+            flagOnProjects: {
+              select: { flag: { select: { id: true, title: true } } },
+            },
+            tagOnProject: {
+              select: { tag: { select: { id: true, title: true } } },
+            },
             supervisor: {
               select: { user: { select: { name: true, id: true } } },
             },
@@ -94,6 +100,52 @@ export const projectRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
         });
+      },
+    ),
+
+  details: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allFlags = await ctx.db.flag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            id: true,
+            title: true,
+            flagOnProjects: true,
+          },
+        });
+
+        const allTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            id: true,
+            title: true,
+            tagOnProject: true,
+          },
+        });
+
+        return {
+          flags: allFlags
+            .filter((f) => f.flagOnProjects.length !== 0)
+            .map((e) => ({ id: e.id, title: e.title })),
+          tags: allTags
+            .filter((t) => t.tagOnProject.length !== 0)
+            .map((e) => ({ id: e.id, title: e.title })),
+        };
       },
     ),
 });

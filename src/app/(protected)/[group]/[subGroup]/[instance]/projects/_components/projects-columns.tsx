@@ -4,6 +4,7 @@ import { LucideMoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { User } from "next-auth";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -19,18 +20,28 @@ import {
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
 export interface ProjectTableData {
-  user: User & {
-    id: string;
-  };
+  user: User;
+  description: string;
   id: string;
   title: string;
-  description: string;
   supervisor: {
     user: {
       id: string;
       name: string | null;
     };
   };
+  flagOnProjects: {
+    flag: {
+      id: string;
+      title: string;
+    };
+  }[];
+  tagOnProject: {
+    tag: {
+      id: string;
+      title: string;
+    };
+  }[];
 }
 
 export function projectColumns(
@@ -65,7 +76,7 @@ export function projectColumns(
       id: "title",
       accessorKey: "title",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Title" canFilter />
+        <DataTableColumnHeader column={column} title="Title" />
       ),
       cell: ({
         row: {
@@ -95,6 +106,58 @@ export function projectColumns(
         <Button variant="link">
           <Link href={`supervisors/${id}`}>{name}</Link>
         </Button>
+      ),
+    },
+    {
+      id: "flags",
+      accessorFn: (row) => row.flagOnProjects,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Flags" />
+      ),
+      cell: ({
+        row: {
+          original: { flagOnProjects },
+        },
+      }) => (
+        <div className="flex flex-col gap-2">
+          {flagOnProjects.length > 2 ? (
+            <Badge className="rounded-sm px-1 font-normal">
+              {flagOnProjects.length} selected
+            </Badge>
+          ) : (
+            flagOnProjects.map(({ flag }) => (
+              <Badge className="w-fit" key={flag.id}>
+                {flag.title}
+              </Badge>
+            ))
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "tags",
+      accessorFn: (row) => row.tagOnProject,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tags" />
+      ),
+      cell: ({
+        row: {
+          original: { tagOnProject },
+        },
+      }) => (
+        <div className="flex flex-col gap-2">
+          {tagOnProject.length > 2 ? (
+            <Badge variant="outline" className="rounded-sm px-1 font-normal">
+              {tagOnProject.length} selected
+            </Badge>
+          ) : (
+            tagOnProject.map(({ tag }) => (
+              <Badge variant="outline" className="w-fit" key={tag.id}>
+                {tag.title}
+              </Badge>
+            ))
+          )}
+        </div>
       ),
     },
     {

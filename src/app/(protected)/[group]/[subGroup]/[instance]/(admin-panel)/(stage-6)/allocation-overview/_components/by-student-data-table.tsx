@@ -2,12 +2,23 @@
 
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { byStudentColumns,StudentData } from "./by-student-columns";
+import { SearchableColumn } from "@/lib/validations/table";
+
+import { byStudentColumns, StudentData } from "./by-student-columns";
 
 export function ByStudentDataTable({ data }: { data: StudentData[] }) {
+  const primaryColumn: SearchableColumn = {
+    id: "studentId",
+    displayName: "Students IDs",
+  };
+
   return (
     <div className="w-full">
-      <DataTable columns={byStudentColumns} data={data} />
+      <DataTable
+        searchableColumn={primaryColumn}
+        columns={byStudentColumns}
+        data={data}
+      />
     </div>
   );
 }

@@ -2,12 +2,23 @@
 
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { bySupervisorColumns,SupervisorData } from "./by-supervisor-columns";
+import { SearchableColumn } from "@/lib/validations/table";
+
+import { bySupervisorColumns, SupervisorData } from "./by-supervisor-columns";
 
 export function BySupervisorDataTable({ data }: { data: SupervisorData[] }) {
+  const primaryColumn: SearchableColumn = {
+    id: "supervisorId",
+    displayName: "Supervisor IDs",
+  };
+
   return (
     <div className="w-full">
-      <DataTable columns={bySupervisorColumns} data={data} />
+      <DataTable
+        searchableColumn={primaryColumn}
+        columns={bySupervisorColumns}
+        data={data}
+      />
     </div>
   );
 }
