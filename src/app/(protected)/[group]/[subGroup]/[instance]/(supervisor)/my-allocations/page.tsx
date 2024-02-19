@@ -1,6 +1,7 @@
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
@@ -18,14 +19,21 @@ export default async function Page({ params }: { params: InstanceParams }) {
             <p>You have not been allocated any projects</p>
           </div>
         ) : (
-          allocations.map((e, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <CardTitle>{e.projectId}</CardTitle>
-                <CardTitle>{e.userId}</CardTitle>
-              </CardHeader>
-            </Card>
-          ))
+          <div className="ml-10 mt-16 flex flex-col gap-6">
+            {allocations.map(({ project, student }, i) => (
+              <Card key={i} className="w-1/2">
+                <CardHeader>
+                  <CardTitle>{project.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center gap-4">
+                  <p className="text-lg">Student ID:</p>
+                  <Badge variant="secondary" className="text-base">
+                    {student.userId}
+                  </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </PanelWrapper>
     </>

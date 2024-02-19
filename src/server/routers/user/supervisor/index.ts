@@ -242,6 +242,10 @@ export const supervisorRouter = createTRPCRouter({
             allocationInstanceId: instance,
             project: { supervisorId: user.id },
           },
+          select: {
+            project: { select: { id: true, title: true } },
+            student: { select: { userId: true } },
+          },
         });
       },
     ),
