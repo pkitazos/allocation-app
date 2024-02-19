@@ -31,8 +31,6 @@ export function MatchingInfoTable() {
   const weight = getUpdatedWeight(profile);
   const size = profile.reduce((acc, val) => acc + val, 0);
 
-  const supervisors = useAllocDetails((s) => s.supervisors);
-
   return (
     <Card className={"flex w-full flex-col"}>
       <CardHeader>
@@ -63,26 +61,6 @@ export function MatchingInfoTable() {
           <SubmitButton />
         </div>
       </CardContent>
-      {/* <Separator />
-      <div>
-        {supervisors.map((s) => {
-          const capacity = getCurrentCapacity(allProjects, s);
-          const invalid = !withinCapacity(allProjects, s);
-          return (
-            <div
-              className={cn("mt-5", invalid && "text-destructive")}
-              key={s.supervisorId}
-            >
-              <p className="font-semibold">{s.supervisorId}</p>
-              <p>projects: [{s.projects.join(", ")}]</p>
-              <p>current capacity: {capacity}</p>
-              <p>lowerBound: {s.lowerBound}</p>
-              <p>target: {s.target}</p>
-              <p>upperBound: {s.upperBound}</p>
-            </div>
-          );
-        })}
-      </div> */}
     </Card>
   );
 }

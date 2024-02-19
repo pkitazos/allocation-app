@@ -6,27 +6,31 @@ import {
 } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
+import { getProjectSupervisor } from "@/lib/utils/allocation-adjustment/supervisor";
 import { ProjectInfo } from "@/lib/validations/allocation-adjustment";
+
+import { useAllocDetails } from ".";
 
 export function ProjectCardTooltip({
   projectInfo,
 }: {
-  projectInfo?: ProjectInfo;
+  projectInfo: ProjectInfo;
 }) {
-  const projectId = projectInfo?.id ?? 1927308170;
-  const projectLowerBound = projectInfo?.capacityLowerBound ?? 0;
-  const projectUpperBound = projectInfo?.capacityUpperBound ?? 0;
+  const allSupervisors = useAllocDetails((s) => s.supervisors);
+  const { supervisorId } = getProjectSupervisor(projectInfo, allSupervisors);
 
-  const supervisorId = "fake supervisor ID";
-  const supervisorLowerBound = projectInfo?.projectAllocationLowerBound ?? 0;
-  const supervisorTarget = projectInfo?.projectAllocationTarget ?? 0;
-  const supervisorUpperBound = projectInfo?.projectAllocationUpperBound ?? 0;
+  const projectLowerBound = projectInfo.capacityLowerBound;
+  const projectUpperBound = projectInfo.capacityUpperBound;
+
+  const supervisorLowerBound = projectInfo.projectAllocationLowerBound;
+  const supervisorTarget = projectInfo.projectAllocationTarget;
+  const supervisorUpperBound = projectInfo.projectAllocationUpperBound;
 
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
         <p className="-mb-1 text-muted-foreground">Project ID</p>
-        <p className="text-lg font-semibold">{projectId}</p>
+        <p className="text-lg font-semibold">{projectInfo.id}</p>
       </CardHeader>
 
       <CardContent className="-mt-1 flex flex-col gap-5">

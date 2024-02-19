@@ -13,6 +13,10 @@ import {
 import { cn } from "@/lib/utils";
 import { getProjectInfo } from "@/lib/utils/allocation-adjustment";
 import { withinBounds } from "@/lib/utils/allocation-adjustment/project";
+import {
+  getProjectSupervisor,
+  withinCapacity,
+} from "@/lib/utils/allocation-adjustment/supervisor";
 
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCardTooltip } from "./project-card-tooltip";
@@ -26,11 +30,15 @@ export function ProjectCard({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: projectId });
 
+  const allSupervisors = useAllocDetails((s) => s.supervisors);
   const allProjects = useAllocDetails((s) => s.projects);
   const projectInfo = getProjectInfo(allProjects, projectId);
 
   const currentlySelected = projectInfo.allocatedTo.includes(studentId);
   const invalid = currentlySelected && !withinBounds(projectInfo);
+
+  const supervisor = getProjectSupervisor(projectInfo, allSupervisors);
+  const overworked = !withinCapacity(allProjects, supervisor);
 
   return (
     <TooltipProvider>
@@ -44,14 +52,13 @@ export function ProjectCard({
               currentlySelected && "bg-primary text-primary-foreground",
               invalid && "bg-destructive text-destructive-foreground",
               isOver && "outline outline-[3px] outline-sky-500",
+              currentlySelected && overworked && "bg-orange-500",
             )}
           >
             {projectInfo.id}
           </Card>
-        </TooltipTrigger>
-        <TooltipContent>
-          <ProjectCardTooltip projectInfo={projectInfo} />
-          {/* <div className="w-32">
+          {/*
+          <div className="w-32">
             <p>project</p>
             <p>{projectInfo.capacityLowerBound}</p>
             <p>{projectInfo.capacityUpperBound}</p>
@@ -64,7 +71,11 @@ export function ProjectCard({
                 {item}
               </p>
             ))}
-          </div> */}
+          </div>
+          */}
+        </TooltipTrigger>
+        <TooltipContent>
+          <ProjectCardTooltip projectInfo={projectInfo} />
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
