@@ -1,4 +1,4 @@
-import { Project } from "@prisma/client";
+import { Project, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -6,12 +6,28 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
 export function columns(
+  stage: Stage,
   removeRow: (id: string) => void,
   clearTable: () => void,
 ): ColumnDef<
-  Pick<Project, "id" | "title" | "capacityLowerBound" | "capacityUpperBound">
+  Pick<
+    Project,
+    | "id"
+    | "title"
+    | "capacityLowerBound"
+    | "capacityUpperBound"
+    | "preAllocatedStudentId"
+  >
 >[] {
   return [
     {
@@ -46,9 +62,24 @@ export function columns(
       ),
       cell: ({
         row: {
-          original: { capacityUpperBound },
+          original: { id },
         },
-      }) => <div className="w-16">{capacityUpperBound}</div>,
+      }) => (
+        <>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" className="cursor-default">
+                  <div className="w-16 truncate">{id}</div>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{id}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </>
+      ),
     },
     {
       id: "title",
@@ -64,6 +95,13 @@ export function columns(
         <Link href={`projects/${id}`}>
           <Button variant="link">{title}</Button>
         </Link>
+      ),
+    },
+    {
+      id: "preAllocatedStudentId",
+      accessorFn: ({ preAllocatedStudentId }) => preAllocatedStudentId,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Pre-allocated Student" />
       ),
     },
     {
@@ -88,6 +126,7 @@ export function columns(
       header: ({ table }) => {
         const allSelected = table.getIsAllRowsSelected();
 
+        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
         if (allSelected)
           return (
             <Button variant="ghost" size="icon" onClick={clearTable}>
@@ -102,6 +141,7 @@ export function columns(
           original: { id },
         },
       }) => {
+        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
         return (
           <Button variant="ghost" size="icon" onClick={() => removeRow(id)}>
             <X className="h-5 w-5" />

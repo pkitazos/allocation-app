@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { PreferenceButton } from "./preference-button";
+import { PreferenceButton } from "./_components/preference-button";
+import { ProjectRemovalButton } from "./_components/project-removal-button";
 
 interface pageParams extends InstanceParams {
   id: string;
@@ -17,7 +18,7 @@ export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
 
   const project = await api.project.getById.query({ projectId });
-  const role = await api.user.role.query({ params });
+  const { user, role } = await api.user.userRole.query({ params });
 
   const preferenceStatus =
     await api.user.student.preference.getForProject.query({
@@ -34,6 +35,9 @@ export default async function Project({ params }: { params: pageParams }) {
             projectId={projectId}
             defaultStatus={preferenceStatus}
           />
+        )}
+        {role === Role.SUPERVISOR && project.supervisor.user.id === user.id && (
+          <ProjectRemovalButton projectId={projectId} />
         )}
       </div>
       <div className="mt-6 flex gap-6">

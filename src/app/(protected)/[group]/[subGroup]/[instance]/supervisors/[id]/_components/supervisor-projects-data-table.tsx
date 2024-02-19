@@ -1,7 +1,7 @@
 "use client";
-
-import { Project, Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -9,21 +9,20 @@ import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 
-import { columns } from "./project-columns";
+import { columns, SupervisorProjectData } from "./supervisor-projects-columns";
 
-export function ProjectsDataTable({
+export function SupervisorProjectsDataTable({
+  user,
+  role,
   stage,
-  projects,
+  data,
+  supervisorId,
 }: {
+  user: User;
+  role: Role;
   stage: Stage;
-  projects: Pick<
-    Project,
-    | "id"
-    | "title"
-    | "capacityLowerBound"
-    | "capacityUpperBound"
-    | "preAllocatedStudentId"
-  >[];
+  supervisorId: string;
+  data: SupervisorProjectData[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -54,8 +53,16 @@ export function ProjectsDataTable({
   }
   return (
     <DataTable
-      columns={columns(stage, handleDelete, handleDeleteAll)}
-      data={projects}
+      className="w-full"
+      columns={columns(
+        user,
+        role,
+        stage,
+        supervisorId,
+        handleDelete,
+        handleDeleteAll,
+      )}
+      data={data}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2, X } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
 export interface ProjectTableData {
   user: User & {
@@ -34,6 +36,7 @@ export interface ProjectTableData {
 export function projectColumns(
   user: User,
   role: Role,
+  stage: Stage,
   deleteProject: (id: string) => void,
   deleteAllProjects: () => void,
 ): ColumnDef<ProjectTableData>[] {
@@ -129,18 +132,19 @@ export function projectColumns(
                   <Button variant="link">View Details</Button>
                 </Link>
               </DropdownMenuItem>
-              {(role === Role.ADMIN || user.id === supervisor.id) && (
-                <DropdownMenuItem>
-                  <Button
-                    className="w-full"
-                    variant="destructive"
-                    onClick={() => deleteProject(project.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                </DropdownMenuItem>
-              )}
+              {(role === Role.ADMIN || user.id === supervisor.id) &&
+                !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
+                  <DropdownMenuItem>
+                    <Button
+                      className="flex w-full items-center gap-2"
+                      variant="destructive"
+                      onClick={() => deleteProject(project.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <p>Delete</p>
+                    </Button>
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

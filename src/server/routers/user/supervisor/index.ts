@@ -52,7 +52,7 @@ export const supervisorRouter = createTRPCRouter({
             userId: supervisorId,
           },
           select: {
-            user: { select: { name: true, email: true } },
+            user: { select: { id: true, name: true, email: true } },
             supervisorProjects: { select: { id: true, title: true } },
           },
         });

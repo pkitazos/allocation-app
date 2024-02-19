@@ -1,8 +1,14 @@
+import { Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  stageAwareProcedure,
+} from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
   getTableData: protectedProcedure
@@ -49,7 +55,7 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .mutation(
       async ({
@@ -59,6 +65,7 @@ export const projectRouter = createTRPCRouter({
           projectId,
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
         await ctx.db.project.delete({
           where: {
             allocationGroupId: group,
@@ -70,7 +77,7 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: protectedProcedure
+  deleteAll: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -79,6 +86,7 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
         await ctx.db.project.deleteMany({
           where: {
             allocationGroupId: group,
