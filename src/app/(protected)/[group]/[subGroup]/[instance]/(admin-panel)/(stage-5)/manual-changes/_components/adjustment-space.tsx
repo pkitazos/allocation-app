@@ -10,9 +10,9 @@ export function AdjustmentSpace() {
 
   return (
     <div className="flex w-full flex-col items-start gap-9">
-      <div className="flex w-full items-center justify-between">
+      <div className="mb-5 flex w-full items-center justify-between">
         <StudentSelector className="mb-4" />
-        <div className="flex w-1/2 gap-2">
+        <div className="flex w-1/2">
           <MatchingInfoTable />
         </div>
       </div>

@@ -10,7 +10,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { getStudent } from "@/lib/utils/allocation-adjustment";
+
+import { useAllocDetails } from ".";
+
 export function StudentCard({ studentId }: { studentId: string }) {
+  const allStudents = useAllocDetails((s) => s.students);
+
+  const { student } = getStudent(allStudents, studentId);
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: studentId,
@@ -45,6 +53,7 @@ export function StudentCard({ studentId }: { studentId: string }) {
         </TooltipTrigger>
         <TooltipContent>
           <p>{studentId}</p>
+          <p className="text-lg font-medium tracking-tight">{student.name}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
