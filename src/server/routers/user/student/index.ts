@@ -1,5 +1,7 @@
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -89,6 +91,53 @@ export const studentRouter = createTRPCRouter({
                 },
               },
             },
+          },
+        });
+      },
+    ),
+
+  delete: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+          },
+        });
+      },
+    ),
+
+  deleteAll: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
           },
         });
       },

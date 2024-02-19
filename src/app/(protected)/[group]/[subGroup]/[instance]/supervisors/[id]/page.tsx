@@ -1,7 +1,10 @@
+import { Heading, SubHeading } from "@/components/heading";
+import { PageWrapper } from "@/components/page-wrapper";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { ProjectsDataTable } from "./supervisor-projects-data-table";
+import { SupervisorProjectsDataTable } from "./_components/supervisor-projects-data-table";
 
 interface pageParams extends InstanceParams {
   id: string;
@@ -14,14 +17,23 @@ export default async function Page({ params }: { params: pageParams }) {
       supervisorId: params.id,
     });
 
+  const { user, role } = await api.user.userRole.query({ params });
+  const stage = await api.institution.instance.currentStage.query({ params });
+
   return (
-    <div className="flex w-2/3 max-w-7xl flex-col">
-      <div className="flex rounded-md bg-accent px-6 py-5">
-        <h1 className="text-5xl text-accent-foreground">{supervisor.name}</h1>
-      </div>
-      <div className="mt-6 flex gap-6">
-        <ProjectsDataTable data={supervisorProjects} />
-      </div>
-    </div>
+    <PageWrapper>
+      <Heading>{supervisor.name}</Heading>
+      <SubHeading className="mt-6">All Projects</SubHeading>
+      <SupervisorProjectsDataTable
+        user={user}
+        role={role}
+        stage={stage}
+        supervisorId={supervisor.id}
+        data={supervisorProjects.map((e) => ({
+          supervisorId: supervisor.id,
+          ...e,
+        }))}
+      />
+    </PageWrapper>
   );
 }

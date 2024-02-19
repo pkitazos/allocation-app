@@ -1,5 +1,3 @@
-import { Heading } from "@/components/heading";
-
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
@@ -15,8 +13,6 @@ export async function PreferenceSelection({
 
   return (
     <div className="flex w-full max-w-7xl flex-col">
-      <Heading>Preference</Heading>
-      <div className="my-2">&nbsp;</div>
       <KanbanBoard
         initialColumns={initialColumns}
         initialProjects={initialProjects}

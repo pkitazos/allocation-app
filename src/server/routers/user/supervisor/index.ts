@@ -1,9 +1,14 @@
-import { Role } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  stageAwareProcedure,
+} from "@/server/trpc";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -52,9 +57,92 @@ export const supervisorRouter = createTRPCRouter({
             userId: supervisorId,
           },
           select: {
-            user: { select: { name: true, email: true } },
-            supervisorProjects: { select: { id: true, title: true } },
+            user: { select: { id: true, name: true, email: true } },
+            supervisorProjects: {
+              select: {
+                id: true,
+                title: true,
+                supervisor: { select: { userId: true } },
+                flagOnProjects: {
+                  select: { flag: { select: { id: true, title: true } } },
+                },
+                tagOnProject: {
+                  select: { tag: { select: { id: true, title: true } } },
+                },
+              },
+            },
           },
+        });
+      },
+    ),
+
+  createProject: protectedProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        title: z.string(),
+        description: z.string(),
+        flagIds: z.array(z.string()),
+        tags: z.array(z.object({ id: z.string(), title: z.string() })),
+        capacityUpperBound: z.number().nullable(),
+        preAllocatedStudentId: z.string().nullable(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          title,
+          description,
+          flagIds,
+          tags,
+          capacityUpperBound,
+          preAllocatedStudentId,
+        },
+      }) => {
+        const user = ctx.session.user;
+        const project = await ctx.db.project.create({
+          data: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            supervisorId: user.id,
+            title,
+            description,
+            capacityLowerBound: 0,
+            capacityUpperBound: capacityUpperBound ?? 1,
+            preAllocatedStudentId,
+          },
+        });
+
+        await ctx.db.flagOnProject.createMany({
+          data: flagIds.map((flagId) => ({ flagId, projectId: project.id })),
+        });
+
+        const existingTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newTags = tags.filter((t) => {
+          return !existingTags.map((e) => e.id).includes(t.id);
+        });
+
+        await ctx.db.tag.createMany({
+          data: newTags.map((tag) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            ...tag,
+          })),
+        });
+
+        await ctx.db.tagOnProject.createMany({
+          data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
         });
       },
     ),
@@ -111,7 +199,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  delete: protectedProcedure
+  delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
     .mutation(
       async ({
@@ -121,6 +209,8 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.userInInstance.delete({
           where: {
             instanceMembership: {
@@ -134,7 +224,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: protectedProcedure
+  deleteAll: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -143,6 +233,8 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.userInInstance.deleteMany({
           where: {
             allocationGroupId: group,
@@ -170,6 +262,10 @@ export const supervisorRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             project: { supervisorId: user.id },
+          },
+          select: {
+            project: { select: { id: true, title: true } },
+            student: { select: { userId: true } },
           },
         });
       },

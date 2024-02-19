@@ -10,18 +10,23 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import { projectColumns, ProjectTableData } from "./projects-columns";
+import {
+  SupervisorProjectData,
+  supervisorProjectsColumns,
+} from "./supervisor-projects-columns";
 
-export function ProjectsDataTable({
-  data,
+export function SupervisorProjectsDataTable({
   user,
   role,
   stage,
+  data,
+  supervisorId,
 }: {
-  data: ProjectTableData[];
   user: User;
   role: Role;
   stage: Stage;
+  supervisorId: string;
+  data: SupervisorProjectData[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -58,9 +63,16 @@ export function ProjectsDataTable({
 
   return (
     <DataTable
-      searchableColumn={primaryColumn}
       className="w-full"
-      columns={projectColumns(user, role, stage, handleDelete, handleDeleteAll)}
+      searchableColumn={primaryColumn}
+      columns={supervisorProjectsColumns(
+        user,
+        role,
+        stage,
+        supervisorId,
+        handleDelete,
+        handleDeleteAll,
+      )}
       data={data}
     />
   );

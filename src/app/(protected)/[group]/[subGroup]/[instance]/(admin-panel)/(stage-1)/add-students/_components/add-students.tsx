@@ -61,8 +61,10 @@ export function AddStudents() {
         <div className="flex items-center gap-6">
           <CSVUploadButton setNewStudents={setNewStudents} />
           <div className="flex flex-col items-start">
-            <p className="text-slate-500">must contain header: </p>
-            <code className="text-slate-600">{csvHeaders.join(",")}</code>
+            <p className="text-muted-foreground">must contain header: </p>
+            <code className="text-muted-foreground">
+              {csvHeaders.join(",")}
+            </code>
           </div>
         </div>
       </div>
@@ -91,6 +93,7 @@ export function AddStudents() {
       </form>
       <Separator className="my-14" />
       <DataTable
+        searchableColumn={{ id: "full Name", displayName: "Student Names" }}
         columns={columns(handleRowRemoval, () => setNewStudents([]))}
         data={newStudents}
       />

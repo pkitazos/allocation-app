@@ -32,17 +32,21 @@ export function columns(
       enableHiding: false,
     },
     {
-      id: "fullName",
+      id: "full Name",
       accessorFn: ({ fullName }) => fullName,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Full Name" canFilter />
+        <DataTableColumnHeader column={column} title="Full Name" />
       ),
     },
     {
-      id: "schoolId",
+      id: "university ID",
       accessorFn: ({ schoolId }) => schoolId,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="School ID" />
+        <DataTableColumnHeader
+          column={column}
+          title="University ID"
+          canFilter
+        />
       ),
     },
     {
@@ -53,14 +57,14 @@ export function columns(
       ),
     },
     {
-      id: "projectTarget",
+      id: "Project Target",
       accessorFn: ({ projectTarget }) => projectTarget,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Target" />
       ),
     },
     {
-      id: "projectUpperQuota",
+      id: "Project Upper Quota",
       accessorFn: ({ projectUpperQuota }) => projectUpperQuota,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Upper Quota" />

@@ -25,12 +25,14 @@ import {
 } from "@/components/ui/table";
 
 import { cn } from "@/lib/utils";
+import { SearchableColumn } from "@/lib/validations/table";
 
 import { DataTablePagination } from "./data-table-pagination";
-import { DataTableViewOptions } from "./data-table-view-options";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
+  searchableColumn?: SearchableColumn;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   removeRow?: () => void;
@@ -38,6 +40,7 @@ interface DataTableProps<TData, TValue> {
 
 export default function DataTable<TData, TValue>({
   className,
+  searchableColumn,
   columns,
   data,
   removeRow,
@@ -65,13 +68,11 @@ export default function DataTable<TData, TValue>({
   return (
     <div className={cn(className)}>
       <div className="flex items-center gap-4 py-4">
-        {table.getAllColumns().at(0)?.id === "select" && (
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} /{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected
-          </div>
-        )}
-        <DataTableViewOptions table={table} />
+        <DataTableToolbar
+          searchableColumn={searchableColumn}
+          data={data}
+          table={table}
+        />
       </div>
       <div className="w-full rounded-md border border-accent dark:border-slate-600">
         <Table>

@@ -1,3 +1,4 @@
+import { SubHeading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -17,7 +18,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <div className="mt-20 flex w-full flex-col items-center">
       <div className="flex w-5/6 flex-col gap-3">
-        <h2 className="mb-6 text-2xl font-semibold">Final Allocation</h2>
+        <SubHeading className="mb-6">Final Allocation</SubHeading>
         <Tabs defaultValue="student" className="w-full">
           <TabsList className="w-full">
             <TabsTrigger

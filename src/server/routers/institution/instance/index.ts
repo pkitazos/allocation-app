@@ -140,7 +140,9 @@ export const instanceRouter = createTRPCRouter({
             project: {
               select: {
                 id: true,
-                supervisor: { select: { user: { select: { name: true } } } },
+                supervisor: {
+                  select: { user: { select: { id: true, name: true } } },
+                },
               },
             },
             studentRanking: true,
@@ -257,11 +259,22 @@ export const instanceRouter = createTRPCRouter({
           },
           select: {
             user: { select: { id: true, name: true, email: true } },
+            studentFlags: {
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+              select: { flag: { select: { id: true, title: true } } },
+            },
           },
         });
 
-        return studentData.map(({ user }) => ({
-          user: { id: user.id, name: user.name!, email: user.email! },
+        return studentData.map(({ user, studentFlags }) => ({
+          id: user.id,
+          name: user.name!,
+          email: user.email!,
+          flags: studentFlags,
         }));
       },
     ),

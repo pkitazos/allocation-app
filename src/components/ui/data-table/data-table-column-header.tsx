@@ -79,7 +79,7 @@ export function DataTableColumnHeader<TData, TValue>({
       {canFilter && (
         <Popover>
           <PopoverTrigger asChild>
-            <Button size="sm">
+            <Button size="sm" variant="outline">
               <Search className="h-4 w-4" />
             </Button>
           </PopoverTrigger>

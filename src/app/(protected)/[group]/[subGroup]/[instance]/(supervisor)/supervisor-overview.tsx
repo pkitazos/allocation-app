@@ -42,7 +42,7 @@ export async function SupervisorOverview({
               <ul className="ml-6 list-disc [&>li]:mt-2">
                 <li>
                   Submit {submissionTarget} projects{" "}
-                  <span className="text-slate-600">
+                  <span className="text-muted-foreground">
                     (currently submitted: {projects.length})
                   </span>
                 </li>

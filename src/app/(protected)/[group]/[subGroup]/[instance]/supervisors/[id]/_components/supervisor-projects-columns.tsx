@@ -17,42 +17,44 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
-export interface ProjectTableData {
-  user: User;
-  description: string;
-  id: string;
+export interface SupervisorProjectData {
   title: string;
+  id: string;
   supervisor: {
-    user: {
-      id: string;
-      name: string | null;
-    };
+    userId: string;
   };
   flagOnProjects: {
     flag: {
-      id: string;
       title: string;
+      id: string;
     };
   }[];
   tagOnProject: {
     tag: {
-      id: string;
       title: string;
+      id: string;
     };
   }[];
 }
 
-export function projectColumns(
+export function supervisorProjectsColumns(
   user: User,
   role: Role,
   stage: Stage,
-  deleteProject: (id: string) => void,
-  deleteAllProjects: () => void,
-): ColumnDef<ProjectTableData>[] {
-  const selectCol: ColumnDef<ProjectTableData> = {
+  supervisorId: string,
+  deleteSupervisor: (id: string) => void,
+  deleteAllSupervisors: () => void,
+): ColumnDef<SupervisorProjectData>[] {
+  const selectCol: ColumnDef<SupervisorProjectData> = {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -72,10 +74,33 @@ export function projectColumns(
     enableHiding: false,
   };
 
-  const userCols: ColumnDef<ProjectTableData>[] = [
+  const userCols: ColumnDef<SupervisorProjectData>[] = [
+    {
+      id: "id",
+      accessorFn: ({ id }) => id,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="ID" canFilter />
+      ),
+      cell: ({ row: { original: project } }) => (
+        <div className="text-left">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" className="cursor-default">
+                  <div className="w-16 truncate"> {project.id}</div>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p> {project.id}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      ),
+    },
     {
       id: "title",
-      accessorKey: "title",
+      accessorFn: ({ title }) => title,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title" />
       ),
@@ -85,27 +110,7 @@ export function projectColumns(
         },
       }) => (
         <Button variant="link">
-          <Link href={`./projects/${id}`}>{title}</Link>
-        </Button>
-      ),
-    },
-    {
-      id: "supervisor",
-      accessorFn: (row) => row.supervisor.user.name,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Supervisor" />
-      ),
-      cell: ({
-        row: {
-          original: {
-            supervisor: {
-              user: { id, name },
-            },
-          },
-        },
-      }) => (
-        <Button variant="link">
-          <Link href={`./supervisors/${id}`}>{name}</Link>
+          <Link href={`../projects/${id}`}>{title}</Link>
         </Button>
       ),
     },
@@ -173,15 +178,15 @@ export function projectColumns(
     },
   ];
 
-  const actionsCol: ColumnDef<ProjectTableData> = {
+  const actionsCol: ColumnDef<SupervisorProjectData> = {
+    id: "actions",
     accessorKey: "actions",
-    id: "Actions",
     header: ({ table }) => {
       const allSelected = table.getIsAllRowsSelected();
 
       if (
         allSelected &&
-        role === Role.ADMIN &&
+        (role === Role.ADMIN || user.id === supervisorId) &&
         !stageCheck(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
@@ -190,20 +195,16 @@ export function projectColumns(
               className="flex items-center gap-2"
               variant="destructive"
               size="sm"
-              onClick={deleteAllProjects}
+              onClick={deleteAllSupervisors}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         );
       }
-
-      return <div className="text-xs text-gray-500">Actions</div>;
+      return <div className="text-xs text-muted-foreground">Actions</div>;
     },
-    cell: ({ row }) => {
-      const project = row.original;
-      const supervisor = row.original.supervisor.user;
-
+    cell: ({ row: { original: project } }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -216,17 +217,17 @@ export function projectColumns(
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`projects/${project.id}`}>
+              <Link href={`../projects/${project.id}`}>
                 <Button variant="link">View Details</Button>
               </Link>
             </DropdownMenuItem>
-            {(role === Role.ADMIN || user.id === supervisor.id) &&
+            {(role === Role.ADMIN || user.id === supervisorId) &&
               !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
                 <DropdownMenuItem>
                   <Button
                     className="flex w-full items-center gap-2"
                     variant="destructive"
-                    onClick={() => deleteProject(project.id)}
+                    onClick={() => deleteSupervisor(project.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                     <p>Delete</p>
@@ -239,9 +240,7 @@ export function projectColumns(
     },
   };
 
-  if (role === Role.STUDENT) return userCols;
-
-  if (role === Role.SUPERVISOR) return [...userCols, actionsCol];
+  if (role !== Role.ADMIN && user.id !== supervisorId) return userCols;
 
   return stageCheck(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]

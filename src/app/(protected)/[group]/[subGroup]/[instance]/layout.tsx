@@ -1,3 +1,4 @@
+import { DataTableProvider } from "@/components/data-table-context";
 import { InstanceParamsProvider } from "@/components/params-context";
 import { Unauthorised } from "@/components/unauthorised";
 
@@ -18,7 +19,15 @@ export default async function Layout({
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );
   }
+
+  const stage = await api.institution.instance.currentStage.query({ params });
+  const { flags, tags } = await api.project.details.query({ params });
+
   return (
-    <InstanceParamsProvider params={params}>{children}</InstanceParamsProvider>
+    <InstanceParamsProvider params={{ params, stage }}>
+      <DataTableProvider details={{ flags, tags }}>
+        {children}
+      </DataTableProvider>
+    </InstanceParamsProvider>
   );
 }

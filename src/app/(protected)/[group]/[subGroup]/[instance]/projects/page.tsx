@@ -1,4 +1,5 @@
 import { Heading } from "@/components/heading";
+import { PageWrapper } from "@/components/page-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
@@ -8,11 +9,17 @@ import { ProjectsDataTable } from "./_components/projects-data-table";
 export default async function Projects({ params }: { params: InstanceParams }) {
   const { user, role } = await api.user.userRole.query({ params });
   const tableData = await api.project.getTableData.query({ params });
+  const stage = await api.institution.instance.currentStage.query({ params });
 
   return (
-    <div className="flex w-2/3 max-w-7xl flex-col">
+    <PageWrapper>
       <Heading>Projects</Heading>
-      <ProjectsDataTable user={user} role={role} data={tableData} />
-    </div>
+      <ProjectsDataTable
+        user={user}
+        role={role}
+        stage={stage}
+        data={tableData}
+      />
+    </PageWrapper>
   );
 }

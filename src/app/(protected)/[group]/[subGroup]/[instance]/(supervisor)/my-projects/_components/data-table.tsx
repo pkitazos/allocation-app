@@ -1,6 +1,6 @@
 "use client";
 
-import { Project } from "@prisma/client";
+import { Project, Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -8,15 +8,22 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { SearchableColumn } from "@/lib/validations/table";
 
 import { columns } from "./project-columns";
 
 export function ProjectsDataTable({
+  stage,
   projects,
 }: {
+  stage: Stage;
   projects: Pick<
     Project,
-    "id" | "title" | "capacityLowerBound" | "capacityUpperBound"
+    | "id"
+    | "title"
+    | "capacityLowerBound"
+    | "capacityUpperBound"
+    | "preAllocatedStudentId"
   >[];
 }) {
   const params = useInstanceParams();
@@ -46,9 +53,15 @@ export function ProjectsDataTable({
       },
     );
   }
+
+  const primaryColumn: SearchableColumn = {
+    id: "title",
+    displayName: "Project Titles",
+  };
   return (
     <DataTable
-      columns={columns(handleDelete, handleDeleteAll)}
+      searchableColumn={primaryColumn}
+      columns={columns(stage, handleDelete, handleDeleteAll)}
       data={projects}
     />
   );
