@@ -7,7 +7,8 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { PreferenceSelection } from "./_components/preference-selection";
+import { KanbanBoard } from "./_components/kanban-board";
+import { SubmissionButton } from "./_components/submission-button";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const role = await api.user.role.query({ params });
@@ -18,11 +19,24 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
+  const { initialColumns, initialProjects } =
+    await api.user.student.preference.initialBoardState.query({ params });
+
+  const restrictions = await api.user.student.preferenceRestrictions.query({
+    params,
+  });
+
   return (
     <>
       <Heading>My Preferences</Heading>
       <PanelWrapper className="mt-10 h-full">
-        <PreferenceSelection params={params} />
+        <SubmissionButton restrictions={restrictions} />
+        <div className="flex w-full max-w-7xl flex-col">
+          <KanbanBoard
+            initialColumns={initialColumns}
+            initialProjects={initialProjects}
+          />
+        </div>
       </PanelWrapper>
     </>
   );

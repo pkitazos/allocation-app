@@ -1,14 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   DndContext,
-  DragOverEvent,
+  DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+import { PreferenceType } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { z } from "zod";
 
+import { useInstanceParams } from "@/components/params-context";
+
+import { api } from "@/lib/trpc/client";
+import { getUpdatedRank } from "@/lib/utils/sorting/get-updated-rank";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 
 import { ColumnContainer } from "./column-container";
@@ -21,14 +32,50 @@ export function KanbanBoard({
   initialColumns: BoardColumn[];
   initialProjects: ProjectPreference[];
 }) {
-  const columns = initialColumns;
+  const params = useInstanceParams();
+  const router = useRouter();
 
-  const [projects, setProjects] =
-    useState<ProjectPreference[]>(initialProjects);
-
+  const columns = useMemo(() => initialColumns, [initialColumns]);
+  const [projects, setProjects] = useState(initialProjects);
   const [activeProject, setActiveProject] = useState<ProjectPreference | null>(
     null,
   );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // 5px
+      },
+    }),
+  );
+
+  const utils = api.useUtils();
+
+  const refetch = () =>
+    utils.user.student.preference.initialBoardState.refetch();
+
+  const { mutateAsync: reorderAsync } =
+    api.user.student.preference.reorder.useMutation();
+
+  async function reorderPreference(
+    projectId: string,
+    updatedRank: number,
+    preferenceType: PreferenceType,
+  ) {
+    void toast.promise(
+      reorderAsync({ params, projectId, updatedRank, preferenceType }).then(
+        () => {
+          router.refresh();
+          refetch();
+        },
+      ),
+      {
+        loading: "Reordering...",
+        error: "Something went wrong",
+        success: "Successfully reordered preferences",
+      },
+    );
+  }
 
   function onDragStart({ active }: DragStartEvent) {
     if (active.data.current?.type === "ProjectPreference") {
@@ -36,7 +83,7 @@ export function KanbanBoard({
     }
   }
 
-  function onDragOver({ active, over }: DragOverEvent) {
+  function onDragEnd({ active, over }: DragEndEvent) {
     if (!over) return;
 
     if (active.id === over.id) return;
@@ -52,13 +99,21 @@ export function KanbanBoard({
         const activeIdx = projects.findIndex((e) => e.id === active.id);
         const overIdx = projects.findIndex((e) => e.id === over.id);
 
-        // ? if statement perhaps unnecessary
         if (projects[activeIdx].columnId !== projects[overIdx].columnId) {
-          // TODO: perform type-changing mutation
           projects[activeIdx].columnId = projects[overIdx].columnId;
         }
-        // TODO: perform re-ordering mutation
-        return arrayMove(projects, activeIdx, overIdx);
+        // perform re-ordering mutation
+        const newArray = arrayMove(projects, activeIdx, overIdx);
+        const updatedRank = getUpdatedRank(newArray, overIdx);
+
+        const projectId = z.string().parse(projects[activeIdx].id);
+        const newType = z
+          .nativeEnum(PreferenceType)
+          .parse(projects[overIdx].columnId);
+
+        void reorderPreference(projectId, updatedRank, newType);
+
+        return newArray;
       });
     }
 
@@ -69,19 +124,29 @@ export function KanbanBoard({
       setProjects((projects) => {
         const activeIdx = projects.findIndex((e) => e.id === active.id);
 
-        // ? if statement perhaps unnecessary
         if (projects[activeIdx].columnId !== over.id) {
           projects[activeIdx].columnId = over.id;
         }
 
-        // TODO: perform type-changing mutation
-        return arrayMove(projects, activeIdx, activeIdx);
+        // perform re-ordering mutation
+        const newArray = arrayMove(projects, activeIdx, activeIdx);
+
+        const projectId = z.string().parse(projects[activeIdx].id);
+        const newType = z.nativeEnum(PreferenceType).parse(over.id);
+
+        void reorderPreference(projectId, 1, newType);
+
+        return newArray;
       });
     }
   }
 
   return (
-    <DndContext onDragStart={onDragStart} onDragOver={onDragOver}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+    >
       <div className="flex h-full w-full gap-5">
         {columns.map((column) => (
           <ColumnContainer

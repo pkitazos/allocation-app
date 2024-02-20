@@ -3,10 +3,19 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-import { useInstanceStage } from "@/components/params-context";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  useInstanceParams,
+  useInstanceStage,
+} from "@/components/params-context";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { api } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
 
@@ -17,7 +26,24 @@ export function ProjectPreferenceCard({
   project: ProjectPreference;
   idx?: number;
 }) {
+  const params = useInstanceParams();
+  const router = useRouter();
+  const { mutateAsync } = api.user.student.preference.update.useMutation();
+
   const stage = useInstanceStage();
+
+  function deletePreference(projectId: string) {
+    void toast.promise(
+      mutateAsync({ params, projectId, preferenceType: "None" }).then(() =>
+        router.refresh(),
+      ),
+      {
+        loading: `Removing project ${projectId} from preferences...`,
+        error: "Something went wrong",
+        success: `Successfully removed project ${projectId} from preferences`,
+      },
+    );
+  }
 
   const {
     setNodeRef,
@@ -26,6 +52,7 @@ export function ProjectPreferenceCard({
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({
     id: project.id,
     data: {
@@ -42,7 +69,7 @@ export function ProjectPreferenceCard({
       <div
         ref={setNodeRef}
         style={style}
-        className="h-24 rounded-md bg-slate-300 opacity-50"
+        className={cn("h-44 rounded-md bg-muted-foreground/20")}
       />
     );
   }
@@ -53,7 +80,10 @@ export function ProjectPreferenceCard({
       style={style}
       {...attributes}
       {...listeners}
-      className="rounded-md bg-accent p-4 shadow-sm "
+      className={cn(
+        "group relative rounded-md bg-accent p-4 shadow-sm",
+        isOver && "outline outline-4 outline-muted-foreground/50",
+      )}
     >
       <CardHeader>
         <div className="flex flex-row items-center gap-3">
@@ -63,19 +93,22 @@ export function ProjectPreferenceCard({
           <CardTitle className="text-xl">{project.title}</CardTitle>
         </div>
       </CardHeader>
-      {/* // TODO: hook up appropriate procedure */}
-      {/* <div className="flex justify-end">
-        <Link href={`/projects/${project.id}`}>
-          <Button variant="link">view</Button>
-        </Link>
+      <CardContent>
+        <div>
+          <p className="text-muted-foreground">Supervisor</p>
+          <p className="font-semibold">{project.supervisorName}</p>
+        </div>
+      </CardContent>
+      {!stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
         <Button
-          size="icon"
           variant="ghost"
-          className="hover:bg-destructive hover:text-destructive-foreground"
+          size="icon"
+          className="absolute right-4 top-1/2 hidden -translate-y-1/2 items-center justify-center hover:bg-destructive hover:text-destructive-foreground group-hover:flex"
+          onClick={() => deletePreference(project.id as string)}
         >
           <X className="h-4 w-4 font-bold" />
         </Button>
-      </div> */}
+      )}
     </Card>
   );
 }
