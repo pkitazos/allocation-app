@@ -24,8 +24,12 @@ export function SubmissionButton({
 }) {
   const params = useInstanceParams();
 
-  const { data, isLoading } =
-    api.user.student.preference.initialBoardState.useQuery({ params });
+  const { data } = api.user.student.preference.initialBoardState.useQuery({
+    params,
+  });
+
+  const { mutateAsync: submitAsync } =
+    api.user.student.preference.submit.useMutation();
 
   const preferenceList =
     data?.initialProjects.filter(
@@ -60,7 +64,7 @@ export function SubmissionButton({
     overSelected.length === 0;
 
   async function handleSubmission() {
-    void toast.promise(async () => {}, {
+    void toast.promise(submitAsync({ params }), {
       loading: "Submitting preference list",
       error: "Something went wrong",
       success: "Submitted preference list",

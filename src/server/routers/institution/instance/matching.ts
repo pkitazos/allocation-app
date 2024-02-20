@@ -30,6 +30,7 @@ export const matchingRouter = createTRPCRouter({
           allocationSubGroupId: subGroup,
           allocationInstanceId: instance,
           role: Role.STUDENT,
+          submittedPreferences: true,
         },
         select: {
           userId: true,

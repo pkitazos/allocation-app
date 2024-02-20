@@ -62,6 +62,7 @@ model UserInInstance {
     allocationInstanceId      String                      @map("allocation_instance_id")
     allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
+    submittedPreferences      Boolean                     @default(false)
     studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
     // ---
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")

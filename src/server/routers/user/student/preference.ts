@@ -183,6 +183,30 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
+  submit: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        await ctx.db.userInInstance.update({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: ctx.session.user.id,
+            },
+          },
+          data: { submittedPreferences: true },
+        });
+      },
+    ),
   initialBoardState: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

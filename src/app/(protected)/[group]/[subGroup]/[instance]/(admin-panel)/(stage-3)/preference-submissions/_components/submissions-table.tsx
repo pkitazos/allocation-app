@@ -12,7 +12,7 @@ import {
 
 type SubmissionsInfo = {
   userId: string;
-  alreadySubmitted: boolean;
+  submittedPreferences: boolean;
   submissionCount: number;
 };
 
@@ -21,7 +21,9 @@ export function SubmissionsTable({
 }: {
   preferences: SubmissionsInfo[];
 }) {
-  const totalSubmitted = preferences.filter((e) => e.alreadySubmitted).length;
+  const totalSubmitted = preferences.filter(
+    (e) => e.submittedPreferences,
+  ).length;
   return (
     <Table>
       <TableHeader>
@@ -36,7 +38,7 @@ export function SubmissionsTable({
           <TableRow key={i}>
             <TableCell className="font-medium">{c.userId}</TableCell>
             <TableCell className="flex items-center justify-center">
-              {c.alreadySubmitted ? (
+              {c.submittedPreferences ? (
                 <Check className="h-4 w-4" />
               ) : (
                 <Minus className="h-4 w-4" />

@@ -98,16 +98,19 @@ export const projectRouter = createTRPCRouter({
           select: {
             userId: true,
             studentPreferences: true,
+            submittedPreferences: true,
           },
         });
 
-        const studentData = data.map(({ userId, studentPreferences }) => {
-          return {
-            userId,
-            submissionCount: studentPreferences.length,
-            alreadySubmitted: studentPreferences.length !== 0,
-          };
-        });
+        const studentData = data.map(
+          ({ userId, studentPreferences, submittedPreferences }) => {
+            return {
+              userId,
+              submissionCount: studentPreferences.length,
+              submittedPreferences,
+            };
+          },
+        );
         return { studentData, preferenceCapacities };
       },
     ),
