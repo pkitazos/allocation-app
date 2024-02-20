@@ -29,7 +29,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light" // TODO:  change in prod
+          forcedTheme="light"
           disableTransitionOnChange
         >
           <SessionProvider>
