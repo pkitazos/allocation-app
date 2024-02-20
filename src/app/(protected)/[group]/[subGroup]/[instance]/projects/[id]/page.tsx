@@ -55,7 +55,7 @@ export default async function Project({ params }: { params: pageParams }) {
             <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Supervisor:
             </h2>
-            <Link href={`/supervisors/${project.supervisor.user.id}`}>
+            <Link href={`../supervisors/${project.supervisor.user.id}`}>
               <Button className="text-lg" variant="link">
                 {project.supervisor.user.name}
               </Button>
