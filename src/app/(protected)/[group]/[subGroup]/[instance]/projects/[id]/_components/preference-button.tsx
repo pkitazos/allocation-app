@@ -54,7 +54,7 @@ export function PreferenceButton({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">
+          <Button variant="secondary">
             {selectStatus === PreferenceType.PREFERENCE
               ? "In Preferences"
               : selectStatus === PreferenceType.SHORTLIST

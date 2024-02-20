@@ -7,6 +7,8 @@ export type ProjectPreference = {
   columnId: Id;
   title: string;
   rank: number;
+  supervisorId: string;
+  supervisorName: string;
 };
 
 export type SortablePreference = {

@@ -135,14 +135,15 @@ async function main() {
         allocationSubGroupId: allocationSubGroup.id,
         allocationInstanceId: allocationInstance.id,
         role: Role.SUPERVISOR,
-        userId: id, // ? this now hopefully works
+        userId: id,
+        joined: true,
       })),
     })
     .then(
       async () =>
         await db.userInInstance.findMany({
           where: { role: Role.SUPERVISOR, NOT: { userId: supervisor.userId } },
-          take: 2, // ? not actually helpful
+          take: 2, // not actually helpful
         }),
     );
   dbg("SUPERVISORS - REST", { supervisor, supervisor2, supervisor3 });
@@ -245,7 +246,7 @@ async function main() {
         allocationSubGroupId: allocationSubGroup.id,
         allocationInstanceId: allocationInstance.id,
         role: Role.STUDENT,
-        userId: id, // ? this now hopefully works
+        userId: id,
       })),
     })
     .then(
@@ -263,6 +264,8 @@ async function main() {
       allocationSubGroupId: allocationSubGroup.id,
       allocationInstanceId: allocationInstance.id,
       userId,
+      submittedPreferences: true,
+      joined: true,
     })),
   });
   dbg("STUDENTS - DETAILS");
@@ -273,7 +276,6 @@ async function main() {
       allocationSubGroupId: allocationSubGroup.id,
       allocationInstanceId: allocationInstance.id,
       userId,
-
       flagId: flags[0].id,
     })),
   });

@@ -6,6 +6,7 @@ import { Stage } from "@prisma/client";
 
 import { useInstanceStage } from "@/components/params-context";
 
+import { cn } from "@/lib/utils";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 
@@ -20,7 +21,7 @@ export function ColumnContainer({
 }) {
   const stage = useInstanceStage();
 
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: column.id,
     data: {
       type: "Column",
@@ -34,7 +35,10 @@ export function ColumnContainer({
   return (
     <div
       ref={setNodeRef}
-      className="flex h-full w-full flex-col gap-4 rounded-md bg-accent/50 px-3.5 pb-10 shadow-sm"
+      className={cn(
+        "flex h-full w-full flex-col gap-4 rounded-md bg-accent/50 px-3.5 pb-10 shadow-sm",
+        isOver && "outline outline-4 outline-muted-foreground/50",
+      )}
     >
       <p className="mx-3 mb-3 mt-5 text-2xl font-medium underline decoration-secondary underline-offset-4">
         {column.displayName}

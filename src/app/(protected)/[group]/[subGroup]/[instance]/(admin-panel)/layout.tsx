@@ -14,8 +14,8 @@ import { InstanceParams } from "@/lib/validations/params";
 
 const tabsRecord: Record<Stage, string[]> = {
   SETUP: ["Add Supervisors", "Add Students"],
-  PROJECT_SUBMISSION: ["Invite Supervisors", "Projects Overview"],
-  PROJECT_SELECTION: ["Invite Students", "Preferences Overview"],
+  PROJECT_SUBMISSION: ["Supervisor Invites", "Project Submissions"],
+  PROJECT_SELECTION: ["Student Invites", "Preference Submissions"],
   PROJECT_ALLOCATION: ["Algorithms Overview", "Algorithm Details"],
   ALLOCATION_ADJUSTMENT: ["Manual Changes"],
   ALLOCATION_PUBLICATION: ["Allocation Overview"],

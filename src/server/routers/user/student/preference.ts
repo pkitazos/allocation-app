@@ -1,6 +1,7 @@
 import { PreferenceType, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
@@ -47,6 +48,28 @@ export const preferenceRouter = createTRPCRouter({
           return;
         }
 
+        const allPreferences = await ctx.db.preference.groupBy({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId,
+          },
+          by: "type",
+          _max: { rank: true },
+        });
+
+        const maxRankPerType = {
+          [PreferenceType.PREFERENCE]:
+            allPreferences.find(
+              ({ type }) => type === PreferenceType.PREFERENCE,
+            )?._max.rank ?? 1,
+
+          [PreferenceType.SHORTLIST]:
+            allPreferences.find(({ type }) => type === PreferenceType.SHORTLIST)
+              ?._max.rank ?? 1,
+        };
+
         const currentPreference = await ctx.db.preference.findFirst({
           where: {
             allocationGroupId: group,
@@ -66,7 +89,7 @@ export const preferenceRouter = createTRPCRouter({
               projectId,
               userId,
               type: preferenceType,
-              rank: 0,
+              rank: maxRankPerType[preferenceType] + 1,
             },
           });
           return;
@@ -82,9 +105,51 @@ export const preferenceRouter = createTRPCRouter({
               userId,
             },
           },
-          data: { type: preferenceType, rank: 0 },
+          data: {
+            type: preferenceType,
+            rank: maxRankPerType[preferenceType] + 1,
+          },
         });
         return;
+      },
+    ),
+
+  reorder: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        projectId: z.string(),
+        preferenceType: z.nativeEnum(PreferenceType),
+        updatedRank: z.number(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          projectId,
+          preferenceType,
+          updatedRank,
+        },
+      }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        await ctx.db.preference.update({
+          where: {
+            preferenceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId: ctx.session.user.id,
+            },
+          },
+          data: {
+            type: preferenceType,
+            rank: updatedRank,
+          },
+        });
       },
     ),
 
@@ -118,6 +183,30 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
+  submit: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        await ctx.db.userInInstance.update({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: ctx.session.user.id,
+            },
+          },
+          data: { submittedPreferences: true },
+        });
+      },
+    ),
   initialBoardState: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -135,10 +224,19 @@ export const preferenceRouter = createTRPCRouter({
             userId: ctx.session.user.id,
           },
           select: {
-            project: { select: { id: true, title: true } },
+            project: {
+              select: {
+                id: true,
+                title: true,
+                supervisor: {
+                  select: { user: { select: { id: true, name: true } } },
+                },
+              },
+            },
             rank: true,
             type: true,
           },
+          orderBy: { rank: "asc" },
         });
 
         const initialColumns: BoardColumn[] = [
@@ -151,6 +249,8 @@ export const preferenceRouter = createTRPCRouter({
           title: e.project.title,
           columnId: e.type,
           rank: e.rank,
+          supervisorId: e.project.supervisor.user.id,
+          supervisorName: e.project.supervisor.user.name!,
           changed: false,
         }));
 

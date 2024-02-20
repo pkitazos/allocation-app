@@ -216,7 +216,7 @@ export function projectColumns(
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`projects/${project.id}`}>
+              <Link href={`./projects/${project.id}`}>
                 <Button variant="link">View Details</Button>
               </Link>
             </DropdownMenuItem>

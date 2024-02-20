@@ -2,6 +2,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -21,10 +22,16 @@ export function SubmissionsTable({
 }: {
   capacities: CapacityInfo[];
 }) {
+  const totalReached = capacities.reduce(
+    (acc, val) =>
+      val.alreadySubmitted >= val.submissionTarget ? acc + 1 : acc,
+    0,
+  );
+
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className="bg-accent/50">
           <TableHead className="font-semibold">Supervisor ID</TableHead>
           <TableHead className="text-center">Already Submitted</TableHead>
           <TableHead className="text-center">Submission Target</TableHead>
@@ -33,18 +40,20 @@ export function SubmissionsTable({
       <TableBody>
         {capacities.map((c, i) => (
           <TableRow key={i}>
-            <TableCell>{c.userId}</TableCell>
+            <TableCell className="font-medium">{c.userId}</TableCell>
             <TableCell className="text-center">{c.alreadySubmitted}</TableCell>
             <TableCell className="text-center">{c.submissionTarget}</TableCell>
           </TableRow>
         ))}
       </TableBody>
-      {/* <TableFooter>
+      <TableFooter>
         <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          <TableCell colSpan={2}>Reached Target</TableCell>
+          <TableCell colSpan={1} className="text-center">
+            {totalReached}
+          </TableCell>
         </TableRow>
-      </TableFooter> */}
+      </TableFooter>
     </Table>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
 import {
@@ -7,14 +8,11 @@ import {
   getPreferenceRank,
   getUpdatedWeight,
 } from "@/lib/utils/allocation-adjustment";
-import {
-  allSupervisorsValid,
-  getCurrentCapacity,
-  withinCapacity,
-} from "@/lib/utils/allocation-adjustment/supervisor";
+import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
 import { zeros } from "@/lib/utils/general/zeros";
 
 import { useAllocDetails } from "./allocation-store";
+import { SubmitButton } from ".";
 
 export function MatchingInfoTable() {
   const allProjects = useAllocDetails((s) => s.projects);
@@ -33,35 +31,36 @@ export function MatchingInfoTable() {
   const weight = getUpdatedWeight(profile);
   const size = profile.reduce((acc, val) => acc + val, 0);
 
-  const supervisors = useAllocDetails((s) => s.supervisors);
-
   return (
-    <div className={cn("flex flex-col", !isValid && "text-destructive")}>
-      <p className="font-semibold text-black">matching info table</p>
-      <p>isValid: {isValid.toString()}</p>
-      <p>profile: {`(${profile.join(",")})`}</p>
-      <p>weight: {weight}</p>
-      <p>size: {size}</p>
-      <Separator />
-      <div>
-        {supervisors.map((s) => {
-          const capacity = getCurrentCapacity(allProjects, s);
-          const invalid = !withinCapacity(allProjects, s);
-          return (
-            <div
-              className={cn("mt-5", invalid && "text-destructive")}
-              key={s.supervisorId}
-            >
-              <p className="font-semibold">{s.supervisorId}</p>
-              <p>projects: [{s.projects.join(", ")}]</p>
-              <p>current capacity: {capacity}</p>
-              <p>lowerBound: {s.lowerBound}</p>
-              <p>target: {s.target}</p>
-              <p>upperBound: {s.upperBound}</p>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <Card className={"flex w-full flex-col"}>
+      <CardHeader>
+        <CardTitle className={cn(!isValid && "text-destructive")}>
+          Matching Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-between">
+        <div className="grid grid-cols-3 gap-2">
+          <p className="col-span-1">Status:</p>
+          <div className="col-span-2">
+            {isValid ? (
+              <Badge className="bg-green-600 text-base">Valid</Badge>
+            ) : (
+              <Badge variant="destructive" className="text-base">
+                Invalid
+              </Badge>
+            )}
+          </div>
+          <p className="col-span-1">Profile:</p>
+          <p className="col-span-2 font-semibold">{`(${profile.join(",")})`}</p>
+          <p className="col-span-1">Weight:</p>
+          <p className="col-span-2 font-semibold">{weight}</p>
+          <p className="col-span-1">Size:</p>
+          <p className="col-span-2 font-semibold">{size}</p>
+        </div>
+        <div className="flex flex-col justify-end">
+          <SubmitButton />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

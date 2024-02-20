@@ -1,3 +1,6 @@
+import { SubHeading } from "@/components/heading";
+import { PanelWrapper } from "@/components/panel-wrapper";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
@@ -9,8 +12,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
   });
 
   return (
-    <div>
+    <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">
+      <SubHeading className="text-2xl">
+        Supervisor Project Submissions
+      </SubHeading>
       <SubmissionsTable capacities={data} />
-    </div>
+    </PanelWrapper>
   );
 }

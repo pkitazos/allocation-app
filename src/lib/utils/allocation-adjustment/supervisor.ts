@@ -40,3 +40,11 @@ export function allSupervisorsValid(
 ) {
   return supervisors.map((s) => withinCapacity(allProjects, s)).every(Boolean);
 }
+
+export function getProjectSupervisor(
+  project: ProjectInfo,
+  allSupervisors: SupervisorDetails[],
+) {
+  const idx = allSupervisors.findIndex((s) => s.projects.includes(project.id));
+  return allSupervisors[idx];
+}
