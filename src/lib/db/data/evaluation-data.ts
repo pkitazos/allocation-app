@@ -2,13 +2,11 @@
 import {
   AdminInSpace,
   AdminLevel,
-  Algorithm,
   AllocationGroup,
   AllocationInstance,
   AllocationSubGroup,
   Flag,
   FlagOnProject,
-  FlagOnStudent,
   Invitation,
   Preference,
   PreferenceType,
@@ -35,6 +33,12 @@ import { projectData } from "./projects";
 
 type New<T> = Omit<T, "id" | "systemId">;
 
+export const superAdmin: User = {
+  id: "super-admin",
+  name: "Super-Admin",
+  email: "super.allocationapp@gmail.com",
+};
+
 const evaluator__subGroupAdmin: User = {
   id: "012345w",
   name: "Michael Walker",
@@ -53,6 +57,7 @@ const evaluator__supervisor: User = {
   name: "Isabelle Dubois",
   email: "123460d@email.com",
 };
+
 const allSupervisors: User[] = [...dummy__supervisors, evaluator__supervisor];
 
 const dummy__students: User[] = [
@@ -72,23 +77,23 @@ const dummy__students: User[] = [
   { id: "234580h", name: "Mateo Hernandez", email: "234580h@email.com" },
 ];
 
-const studentFlags = [
-  { studentIdx: 0, flagTitle: "BSc Computing Science" },
-  { studentIdx: 1, flagTitle: "BSc Software Engineering" },
-  { studentIdx: 2, flagTitle: "MSci Computing Science" },
-  { studentIdx: 3, flagTitle: "MSci Software Engineering" },
-  { studentIdx: 4, flagTitle: "CS Joint Honours" },
-  { studentIdx: 5, flagTitle: "BSc Computing Science" },
-  { studentIdx: 6, flagTitle: "BSc Software Engineering" },
-  { studentIdx: 7, flagTitle: "MSci Computing Science" },
-  { studentIdx: 8, flagTitle: "MSci Software Engineering" },
-  { studentIdx: 9, flagTitle: "CS Joint Honours" },
-  { studentIdx: 10, flagTitle: "BSc Computing Science" },
-  { studentIdx: 11, flagTitle: "BSc Software Engineering" },
-  { studentIdx: 12, flagTitle: "MSci Computing Science" },
-  { studentIdx: 13, flagTitle: "MSci Software Engineering" },
-  { studentIdx: 14, flagTitle: "CS Joint Honours" },
-];
+// // const studentFlags = [
+// //   { studentIdx: 0, flagTitle: "BSc Computing Science" },
+// //   { studentIdx: 1, flagTitle: "BSc Software Engineering" },
+// //   { studentIdx: 2, flagTitle: "MSci Computing Science" },
+// //   { studentIdx: 3, flagTitle: "MSci Software Engineering" },
+// //   { studentIdx: 4, flagTitle: "CS Joint Honours" },
+// //   { studentIdx: 5, flagTitle: "BSc Computing Science" },
+// //   { studentIdx: 6, flagTitle: "BSc Software Engineering" },
+// //   { studentIdx: 7, flagTitle: "MSci Computing Science" },
+// //   { studentIdx: 8, flagTitle: "MSci Software Engineering" },
+// //   { studentIdx: 9, flagTitle: "CS Joint Honours" },
+// //   { studentIdx: 10, flagTitle: "BSc Computing Science" },
+// //   { studentIdx: 11, flagTitle: "BSc Software Engineering" },
+// //   { studentIdx: 12, flagTitle: "MSci Computing Science" },
+// //   { studentIdx: 13, flagTitle: "MSci Software Engineering" },
+// //   { studentIdx: 14, flagTitle: "CS Joint Honours" },
+// // ];
 
 const evaluator__student: User = {
   id: "234581p",
@@ -97,6 +102,13 @@ const evaluator__student: User = {
 };
 
 const allStudents: User[] = [...dummy__students, evaluator__student];
+
+export const allUsers: User[] = [
+  superAdmin,
+  evaluator__subGroupAdmin,
+  ...allSupervisors,
+  ...allStudents,
+];
 
 const supervisorCapacities: (Pick<
   SupervisorInstanceDetails,
@@ -224,14 +236,32 @@ export const sampleInstance: AllocationInstance = {
   selectedAlgName: null,
 };
 
-export const adminInSpaces: New<AdminInSpace> = {
-  userId: evaluator__subGroupAdmin.id,
-  allocationGroupId: allocationGroup.id,
-  allocationSubGroupId: allocationSubGroup.id,
-  adminLevel: AdminLevel.SUB_GROUP,
-};
+export const adminsInSpaces: New<AdminInSpace>[] = [
+  {
+    userId: superAdmin.id,
+    allocationGroupId: null,
+    allocationSubGroupId: null,
+    adminLevel: AdminLevel.SUPER,
+  },
+  {
+    userId: evaluator__subGroupAdmin.id,
+    allocationGroupId: allocationGroup.id,
+    allocationSubGroupId: allocationSubGroup.id,
+    adminLevel: AdminLevel.SUB_GROUP,
+  },
+];
 
-export const students__userInInstance: UserInInstance[] = dummy__students.map(
+const supervisors__userInInstance: UserInInstance[] = allSupervisors.map(
+  ({ id }) =>
+    inInstance({
+      userId: id,
+      role: Role.SUPERVISOR,
+      joined: true,
+      submittedPreferences: false,
+    }),
+);
+
+const students__userInInstance: UserInInstance[] = dummy__students.map(
   ({ id }) =>
     inInstance({
       userId: id,
@@ -241,17 +271,20 @@ export const students__userInInstance: UserInInstance[] = dummy__students.map(
     }),
 );
 
-export const supervisors__userInInstance: UserInInstance[] =
-  dummy__supervisors.map(({ id }) =>
-    inInstance({
-      userId: id,
-      role: Role.SUPERVISOR,
-      joined: true,
-      submittedPreferences: false,
-    }),
-  );
+const evaluator__student__userInInstance: UserInInstance = inInstance({
+  userId: evaluator__student.id,
+  role: Role.STUDENT,
+  joined: true,
+  submittedPreferences: false,
+});
 
-export const supervisorInstanceDetails: SupervisorInstanceDetails[] =
+export const allUsersInInstance: UserInInstance[] = [
+  ...supervisors__userInInstance,
+  ...students__userInInstance,
+  evaluator__student__userInInstance,
+];
+
+export const supervisorDetails: SupervisorInstanceDetails[] =
   supervisorCapacities.map((s) => inInstance(s));
 
 export const projects: Project[] = projectData.map((p) =>
@@ -285,19 +318,19 @@ export const flagsOnProjects: FlagOnProject[] = projectData.flatMap((p) =>
   p.flags.map((f) => ({ projectId: p.id, flagId: slugify(f.title) })),
 );
 
-export const flagsOnStudents: FlagOnStudent[] = studentFlags.map((e) =>
-  inInstance({
-    userId: allStudents[e.studentIdx].id,
-    flagId: slugify(e.flagTitle),
-  }),
-);
+// // export const flagsOnStudents: FlagOnStudent[] = studentFlags.map((e) =>
+// //   inInstance({
+// //     userId: allStudents[e.studentIdx].id,
+// //     flagId: slugify(e.flagTitle),
+// //   }),
+// // );
 
 export const tags: Tag[] = tagData.map(({ title }) =>
   inInstance({ id: slugify(title), title }),
 );
 
 export const tagsOnProjects: TagOnProject[] = projectData.flatMap((p) =>
-  p.flags.map((t) => ({ projectId: p.id, tagId: slugify(t.title) })),
+  p.tags.map((t) => ({ projectId: p.id, tagId: slugify(t.title) })),
 );
 
 const builtInAlgorithms = [
@@ -307,8 +340,9 @@ const builtInAlgorithms = [
   GreedyGenAlgorithm,
 ];
 
-const algorithms: Algorithm[] = builtInAlgorithms.map((alg) => ({
-  ...instanceId,
-  ...alg, // ! no descriptions
-  matchingResultData: JSON.stringify({}),
-}));
+export const algorithms = builtInAlgorithms.map((alg) =>
+  inInstance({
+    ...alg, // TODO: confirm descriptions
+    matchingResultData: JSON.stringify({}),
+  }),
+);

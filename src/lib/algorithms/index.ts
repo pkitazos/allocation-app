@@ -6,7 +6,8 @@ import { Algorithm } from "@/lib/validations/algorithm";
 export const GenerousAlgorithm = {
   algName: "generous",
   displayName: "Generous",
-  description: "description",
+  description:
+    "Aims to to create the fairest distribution of matches across all students, ensuring that even the least desirable projects are as fairly allocated as possible before considering a student's higher preference.",
   flag1: AlgorithmFlag.MAXSIZE,
   flag2: AlgorithmFlag.GEN,
   flag3: AlgorithmFlag.LSB,
@@ -15,7 +16,8 @@ export const GenerousAlgorithm = {
 export const GreedyAlgorithm = {
   algName: "greedy",
   displayName: "Greedy",
-  description: "description",
+  description:
+    "Aims to to optimise the allocation so that the maximum number of students are matched with their higher-preferred choices, even if it compromises the number of students getting their lower-preferred choices.",
   flag1: AlgorithmFlag.MAXSIZE,
   flag2: AlgorithmFlag.GRE,
   flag3: AlgorithmFlag.LSB,
@@ -33,7 +35,8 @@ export const MinCostAlgorithm = {
 export const GreedyGenAlgorithm = {
   algName: "greedy-generous",
   displayName: "Greedy-Generous",
-  description: "description",
+  description:
+    "Starts by satisfying students' highest preferences as much as possible, and once the lowest successful match is identified, it redistributes the remaining opportunities in a way that is as fair as possible to all students.",
   flag1: AlgorithmFlag.MAXSIZE,
   flag2: AlgorithmFlag.GRE,
   flag3: AlgorithmFlag.LSB,

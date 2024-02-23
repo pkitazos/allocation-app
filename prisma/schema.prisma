@@ -67,8 +67,8 @@ model UserInInstance {
     // ---
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")
     supervisorProjects        Project[]
-    studentInstanceDetails    StudentInstanceDetails[]
-    studentFlags              FlagOnStudent[]
+    // studentInstanceDetails    StudentInstanceDetails[]
+    // studentFlags              FlagOnStudent[]
     studentPreferences        Preference[]
 
     @@id(name: "instanceMembership", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
@@ -152,20 +152,6 @@ model SupervisorInstanceDetails {
     @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
-model StudentInstanceDetails {
-    userId               String          @map("user_id")
-    // ---
-    allocationGroupId    String          @map("allocation_group_id")
-    allocationSubGroupId String          @map("allocation_sub_group_id")
-    allocationInstanceId String          @map("allocation_instance_id")
-    // ---
-    userInInstance       UserInInstance  @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade, onUpdate: Cascade)
-    // actual data
-    flags                FlagOnStudent[]
-
-    @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-}
-
 model Project {
     id                    String              @id @default(uuid())
     title                 String
@@ -222,7 +208,7 @@ model ProjectAllocation {
 }
 
 model Flag {
-    id                   String             @id @default(uuid())
+    id                   String             @id //@default(uuid())
     title                String
     // ---
     allocationGroupId    String             @map("allocation_group_id")
@@ -232,7 +218,7 @@ model Flag {
     allocationInstance   AllocationInstance @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
     flagOnProjects       FlagOnProject[]
-    flagOnStudents       FlagOnStudent[]
+    // flagOnStudents       FlagOnStudent[]
 
     @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -246,23 +232,8 @@ model FlagOnProject {
     @@id([flagId, projectId])
 }
 
-model FlagOnStudent {
-    flagId               String                 @map("flag_id")
-    userId               String                 @map("user_id")
-    // ---
-    allocationGroupId    String                 @map("allocation_group_id")
-    allocationSubGroupId String                 @map("allocation_sub_group_id")
-    allocationInstanceId String                 @map("allocation_instance_id")
-    // virtual fields
-    flag                 Flag                   @relation(fields: [flagId], references: [id], onDelete: Cascade)
-    studentDetails       StudentInstanceDetails @relation(map: "flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade)
-    UserInInstance       UserInInstance         @relation(map: "user_flags", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade)
-
-    @@id(name: "studentFlagId", [flagId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
-}
-
 model Tag {
-    id                   String             @id @default(uuid())
+    id                   String             @id //@default(uuid())
     title                String
     // ---
     allocationGroupId    String             @map("allocation_group_id")
@@ -336,7 +307,6 @@ model User {
     email           String?          @unique
     emailVerified   DateTime?
     image           String?
-    // role            Role?
     accounts        Account[]
     sessions        Session[]
     userInInstances UserInInstance[]

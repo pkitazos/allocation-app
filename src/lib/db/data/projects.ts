@@ -189,7 +189,7 @@ export const projectData = [
     tags: [
       { title: "C++" },
       { title: "Game Development" },
-      { title: "Virtual Reality" },
+      { title: "Computer Vision" },
     ],
     flags: [{ title: "MSci Software Engineering" }],
   },
