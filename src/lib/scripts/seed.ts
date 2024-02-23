@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-import { dbg } from "@/lib/utils/general/console-debug";
-
 import {
   adminsInSpaces,
   algorithms,
@@ -22,7 +20,8 @@ import {
   tags,
   tagsOnProjects,
   to_ID,
-} from "./data/evaluation-data";
+} from "@/lib/db/data";
+import { dbg } from "@/lib/utils/general/console-debug";
 
 const db = new PrismaClient();
 

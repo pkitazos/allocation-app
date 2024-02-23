@@ -1,6 +1,6 @@
 import { AES } from "crypto-js";
 
-import { EVALUATORS, to_ID } from "./data/evaluation-data";
+import { EVALUATORS, to_ID } from "@/lib/db/data";
 
 import { env } from "@/env";
 

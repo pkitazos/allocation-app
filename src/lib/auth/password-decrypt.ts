@@ -1,7 +1,7 @@
 import { AES, enc } from "crypto-js";
 
-import { EVALUATORS, to_ID } from "../db/data/evaluation-data";
-import { zeros } from "../utils/general/zeros";
+import { EVALUATORS, to_ID } from "@/lib/db/data";
+import { zeros } from "@/lib/utils/general/zeros";
 
 import { env } from "@/env";
 

@@ -1,13 +1,12 @@
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 
 import {
   evaluator__student as student,
   evaluator__subGroupAdmin as admin,
   evaluator__supervisor as supervisor,
   superAdmin,
-} from "@/lib/db/data/evaluation-data";
+} from "@/lib/db/data";
 
 import { getEvaluatorID } from "./password-decrypt";
 
@@ -15,7 +14,6 @@ import { env } from "@/env";
 
 export default {
   providers: [
-    Google,
     CredentialsProvider({
       name: "Credentials",
       // `credentials` is used to generate a form on the sign in page.
