@@ -8,6 +8,7 @@ import {
   allUsers,
   allUsersInInstance,
   capacities,
+  EVALUATORS,
   flags,
   flagsOnProjects,
   invites,
@@ -20,12 +21,12 @@ import {
   superAdminInSpace,
   tags,
   tagsOnProjects,
+  to_ID,
 } from "./data/evaluation-data";
 
 const db = new PrismaClient();
 
 async function main() {
-  const EVALUATORS = 10;
   console.log("------------>> SEEDING\n");
 
   await db.user.create({ data: superAdmin });
@@ -33,37 +34,39 @@ async function main() {
   dbg("super-admin\n");
 
   for (let idx = 1; idx <= EVALUATORS; idx++) {
+    const ID = to_ID(idx);
+
     // create and invite users
-    await db.user.createMany({ data: allUsers(idx) });
-    await db.invitation.createMany({ data: invites(idx) });
+    await db.user.createMany({ data: allUsers(ID) });
+    await db.invitation.createMany({ data: invites(ID) });
     dbg("users + invites");
 
     // create spaces
-    await db.allocationGroup.create({ data: sampleGroup(idx) });
-    await db.allocationSubGroup.create({ data: sampleSubGroup(idx) });
-    await db.allocationInstance.create({ data: sampleInstance(idx) });
+    await db.allocationGroup.create({ data: sampleGroup(ID) });
+    await db.allocationSubGroup.create({ data: sampleSubGroup(ID) });
+    await db.allocationInstance.create({ data: sampleInstance(ID) });
     dbg("allocation spaces");
 
     // add users to spaces
-    await db.adminInSpace.createMany({ data: adminsInSpaces(idx) });
-    await db.userInInstance.createMany({ data: allUsersInInstance(idx) });
+    await db.adminInSpace.createMany({ data: adminsInSpaces(ID) });
+    await db.userInInstance.createMany({ data: allUsersInInstance(ID) });
     dbg("users in spaces");
 
     // add algorithms, flags, and tags to instance
-    await db.algorithm.createMany({ data: algorithms(idx) });
-    await db.tag.createMany({ data: tags(idx) });
-    await db.flag.createMany({ data: flags(idx) });
+    await db.algorithm.createMany({ data: algorithms(ID) });
+    await db.tag.createMany({ data: tags(ID) });
+    await db.flag.createMany({ data: flags(ID) });
     dbg("instance details");
 
     // add supervisor capacity details
-    await db.supervisorInstanceDetails.createMany({ data: capacities(idx) });
+    await db.supervisorInstanceDetails.createMany({ data: capacities(ID) });
     dbg("user instance details");
 
     // create projects and preferences
-    await db.project.createMany({ data: projects(idx) });
-    await db.tagOnProject.createMany({ data: tagsOnProjects(idx) });
-    await db.flagOnProject.createMany({ data: flagsOnProjects(idx) });
-    await db.preference.createMany({ data: preferences(idx) });
+    await db.project.createMany({ data: projects(ID) });
+    await db.tagOnProject.createMany({ data: tagsOnProjects(ID) });
+    await db.flagOnProject.createMany({ data: flagsOnProjects(ID) });
+    await db.preference.createMany({ data: preferences(ID) });
     dbg("projects + preferences");
 
     dbg(`instance ${idx}/${EVALUATORS} complete\n`);

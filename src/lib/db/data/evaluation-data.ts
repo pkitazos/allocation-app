@@ -31,6 +31,8 @@ import { slugify } from "@/lib/utils/general/slugify";
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
 
+export const EVALUATORS = 10;
+
 type New<T> = Omit<T, "id" | "systemId">;
 
 export const superAdmin: User = {
@@ -46,134 +48,136 @@ export const superAdminInSpace: New<AdminInSpace> = {
   adminLevel: AdminLevel.SUPER,
 };
 
-const evaluator__subGroupAdmin = (idx: number): User => ({
-  id: `${idx}-012345w`,
-  name: "Michael Walker",
-  email: `${idx}-012345w@email.com`,
+export const to_ID = (ID: number) => ID.toString().padStart(3, "0");
+
+export const evaluator__subGroupAdmin = (ID: string): User => ({
+  id: `${ID}-012345w`,
+  name: "Admin Evaluator",
+  email: `${ID}-012345w@email.com`,
 });
 
-const dummy__supervisors = (idx: number): User[] => [
+const dummy__supervisors = (ID: string): User[] => [
   {
-    id: `${idx}-123456s`,
+    id: `${ID}-123456s`,
     name: "Daniel Schmidt",
-    email: `${idx}-123456s@email.com`,
+    email: `${ID}-123456s@email.com`,
   },
   {
-    id: `${idx}-123457j`,
+    id: `${ID}-123457j`,
     name: "Sarah Jones",
-    email: `${idx}-123457j@email.com`,
+    email: `${ID}-123457j@email.com`,
   },
   {
-    id: `${idx}-123458t`,
+    id: `${ID}-123458t`,
     name: "Kai Tanaka",
-    email: `${idx}-123458t@email.com`,
+    email: `${ID}-123458t@email.com`,
   },
   {
-    id: `${idx}-123459l`,
+    id: `${ID}-123459l`,
     name: "Maria Lopez",
-    email: `${idx}-123459l@email.com`,
+    email: `${ID}-123459l@email.com`,
   },
 ];
 
-const evaluator__supervisor = (idx: number): User => ({
-  id: `${idx}-123460d`,
-  name: "Isabelle Dubois",
-  email: `${idx}-123460d@email.com`,
+export const evaluator__supervisor = (ID: string): User => ({
+  id: `${ID}-123460d`,
+  name: "Supervisor Evaluator",
+  email: `${ID}-123460d@email.com`,
 });
 
-const allSupervisors = (idx: number): User[] => [
-  ...dummy__supervisors(idx),
-  evaluator__supervisor(idx),
+const allSupervisors = (ID: string): User[] => [
+  ...dummy__supervisors(ID),
+  evaluator__supervisor(ID),
 ];
 
-const dummy__students = (idx: number): User[] => [
+const dummy__students = (ID: string): User[] => [
   {
-    id: `${idx}-234567k`,
+    id: `${ID}-234567k`,
     name: "Aaliyah Khan",
-    email: `${idx}-234567k@email.com`,
+    email: `${ID}-234567k@email.com`,
   },
   {
-    id: `${idx}-234568g`,
+    id: `${ID}-234568g`,
     name: "Diego Garcia",
-    email: `${idx}-234568g@email.com`,
+    email: `${ID}-234568g@email.com`,
   },
-  { id: `${idx}-234569c`, name: "Mei Chen", email: `${idx}-234569c@email.com` },
+  { id: `${ID}-234569c`, name: "Mei Chen", email: `${ID}-234569c@email.com` },
   {
-    id: `${idx}-234570p`,
+    id: `${ID}-234570p`,
     name: "Anya Petrova",
-    email: `${idx}-234570p@email.com`,
+    email: `${ID}-234570p@email.com`,
   },
   {
-    id: `${idx}-234571d`,
+    id: `${ID}-234571d`,
     name: "Aisha Diallo",
-    email: `${idx}-234571d@email.com`,
+    email: `${ID}-234571d@email.com`,
   },
   {
-    id: `${idx}-234572c`,
+    id: `${ID}-234572c`,
     name: "Ethan Cohen",
-    email: `${idx}-234572c@email.com`,
+    email: `${ID}-234572c@email.com`,
   },
   {
-    id: `${idx}-234573b`,
+    id: `${ID}-234573b`,
     name: "Nadira Benali",
-    email: `${idx}-234573b@email.com`,
+    email: `${ID}-234573b@email.com`,
   },
   {
-    id: `${idx}-234574o`,
+    id: `${ID}-234574o`,
     name: "Liam O'Sullivan",
-    email: `${idx}-234574o@email.com`,
+    email: `${ID}-234574o@email.com`,
   },
   {
-    id: `${idx}-234575y`,
+    id: `${ID}-234575y`,
     name: "Hana Yoshida",
-    email: `${idx}-234575y@email.com`,
+    email: `${ID}-234575y@email.com`,
   },
   {
-    id: `${idx}-234576n`,
+    id: `${ID}-234576n`,
     name: "David Nguyen",
-    email: `${idx}-234576n@email.com`,
+    email: `${ID}-234576n@email.com`,
   },
   {
-    id: `${idx}-234577r`,
+    id: `${ID}-234577r`,
     name: "Elena Rodriguez",
-    email: `${idx}-234577r@email.com`,
+    email: `${ID}-234577r@email.com`,
   },
   {
-    id: `${idx}-234578a`,
+    id: `${ID}-234578a`,
     name: "Kofi Asante",
-    email: `${idx}-234578a@email.com`,
+    email: `${ID}-234578a@email.com`,
   },
   {
-    id: `${idx}-234579k`,
+    id: `${ID}-234579k`,
     name: "Olivia Kapoor",
-    email: `${idx}-234579k@email.com`,
+    email: `${ID}-234579k@email.com`,
   },
   {
-    id: `${idx}-234580h`,
+    id: `${ID}-234580h`,
     name: "Mateo Hernandez",
-    email: `${idx}-234580h@email.com`,
+    email: `${ID}-234580h@email.com`,
   },
 ];
 
-const evaluator__student = (idx: number): User => ({
-  id: `${idx}-234581p`,
-  name: "Chloe Park",
-  email: `${idx}-234581p@email.com`,
+export const evaluator__student = (ID: string): User => ({
+  id: `${ID}-234581p`,
+  name: "Student Evaluator",
+  email: `${ID}-234581p@email.com`,
 });
 
-const allStudents = (idx: number): User[] => [
-  ...dummy__students(idx),
-  evaluator__student(idx),
+const allStudents = (ID: string): User[] => [
+  ...dummy__students(ID),
+  evaluator__student(ID),
 ];
 
-export const allUsers = (idx: number): User[] => [
-  evaluator__subGroupAdmin(idx),
-  ...allSupervisors(idx),
-  ...allStudents(idx),
+export const allUsers = (ID: string): User[] => [
+  evaluator__subGroupAdmin(ID),
+  ...allSupervisors(ID),
+  ...allStudents(ID),
 ];
 
 const supervisorCapacities = (
-  idx: number,
+  ID: string,
 ): (Pick<
   SupervisorInstanceDetails,
   | "projectAllocationLowerBound"
@@ -181,31 +185,31 @@ const supervisorCapacities = (
   | "projectAllocationUpperBound"
 > & { userId: string })[] => [
   {
-    userId: allSupervisors(idx)[0].id,
+    userId: allSupervisors(ID)[0].id,
     projectAllocationLowerBound: 0,
     projectAllocationTarget: 1,
     projectAllocationUpperBound: 3,
   },
   {
-    userId: allSupervisors(idx)[1].id,
+    userId: allSupervisors(ID)[1].id,
     projectAllocationLowerBound: 0,
     projectAllocationTarget: 2,
     projectAllocationUpperBound: 3,
   },
   {
-    userId: allSupervisors(idx)[2].id,
+    userId: allSupervisors(ID)[2].id,
     projectAllocationLowerBound: 0,
     projectAllocationTarget: 2,
     projectAllocationUpperBound: 3,
   },
   {
-    userId: allSupervisors(idx)[3].id,
+    userId: allSupervisors(ID)[3].id,
     projectAllocationLowerBound: 0,
     projectAllocationTarget: 2,
     projectAllocationUpperBound: 3,
   },
   {
-    userId: allSupervisors(idx)[4].id,
+    userId: allSupervisors(ID)[4].id,
     projectAllocationLowerBound: 0,
     projectAllocationTarget: 2,
     projectAllocationUpperBound: 3,
@@ -222,19 +226,19 @@ const allocationSubGroup = {
   displayName: "Level 4 Individual Project",
 };
 
-const allocationGroup = (idx: number) => ({
-  id: `socs-${idx.toString().padStart(3, "0")}`,
-  displayName: `School of Computing Science ${idx.toString().padStart(3, "0")}`,
+const allocationGroup = (ID: string) => ({
+  id: `socs-${ID}`,
+  displayName: `School of Computing Science ${ID}`,
 });
 
-const instanceId = (idx: number) => ({
-  allocationGroupId: allocationGroup(idx).id,
+const instanceId = (ID: string) => ({
+  allocationGroupId: allocationGroup(ID).id,
   allocationInstanceId: allocationInstance.id,
   allocationSubGroupId: allocationSubGroup.id,
 });
 
-const inInstance = <T>(idx: number, data: T) => ({
-  ...instanceId(idx),
+const inInstance = <T>(ID: string, data: T) => ({
+  ...instanceId(ID),
   ...data,
 });
 
@@ -270,26 +274,26 @@ const tagData: Pick<Tag, "title">[] = [
 
 // dependant
 
-export const invites = (idx: number): Invitation[] => [
-  inInstance(idx, { email: evaluator__subGroupAdmin(idx).email! }),
-  ...dummy__supervisors(idx).map((s) => inInstance(idx, { email: s.email! })),
-  ...dummy__students(idx).map((s) => inInstance(idx, { email: s.email! })),
+export const invites = (ID: string): Invitation[] => [
+  inInstance(ID, { email: evaluator__subGroupAdmin(ID).email! }),
+  ...dummy__supervisors(ID).map((s) => inInstance(ID, { email: s.email! })),
+  ...dummy__students(ID).map((s) => inInstance(ID, { email: s.email! })),
 ];
 
-export const sampleGroup = (idx: number): AllocationGroup => ({
-  id: allocationGroup(idx).id,
-  displayName: allocationGroup(idx).displayName,
+export const sampleGroup = (ID: string): AllocationGroup => ({
+  id: allocationGroup(ID).id,
+  displayName: allocationGroup(ID).displayName,
 });
 
-export const sampleSubGroup = (idx: number): AllocationSubGroup => ({
+export const sampleSubGroup = (ID: string): AllocationSubGroup => ({
   id: allocationSubGroup.id,
-  allocationGroupId: allocationGroup(idx).id,
+  allocationGroupId: allocationGroup(ID).id,
   displayName: allocationSubGroup.displayName,
 });
 
-export const sampleInstance = (idx: number): AllocationInstance => ({
+export const sampleInstance = (ID: string): AllocationInstance => ({
   id: allocationInstance.id,
-  allocationGroupId: allocationGroup(idx).id,
+  allocationGroupId: allocationGroup(ID).id,
   allocationSubGroupId: allocationSubGroup.id,
   displayName: allocationInstance.displayName,
   stage: Stage.SETUP,
@@ -303,18 +307,18 @@ export const sampleInstance = (idx: number): AllocationInstance => ({
   selectedAlgName: null,
 });
 
-export const adminsInSpaces = (idx: number): New<AdminInSpace>[] => [
+export const adminsInSpaces = (ID: string): New<AdminInSpace>[] => [
   {
-    userId: evaluator__subGroupAdmin(idx).id,
-    allocationGroupId: allocationGroup(idx).id,
+    userId: evaluator__subGroupAdmin(ID).id,
+    allocationGroupId: allocationGroup(ID).id,
     allocationSubGroupId: allocationSubGroup.id,
     adminLevel: AdminLevel.SUB_GROUP,
   },
 ];
 
-const supervisors__userInInstance = (idx: number): UserInInstance[] =>
-  allSupervisors(idx).map(({ id }) =>
-    inInstance(idx, {
+const supervisors__userInInstance = (ID: string): UserInInstance[] =>
+  allSupervisors(ID).map(({ id }) =>
+    inInstance(ID, {
       userId: id,
       role: Role.SUPERVISOR,
       joined: true,
@@ -322,9 +326,9 @@ const supervisors__userInInstance = (idx: number): UserInInstance[] =>
     }),
   );
 
-const students__userInInstance = (idx: number): UserInInstance[] =>
-  dummy__students(idx).map(({ id }) =>
-    inInstance(idx, {
+const students__userInInstance = (ID: string): UserInInstance[] =>
+  dummy__students(ID).map(({ id }) =>
+    inInstance(ID, {
       userId: id,
       role: Role.STUDENT,
       joined: true,
@@ -332,69 +336,69 @@ const students__userInInstance = (idx: number): UserInInstance[] =>
     }),
   );
 
-const evaluator__student__userInInstance = (idx: number): UserInInstance =>
-  inInstance(idx, {
-    userId: evaluator__student(idx).id,
+const evaluator__student__userInInstance = (ID: string): UserInInstance =>
+  inInstance(ID, {
+    userId: evaluator__student(ID).id,
     role: Role.STUDENT,
     joined: true,
     submittedPreferences: false,
   });
 
-export const allUsersInInstance = (idx: number): UserInInstance[] => [
-  ...supervisors__userInInstance(idx),
-  ...students__userInInstance(idx),
-  evaluator__student__userInInstance(idx),
+export const allUsersInInstance = (ID: string): UserInInstance[] => [
+  ...supervisors__userInInstance(ID),
+  ...students__userInInstance(ID),
+  evaluator__student__userInInstance(ID),
 ];
 
-export const capacities = (idx: number): SupervisorInstanceDetails[] =>
-  supervisorCapacities(idx).map((s) => inInstance(idx, s));
+export const capacities = (ID: string): SupervisorInstanceDetails[] =>
+  supervisorCapacities(ID).map((s) => inInstance(ID, s));
 
-export const projects = (idx: number): Project[] =>
-  projectData(idx).map((p) =>
-    inInstance(idx, {
+export const projects = (ID: string): Project[] =>
+  projectData(ID).map((p) =>
+    inInstance(ID, {
       id: p.id,
       title: p.title,
       description: p.description,
-      supervisorId: allSupervisors(idx)[p.supervisorId].id,
+      supervisorId: allSupervisors(ID)[p.supervisorId].id,
       preAllocatedStudentId: null,
       capacityLowerBound: 0,
       capacityUpperBound: 1,
     }),
   );
 
-export const preferences = (idx: number): Preference[] =>
-  preferenceData(idx).map((p) =>
-    inInstance(idx, {
+export const preferences = (ID: string): Preference[] =>
+  preferenceData(ID).map((p) =>
+    inInstance(ID, {
       projectId: p.projectId,
-      userId: allStudents(idx)[p.studentIdx].id,
+      userId: allStudents(ID)[p.studentIdx].id,
       rank: p.studentRanking,
       type: PreferenceType.PREFERENCE,
     }),
   );
 
-export const flags = (idx: number): Flag[] =>
+export const flags = (ID: string): Flag[] =>
   flagData.map(({ title }) =>
-    inInstance(idx, { id: slugify(idx + title), title }),
+    inInstance(ID, { id: slugify(ID + title), title }),
   );
 
-export const flagsOnProjects = (idx: number): FlagOnProject[] =>
-  projectData(idx).flatMap((p) =>
+export const flagsOnProjects = (ID: string): FlagOnProject[] =>
+  projectData(ID).flatMap((p) =>
     p.flags.map((f) => ({
       projectId: p.id,
-      flagId: slugify(idx + f.title),
+      flagId: slugify(ID + f.title),
     })),
   );
 
-export const tags = (idx: number): Tag[] =>
+export const tags = (ID: string): Tag[] =>
   tagData.map(({ title }) =>
-    inInstance(idx, { id: slugify(idx + title), title }),
+    inInstance(ID, { id: slugify(ID + title), title }),
   );
 
-export const tagsOnProjects = (idx: number): TagOnProject[] =>
-  projectData(idx).flatMap((p) =>
+export const tagsOnProjects = (ID: string): TagOnProject[] =>
+  projectData(ID).flatMap((p) =>
     p.tags.map((t) => ({
       projectId: p.id,
-      tagId: slugify(idx + t.title),
+      tagId: slugify(ID + t.title),
     })),
   );
 
@@ -405,9 +409,9 @@ const builtInAlgorithms = [
   GreedyGenAlgorithm,
 ];
 
-export const algorithms = (idx: number) =>
+export const algorithms = (ID: string) =>
   builtInAlgorithms.map((alg) =>
-    inInstance(idx, {
+    inInstance(ID, {
       ...alg, // TODO: confirm descriptions
       matchingResultData: JSON.stringify({}),
     }),

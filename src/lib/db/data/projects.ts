@@ -1,6 +1,6 @@
-export const projectData = (idx: number) => [
+export const projectData = (ID: string) => [
   {
-    id: `prjkt-001-${idx}`,
+    id: `prjkt-001-${ID}`,
     title: "Chatbot Assistant",
     description:
       "An AI-powered chatbot to provide helpful information to users",
@@ -16,7 +16,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-002-${idx}`,
+    id: `prjkt-002-${ID}`,
     title: "Mobile Calendar App",
     description:
       "A calendar app for managing events and reminders on mobile devices",
@@ -28,7 +28,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-003-${idx}`,
+    id: `prjkt-003-${ID}`,
     title: "Social Media Dashboard",
     description:
       "An analytics dashboard to track key social media metrics and engagement",
@@ -41,7 +41,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "MSci Computing Science" }],
   },
   {
-    id: `prjkt-004-${idx}`,
+    id: `prjkt-004-${ID}`,
     title: "Location-Based Travel App",
     description:
       "An app to recommend attractions, restaurants, and accommodations based on the user's location",
@@ -57,7 +57,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-005-${idx}`,
+    id: `prjkt-005-${ID}`,
     title: "Customizable CMS",
     description:
       "A content management system that allows easy customization and extensibility",
@@ -70,7 +70,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: `prjkt-006-${idx}`,
+    id: `prjkt-006-${ID}`,
     title: "Productivity Chrome Extension",
     description:
       "A browser extension to track time spent on websites and manage tabs",
@@ -79,7 +79,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "BSc Computing Science" }],
   },
   {
-    id: `prjkt-007-${idx}`,
+    id: `prjkt-007-${ID}`,
     title: "Weather Forecast App",
     description:
       "Real-time weather forecasts and predictive weather alerts for any location",
@@ -91,7 +91,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-008-${idx}`,
+    id: `prjkt-008-${ID}`,
     title: "Personal Finance Tracker",
     description:
       "A web application for tracking personal expenses, incomes, and investments.",
@@ -104,7 +104,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "CS Joint Honours" }, { title: "BSc Computing Science" }],
   },
   {
-    id: `prjkt-009-${idx}`,
+    id: `prjkt-009-${ID}`,
     title: "Virtual Workout Coach",
     description:
       "An interactive app providing personalised workout plans and real-time guidance.",
@@ -113,7 +113,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: `prjkt-010-${idx}`,
+    id: `prjkt-010-${ID}`,
     title: "Online Recipe Organiser",
     description:
       "A platform for users to discover, save, and share their favourite recipes.",
@@ -126,7 +126,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-011-${idx}`,
+    id: `prjkt-011-${ID}`,
     title: "Remote Team Collaboration Tool",
     description:
       "A suite of online tools designed to enhance productivity and communication for remote teams.",
@@ -139,7 +139,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: `prjkt-012-${idx}`,
+    id: `prjkt-012-${ID}`,
     title: "E-Learning Platform",
     description:
       "An educational platform offering courses and resources for various subjects.",
@@ -152,7 +152,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: `prjkt-013-${idx}`,
+    id: `prjkt-013-${ID}`,
     title: "Event Planning Portal",
     description:
       "A comprehensive tool for organising, managing, and promoting events.",
@@ -165,7 +165,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "BSc Software Engineering" }],
   },
   {
-    id: `prjkt-014-${idx}`,
+    id: `prjkt-014-${ID}`,
     title: "Digital Art Portfolio",
     description:
       "An online portfolio platform for digital artists to showcase their work.",
@@ -181,7 +181,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-015-${idx}`,
+    id: `prjkt-015-${ID}`,
     title: "Virtual Reality Estate Tours",
     description:
       "A VR platform offering virtual tours of real estate properties.",
@@ -194,7 +194,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: `prjkt-016-${idx}`,
+    id: `prjkt-016-${ID}`,
     title: "Task Automation System",
     description:
       "A system to automate repetitive tasks using custom scripts and integrations.",
@@ -206,7 +206,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-017-${idx}`,
+    id: `prjkt-017-${ID}`,
     title: "Pet Adoption Platform",
     description:
       "An online service connecting potential pet owners with animals in need of a home.",
@@ -219,7 +219,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "BSc Computing Science" }],
   },
   {
-    id: `prjkt-018-${idx}`,
+    id: `prjkt-018-${ID}`,
     title: "Freelancer Marketplace",
     description:
       "A marketplace for freelancers to offer their services and for clients to find them.",
@@ -235,7 +235,7 @@ export const projectData = (idx: number) => [
     ],
   },
   {
-    id: `prjkt-019-${idx}`,
+    id: `prjkt-019-${ID}`,
     title: "Secure File Transfer Service",
     description:
       "A platform for securely sending and receiving large files over the internet.",
@@ -244,7 +244,7 @@ export const projectData = (idx: number) => [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: `prjkt-020-${idx}`,
+    id: `prjkt-020-${ID}`,
     title: "Green Energy Monitoring System",
     description:
       "A tool for monitoring and managing energy consumption with a focus on sustainability.",

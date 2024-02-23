@@ -5,24 +5,26 @@ import { api } from "@/lib/trpc/server";
 import { Button } from "./ui/button";
 
 export async function UserInstances() {
-  const instances = await api.user.instances.query();
+  const instances = await api.user.instances
+    .query()
+    .then((e) => e.toSorted((a, b) => a.group.id.localeCompare(b.group.id)));
 
   return (
     <div className="h-40">
       <h2 className="mb-10 text-xl font-semibold underline decoration-secondary decoration-4">
         Your instances
       </h2>
-      <div className="flex gap-3">
+      <div className="no-scrollbar flex w-full gap-3 overflow-x-scroll">
         {instances.map(({ group, subGroup, instance }, i) => (
           <Link href={`/${group.id}/${subGroup.id}/${instance.id}`} key={i}>
             <Button
-              className="flex h-max flex-col items-start gap-1 py-4"
+              className="flex h-max w-full min-w-60 flex-col items-start gap-1 py-4"
               variant="outline"
               size="lg"
             >
-              <p className="text-lg">{group.displayName}</p>
-              <p>{subGroup.displayName}</p>
-              <p>{instance.displayName}</p>
+              <p className="text-left text-lg">{group.displayName}</p>
+              <p className="text-left">{subGroup.displayName}</p>
+              <p className="text-left">{instance.displayName}</p>
             </Button>
           </Link>
         ))}

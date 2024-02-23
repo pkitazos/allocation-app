@@ -8,9 +8,7 @@ export const env = createEnv({
     AUTH_GOOGLE_SECRET: z.string(),
     SERVER_URL: z.string(),
 
-    EVALUATION_SUB_GROUP_ADMIN_PASSWORD: z.string(),
-    EVALUATION_SUPERVISOR_PASSWORD: z.string(),
-    EVALUATION_STUDENT_PASSWORD: z.string(),
+    ID_KEY: z.string(),
   },
   runtimeEnv: process.env,
 });
