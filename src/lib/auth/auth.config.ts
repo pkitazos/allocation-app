@@ -1,12 +1,19 @@
 import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
+
+import {
+  evaluator__student as student,
+  evaluator__subGroupAdmin as admin,
+  evaluator__supervisor as supervisor,
+  superAdmin,
+} from "@/lib/db/data";
+
+import { getEvaluatorID } from "./password-decrypt";
 
 import { env } from "@/env";
 
 export default {
   providers: [
-    Google,
     CredentialsProvider({
       name: "Credentials",
       // `credentials` is used to generate a form on the sign in page.
@@ -18,40 +25,15 @@ export default {
         password: { label: "Password", type: "password" },
       },
       async authorize({ username, password }) {
-        // Add logic here to look up the user from the credentials supplied
-        const admin = {
-          id: "clslxtw4e0006oydunnjze3v8",
-          name: "Admin",
-          email: "subgroup.allocationapp@gmail.com",
-        };
+        if (username === "super-admin" && password === env.ID_KEY)
+          return superAdmin;
 
-        const supervisor = {
-          id: "clslxu3f20009oydujlbb7vat",
-          name: "Supervisor",
-          email: "supervisor.allocationapp@gmail.com",
-        };
+        const evaluatorID = getEvaluatorID(password);
+        if (!evaluatorID) return null;
 
-        const student = {
-          id: "clslxu8v7000coydue3gb0mux",
-          name: "Student",
-          email: "student.allocationapp@gmail.com",
-        };
-
-        if (
-          username === "admin" &&
-          password === env.EVALUATION_SUB_GROUP_ADMIN_PASSWORD
-        )
-          return admin;
-        if (
-          username === "supervisor" &&
-          password === env.EVALUATION_SUPERVISOR_PASSWORD
-        )
-          return supervisor;
-        if (
-          username === "student" &&
-          password === env.EVALUATION_STUDENT_PASSWORD
-        )
-          return student;
+        if (username === "admin") return admin(evaluatorID);
+        if (username === "supervisor") return supervisor(evaluatorID);
+        if (username === "student") return student(evaluatorID);
         else return null;
       },
     }),

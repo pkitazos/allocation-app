@@ -49,7 +49,7 @@ export function ConflictToaster() {
       ))}
       {overWorkedSupervisors.map((s, i) => (
         <ConflictBanner key={i} type="supervisor">
-          Supervisor {s.supervisorId} is assigned more projects than
+          Supervisor {s.supervisorId} is assigned more students than
           they&apos;re able to take on
         </ConflictBanner>
       ))}
