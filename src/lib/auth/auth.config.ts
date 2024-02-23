@@ -19,8 +19,14 @@ export default {
       },
       async authorize({ username, password }) {
         // Add logic here to look up the user from the credentials supplied
+        const superAdmin = {
+          id: "super-admin",
+          name: "Super-Admin",
+          email: "super.allocationapp@gmail.com",
+        };
+
         const admin = {
-          id: "clslxtw4e0006oydunnjze3v8",
+          id: "001-012345w",
           name: "Admin",
           email: "subgroup.allocationapp@gmail.com",
         };
@@ -37,6 +43,11 @@ export default {
           email: "student.allocationapp@gmail.com",
         };
 
+        if (
+          username === "super-admin" &&
+          password === env.EVALUATION_SUB_GROUP_ADMIN_PASSWORD
+        )
+          return superAdmin;
         if (
           username === "admin" &&
           password === env.EVALUATION_SUB_GROUP_ADMIN_PASSWORD

@@ -1,6 +1,6 @@
-export const projectData = [
+export const projectData = (idx: number) => [
   {
-    id: "prjkt-001",
+    id: `prjkt-001-${idx}`,
     title: "Chatbot Assistant",
     description:
       "An AI-powered chatbot to provide helpful information to users",
@@ -16,7 +16,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-002",
+    id: `prjkt-002-${idx}`,
     title: "Mobile Calendar App",
     description:
       "A calendar app for managing events and reminders on mobile devices",
@@ -28,7 +28,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-003",
+    id: `prjkt-003-${idx}`,
     title: "Social Media Dashboard",
     description:
       "An analytics dashboard to track key social media metrics and engagement",
@@ -41,7 +41,7 @@ export const projectData = [
     flags: [{ title: "MSci Computing Science" }],
   },
   {
-    id: "prjkt-004",
+    id: `prjkt-004-${idx}`,
     title: "Location-Based Travel App",
     description:
       "An app to recommend attractions, restaurants, and accommodations based on the user's location",
@@ -57,7 +57,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-005",
+    id: `prjkt-005-${idx}`,
     title: "Customizable CMS",
     description:
       "A content management system that allows easy customization and extensibility",
@@ -70,7 +70,7 @@ export const projectData = [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: "prjkt-006",
+    id: `prjkt-006-${idx}`,
     title: "Productivity Chrome Extension",
     description:
       "A browser extension to track time spent on websites and manage tabs",
@@ -79,7 +79,7 @@ export const projectData = [
     flags: [{ title: "BSc Computing Science" }],
   },
   {
-    id: "prjkt-007",
+    id: `prjkt-007-${idx}`,
     title: "Weather Forecast App",
     description:
       "Real-time weather forecasts and predictive weather alerts for any location",
@@ -91,7 +91,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-008",
+    id: `prjkt-008-${idx}`,
     title: "Personal Finance Tracker",
     description:
       "A web application for tracking personal expenses, incomes, and investments.",
@@ -104,7 +104,7 @@ export const projectData = [
     flags: [{ title: "CS Joint Honours" }, { title: "BSc Computing Science" }],
   },
   {
-    id: "prjkt-009",
+    id: `prjkt-009-${idx}`,
     title: "Virtual Workout Coach",
     description:
       "An interactive app providing personalised workout plans and real-time guidance.",
@@ -113,7 +113,7 @@ export const projectData = [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: "prjkt-010",
+    id: `prjkt-010-${idx}`,
     title: "Online Recipe Organiser",
     description:
       "A platform for users to discover, save, and share their favourite recipes.",
@@ -126,7 +126,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-011",
+    id: `prjkt-011-${idx}`,
     title: "Remote Team Collaboration Tool",
     description:
       "A suite of online tools designed to enhance productivity and communication for remote teams.",
@@ -139,7 +139,7 @@ export const projectData = [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: "prjkt-012",
+    id: `prjkt-012-${idx}`,
     title: "E-Learning Platform",
     description:
       "An educational platform offering courses and resources for various subjects.",
@@ -152,7 +152,7 @@ export const projectData = [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: "prjkt-013",
+    id: `prjkt-013-${idx}`,
     title: "Event Planning Portal",
     description:
       "A comprehensive tool for organising, managing, and promoting events.",
@@ -165,7 +165,7 @@ export const projectData = [
     flags: [{ title: "BSc Software Engineering" }],
   },
   {
-    id: "prjkt-014",
+    id: `prjkt-014-${idx}`,
     title: "Digital Art Portfolio",
     description:
       "An online portfolio platform for digital artists to showcase their work.",
@@ -181,7 +181,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-015",
+    id: `prjkt-015-${idx}`,
     title: "Virtual Reality Estate Tours",
     description:
       "A VR platform offering virtual tours of real estate properties.",
@@ -194,7 +194,7 @@ export const projectData = [
     flags: [{ title: "MSci Software Engineering" }],
   },
   {
-    id: "prjkt-016",
+    id: `prjkt-016-${idx}`,
     title: "Task Automation System",
     description:
       "A system to automate repetitive tasks using custom scripts and integrations.",
@@ -206,7 +206,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-017",
+    id: `prjkt-017-${idx}`,
     title: "Pet Adoption Platform",
     description:
       "An online service connecting potential pet owners with animals in need of a home.",
@@ -219,7 +219,7 @@ export const projectData = [
     flags: [{ title: "BSc Computing Science" }],
   },
   {
-    id: "prjkt-018",
+    id: `prjkt-018-${idx}`,
     title: "Freelancer Marketplace",
     description:
       "A marketplace for freelancers to offer their services and for clients to find them.",
@@ -235,7 +235,7 @@ export const projectData = [
     ],
   },
   {
-    id: "prjkt-019",
+    id: `prjkt-019-${idx}`,
     title: "Secure File Transfer Service",
     description:
       "A platform for securely sending and receiving large files over the internet.",
@@ -244,7 +244,7 @@ export const projectData = [
     flags: [{ title: "CS Joint Honours" }],
   },
   {
-    id: "prjkt-020",
+    id: `prjkt-020-${idx}`,
     title: "Green Energy Monitoring System",
     description:
       "A tool for monitoring and managing energy consumption with a focus on sustainability.",
