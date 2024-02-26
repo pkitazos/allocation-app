@@ -9,7 +9,7 @@ export default async function AdminPanel({
 }: {
   params: InstanceParams;
 }) {
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   return (
     <Layout params={params}>

@@ -12,6 +12,7 @@ export const {
   ...authConfig,
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
+  trustHost: true,
   callbacks: {
     async jwt({ token, user, trigger }) {
       const dbUser = await db.user.findFirst({

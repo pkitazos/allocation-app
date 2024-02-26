@@ -13,7 +13,7 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
-  const role = await api.user.role.query({ params });
+  const role = await api.user.role({ params });
 
   // TODO: decide if supervisors should have access to this page
   if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {

@@ -6,7 +6,7 @@ import { SubGroupParams } from "@/lib/validations/params";
 import { FormSection } from "./_components/form-section";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
-  const access = await api.institution.subGroup.access.query({ params });
+  const access = await api.institution.subGroup.access({ params });
 
   if (!access) {
     return (
@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: SubGroupParams }) {
     );
   }
 
-  const takenNames = await api.institution.subGroup.takenNames.query({
+  const takenNames = await api.institution.subGroup.takenNames({
     params,
   });
 

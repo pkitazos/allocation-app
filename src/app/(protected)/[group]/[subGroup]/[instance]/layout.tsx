@@ -12,7 +12,7 @@ export default async function Layout({
   children: React.ReactNode;
   params: InstanceParams;
 }) {
-  const access = await api.institution.instance.access.query({ params });
+  const access = await api.institution.instance.access({ params });
 
   if (!access) {
     return (
@@ -20,8 +20,8 @@ export default async function Layout({
     );
   }
 
-  const stage = await api.institution.instance.currentStage.query({ params });
-  const { flags, tags } = await api.project.details.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
+  const { flags, tags } = await api.project.details({ params });
 
   return (
     <InstanceParamsProvider params={{ params, stage }}>

@@ -15,13 +15,13 @@ import {
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { matchingData, selectedAlgName } =
-    await api.institution.instance.matching.data.query({ params });
+    await api.institution.instance.matching.data({ params });
 
-  const takenNames = await api.institution.instance.algorithm.takenNames.query({
+  const takenNames = await api.institution.instance.algorithm.takenNames({
     params,
   });
 
-  const customAlgs = await api.institution.instance.algorithm.customAlgs.query({
+  const customAlgs = await api.institution.instance.algorithm.customAlgs({
     params,
   });
 

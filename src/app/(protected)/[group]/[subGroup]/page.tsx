@@ -20,7 +20,7 @@ export default async function Page({
 }: {
   params: { group: string; subGroup: string };
 }) {
-  const access = await api.institution.subGroup.access.query({ params });
+  const access = await api.institution.subGroup.access({ params });
 
   if (!access) {
     return (
@@ -29,7 +29,7 @@ export default async function Page({
   }
 
   const { subGroupAdmins, allocationInstances, displayName, adminLevel } =
-    await api.institution.subGroup.instanceManagement.query({ params });
+    await api.institution.subGroup.instanceManagement({ params });
 
   const { group, subGroup } = params;
 

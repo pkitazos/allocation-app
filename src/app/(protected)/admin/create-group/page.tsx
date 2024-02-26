@@ -3,7 +3,7 @@ import { api } from "@/lib/trpc/server";
 import { FormSection } from "./_components/form-section";
 
 export default async function Page() {
-  const takenNames = await api.institution.takenNames.query();
+  const takenNames = await api.institution.takenNames();
   return (
     <div className="mt-6 flex flex-col gap-10 px-6">
       <h2 className="text-4xl">

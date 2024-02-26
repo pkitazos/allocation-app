@@ -12,19 +12,19 @@ import { KanbanBoard } from "./_components/kanban-board";
 import { SubmissionButton } from "./_components/submission-button";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const role = await api.user.role.query({ params });
+  const role = await api.user.role({ params });
 
   if (role !== Role.STUDENT) {
     return (
       <Unauthorised message="You need to be a Student to access this page" />
     );
   }
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   const { initialColumns, initialProjects } =
-    await api.user.student.preference.initialBoardState.query({ params });
+    await api.user.student.preference.initialBoardState({ params });
 
-  const restrictions = await api.user.student.preferenceRestrictions.query({
+  const restrictions = await api.user.student.preferenceRestrictions({
     params,
   });
 

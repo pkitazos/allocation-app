@@ -8,7 +8,7 @@ import { DetailsTable } from "./_components/details-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { results, firstNonEmpty } =
-    await api.institution.instance.algorithm.allResults.query({
+    await api.institution.instance.algorithm.allResults({
       params,
     });
 

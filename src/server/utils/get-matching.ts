@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import { Algorithm, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   MatchingData,
@@ -27,13 +29,11 @@ export async function getMatching({
     };
   }
 
-  const res = await fetch(`${env.SERVER_URL}/${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(matchingData),
-  }).then((res) => res.json());
+  const res = await axios.post(`${env.SERVER_URL}/${endpoint}`, {
+    ...matchingData,
+  });
 
-  const result = serverResponseSchema.safeParse(res.data);
+  const result = serverResponseSchema.safeParse(res.data.data);
 
   if (!result.success) return;
   return result.data;

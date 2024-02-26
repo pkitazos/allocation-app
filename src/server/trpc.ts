@@ -22,24 +22,16 @@ import { instanceParamsSchema } from "@/lib/validations/params";
  * This section defines the "contexts" that are available in the backend API.
  *
  * These allow you to access things when processing a request, like the database, the session, etc.
+ *
+ * This helper generates the "internals" for a tRPC context. The API handler and RSC clients each
+ * wrap this and provides the required context.
+ *
+ * @see https://trpc.io/docs/server/context
  */
-
-interface CreateContextOptions {
+export const createTRPCContext = async (opts: {
   headers: Headers;
   session: Session | null;
-}
-
-/**
- * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
- * it from here.
- *
- * Examples of things you may need it for:
- * - testing, so we don't have to mock Next.js' req/res
- * - tRPC's `createSSGHelpers`, where we don't have req/res
- *
- * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
- */
-export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
+}) => {
   const session = opts.session ?? (await auth());
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
@@ -47,35 +39,15 @@ export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
 
   return {
     session,
-    headers: opts.headers,
     db,
   };
 };
 
 /**
- * This is the actual context you will use in your router. It will be used to process every request
- * that goes through your tRPC endpoint.
- *
- * @see https://trpc.io/docs/context
- */
-export const createTRPCContext = async (opts: {
-  headers: Headers;
-  session: Session | null;
-}) => {
-  // Fetch stuff that depends on the request
-
-  return await createInnerTRPCContext({
-    headers: opts.headers,
-    session: opts.session,
-  });
-};
-
-/**
  * 2. INITIALIZATION
  *
- * This is where the tRPC API is initialized, connecting the context and transformer. We also parse
- * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
- * errors on the backend.
+ * This is where the trpc api is initialized, connecting the context and
+ * transformer
  */
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
@@ -91,6 +63,12 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     };
   },
 });
+
+/**
+ * Create a server-side caller
+ * @see https://trpc.io/docs/server/server-side-calls
+ */
+export const createCallerFactory = t.createCallerFactory;
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -123,21 +101,12 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
       message: "User is not signed in",
     });
   }
-
-  // if (!ctx.session.user.role) {
-  //   throw new TRPCError({
-  //     code: "UNAUTHORIZED",
-  //     message: "User is not registered",
-  //   });
-  // }
-
   return next({
     ctx: {
       // infers the `session` as non-nullable
       session: {
         ...ctx.session,
         user: ctx.session.user,
-        // role: ctx.session.user.role,
       },
     },
   });
@@ -150,15 +119,6 @@ const enforceUserIsAdmin = t.middleware(({ ctx, next }) => {
       message: "User is not signed in",
     });
   }
-
-  // if (ctx.session.user.role !== "ADMIN") {
-  //   throw new TRPCError({
-  //     code: "UNAUTHORIZED",
-  //     message: "User is not an admin",
-  //   });
-  // }
-
-  // const role = ctx.db.
   return next({
     ctx: {
       // infers the `session` as non-nullable
@@ -193,20 +153,6 @@ export const stageAwareProcedure = t.procedure
       return next({ ctx: { stage } });
     },
   );
-
-// const studentProcedure = t.middleware(({ctx, next}) =>{
-//   //are they a student?
-//   async function getTheStuff() {
-//     return await new Promise()
-//   }
-
-//   next({
-//     ctx: {
-//       ...ctx,
-//       getTheStuff
-//     }
-//   })
-// })
 
 /**
  * Protected (authenticated) procedure

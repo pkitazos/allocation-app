@@ -3,8 +3,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-import { TagType } from "@/components/tag/tag-input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -29,12 +27,6 @@ export interface StudentData {
   id: string;
   name: string;
   email: string;
-  flags: {
-    flag: {
-      id: string;
-      title: string;
-    };
-  }[];
 }
 
 export function studentsColumns(
@@ -108,37 +100,6 @@ export function studentsColumns(
       accessorFn: ({ email }) => email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
-      ),
-    },
-    {
-      id: "flags",
-      accessorFn: (row) => row.flags,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Flags" />
-      ),
-      filterFn: (row, columnId, value) => {
-        const ids = value as string[];
-        const rowFlags = row.getValue(columnId) as { flag: TagType }[];
-        return rowFlags.some((e) => ids.includes(e.flag.id));
-      },
-      cell: ({
-        row: {
-          original: { flags },
-        },
-      }) => (
-        <div className="flex flex-col gap-2">
-          {flags.length > 2 ? (
-            <Badge className="rounded-sm px-1 font-normal">
-              {flags.length} selected
-            </Badge>
-          ) : (
-            flags.map(({ flag }) => (
-              <Badge className="w-fit" key={flag.id}>
-                {flag.title}
-              </Badge>
-            ))
-          )}
-        </div>
       ),
     },
   ];

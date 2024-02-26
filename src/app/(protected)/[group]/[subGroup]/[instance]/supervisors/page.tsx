@@ -10,13 +10,13 @@ import { InstanceParams } from "@/lib/validations/params";
 import { SupervisorsDataTable } from "./_components/supervisors-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { user, role } = await api.user.userRole.query({ params });
+  const { user, role } = await api.user.userRole({ params });
 
   if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
     return <Unauthorised message="You don't have access to this page" />;
   }
-  const stage = await api.institution.instance.currentStage.query({ params });
-  const tableData = await api.institution.instance.supervisors.query({
+  const stage = await api.institution.instance.currentStage({ params });
+  const tableData = await api.institution.instance.supervisors({
     params,
   });
 

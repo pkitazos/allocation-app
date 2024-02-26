@@ -7,10 +7,9 @@ import { InstanceParams } from "@/lib/validations/params";
 import { SubmissionsTable } from "./_components/submissions-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { studentData } =
-    await api.institution.instance.project.preferenceInfo.query({
-      params,
-    });
+  const { studentData } = await api.institution.instance.project.preferenceInfo(
+    { params },
+  );
 
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">

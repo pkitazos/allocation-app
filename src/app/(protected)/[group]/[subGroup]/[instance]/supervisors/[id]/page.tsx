@@ -12,13 +12,13 @@ interface pageParams extends InstanceParams {
 
 export default async function Page({ params }: { params: pageParams }) {
   const { supervisorProjects, user: supervisor } =
-    await api.user.supervisor.instanceData.query({
+    await api.user.supervisor.instanceData({
       params,
       supervisorId: params.id,
     });
 
-  const { user, role } = await api.user.userRole.query({ params });
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const { user, role } = await api.user.userRole({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   return (
     <PageWrapper>

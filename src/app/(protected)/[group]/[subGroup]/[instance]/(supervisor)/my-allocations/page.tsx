@@ -7,7 +7,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocations = await api.user.supervisor.allocations.query({ params });
+  const allocations = await api.user.supervisor.allocations({ params });
 
   return (
     <>

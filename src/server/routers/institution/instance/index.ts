@@ -259,22 +259,13 @@ export const instanceRouter = createTRPCRouter({
           },
           select: {
             user: { select: { id: true, name: true, email: true } },
-            studentFlags: {
-              where: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-              },
-              select: { flag: { select: { id: true, title: true } } },
-            },
           },
         });
 
-        return studentData.map(({ user, studentFlags }) => ({
+        return studentData.map(({ user }) => ({
           id: user.id,
           name: user.name!,
           email: user.email!,
-          flags: studentFlags,
         }));
       },
     ),
@@ -478,16 +469,6 @@ export const instanceRouter = createTRPCRouter({
             userId: schoolId,
             role: Role.STUDENT,
           })),
-        });
-
-        await ctx.db.studentInstanceDetails.createMany({
-          data: newStudents.map(({ schoolId }) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: schoolId,
-          })),
-          skipDuplicates: true,
         });
       },
     ),

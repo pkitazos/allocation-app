@@ -2,12 +2,8 @@ export function getUpdatedRank<T extends { rank: number }>(
   arr: T[],
   targetIdx: number,
 ): number {
-  // console.log("state of the array: ", { arr });
-  // console.log("position item moved to: ", { arr });
-
   // if the array was empty set the rank of the item to 1
   if (arr.length === 0) {
-    // console.log("(if 0) updated rank: ", { updatedRank: 1 });
     return 1;
   }
 
@@ -18,7 +14,6 @@ export function getUpdatedRank<T extends { rank: number }>(
    */
   if (targetIdx === 0) {
     const after = arr[0];
-    // console.log("(if 1) updated rank: ", { updatedRank: after.rank / 2 });
     return after.rank / 2;
   }
 
@@ -30,9 +25,7 @@ export function getUpdatedRank<T extends { rank: number }>(
    */
   if (targetIdx === arr.length - 1) {
     const before = arr[targetIdx - 1];
-    // console.log("(if 2) updated rank: ", {
-    //   updatedRank: before.rank + 1,
-    // });
+
     return before.rank + 1;
   }
 
@@ -43,8 +36,5 @@ export function getUpdatedRank<T extends { rank: number }>(
    */
   const before = arr[targetIdx - 1];
   const after = arr[targetIdx + 1];
-  // console.log("(if 3) updated rank: ", {
-  //   updatedRank: (before.rank + after.rank) / 2,
-  // });
   return (before.rank + after.rank) / 2;
 }

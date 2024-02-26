@@ -16,17 +16,16 @@ export async function SupervisorOverview({
 }: {
   params: InstanceParams;
 }) {
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   const { displayName, projectSubmissionDeadline: deadline } =
-    await api.user.supervisor.instancePage.query({
+    await api.user.supervisor.instancePage({
       params,
     });
 
-  const { projects, submissionTarget } =
-    await api.user.supervisor.projects.query({
-      params,
-    });
+  const { projects, submissionTarget } = await api.user.supervisor.projects({
+    params,
+  });
 
   if (stage === Stage.PROJECT_SUBMISSION) {
     return (

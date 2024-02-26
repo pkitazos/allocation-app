@@ -8,7 +8,7 @@ import { toPositional } from "@/lib/utils/general/to-positional";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocatedProject = await api.user.student.allocatedProject.query({
+  const allocatedProject = await api.user.student.allocatedProject({
     params,
   });
 

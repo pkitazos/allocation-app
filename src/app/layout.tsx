@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { headers } from "next/headers";
 import { Toaster } from "sonner";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -33,7 +32,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionProvider>
-            <TRPCReactProvider headers={headers()}>
+            <TRPCReactProvider>
               <Header />
               <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
                 <Breadcrumbs />

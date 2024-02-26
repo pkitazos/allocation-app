@@ -6,10 +6,9 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { supervisors } =
-    await api.institution.instance.invitedSupervisors.query({
-      params,
-    });
+  const { supervisors } = await api.institution.instance.invitedSupervisors({
+    params,
+  });
 
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">

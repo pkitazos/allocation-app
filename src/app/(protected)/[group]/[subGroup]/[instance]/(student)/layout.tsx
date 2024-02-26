@@ -18,8 +18,8 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
-  const role = await api.user.role.query({ params });
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const role = await api.user.role({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   if (role !== Role.STUDENT) {
     return (

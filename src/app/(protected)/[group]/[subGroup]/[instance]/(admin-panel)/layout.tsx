@@ -29,7 +29,7 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const instancePath = formatParamsAsPath(params);
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
   const tabs = tabsRecord[stage];
 
   return (

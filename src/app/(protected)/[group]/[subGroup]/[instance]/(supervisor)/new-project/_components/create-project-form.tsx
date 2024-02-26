@@ -108,7 +108,6 @@ export function CreateProjectForm({
         success: "Success",
       },
     );
-    console.log(data.flagIds);
   };
 
   return (
