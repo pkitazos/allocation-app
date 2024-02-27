@@ -1,3 +1,5 @@
+import { SubHeading } from "@/components/heading";
+
 import {
   GenerousAlgorithm,
   GreedyAlgorithm,
@@ -28,9 +30,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <div className="mt-20 flex flex-col items-center">
       <div className="flex min-w-[50%] flex-col gap-3">
-        <h2 className="mb-6 text-2xl font-semibold">
+        <SubHeading className="mb-6 text-2xl">
           Select Algorithms to run
-        </h2>
+        </SubHeading>
         <div className="flex w-[45rem] flex-col gap-5">
           <RunAlgorithmButton
             matchingData={matchingData}

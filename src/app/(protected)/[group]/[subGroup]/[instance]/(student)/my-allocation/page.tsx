@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
             <SubHeading className="text-2xl no-underline">
               You got your{" "}
               <span className="font-semibold text-secondary">
-                {toPositional(allocatedProject.studentRanking)}
+                {toPositional(allocatedProject.studentRanking + 1)}
               </span>{" "}
               choice
             </SubHeading>
