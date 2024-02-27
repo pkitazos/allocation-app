@@ -47,7 +47,7 @@ export function ProjectCard({
           <Card
             ref={setNodeRef}
             className={cn(
-              "w-32 overflow-hidden p-3 text-center",
+              "flex min-h-20 min-w-32 items-center justify-center overflow-hidden p-3 text-center",
               originallySelected && "bg-primary/50 text-primary-foreground",
               currentlySelected && "bg-primary text-primary-foreground",
               invalid && "bg-destructive text-destructive-foreground",
@@ -55,24 +55,8 @@ export function ProjectCard({
               currentlySelected && overworked && "bg-orange-500",
             )}
           >
-            {projectInfo.id}
+            <p>{projectInfo.id}</p>
           </Card>
-          {/*
-          <div className="w-32">
-            <p>project</p>
-            <p>{projectInfo.capacityLowerBound}</p>
-            <p>{projectInfo.capacityUpperBound}</p>
-            <p>supervisor</p>
-            <p>{projectInfo.projectAllocationLowerBound}</p>
-            <p>{projectInfo.projectAllocationTarget}</p>
-            <p>{projectInfo.projectAllocationUpperBound}</p>
-            {projectInfo.allocatedTo.map((item, i) => (
-              <p key={i} className={cn(item === studentId && "font-bold")}>
-                {item}
-              </p>
-            ))}
-          </div>
-          */}
         </TooltipTrigger>
         <TooltipContent>
           <ProjectCardTooltip projectInfo={projectInfo} />
