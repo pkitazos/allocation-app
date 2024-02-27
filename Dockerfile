@@ -6,9 +6,6 @@ WORKDIR /app
 
 COPY prisma ./
 
-
-
-
 COPY package.json pnpm-lock.yaml* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
@@ -26,22 +23,12 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY .env .env.production
 
-
-
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
   else echo "Lockfile not found." && exit 1; \
   fi
-
-
-# RUN \
-#   if [ -f yarn.lock ]; then yarn run db:populate; \
-#   elif [ -f package-lock.json ]; then npm run db:populate; \
-#   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run db:populate; \
-#   else echo "Lockfile not found." && exit 1; \
-#   fi
 
 
 ##### RUNNER
@@ -63,11 +50,5 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 
-# EXPOSE 3000
-# ENV PORT 3000
-# ENV HOSTNAME 0.0.0.0
-
 CMD ["node", "server.js"]
 
-
-# docker run -p 3000:3000 -e NEXTAUTH_SECRET="fpyyR+/ppMGOVGzDnFhz7nzy2NtPTuckbaMLDU/yegQ=" -e DATABASE_URL="postgresql://db-user:1234@localhost:5800/allocation-db?schema=public" -e ID_KEY="tRz6ndzQXDVh6aY2" -e SERVER_URL="https://allocation-server.vercel.app" app
