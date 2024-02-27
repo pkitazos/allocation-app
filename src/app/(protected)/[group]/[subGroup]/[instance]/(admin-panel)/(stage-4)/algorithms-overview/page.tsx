@@ -60,7 +60,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
             />
           ))}
           <NewAlgorithmButton takenNames={takenNames} />
-          <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
+          <SubHeading className="mb-6 mt-16 text-2xl ">
+            Results Summary
+          </SubHeading>
           <ResultsTable
             selectedAlgName={selectedAlgName}
             customAlgs={customAlgs}

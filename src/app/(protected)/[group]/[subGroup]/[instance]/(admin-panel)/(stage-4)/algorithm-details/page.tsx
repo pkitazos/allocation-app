@@ -1,3 +1,5 @@
+import { SubHeading } from "@/components/heading";
+import { PanelWrapper } from "@/components/panel-wrapper";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -13,9 +15,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
     });
 
   return (
-    <div className="mt-20 flex flex-col items-center">
-      <div className="flex w-1/2 flex-col gap-3">
-        <h2 className="mb-6 text-2xl font-semibold">Algorithm Results</h2>
+    <PanelWrapper className="mt-20 flex flex-col items-center">
+      <div className="flex w-full flex-col gap-3">
+        <SubHeading className="mb-6 text-2xl">Algorithm Results</SubHeading>
         <Tabs defaultValue={results[firstNonEmpty]?.algName ?? ""}>
           <TabsList className="w-full">
             {results.map((result, i) => (
@@ -37,6 +39,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
           ))}
         </Tabs>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

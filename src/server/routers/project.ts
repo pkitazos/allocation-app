@@ -17,13 +17,17 @@ export const projectRouter = createTRPCRouter({
       async ({
         ctx,
         input: {
-          params: { instance },
+          params: { group, subGroup, instance },
         },
       }) => {
         const user = ctx.session.user;
 
         const projects = await ctx.db.project.findMany({
-          where: { allocationInstanceId: instance },
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
           select: {
             id: true,
             title: true,
