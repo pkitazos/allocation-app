@@ -2,7 +2,6 @@ import { Column } from "@tanstack/react-table";
 import { CheckIcon, PlusCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { dbg } from "@/lib/utils/general/console-debug";
 
 import { Badge } from "../badge";
 import { Button } from "../button";
@@ -93,15 +92,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       } else {
                         selectedValues.add(option.id);
                       }
-
-                      // dbg("selected values", selectedValues);
                       const filterValues = Array.from(selectedValues);
-                      // dbg("filter values", filterValues);
-
-                      // console.log(
-                      //   "filter value --------->>",
-                      //   column?.getFilterValue(),
-                      // );
                       column?.setFilterValue(
                         filterValues.length ? filterValues : undefined,
                       );

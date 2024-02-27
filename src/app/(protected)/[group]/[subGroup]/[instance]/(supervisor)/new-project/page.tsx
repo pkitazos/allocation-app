@@ -10,9 +10,9 @@ import { CreateProjectForm } from "./_components/create-project-form";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { flags, tags, students } =
-    await api.institution.instance.project.creationDetails.query({ params });
+    await api.institution.instance.project.creationDetails({ params });
 
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   if (stage !== Stage.PROJECT_SUBMISSION) {
     return (

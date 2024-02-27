@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { api } from "@/lib/trpc/server";
 
 export default async function Page() {
-  const { superAdmin, groups } = await api.institution.groupManagement.query();
+  const { superAdmin, groups } = await api.institution.groupManagement();
 
   return (
     <div className="mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">

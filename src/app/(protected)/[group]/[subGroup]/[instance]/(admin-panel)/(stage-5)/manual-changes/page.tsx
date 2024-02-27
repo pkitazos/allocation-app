@@ -5,7 +5,7 @@ import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { students, projects, supervisors } =
-    await api.institution.instance.matching.rowData.query({
+    await api.institution.instance.matching.rowData({
       params,
     });
 

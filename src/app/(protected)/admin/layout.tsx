@@ -5,7 +5,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  const access = await api.institution.superAdminAccess.query();
+  const access = await api.institution.superAdminAccess();
 
   if (!access) {
     return (

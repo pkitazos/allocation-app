@@ -7,9 +7,9 @@ import { InstanceParams } from "@/lib/validations/params";
 import { ProjectsDataTable } from "./_components/projects-data-table";
 
 export default async function Projects({ params }: { params: InstanceParams }) {
-  const { user, role } = await api.user.userRole.query({ params });
-  const tableData = await api.project.getTableData.query({ params });
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const { user, role } = await api.user.userRole({ params });
+  const tableData = await api.project.getTableData({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   return (
     <PageWrapper>

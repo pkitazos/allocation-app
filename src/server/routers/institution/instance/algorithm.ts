@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { dbg } from "@/lib/utils/general/console-debug";
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   matchingDataSchema,
@@ -44,10 +43,8 @@ export const algorithmRouter = createTRPCRouter({
         },
       }) => {
         const serverResult = await getMatching({ algorithm, matchingData });
-        dbg("from RUN ----------------------", { serverResult });
-        if (!serverResult) return undefined;
 
-        dbg("from RUN ----------------------", { serverResult });
+        if (!serverResult) return undefined;
 
         await ctx.db.algorithm.update({
           where: {
@@ -179,14 +176,11 @@ export const algorithmRouter = createTRPCRouter({
           select: { matchingResultData: true },
         });
 
-        dbg("from getAlgorithmResult", res);
         if (!res) return blankResult;
 
         const result = serverResponseSchema.safeParse(
           JSON.parse(res.matchingResultData as string),
         );
-        dbg("RECEIVED -------->>", res.matchingResultData);
-        dbg("from getAlgorithmResult", result);
 
         if (!result.success) return blankResult;
 

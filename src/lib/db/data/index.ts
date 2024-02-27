@@ -30,11 +30,14 @@ import { slugify } from "@/lib/utils/general/slugify";
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
 
-export const EVALUATORS = 10;
+export const EVALUATORS = 30;
 
+type StableUser = Omit<User, "id"> & {
+  id: string;
+};
 type New<T> = Omit<T, "id" | "systemId">;
 
-export const superAdmin: User = {
+export const superAdmin: StableUser = {
   id: "super-admin",
   name: "Super-Admin",
   email: "super.allocationapp@gmail.com",
@@ -49,13 +52,13 @@ export const superAdminInSpace: New<AdminInSpace> = {
 
 export const to_ID = (ID: number) => ID.toString().padStart(3, "0");
 
-export const evaluator__subGroupAdmin = (ID: string): User => ({
+export const evaluator__subGroupAdmin = (ID: string): StableUser => ({
   id: `${ID}-012345w`,
   name: "Admin Evaluator",
   email: `${ID}-012345w@email.com`,
 });
 
-const dummy__supervisors = (ID: string): User[] => [
+const dummy__supervisors = (ID: string): StableUser[] => [
   {
     id: `${ID}-123456s`,
     name: "Daniel Schmidt",
@@ -78,18 +81,18 @@ const dummy__supervisors = (ID: string): User[] => [
   },
 ];
 
-export const evaluator__supervisor = (ID: string): User => ({
+export const evaluator__supervisor = (ID: string): StableUser => ({
   id: `${ID}-123460d`,
   name: "Supervisor Evaluator",
   email: `${ID}-123460d@email.com`,
 });
 
-const allSupervisors = (ID: string): User[] => [
+const allSupervisors = (ID: string): StableUser[] => [
   ...dummy__supervisors(ID),
   evaluator__supervisor(ID),
 ];
 
-const dummy__students = (ID: string): User[] => [
+const dummy__students = (ID: string): StableUser[] => [
   {
     id: `${ID}-234567k`,
     name: "Aaliyah Khan",
@@ -158,18 +161,18 @@ const dummy__students = (ID: string): User[] => [
   },
 ];
 
-export const evaluator__student = (ID: string): User => ({
+export const evaluator__student = (ID: string): StableUser => ({
   id: `${ID}-234581p`,
   name: "Student Evaluator",
   email: `${ID}-234581p@email.com`,
 });
 
-const allStudents = (ID: string): User[] => [
+const allStudents = (ID: string): StableUser[] => [
   ...dummy__students(ID),
   evaluator__student(ID),
 ];
 
-export const allUsers = (ID: string): User[] => [
+export const allUsers = (ID: string): StableUser[] => [
   evaluator__subGroupAdmin(ID),
   ...allSupervisors(ID),
   ...allStudents(ID),

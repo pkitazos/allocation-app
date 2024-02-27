@@ -16,7 +16,7 @@ import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const access = await api.institution.group.access.query({ params });
+  const access = await api.institution.group.access({ params });
 
   if (!access) {
     return (
@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: { group: string } }) {
   }
 
   const { allocationSubGroups, displayName, adminLevel, groupAdmins } =
-    await api.institution.group.subGroupManagement.query({ params });
+    await api.institution.group.subGroupManagement({ params });
 
   return (
     <div className="mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20 ">

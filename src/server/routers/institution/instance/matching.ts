@@ -145,7 +145,12 @@ export const matchingRouter = createTRPCRouter({
           });
 
         const { matchingResultData } = await ctx.db.algorithm.findFirstOrThrow({
-          where: { algName },
+          where: {
+            algName,
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
           select: { matchingResultData: true },
         });
 
@@ -164,14 +169,16 @@ export const matchingRouter = createTRPCRouter({
         }
 
         await ctx.db.projectAllocation.createMany({
-          data: matching.map(({ student_id, project_id, preference_rank }) => ({
-            userId: student_id,
-            projectId: project_id,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            studentRanking: preference_rank,
-          })),
+          data: matching
+            .filter((e) => e.project_id !== "0")
+            .map(({ student_id, project_id, preference_rank }) => ({
+              userId: student_id,
+              projectId: project_id,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              studentRanking: preference_rank,
+            })),
         });
 
         await ctx.db.allocationInstance.update({
@@ -232,20 +239,6 @@ export const matchingRouter = createTRPCRouter({
         }));
       },
     ),
-
-  // TODO: fetch all other necessary data
-
-  /* 
-      Stuff I need to know to display useful information
-
-      for each project in a student's preference list
-      
-      - whether it's been allocated to another student
-      - who that student is
-      - what the project's capacities are
-      - how a particular change affects the overall matching details (size, weight, etc.)
-    
-    */
 
   allDetails: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))

@@ -6,7 +6,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { students } = await api.institution.instance.invitedStudents.query({
+  const { students } = await api.institution.instance.invitedStudents({
     params,
   });
 

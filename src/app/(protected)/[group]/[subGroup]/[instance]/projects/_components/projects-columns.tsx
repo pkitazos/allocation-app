@@ -127,8 +127,8 @@ export function projectColumns(
       }) => (
         <div className="flex flex-col gap-2">
           {flagOnProjects.length > 2 ? (
-            <Badge className="rounded-sm px-1 font-normal">
-              {flagOnProjects.length} selected
+            <Badge className="w-fit font-normal">
+              {flagOnProjects.length}+
             </Badge>
           ) : (
             flagOnProjects.map(({ flag }) => (
@@ -158,8 +158,8 @@ export function projectColumns(
       }) => (
         <div className="flex flex-col gap-2">
           {tagOnProject.length > 2 ? (
-            <Badge variant="outline" className="rounded-sm px-1 font-normal">
-              {tagOnProject.length} selected
+            <Badge variant="outline" className="w-fit font-normal">
+              {tagOnProject.length}+
             </Badge>
           ) : (
             tagOnProject.map(({ tag }) => (

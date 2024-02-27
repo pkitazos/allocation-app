@@ -5,9 +5,7 @@ import { api } from "@/lib/trpc/server";
 import { Button } from "./ui/button";
 
 export async function UserInstances() {
-  const instances = await api.user.instances
-    .query()
-    .then((e) => e.toSorted((a, b) => a.group.id.localeCompare(b.group.id)));
+  const instances = await api.user.instances();
 
   return (
     <div className="h-40">

@@ -13,7 +13,7 @@ import {
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { byStudent, byProject, bySupervisor } =
-    await api.institution.instance.projectAllocations.query({ params });
+    await api.institution.instance.projectAllocations({ params });
 
   return (
     <div className="mt-20 flex w-full flex-col items-center">

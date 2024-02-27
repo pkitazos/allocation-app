@@ -12,15 +12,15 @@ import { InstanceParams } from "@/lib/validations/params";
 import Layout from "./layout";
 
 export async function StudentOverview({ params }: { params: InstanceParams }) {
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
   const { displayName, preferenceSubmissionDeadline: deadline } =
-    await api.user.student.overviewData.query({
+    await api.user.student.overviewData({
       params,
     });
 
   const { minPreferences, maxPreferences } =
-    await api.user.student.preferenceRestrictions.query({
+    await api.user.student.preferenceRestrictions({
       params,
     });
 

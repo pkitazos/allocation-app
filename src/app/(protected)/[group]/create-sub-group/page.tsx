@@ -5,7 +5,7 @@ import { api } from "@/lib/trpc/server";
 import { FormSection } from "./_components/form-section";
 
 export default async function Page({ params }: { params: { group: string } }) {
-  const access = await api.institution.group.access.query({ params });
+  const access = await api.institution.group.access({ params });
 
   if (!access) {
     return (
@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { group: string } }) {
     );
   }
 
-  const takenNames = await api.institution.group.takenNames.query({ params });
+  const takenNames = await api.institution.group.takenNames({ params });
 
   return (
     <div className="mt-6 flex w-full max-w-5xl flex-col gap-10 px-6">

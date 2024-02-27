@@ -1,3 +1,5 @@
+import { SubHeading } from "@/components/heading";
+
 import {
   GenerousAlgorithm,
   GreedyAlgorithm,
@@ -15,22 +17,22 @@ import {
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { matchingData, selectedAlgName } =
-    await api.institution.instance.matching.data.query({ params });
+    await api.institution.instance.matching.data({ params });
 
-  const takenNames = await api.institution.instance.algorithm.takenNames.query({
+  const takenNames = await api.institution.instance.algorithm.takenNames({
     params,
   });
 
-  const customAlgs = await api.institution.instance.algorithm.customAlgs.query({
+  const customAlgs = await api.institution.instance.algorithm.customAlgs({
     params,
   });
 
   return (
     <div className="mt-20 flex flex-col items-center">
       <div className="flex min-w-[50%] flex-col gap-3">
-        <h2 className="mb-6 text-2xl font-semibold">
+        <SubHeading className="mb-6 text-2xl">
           Select Algorithms to run
-        </h2>
+        </SubHeading>
         <div className="flex w-[45rem] flex-col gap-5">
           <RunAlgorithmButton
             matchingData={matchingData}
@@ -58,7 +60,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
             />
           ))}
           <NewAlgorithmButton takenNames={takenNames} />
-          <h2 className="mb-6 mt-16 text-2xl font-semibold">Results Summary</h2>
+          <SubHeading className="mb-6 mt-16 text-2xl ">
+            Results Summary
+          </SubHeading>
           <ResultsTable
             selectedAlgName={selectedAlgName}
             customAlgs={customAlgs}

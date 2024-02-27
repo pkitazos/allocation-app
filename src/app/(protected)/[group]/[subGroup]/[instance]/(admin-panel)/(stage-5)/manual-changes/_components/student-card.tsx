@@ -30,7 +30,7 @@ export function StudentCard({ studentId }: { studentId: string }) {
     return (
       <Card
         ref={setNodeRef}
-        className="w-32 bg-secondary/50 px-5 py-3 text-secondary-foreground"
+        className="h-20 w-32 bg-secondary/50 px-5 py-3 text-secondary-foreground"
       >
         <p className="max-w-[124px] overflow-hidden">{studentId}</p>
       </Card>
@@ -43,7 +43,7 @@ export function StudentCard({ studentId }: { studentId: string }) {
         <TooltipTrigger asChild>
           <Card
             ref={setNodeRef}
-            className="w-32 bg-secondary px-5 py-3 text-secondary-foreground"
+            className="h-20 w-32 bg-secondary px-5 py-3 text-secondary-foreground"
             style={style}
             {...attributes}
             {...listeners}

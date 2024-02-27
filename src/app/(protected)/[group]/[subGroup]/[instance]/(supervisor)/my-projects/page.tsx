@@ -12,7 +12,7 @@ import { InstanceParams } from "@/lib/validations/params";
 import { ProjectsDataTable } from "./_components/data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const role = await api.user.role.query({ params });
+  const role = await api.user.role({ params });
 
   if (role !== Role.SUPERVISOR) {
     return (
@@ -20,12 +20,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
-  const { projects, submissionTarget } =
-    await api.user.supervisor.projects.query({
-      params,
-    });
+  const { projects, submissionTarget } = await api.user.supervisor.projects({
+    params,
+  });
 
   return (
     <>

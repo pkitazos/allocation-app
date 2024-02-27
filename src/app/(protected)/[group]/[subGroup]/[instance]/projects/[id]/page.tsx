@@ -20,15 +20,14 @@ interface pageParams extends InstanceParams {
 export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
 
-  const project = await api.project.getById.query({ projectId });
-  const { user, role } = await api.user.userRole.query({ params });
-  const stage = await api.institution.instance.currentStage.query({ params });
+  const project = await api.project.getById({ projectId });
+  const { user, role } = await api.user.userRole({ params });
+  const stage = await api.institution.instance.currentStage({ params });
 
-  const preferenceStatus =
-    await api.user.student.preference.getForProject.query({
-      params,
-      projectId,
-    });
+  const preferenceStatus = await api.user.student.preference.getForProject({
+    params,
+    projectId,
+  });
 
   return (
     <PageWrapper>

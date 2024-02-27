@@ -8,7 +8,7 @@ import { StudentOverview } from "./(student)/student-overview";
 import { SupervisorOverview } from "./(supervisor)/supervisor-overview";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const role = await api.user.role.query({ params });
+  const role = await api.user.role({ params });
 
   if (role === Role.STUDENT) return <StudentOverview params={params} />;
   if (role === Role.SUPERVISOR) return <SupervisorOverview params={params} />;

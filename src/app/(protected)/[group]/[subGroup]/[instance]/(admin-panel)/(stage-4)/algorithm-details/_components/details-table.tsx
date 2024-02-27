@@ -23,9 +23,11 @@ export function DetailsTable({ data }: { data: ServerResponse }) {
         {data.matching.map((match, i) => (
           <TableRow key={i}>
             <TableCell className="text-center">{match.student_id}</TableCell>
-            <TableCell className="text-center">{match.project_id}</TableCell>
             <TableCell className="text-center">
-              {match.preference_rank}
+              {match.project_id === "0" ? "-" : match.project_id}
+            </TableCell>
+            <TableCell className="text-center">
+              {match.project_id === "0" ? "-" : match.preference_rank}
             </TableCell>
           </TableRow>
         ))}
