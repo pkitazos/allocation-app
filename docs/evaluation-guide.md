@@ -2,23 +2,21 @@
 
 ## Introduction
 
-Thank you for taking the time to perform an evaluation of the web app I've built as part of my Level 4 Honours Project. The application is a platform aiming to streamline the process of performing Student-Project Allocations for all parties involved.
+Thank you for taking the time to perform an evaluation of the (web app)[https://spa-app.optimalmatching.com/] I've built as part of my Level 4 Honours Project. The application is a platform aiming to streamline the process of performing Student-Project Allocations for all parties involved.
 
-If you are a UofG CS student, think of this as an updated version of the application we had to use at the start of the year to select and submit a list of projects in order of most to least preferred, given some additional constraints.
+If you are a UofG CS student, think of this as an updated version of the application we had to use at the start of the year to select and submit a list of projects in order of most to least preferred, given some constraints.
 
-The platform hosts not only the student-facing functionality, but everything necessary to perform a student project allocation from scratch.
+There is an (evaluation form)[] with some simple questions that will help me understand whether the user interface and experience is simple and intuitive. You may choose to answer these questions after you've completed all the tasks on the (task sheet)[https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md], or as you're going through it.
 
 ## Evaluator Roles
 
-As such, you'll be evaluating the project as 3 separate users with 3 distinct roles:
+The platform hosts everything required to perform a student project allocation from scratch, not just the student-facing functionality. As such, you'll be evaluating the project as 3 separate users with 3 distinct roles:
 
 - Admin
 - Supervisor
 - Student
 
-You've been sent login credentials for the three different user accounts. The task sheet (found here) will clearly state when you need to switch from one account to another.
-
-There is an evaluation form (found here) with some simple questions that will help me understand whether the user interface and experience is simple and intuitive. You may choose to answer these questions after you've completed all the tasks on the task sheet, or as you're going through it.
+You've been sent login credentials for the three different user accounts. The task sheet will clearly state when you need to switch from one account to another.
 
 ## Project specific language
 
@@ -31,3 +29,15 @@ The platform is built to be able to host student-project allocation spaces for t
 This is a specific set of pairings between projects and students that was obtained by running a particular matching algorithm. Different matching algorithms produce different matchings, which have different properties (size, weight, profile). For this evaluation it's not necessary that you understand what the size, weight or profile of a matching is.
 
 An `Allocation Instance` admin might want to run one, or several, matching algorithms and compare the different results obtained to ensure projects are allocated to students and supervisors fairly.
+
+## Evaluation Materials TL;DR
+
+- The web app is hosted at this address: https://spa-app.optimalmatching.com/
+
+- The task sheet can be found (here)[https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md]
+
+- You should have your sign-in credentials in the email you received when you signed up for this evaluation.
+
+- In that same email you will find two `*.csv` files that you will need while completing the tasks on the task sheet.
+
+- The evaluation form can be found (here)[]
