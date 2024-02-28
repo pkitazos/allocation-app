@@ -3,8 +3,8 @@
 - Sign in as an `admin`
   - navigate to the admin panel
   - create an allocation instance in the Sub Group `Level 4 Individual Project`
-  - add the following supervisors to this new allocation instance `[list of supervisors]`
-  - add the following students to this new allocation instance `[csv of students]`
+  - add the supervisors from the provided `new-supervisors.csv` to this new allocation instance
+  - add the students from the provided `new-students.csv` to this new allocation instance
   - remove student `Mason Johnson` from the list of new students to be added
   - navigate to the allocation instance `2024-2025`
   - move the `2024-2025` allocation instance to `Stage 2 - Project Submission`
