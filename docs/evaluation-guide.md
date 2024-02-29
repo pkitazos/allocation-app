@@ -2,11 +2,11 @@
 
 ## Introduction
 
-Thank you for taking the time to perform an evaluation of the (web app)[https://spa-app.optimalmatching.com/] I've built as part of my Level 4 Honours Project. The application is a platform aiming to streamline the process of performing Student-Project Allocations for all parties involved.
+Thank you for taking the time to perform an evaluation of the [web app](https://spa-app.optimalmatching.com/) I've built as part of my Level 4 Honours Project. The application is a platform aiming to streamline the process of performing Student-Project Allocations for all parties involved.
 
 If you are a UofG CS student, think of this as an updated version of the application we had to use at the start of the year to select and submit a list of projects in order of most to least preferred, given some constraints.
 
-There is an (evaluation form)[] with some simple questions that will help me understand whether the user interface and experience is simple and intuitive. You may choose to answer these questions after you've completed all the tasks on the (task sheet)[https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md], or as you're going through it.
+There is an [evaluation form](https://uofg.qualtrics.com/jfe/form/SV_0ezNxahTBLeAfem) with some simple questions that will help me understand whether the user interface and experience is simple and intuitive. You may choose to answer these questions after you've completed all the tasks on the [task sheet](https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md), or as you're going through it.
 
 ## Evaluator Roles
 
@@ -34,10 +34,10 @@ An `Allocation Instance` admin might want to run one, or several, matching algor
 
 - The web app is hosted at this address: https://spa-app.optimalmatching.com/
 
-- The task sheet can be found (here)[https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md]
+- The task sheet can be found [here](https://github.com/pkitazos/allocation-app/blob/main/docs/evaluation-task-sheet.md)
 
 - You should have your sign-in credentials in the email you received when you signed up for this evaluation.
 
 - In that same email you will find two `*.csv` files that you will need while completing the tasks on the task sheet.
 
-- The evaluation form can be found (here)[]
+- The evaluation form can be found [here](https://uofg.qualtrics.com/jfe/form/SV_0ezNxahTBLeAfem)
