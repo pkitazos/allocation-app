@@ -20,9 +20,9 @@ export async function UserInstances() {
               variant="outline"
               size="lg"
             >
-              <p className="text-left text-lg">{group.displayName}</p>
+              <p className="text-left">{group.displayName}</p>
               <p className="text-left">{subGroup.displayName}</p>
-              <p className="text-left">{instance.displayName}</p>
+              <p className="text-left font-bold">{instance.displayName}</p>
             </Button>
           </Link>
         ))}
