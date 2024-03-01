@@ -41,3 +41,5 @@ An `Allocation Instance` admin might want to run one, or several, matching algor
 - In that same email you will find two `*.csv` files that you will need while completing the tasks on the task sheet.
 
 - The evaluation form can be found [here](https://uofg.qualtrics.com/jfe/form/SV_0ezNxahTBLeAfem)
+
+- Due to some caching issues I wasn't able to fix everywhere, if it seems like sometimes the application is not updating correctly, try refreshing the page

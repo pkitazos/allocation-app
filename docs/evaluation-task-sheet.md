@@ -3,13 +3,15 @@
 - Sign in as an `admin`
   - navigate to the admin panel
   - create an allocation instance in the Sub Group `Level 4 Individual Project`
-  - upload the provided `new-supervisors.csv` to this new allocation instance, inspect the rows and if everything looks alright, invite the supervisors to the instance
-  - upload the provided `new-students.csv` to this new allocation instance, inspect the rows and remove student `Mason Johnson` from the list of new students to be added. Once everything looks alright, invite the students to the instance
+  - upload the provided `0xx-new-supervisors.csv` to this new allocation instance, inspect the rows and if everything looks alright, invite the supervisors to the instance
+  - upload the provided `0xx-new-students.csv` to this new allocation instance, inspect the rows and remove student `Mason Johnson` from the list of new students to be added. Once everything looks alright, invite the students to the instance
   - navigate to the allocation instance `2024-2025`
   - move the `2024-2025` allocation instance to `Stage 2 - Project Submission`
 
 ---
+
 - All tasks from here on require users to be in the `2024-2025` allocation instance
+
 ---
 
 - Sign in as a `supervisor`
