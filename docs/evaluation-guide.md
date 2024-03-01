@@ -26,7 +26,7 @@ The platform is built to be able to host student-project allocation spaces for t
 
 #### Matching
 
-This is a specific set of pairings between projects and students that was obtained by running a particular matching algorithm. Different matching algorithms produce different matchings, which have different properties (size, weight, profile). For this evaluation it's not necessary that you understand what the size, weight or profile of a matching is.
+This is a specific set of pairings between projects and students that was obtained by running a particular [matching algorithm](https://github.com/pkitazos/allocation-app/blob/main/docs/algorithm-descriptions.md). Different matching algorithms produce different matchings, which have different properties (size, weight, profile). For this evaluation it's not necessary that you understand what the size, weight or profile of a matching is.
 
 An `Allocation Instance` admin might want to run one, or several, matching algorithms and compare the different results obtained to ensure projects are allocated to students and supervisors fairly.
 
