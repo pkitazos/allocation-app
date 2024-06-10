@@ -1,0 +1,26 @@
+version: "3"
+name: "spa"
+
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: "allocation-db"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - spa-network
+
+networks:
+  spa-network:

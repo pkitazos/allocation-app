@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  postgres_is_ready:
+    image: postgres:latest
+    networks:
+      - spa-network
+    depends_on:
+      db:
+        condition: service_healthy
+  app:
+    image: spa:latest
+    depends_on:
+      - db
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - spa-network
+
+
