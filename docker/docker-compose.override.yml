@@ -10,7 +10,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_DATABASE_URL=postgresql://root:1234@db:5432/allocation-db
+      - NEXT_PUBLIC_DATABASE_URL=postgresql://root:1234@db:6565/allocation-db
     depends_on:
       db:
         condition: service_healthy
