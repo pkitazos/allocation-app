@@ -8,11 +8,11 @@ export async function UserInstances() {
   const instances = await api.user.instances();
 
   return (
-    <div className="h-40">
+    <div className="h-40 mb-3">
       <h2 className="mb-10 text-xl font-semibold underline decoration-secondary decoration-4">
         Your instances
       </h2>
-      <div className="no-scrollbar flex w-full gap-3 overflow-x-scroll">
+      <div className="flex w-full gap-3 overflow-x-scroll pb-3">
         {instances.map(({ group, subGroup, instance }, i) => (
           <Link href={`/${group.id}/${subGroup.id}/${instance.id}`} key={i}>
             <Button
