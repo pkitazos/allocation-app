@@ -41,15 +41,17 @@
   .dark {
     --background: 229 84% 5%;
   }
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar:horizontal {
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-xl bg-slate-600;
   }
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
 }
