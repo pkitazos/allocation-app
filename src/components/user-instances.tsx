@@ -16,13 +16,26 @@ export async function UserInstances() {
         {instances.map(({ group, subGroup, instance }, i) => (
           <Link href={`/${group.id}/${subGroup.id}/${instance.id}`} key={i}>
             <Button
-              className="flex h-max w-full min-w-60 flex-col items-start gap-1 py-4"
+              className="flex h-max w-full min-w-60 flex-col items-start gap-1 px-5 py-4"
               variant="outline"
               size="lg"
             >
-              <p className="text-left">{group.displayName}</p>
+              <span className="w-full translate-y-1.5 text-left text-xs text-muted-foreground">
+                Instance
+              </span>
+              <p className="text-left text-base font-bold">
+                {instance.displayName}
+              </p>
+
+              <span className="w-full translate-y-1.5 text-left text-xs text-muted-foreground">
+                Sub-Group
+              </span>
               <p className="text-left">{subGroup.displayName}</p>
-              <p className="text-left font-bold">{instance.displayName}</p>
+
+              <span className="w-full translate-y-1.5 text-left text-xs text-muted-foreground">
+                Group
+              </span>
+              <p className="text-left">{group.displayName}</p>
             </Button>
           </Link>
         ))}
