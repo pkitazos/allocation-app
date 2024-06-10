@@ -1,5 +1,8 @@
-setup:
-	docker-compose build && docker-compose up -d
+setup-dev:
+	docker-compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up -d
+
+setup-prod:
+	docker-compose -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d
 
 data:
-	DATABASE_URL="postgresql://root:1234@localhost:5451/allocation-db?schema=public&connect_timeout=300" pnpm run db:populate
+	DATABASE_URL="postgresql://root:1234@localhost:5432/allocation-db?schema=public&connect_timeout=300" pnpm run db:populate
