@@ -15,6 +15,32 @@ import { preferenceRouter } from "./preference";
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
 
+  getById: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, instance, subGroup },
+          studentId,
+        },
+      }) => {
+        const data = await ctx.db.userInInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          select: {
+            user: { select: { email: true, name: true } },
+          },
+        });
+
+        return data;
+      },
+    ),
+
   overviewData: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

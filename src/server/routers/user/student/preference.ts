@@ -12,6 +12,54 @@ import {
 } from "@/server/trpc";
 
 export const preferenceRouter = createTRPCRouter({
+  getAll: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const data = await ctx.db.preference.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationInstanceId: instance,
+            allocationSubGroupId: subGroup,
+            userId: studentId,
+          },
+          select: {
+            type: true,
+            rank: true,
+            project: {
+              select: {
+                title: true,
+                id: true,
+                supervisor: {
+                  select: { user: { select: { name: true, id: true } } },
+                },
+              },
+            },
+          },
+        });
+        return data.map(({ project, type, rank }) => ({
+          project: { id: project.id, title: project.title },
+          supervisor: {
+            name: project.supervisor.user.name,
+            id: project.supervisor.user.id,
+          },
+          type: type,
+          rank: rank,
+        }));
+      },
+    ),
+
   update: stageAwareProcedure
     .input(
       z.object({
@@ -207,6 +255,7 @@ export const preferenceRouter = createTRPCRouter({
         });
       },
     ),
+
   initialBoardState: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
