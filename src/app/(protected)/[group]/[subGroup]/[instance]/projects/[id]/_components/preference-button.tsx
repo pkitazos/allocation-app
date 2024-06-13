@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { api } from "@/lib/trpc/client";
+import { useRouter } from "next/navigation";
 
 export function PreferenceButton({
   projectId,
@@ -25,6 +26,7 @@ export function PreferenceButton({
   projectId: string;
   defaultStatus: string;
 }) {
+  const router = useRouter();
   const params = useInstanceParams();
   const [selectStatus, setSelectStatus] = useState(defaultStatus);
 
@@ -48,6 +50,7 @@ export function PreferenceButton({
       },
     );
     setSelectStatus(value);
+    router.refresh();
   };
 
   return (
@@ -58,8 +61,8 @@ export function PreferenceButton({
             {selectStatus === PreferenceType.PREFERENCE
               ? "In Preferences"
               : selectStatus === PreferenceType.SHORTLIST
-              ? "In Shortlist"
-              : "Select"}
+                ? "In Shortlist"
+                : "Select"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
