@@ -4,8 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { ChangePreferenceButton } from "@/components/change-preference-button";
-import { useInstanceParams } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,7 +24,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import {
+  previousStages,
+  stageCheck,
+} from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -54,7 +57,6 @@ export function studentPreferenceColumns(
   ) => Promise<void>,
 ): ColumnDef<PreferenceData>[] {
   const router = useRouter();
-  const params = useInstanceParams();
 
   const selectCol: ColumnDef<PreferenceData> = {
     id: "select",
@@ -242,16 +244,18 @@ export function studentPreferenceColumns(
                 <Link href={`../projects/${project.id}`}>View Details</Link>
               </Button>
             </DropdownMenuItem>
-            {role === Role.ADMIN &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <ChangePreferenceButton
-                    dropdownLabel="Change Type to:"
-                    defaultStatus={type}
-                    changeFunction={handleChange}
-                  />
-                </DropdownMenuItem>
-              )}
+            <AccessControl
+              allowedRoles={[Role.ADMIN]}
+              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+            >
+              <DropdownMenuItem>
+                <ChangePreferenceButton
+                  dropdownLabel="Change Type to:"
+                  defaultStatus={type}
+                  changeFunction={handleChange}
+                />
+              </DropdownMenuItem>
+            </AccessControl>
           </DropdownMenuContent>
         </DropdownMenu>
       );

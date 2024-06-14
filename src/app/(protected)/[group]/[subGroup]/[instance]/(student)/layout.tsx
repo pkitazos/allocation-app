@@ -8,8 +8,12 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import {
+  previousStages,
+  stageCheck,
+} from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
+import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
@@ -47,11 +51,11 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link href={`${instancePath}/my-preferences`}>My Preferences</Link>
           </Button>
-          {stage === Stage.ALLOCATION_PUBLICATION && (
+          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
               <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
             </Button>
-          )}
+          </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>

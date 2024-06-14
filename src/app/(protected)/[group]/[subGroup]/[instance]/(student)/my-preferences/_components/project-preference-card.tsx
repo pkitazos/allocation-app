@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { AccessControl } from "@/components/access-control";
 import {
   useInstanceParams,
   useInstanceStage,
@@ -16,7 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import {
+  previousStages,
+  stageCheck,
+} from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
 
 export function ProjectPreferenceCard({
@@ -99,7 +103,7 @@ export function ProjectPreferenceCard({
           <p className="font-semibold">{project.supervisorName}</p>
         </div>
       </CardContent>
-      {!stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
+      <AccessControl allowedStages={previousStages(Stage.PROJECT_SELECTION)}>
         <Button
           variant="ghost"
           size="icon"
@@ -108,7 +112,7 @@ export function ProjectPreferenceCard({
         >
           <X className="h-4 w-4 font-bold" />
         </Button>
-      )}
+      </AccessControl>
     </Card>
   );
 }

@@ -21,7 +21,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import {
+  previousStages,
+  stageCheck,
+} from "@/lib/utils/permissions/stage-check";
+import { AccessControl } from "@/components/access-control";
 
 export interface StudentData {
   id: string;
@@ -146,19 +150,21 @@ export function studentsColumns(
                 <Link href={`./students/${student.id}`}>View Details</Link>
               </Button>
             </DropdownMenuItem>
-            {role === Role.ADMIN &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <Button
-                    className="w-full"
-                    variant="destructive"
-                    onClick={() => deleteStudent(student.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                </DropdownMenuItem>
-              )}
+            <AccessControl
+              allowedRoles={[Role.ADMIN]}
+              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+            >
+              <DropdownMenuItem>
+                <Button
+                  className="w-full"
+                  variant="destructive"
+                  onClick={() => deleteStudent(student.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              </DropdownMenuItem>
+            </AccessControl>
           </DropdownMenuContent>
         </DropdownMenu>
       );
