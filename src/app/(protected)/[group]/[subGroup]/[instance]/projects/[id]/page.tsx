@@ -10,8 +10,9 @@ import { api } from "@/lib/trpc/server";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { PreferenceButton } from "./_components/preference-button";
+import { AccessControl } from "@/components/access-control";
 import { ProjectRemovalButton } from "./_components/project-removal-button";
+import { StudentPreferenceButton } from "./_components/student-preference-button";
 
 interface pageParams extends InstanceParams {
   id: string;
@@ -33,12 +34,17 @@ export default async function Project({ params }: { params: pageParams }) {
     <PageWrapper>
       <Heading className="flex items-center justify-between">
         {project.title}
-        {role === Role.STUDENT && stage === Stage.PROJECT_SELECTION && (
-          <PreferenceButton
+        <AccessControl
+          instanceParams={params}
+          allowedRoles={[Role.STUDENT]}
+          allowedStages={[Stage.PROJECT_SELECTION]}
+        >
+          <StudentPreferenceButton
             projectId={projectId}
             defaultStatus={preferenceStatus}
           />
-        )}
+        </AccessControl>
+
         {(role === Role.ADMIN || project.supervisor.user.id === user.id) &&
           !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
             <ProjectRemovalButton projectId={projectId} />

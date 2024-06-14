@@ -7,6 +7,7 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { StudentPreferenceType } from "@/lib/validations/student-preference";
 import { SearchableColumn } from "@/lib/validations/table";
 
 import {
@@ -18,25 +19,33 @@ export function StudentPreferenceDataTable({
   role,
   stage,
   data,
+  studentId,
 }: {
   role: Role;
   stage: Stage;
   data: PreferenceData[];
+  studentId: string;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
 
   const { mutateAsync: changePreferenceAsync } =
-    api.user.student.preference.update.useMutation();
+    api.user.student.preference.change.useMutation();
 
-  async function handleChangePreference(
-    preferenceType: PreferenceType,
+  const { mutateAsync: changeAllPreferencesAsync } =
+    api.user.student.preference.changeAll.useMutation();
+
+  async function changePreference(
+    newPreferenceType: StudentPreferenceType,
     projectId: string,
   ) {
     void toast.promise(
-      changePreferenceAsync({ params, preferenceType, projectId }).then(() =>
-        router.refresh(),
-      ),
+      changePreferenceAsync({
+        params,
+        newPreferenceType,
+        projectId,
+        studentId,
+      }).then(() => router.refresh()),
       {
         loading: "Updating project preference...",
         error: "Something went wrong",
@@ -45,20 +54,26 @@ export function StudentPreferenceDataTable({
     );
   }
 
-  async function handleDeleteAll() {
-    // void toast.promise(
-    //   deleteAllAsync({ params }).then(() => router.refresh()),
-    //   {
-    //     loading: "Deleting Project...",
-    //     error: "Something went wrong",
-    //     success: `All Students deleted successfully`,
-    //   },
-    // );
+  async function changeAllPreferences(
+    newPreferenceType: StudentPreferenceType,
+  ) {
+    void toast.promise(
+      changeAllPreferencesAsync({
+        params,
+        newPreferenceType,
+        studentId,
+      }).then(() => router.refresh()),
+      {
+        loading: "Updating all project preferences...",
+        error: "Something went wrong",
+        success: "All project preferences updated successfully",
+      },
+    );
   }
 
   const primaryColumn: SearchableColumn = {
-    id: "name",
-    displayName: "Student Names",
+    id: "Project Title",
+    displayName: "Project Title",
   };
 
   return (
@@ -68,8 +83,8 @@ export function StudentPreferenceDataTable({
       columns={studentPreferenceColumns(
         role,
         stage,
-        handleChangePreference,
-        handleDeleteAll,
+        changePreference,
+        changeAllPreferences,
       )}
       data={data}
     />

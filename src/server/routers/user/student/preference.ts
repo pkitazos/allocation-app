@@ -6,6 +6,7 @@ import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   stageAwareProcedure,
@@ -304,6 +305,96 @@ export const preferenceRouter = createTRPCRouter({
         }));
 
         return { initialColumns, initialProjects };
+      },
+    ),
+
+  change: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        projectId: z.string(),
+        newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          projectId,
+          newPreferenceType,
+        },
+      }) => {
+        if (newPreferenceType === "None") {
+          await ctx.db.preference.delete({
+            where: {
+              preferenceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                projectId,
+                userId: studentId,
+              },
+            },
+          });
+          return;
+        }
+
+        await ctx.db.preference.update({
+          where: {
+            preferenceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId: studentId,
+            },
+          },
+          data: { type: newPreferenceType },
+        });
+      },
+    ),
+
+  changeAll: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          newPreferenceType,
+        },
+      }) => {
+        if (newPreferenceType === "None") {
+          await ctx.db.preference.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+          });
+          return;
+        }
+
+        await ctx.db.preference.updateMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          data: { type: newPreferenceType },
+        });
       },
     ),
 });

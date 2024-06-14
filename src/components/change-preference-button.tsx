@@ -1,10 +1,7 @@
 "use client";
-import { useState } from "react";
 import { PreferenceType } from "@prisma/client";
-import { toast } from "sonner";
-import { z } from "zod";
+import { useState } from "react";
 
-import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,39 +13,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { api } from "@/lib/trpc/client";
+import {
+  StudentPreferenceType,
+  studentPreferenceType,
+} from "@/lib/validations/student-preference";
 
-export function PreferenceButton({
-  projectId,
+export function ChangePreferenceButton({
+  dropdownLabel = "Save Project in:",
   defaultStatus,
+  changeFunction,
 }: {
-  projectId: string;
-  defaultStatus: string;
+  dropdownLabel?: string;
+  defaultStatus: StudentPreferenceType;
+  changeFunction: (newPreferenceType: StudentPreferenceType) => Promise<void>;
 }) {
-  const params = useInstanceParams();
-  const [selectStatus, setSelectStatus] = useState(defaultStatus);
+  const [selectStatus, setSelectStatus] =
+    useState<StudentPreferenceType>(defaultStatus);
 
-  const { mutateAsync: updateAsync } =
-    api.user.student.preference.update.useMutation();
-
-  const handleChange = (value: string) => {
-    const preferenceChange =
-      value === "None" ? "None" : z.nativeEnum(PreferenceType).parse(value);
-
-    toast.promise(
-      updateAsync({
-        params,
-        projectId,
-        preferenceType: preferenceChange,
-      }),
-      {
-        loading: "Loading...",
-        success: "Success",
-        error: "Error",
-      },
-    );
-    setSelectStatus(value);
-  };
+  async function handleChange(value: string) {
+    const preferenceChange = studentPreferenceType.parse(value);
+    await changeFunction(preferenceChange);
+    setSelectStatus(preferenceChange);
+  }
 
   return (
     <>
@@ -58,12 +44,12 @@ export function PreferenceButton({
             {selectStatus === PreferenceType.PREFERENCE
               ? "In Preferences"
               : selectStatus === PreferenceType.SHORTLIST
-              ? "In Shortlist"
-              : "Select"}
+                ? "In Shortlist"
+                : "Select"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Save project in:</DropdownMenuLabel>
+          <DropdownMenuLabel>{dropdownLabel}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={selectStatus}
