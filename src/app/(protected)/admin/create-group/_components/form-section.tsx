@@ -23,6 +23,7 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 export function FormSection({ takenNames }: { takenNames: string[] }) {
   const router = useRouter();
+
   const FormSchema = z.object({
     groupName: z
       .string()
@@ -86,7 +87,6 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
           />
         </div>
         <Separator className="my-14" />
-        {/* <AdminInviteForm /> */}
         <div className="flex justify-end">
           <Button type="submit" size="lg">
             create new group
