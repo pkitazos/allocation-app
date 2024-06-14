@@ -1,8 +1,9 @@
+"use client";
 import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideMoreHorizontal, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { User } from "next-auth";
+import Link from "next/link";
 
 import { TagType } from "@/components/tag/tag-input";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { AccessControl } from "@/components/access-control";
+import { useInstanceParams } from "@/components/params-context";
+import {
+  previousStages,
+  stageCheck,
+} from "@/lib/utils/permissions/stage-check";
+import { CheckedState } from "@radix-ui/react-checkbox";
 
 export interface ProjectTableData {
   user: User;
@@ -50,24 +57,55 @@ export function projectColumns(
   role: Role,
   stage: Stage,
   deleteProject: (id: string) => void,
-  deleteAllProjects: () => void,
+  deleteSelectedProjects: (ids: string[]) => void,
 ): ColumnDef<ProjectTableData>[] {
+  const params = useInstanceParams();
+  // if all rows are selected, header is fully checked
+  // if some rows are selected, header is indeterminate
+  // if no rows are selected, header is unchecked
+
+  // if all rows are selected and header is clicked, all rows are deselected
+  // if some rows are selected and header is clicked, all rows are selected
+  // if no rows are selected and header is clicked, all rows are selected
+
+  // if all rows are selected and a row is deselected, header is indeterminate
+  // if some rows are selected and a row is deselected, header is indeterminate
+  // if no rows are selected and a row is selected, header is indeterminate
+
   const selectCol: ColumnDef<ProjectTableData> = {
     id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    header: ({ table }) => {
+      const allRowsSelected = table.getIsAllPageRowsSelected();
+      const someRowsSelected = table.getIsSomePageRowsSelected();
+
+      const checkedState = allRowsSelected
+        ? true
+        : someRowsSelected
+          ? "indeterminate"
+          : false;
+
+      function handleCheck(value: CheckedState) {
+        if (value === "indeterminate") table.toggleAllPageRowsSelected(true);
+        else table.toggleAllPageRowsSelected(!!value);
+      }
+
+      return (
+        <Checkbox
+          checked={checkedState}
+          onCheckedChange={handleCheck}
+          aria-label="Select all"
+        />
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      );
+    },
     enableSorting: false,
     enableHiding: false,
   };
@@ -177,26 +215,30 @@ export function projectColumns(
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedProjectIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.id);
 
       if (
-        allSelected &&
+        someSelected &&
         role === Role.ADMIN &&
         !stageCheck(stage, Stage.PROJECT_ALLOCATION)
-      ) {
+      )
         return (
           <div className="flex justify-center">
             <Button
               className="flex items-center gap-2"
               variant="destructive"
               size="sm"
-              onClick={deleteAllProjects}
+              onClick={() => deleteSelectedProjects(selectedProjectIds)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         );
-      }
 
       return <div className="text-xs text-gray-500">Actions</div>;
     },
@@ -220,19 +262,23 @@ export function projectColumns(
                 <Button variant="link">View Details</Button>
               </Link>
             </DropdownMenuItem>
-            {(role === Role.ADMIN || user.id === supervisor.id) &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <Button
-                    className="flex w-full items-center gap-2"
-                    variant="destructive"
-                    onClick={() => deleteProject(project.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <p>Delete</p>
-                  </Button>
-                </DropdownMenuItem>
-              )}
+
+            <AccessControl
+              instanceParams={params}
+              allowedRoles={[Role.ADMIN]}
+              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+            >
+              <DropdownMenuItem>
+                <Button
+                  className="flex w-full items-center gap-2"
+                  variant="destructive"
+                  onClick={() => deleteProject(project.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <p>Delete</p>
+                </Button>
+              </DropdownMenuItem>
+            </AccessControl>
           </DropdownMenuContent>
         </DropdownMenu>
       );

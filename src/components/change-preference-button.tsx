@@ -15,7 +15,7 @@ import {
 
 import {
   StudentPreferenceType,
-  studentPreferenceType,
+  studentPreferenceSchema,
 } from "@/lib/validations/student-preference";
 
 export function ChangePreferenceButton({
@@ -31,7 +31,7 @@ export function ChangePreferenceButton({
     useState<StudentPreferenceType>(defaultStatus);
 
   async function handleChange(value: string) {
-    const preferenceChange = studentPreferenceType.parse(value);
+    const preferenceChange = studentPreferenceSchema.parse(value);
     await changeFunction(preferenceChange);
     setSelectStatus(preferenceChange);
   }

@@ -1,8 +1,8 @@
 import { PreferenceType } from "@prisma/client";
 import { z } from "zod";
 
-export const studentPreferenceType = z
+export const studentPreferenceSchema = z
   .nativeEnum(PreferenceType)
   .or(z.literal("None"));
 
-export type StudentPreferenceType = z.infer<typeof studentPreferenceType>;
+export type StudentPreferenceType = z.infer<typeof studentPreferenceSchema>;

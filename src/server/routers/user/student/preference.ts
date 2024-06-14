@@ -4,6 +4,7 @@ import { z } from "zod";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
   adminProcedure,
@@ -66,7 +67,7 @@ export const preferenceRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         projectId: z.string(),
-        preferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+        preferenceType: studentPreferenceSchema,
       }),
     )
     .mutation(
@@ -314,7 +315,7 @@ export const preferenceRouter = createTRPCRouter({
         params: instanceParamsSchema,
         studentId: z.string(),
         projectId: z.string(),
-        newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+        newPreferenceType: studentPreferenceSchema,
       }),
     )
     .mutation(
