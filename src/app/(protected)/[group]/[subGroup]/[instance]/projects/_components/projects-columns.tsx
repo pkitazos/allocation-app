@@ -262,11 +262,10 @@ export function projectColumns(
                 <Button variant="link">View Details</Button>
               </Link>
             </DropdownMenuItem>
-
             <AccessControl
-              instanceParams={params}
               allowedRoles={[Role.ADMIN]}
               allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
             >
               <DropdownMenuItem>
                 <Button

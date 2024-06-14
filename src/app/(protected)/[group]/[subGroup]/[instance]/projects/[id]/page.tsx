@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/server";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { AccessControl } from "@/components/access-control";
@@ -22,8 +22,7 @@ export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
 
   const project = await api.project.getById({ projectId });
-  const { user, role } = await api.user.userRole({ params });
-  const stage = await api.institution.instance.currentStage({ params });
+  const user = await api.user.get();
 
   const preferenceStatus = await api.user.student.preference.getForProject({
     params,
@@ -35,7 +34,6 @@ export default async function Project({ params }: { params: pageParams }) {
       <Heading className="flex items-center justify-between">
         {project.title}
         <AccessControl
-          instanceParams={params}
           allowedRoles={[Role.STUDENT]}
           allowedStages={[Stage.PROJECT_SELECTION]}
         >
@@ -44,11 +42,15 @@ export default async function Project({ params }: { params: pageParams }) {
             defaultStatus={preferenceStatus}
           />
         </AccessControl>
-
-        {(role === Role.ADMIN || project.supervisor.user.id === user.id) &&
-          !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-            <ProjectRemovalButton projectId={projectId} />
-          )}
+        <AccessControl
+          allowedRoles={[Role.ADMIN]}
+          allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+          extraConditions={{
+            RBAC: { OR: project.supervisor.user.id === user.id },
+          }}
+        >
+          <ProjectRemovalButton projectId={projectId} />
+        </AccessControl>
       </Heading>
       <div className="mt-6 flex gap-6">
         <div className="w-3/4">
