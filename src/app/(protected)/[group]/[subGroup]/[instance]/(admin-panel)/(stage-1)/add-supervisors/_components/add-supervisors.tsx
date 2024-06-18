@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -28,12 +29,19 @@ export const csvHeaders = [
 ];
 
 export function AddSupervisors() {
+  const router = useRouter();
   const params = useInstanceParams();
+
   const [newSupervisors, setNewSupervisors] = useState<NewSupervisor[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewSupervisor>({
     resolver: zodResolver(newSupervisorSchema),
   });
+
+  const onSubmit = (data: NewSupervisor) => {
+    setNewSupervisors((prev) => [data, ...prev]);
+    reset();
+  };
 
   function handleRowRemoval(idx: number) {
     setNewSupervisors((prev) => prev.toSpliced(idx, 1));
@@ -42,12 +50,15 @@ export function AddSupervisors() {
   const { mutateAsync } =
     api.institution.instance.addSupervisorDetails.useMutation();
 
-  async function handleMutation() {
+  async function handleAddSupervisorDetails() {
     void toast.promise(
       mutateAsync({
         params,
         newSupervisors,
-      }).then(() => setNewSupervisors([])),
+      }).then(() => {
+        setNewSupervisors([]);
+        router.refresh();
+      }),
       {
         loading: "Adding Supervisors...",
         error: "Something went wrong",
@@ -55,11 +66,6 @@ export function AddSupervisors() {
       },
     );
   }
-
-  const onSubmit = (data: NewSupervisor) => {
-    setNewSupervisors((prev) => [data, ...prev]);
-    reset();
-  };
 
   return (
     <div className="flex flex-col px-6">
@@ -118,7 +124,10 @@ export function AddSupervisors() {
       />
 
       <div className="mt-2 flex justify-end">
-        <Button onClick={handleMutation} disabled={newSupervisors.length === 0}>
+        <Button
+          onClick={handleAddSupervisorDetails}
+          disabled={newSupervisors.length === 0}
+        >
           invite
         </Button>
       </div>
