@@ -1,23 +1,13 @@
 "use client";
 import { PreferenceType, Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideMoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
 import { ChangePreferenceButton } from "@/components/change-preference-button";
-import { useInstanceParams } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
@@ -27,7 +17,7 @@ import {
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
   project: {
@@ -54,7 +44,6 @@ export function studentPreferenceColumns(
   ) => Promise<void>,
 ): ColumnDef<PreferenceData>[] {
   const router = useRouter();
-  const params = useInstanceParams();
 
   const selectCol: ColumnDef<PreferenceData> = {
     id: "select",
@@ -178,17 +167,6 @@ export function studentPreferenceColumns(
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      async function handleChange(newPreferenceType: StudentPreferenceType) {
-        void toast.promise(
-          changeAllPreferences(newPreferenceType).then(() => router.refresh()),
-          {
-            loading: `Updating preference for all Projects...`,
-            error: "Something went wrong",
-            success: "Successfully updated all Project preferences",
-          },
-        );
-      }
-
       const allSelected = table.getIsAllRowsSelected();
 
       if (
@@ -201,7 +179,7 @@ export function studentPreferenceColumns(
             className="w-24 text-xs"
             dropdownLabel="Change Type to:"
             defaultStatus="None"
-            changeFunction={handleChange}
+            changeFunction={changeAllPreferences}
           />
         );
       }
@@ -216,48 +194,19 @@ export function studentPreferenceColumns(
         original: { project, type },
       },
     }) => {
-      async function handleChange(newPreferenceType: StudentPreferenceType) {
-        void toast.promise(
-          changePreference(newPreferenceType, project.id).then(() =>
-            router.refresh(),
-          ),
-          {
-            loading: `Updating preference for Project ${project.id}...`,
-            error: "Something went wrong",
-            success: "Successfully updated preference",
-          },
-        );
+      async function handleChangePreference(
+        newPreferenceType: StudentPreferenceType,
+      ) {
+        changePreference(newPreferenceType, project.id);
       }
 
       return (
         <div className="flex w-full items-center justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <LucideMoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actionss</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button variant="link" asChild>
-                  <Link href={`../projects/${project.id}`}>View Details</Link>
-                </Button>
-              </DropdownMenuItem>
-              {role === Role.ADMIN &&
-                !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                  <DropdownMenuItem>
-                    <ChangePreferenceButton
-                      dropdownLabel="Change Type to:"
-                      defaultStatus={type}
-                      changeFunction={handleChange}
-                    />
-                  </DropdownMenuItem>
-                )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <StudentPreferenceActionMenu
+            defaultType={type}
+            projectId={project.id}
+            changePreference={handleChangePreference}
+          />
         </div>
       );
     },
