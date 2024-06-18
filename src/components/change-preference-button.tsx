@@ -19,10 +19,12 @@ import {
 } from "@/lib/validations/student-preference";
 
 export function ChangePreferenceButton({
+  buttonLabelType = "static",
   dropdownLabel = "Save Project in:",
   defaultStatus,
   changeFunction,
 }: {
+  buttonLabelType?: "static" | "dynamic";
   dropdownLabel?: string;
   defaultStatus: StudentPreferenceType;
   changeFunction: (newPreferenceType: StudentPreferenceType) => Promise<void>;
@@ -36,17 +38,20 @@ export function ChangePreferenceButton({
     setSelectStatus(preferenceChange);
   }
 
+  const buttonLabel =
+    buttonLabelType === "static"
+      ? "Change Type"
+      : selectStatus === PreferenceType.PREFERENCE
+        ? "In Preferences"
+        : selectStatus === PreferenceType.SHORTLIST
+          ? "In Shortlist"
+          : "Select";
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary">
-            {selectStatus === PreferenceType.PREFERENCE
-              ? "In Preferences"
-              : selectStatus === PreferenceType.SHORTLIST
-                ? "In Shortlist"
-                : "Select"}
-          </Button>
+          <Button variant="secondary">{buttonLabel}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>{dropdownLabel}</DropdownMenuLabel>
