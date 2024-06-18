@@ -37,6 +37,7 @@ export function StudentPreferenceButton({
 
   return (
     <ChangePreferenceButton
+      buttonLabelType="dynamic"
       defaultStatus={defaultStatus}
       changeFunction={handleChange}
     />
