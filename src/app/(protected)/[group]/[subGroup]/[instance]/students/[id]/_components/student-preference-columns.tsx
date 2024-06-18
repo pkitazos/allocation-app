@@ -197,16 +197,19 @@ export function studentPreferenceColumns(
         !stageCheck(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
-          <div className="flex justify-center">
-            <ChangePreferenceButton
-              dropdownLabel="Change Type to:"
-              defaultStatus="None"
-              changeFunction={handleChange}
-            />
-          </div>
+          <ChangePreferenceButton
+            className="w-24 text-xs"
+            dropdownLabel="Change Type to:"
+            defaultStatus="None"
+            changeFunction={handleChange}
+          />
         );
       }
-      return <div className="text-xs text-muted-foreground">Actions</div>;
+      return (
+        <div className="w-24 text-center text-sm text-muted-foreground">
+          Actions
+        </div>
+      );
     },
     cell: ({
       row: {
@@ -227,33 +230,35 @@ export function studentPreferenceColumns(
       }
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Button variant="link" asChild>
-                <Link href={`../projects/${project.id}`}>View Details</Link>
+        <div className="flex w-full items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <LucideMoreHorizontal className="h-4 w-4" />
               </Button>
-            </DropdownMenuItem>
-            {role === Role.ADMIN &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <ChangePreferenceButton
-                    dropdownLabel="Change Type to:"
-                    defaultStatus={type}
-                    changeFunction={handleChange}
-                  />
-                </DropdownMenuItem>
-              )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actionss</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Button variant="link" asChild>
+                  <Link href={`../projects/${project.id}`}>View Details</Link>
+                </Button>
+              </DropdownMenuItem>
+              {role === Role.ADMIN &&
+                !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
+                  <DropdownMenuItem>
+                    <ChangePreferenceButton
+                      dropdownLabel="Change Type to:"
+                      defaultStatus={type}
+                      changeFunction={handleChange}
+                    />
+                  </DropdownMenuItem>
+                )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   };
