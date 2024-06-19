@@ -57,6 +57,9 @@ export function KanbanBoard({
   const { mutateAsync: reorderAsync } =
     api.user.student.preference.reorder.useMutation();
 
+  const { mutateAsync: updatePreferenceAsync } =
+    api.user.student.preference.update.useMutation();
+
   async function reorderPreference(
     projectId: string,
     updatedRank: number,
@@ -73,6 +76,23 @@ export function KanbanBoard({
         loading: "Reordering...",
         error: "Something went wrong",
         success: "Successfully reordered preferences",
+      },
+    );
+  }
+
+  async function deletePreference(projectId: string) {
+    void toast.promise(
+      updatePreferenceAsync({ params, projectId, preferenceType: "None" }).then(
+        () => {
+          router.refresh();
+          refetch();
+          setProjects((prev) => prev.filter((e) => e.id !== projectId));
+        },
+      ),
+      {
+        loading: `Removing project ${projectId} from preferences...`,
+        error: "Something went wrong",
+        success: `Successfully removed project ${projectId} from preferences`,
       },
     );
   }
@@ -153,11 +173,17 @@ export function KanbanBoard({
             key={column.id}
             column={column}
             projects={projects.filter((e) => e.columnId === column.id)}
+            deletePreference={deletePreference}
           />
         ))}
         {createPortal(
           <DragOverlay>
-            {activeProject && <ProjectPreferenceCard project={activeProject} />}
+            {activeProject && (
+              <ProjectPreferenceCard
+                project={activeProject}
+                deletePreference={deletePreference}
+              />
+            )}
           </DragOverlay>,
           document.body,
         )}
