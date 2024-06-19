@@ -57,7 +57,7 @@ export function studentsColumns(
 
   const userCols: ColumnDef<StudentData>[] = [
     {
-      id: "id",
+      id: "ID",
       accessorFn: ({ id }) => id,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" canFilter />
@@ -68,11 +68,11 @@ export function studentsColumns(
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" className="cursor-default">
-                  <div className="w-20 truncate"> {student.id}</div>
+                  <div className="w-20 truncate">{student.id}</div>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p> {student.id}</p>
+                <p>{student.id}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -80,23 +80,23 @@ export function studentsColumns(
       ),
     },
     {
-      id: "name",
+      id: "Name",
       accessorFn: ({ name }) => name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
       ),
       cell: ({
         row: {
-          original: { name },
+          original: { name, id },
         },
       }) => (
-        <Button variant="link" className="cursor-default hover:no-underline">
-          {name}
+        <Button variant="link" asChild>
+          <Link href={`./students/${id}`}>{name}</Link>
         </Button>
       ),
     },
     {
-      id: "email",
+      id: "Email",
       accessorFn: ({ email }) => email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
@@ -133,18 +133,18 @@ export function studentsColumns(
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="h-8 w-8 p-0">
+            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <LucideMoreHorizontal className="h-4 w-4" />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`./students/${student.id}`}>
-                <Button variant="link">View Details</Button>
-              </Link>
+              <Button variant="link" asChild>
+                <Link href={`./students/${student.id}`}>View Details</Link>
+              </Button>
             </DropdownMenuItem>
             {role === Role.ADMIN &&
               !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (

@@ -1,0 +1,27 @@
+"use client";
+import { Stage } from "@prisma/client";
+import { ReactNode } from "react";
+
+import { api } from "@/lib/trpc/client";
+import { useInstanceParams } from "../params-context";
+
+export function SBAC({
+  children,
+  allowedStages,
+  AND = true,
+  OR = false,
+}: {
+  children: ReactNode;
+  allowedStages: Stage[];
+  AND?: boolean;
+  OR?: boolean;
+}) {
+  const params = useInstanceParams();
+  const { data: stage, isSuccess } =
+    api.institution.instance.currentStage.useQuery({ params });
+
+  if (!isSuccess) return <></>;
+  if (OR || (AND && allowedStages.includes(stage))) return <>{children}</>;
+
+  return <></>;
+}

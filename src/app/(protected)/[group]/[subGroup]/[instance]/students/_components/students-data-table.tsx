@@ -50,7 +50,7 @@ export function StudentsDataTable({
   }
 
   const primaryColumn: SearchableColumn = {
-    id: "name",
+    id: "Name",
     displayName: "Student Names",
   };
 
