@@ -15,6 +15,7 @@ import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
 import { AccessControl } from "@/components/access-control";
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.group.access({ params });
@@ -86,11 +87,11 @@ export default async function Page({ params }: { params: { group: string } }) {
           ))}
         </div>
       </div>
-      <AccessControl minimumAdminLevel={AdminLevel.SUPER}>
+      <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
         <div className="mt-16">
           <DangerZone spaceTitle="Group" params={params} />
         </div>
-      </AccessControl>
+      </AdminLevelAC>
     </div>
   );
 }

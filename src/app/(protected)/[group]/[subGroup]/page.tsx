@@ -2,6 +2,7 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
 import { Heading, SubHeading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,12 +10,10 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
-import { AccessControl } from "@/components/access-control";
 
 export default async function Page({
   params,
@@ -48,11 +47,11 @@ export default async function Page({
                 <TableRow className="flex w-full items-center" key={i}>
                   <TableCell className="w-1/3 font-medium">{name}</TableCell>
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
-                  <AccessControl minimumAdminLevel={AdminLevel.GROUP}>
+                  <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
                     <TableCell className="flex w-1/3 justify-end">
                       <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
-                  </AccessControl>
+                  </AdminLevelAC>
                 </TableRow>
               ))}
             </TableBody>
@@ -92,11 +91,11 @@ export default async function Page({
           ))}
         </div>
       </div>
-      <AccessControl minimumAdminLevel={AdminLevel.GROUP}>
+      <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
         <div className="mt-16">
           <DangerZone spaceTitle="Sub-Group" params={params} />
         </div>
-      </AccessControl>
+      </AdminLevelAC>
     </div>
   );
 }
