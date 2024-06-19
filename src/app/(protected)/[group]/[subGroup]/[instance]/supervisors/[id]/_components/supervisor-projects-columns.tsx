@@ -55,8 +55,8 @@ export function supervisorProjectsColumns(
   role: Role,
   stage: Stage,
   supervisorId: string,
-  deleteSupervisor: (id: string) => void,
-  deleteAllSupervisors: () => void,
+  deleteSupervisorProject: (id: string) => Promise<void>,
+  deleteSelectedSupervisorProjects: (ids: string[]) => Promise<void>,
 ): ColumnDef<SupervisorProjectData>[] {
   const selectCol: ColumnDef<SupervisorProjectData> = {
     id: "select",
@@ -187,7 +187,7 @@ export function supervisorProjectsColumns(
     accessorKey: "actions",
     header: ({ table }) => {
       const allSelected = table.getIsAllRowsSelected();
-
+      // TODO: fix selection logic and pass selected projectIds to delete function
       if (
         allSelected &&
         (role === Role.ADMIN || user.id === supervisorId) &&
@@ -199,7 +199,7 @@ export function supervisorProjectsColumns(
               className="flex items-center gap-2"
               variant="destructive"
               size="sm"
-              onClick={deleteAllSupervisors}
+              onClick={() => deleteSelectedSupervisorProjects([])}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -234,7 +234,7 @@ export function supervisorProjectsColumns(
                 <Button
                   className="flex w-full items-center gap-2"
                   variant="destructive"
-                  onClick={() => deleteSupervisor(project.id)}
+                  onClick={() => deleteSupervisorProject(project.id)}
                 >
                   <Trash2 className="h-4 w-4" />
                   <p>Delete</p>

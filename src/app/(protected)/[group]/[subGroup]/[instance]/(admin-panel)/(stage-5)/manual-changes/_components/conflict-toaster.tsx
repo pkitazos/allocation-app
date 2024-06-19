@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { cn } from "@/lib/utils";
@@ -7,9 +6,15 @@ import {
   getCurrentCapacity,
   withinCapacity,
 } from "@/lib/utils/allocation-adjustment/supervisor";
+import {
+  ProjectInfo,
+  SupervisorDetails,
+} from "@/lib/validations/allocation-adjustment";
 
-import { ConflictBanner } from "./conflict-banner";
 import { useAllocDetails } from ".";
+import { ConflictBanner } from "./conflict-banner";
+import { AccessControl } from "@/components/access-control";
+import { AdminLevel, Role } from "@prisma/client";
 
 export function ConflictToaster() {
   const DEBUG = false;
@@ -24,8 +29,44 @@ export function ConflictToaster() {
 
   return (
     <div className="flex flex-col gap-3">
-      {DEBUG &&
-        supervisors.map((s) => {
+      <AccessControl
+        allowedRoles={[Role.ADMIN]}
+        minimumAdminLevel={AdminLevel.SUPER}
+      >
+        <DebugComponent
+          DEBUG={DEBUG}
+          supervisors={supervisors}
+          allProjects={allProjects}
+        />
+      </AccessControl>
+      {oversubscribedProjects.map((p, i) => (
+        <ConflictBanner key={i} type="project">
+          Project {p.id} is oversubscribed
+        </ConflictBanner>
+      ))}
+      {overWorkedSupervisors.map((s, i) => (
+        <ConflictBanner key={i} type="supervisor">
+          Supervisor {s.supervisorId} is assigned more students than
+          they&apos;re able to take on
+        </ConflictBanner>
+      ))}
+    </div>
+  );
+}
+
+function DebugComponent({
+  DEBUG,
+  supervisors,
+  allProjects,
+}: {
+  DEBUG: boolean;
+  supervisors: SupervisorDetails[];
+  allProjects: ProjectInfo[];
+}) {
+  if (DEBUG)
+    return (
+      <>
+        {supervisors.map((s) => {
           const capacity = getCurrentCapacity(allProjects, s);
           const invalid = !withinCapacity(allProjects, s);
           return (
@@ -42,17 +83,7 @@ export function ConflictToaster() {
             </div>
           );
         })}
-      {oversubscribedProjects.map((p, i) => (
-        <ConflictBanner key={i} type="project">
-          Project {p.id} is oversubscribed
-        </ConflictBanner>
-      ))}
-      {overWorkedSupervisors.map((s, i) => (
-        <ConflictBanner key={i} type="supervisor">
-          Supervisor {s.supervisorId} is assigned more students than
-          they&apos;re able to take on
-        </ConflictBanner>
-      ))}
-    </div>
-  );
+        )
+      </>
+    );
 }
