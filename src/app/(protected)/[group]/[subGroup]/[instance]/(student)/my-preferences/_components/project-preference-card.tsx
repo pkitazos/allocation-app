@@ -4,17 +4,11 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
-import {
-  useInstanceParams,
-  useInstanceStage,
-} from "@/components/params-context";
+import { useInstanceStage } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
