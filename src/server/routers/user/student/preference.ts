@@ -29,36 +29,39 @@ export const preferenceRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        const data = await ctx.db.preference.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationInstanceId: instance,
-            allocationSubGroupId: subGroup,
-            userId: studentId,
-          },
-          select: {
-            type: true,
-            rank: true,
-            project: {
-              select: {
-                title: true,
-                id: true,
-                supervisor: {
-                  select: { user: { select: { name: true, id: true } } },
+        const studentProjectPreferenceDetails =
+          await ctx.db.preference.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationInstanceId: instance,
+              allocationSubGroupId: subGroup,
+              userId: studentId,
+            },
+            select: {
+              type: true,
+              rank: true,
+              project: {
+                select: {
+                  title: true,
+                  id: true,
+                  supervisor: {
+                    select: { user: { select: { name: true, id: true } } },
+                  },
                 },
               },
             },
-          },
-        });
-        return data.map(({ project, type, rank }) => ({
-          project: { id: project.id, title: project.title },
-          supervisor: {
-            name: project.supervisor.user.name,
-            id: project.supervisor.user.id,
-          },
-          type: type,
-          rank: rank,
-        }));
+          });
+        return studentProjectPreferenceDetails.map(
+          ({ project, type, rank }) => ({
+            project: { id: project.id, title: project.title },
+            supervisor: {
+              name: project.supervisor.user.name,
+              id: project.supervisor.user.id,
+            },
+            type: type,
+            rank: rank,
+          }),
+        );
       },
     ),
 

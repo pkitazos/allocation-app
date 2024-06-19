@@ -59,19 +59,6 @@ export function projectColumns(
   deleteProject: (id: string) => void,
   deleteSelectedProjects: (ids: string[]) => void,
 ): ColumnDef<ProjectTableData>[] {
-  const params = useInstanceParams();
-  // if all rows are selected, header is fully checked
-  // if some rows are selected, header is indeterminate
-  // if no rows are selected, header is unchecked
-
-  // if all rows are selected and header is clicked, all rows are deselected
-  // if some rows are selected and header is clicked, all rows are selected
-  // if no rows are selected and header is clicked, all rows are selected
-
-  // if all rows are selected and a row is deselected, header is indeterminate
-  // if some rows are selected and a row is deselected, header is indeterminate
-  // if no rows are selected and a row is selected, header is indeterminate
-
   const selectCol: ColumnDef<ProjectTableData> = {
     id: "select",
     header: ({ table }) => {
