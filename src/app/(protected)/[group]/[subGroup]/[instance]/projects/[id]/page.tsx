@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/server";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { PreferenceButton } from "./_components/preference-button";
+import { AccessControl } from "@/components/access-control";
 import { ProjectRemovalButton } from "./_components/project-removal-button";
+import { StudentPreferenceButton } from "./_components/student-preference-button";
 
 interface pageParams extends InstanceParams {
   id: string;
@@ -21,8 +22,7 @@ export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
 
   const project = await api.project.getById({ projectId });
-  const { user, role } = await api.user.userRole({ params });
-  const stage = await api.institution.instance.currentStage({ params });
+  const user = await api.user.get();
 
   const preferenceStatus = await api.user.student.preference.getForProject({
     params,
@@ -33,16 +33,24 @@ export default async function Project({ params }: { params: pageParams }) {
     <PageWrapper>
       <Heading className="flex items-center justify-between">
         {project.title}
-        {role === Role.STUDENT && stage === Stage.PROJECT_SELECTION && (
-          <PreferenceButton
+        <AccessControl
+          allowedRoles={[Role.STUDENT]}
+          allowedStages={[Stage.PROJECT_SELECTION]}
+        >
+          <StudentPreferenceButton
             projectId={projectId}
             defaultStatus={preferenceStatus}
           />
-        )}
-        {(role === Role.ADMIN || project.supervisor.user.id === user.id) &&
-          !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-            <ProjectRemovalButton projectId={projectId} />
-          )}
+        </AccessControl>
+        <AccessControl
+          allowedRoles={[Role.ADMIN]}
+          allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+          extraConditions={{
+            RBAC: { OR: project.supervisor.user.id === user.id },
+          }}
+        >
+          <ProjectRemovalButton projectId={projectId} />
+        </AccessControl>
       </Heading>
       <div className="mt-6 flex gap-6">
         <div className="w-3/4">

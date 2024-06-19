@@ -4,20 +4,73 @@ import { z } from "zod";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
 
 export const preferenceRouter = createTRPCRouter({
+  getAll: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const studentProjectPreferenceDetails =
+          await ctx.db.preference.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationInstanceId: instance,
+              allocationSubGroupId: subGroup,
+              userId: studentId,
+            },
+            select: {
+              type: true,
+              rank: true,
+              project: {
+                select: {
+                  title: true,
+                  id: true,
+                  supervisor: {
+                    select: { user: { select: { name: true, id: true } } },
+                  },
+                },
+              },
+            },
+          });
+        return studentProjectPreferenceDetails.map(
+          ({ project, type, rank }) => ({
+            project: { id: project.id, title: project.title },
+            supervisor: {
+              name: project.supervisor.user.name,
+              id: project.supervisor.user.id,
+            },
+            type: type,
+            rank: rank,
+          }),
+        );
+      },
+    ),
+
   update: stageAwareProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
         projectId: z.string(),
-        preferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+        preferenceType: studentPreferenceSchema,
       }),
     )
     .mutation(
@@ -207,6 +260,7 @@ export const preferenceRouter = createTRPCRouter({
         });
       },
     ),
+
   initialBoardState: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -255,6 +309,96 @@ export const preferenceRouter = createTRPCRouter({
         }));
 
         return { initialColumns, initialProjects };
+      },
+    ),
+
+  change: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        projectId: z.string(),
+        newPreferenceType: studentPreferenceSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          projectId,
+          newPreferenceType,
+        },
+      }) => {
+        if (newPreferenceType === "None") {
+          await ctx.db.preference.delete({
+            where: {
+              preferenceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                projectId,
+                userId: studentId,
+              },
+            },
+          });
+          return;
+        }
+
+        await ctx.db.preference.update({
+          where: {
+            preferenceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId: studentId,
+            },
+          },
+          data: { type: newPreferenceType },
+        });
+      },
+    ),
+
+  changeAll: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          newPreferenceType,
+        },
+      }) => {
+        if (newPreferenceType === "None") {
+          await ctx.db.preference.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+          });
+          return;
+        }
+
+        await ctx.db.preference.updateMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          data: { type: newPreferenceType },
+        });
       },
     ),
 });

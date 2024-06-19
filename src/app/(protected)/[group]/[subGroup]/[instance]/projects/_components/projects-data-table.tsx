@@ -27,7 +27,8 @@ export function ProjectsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.project.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } = api.project.deleteAll.useMutation();
+  const { mutateAsync: deleteAllAsync } =
+    api.project.deleteSelected.useMutation();
 
   async function handleDelete(projectId: string) {
     void toast.promise(
@@ -40,13 +41,13 @@ export function ProjectsDataTable({
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(projectIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteAllAsync({ params, projectIds }).then(() => router.refresh()),
       {
-        loading: "Deleting Project...",
+        loading: "Deleting Selected Projects...",
         error: "Something went wrong",
-        success: `All Projects deleted successfully`,
+        success: "Selected Projects deleted successfully",
       },
     );
   }
@@ -60,7 +61,13 @@ export function ProjectsDataTable({
     <DataTable
       searchableColumn={primaryColumn}
       className="w-full"
-      columns={projectColumns(user, role, stage, handleDelete, handleDeleteAll)}
+      columns={projectColumns(
+        user,
+        role,
+        stage,
+        handleDelete,
+        handleDeleteSelected,
+      )}
       data={data}
     />
   );
