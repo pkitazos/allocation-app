@@ -22,28 +22,13 @@ import { ProjectPreference } from "@/lib/validations/board";
 export function ProjectPreferenceCard({
   project,
   idx,
+  deletePreference,
 }: {
   project: ProjectPreference;
   idx?: number;
+  deletePreference: (id: string) => Promise<void>;
 }) {
-  const params = useInstanceParams();
-  const router = useRouter();
-  const { mutateAsync } = api.user.student.preference.update.useMutation();
-
   const stage = useInstanceStage();
-
-  function deletePreference(projectId: string) {
-    void toast.promise(
-      mutateAsync({ params, projectId, preferenceType: "None" }).then(() =>
-        router.refresh(),
-      ),
-      {
-        loading: `Removing project ${projectId} from preferences...`,
-        error: "Something went wrong",
-        success: `Successfully removed project ${projectId} from preferences`,
-      },
-    );
-  }
 
   const {
     setNodeRef,
