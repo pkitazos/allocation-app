@@ -3,12 +3,14 @@ import { z } from "zod";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { updatedProjectFormDetailsSchema } from "@/lib/validations/project";
 
 import {
   createTRPCRouter,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { createManyFlags } from "@/server/utils/flag";
 
 export const projectRouter = createTRPCRouter({
   getEditFormDetails: protectedProcedure
@@ -21,9 +23,69 @@ export const projectRouter = createTRPCRouter({
 
       return {
         capacityUpperBound: project.capacityUpperBound,
-        preAllocatedStudentId: project.preAllocatedStudentId ?? undefined,
+        preAllocatedStudentId: project.preAllocatedStudentId ?? "",
       };
     }),
+
+  updateProjectDetails: protectedProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        projectId: z.string(),
+        updatedProject: updatedProjectFormDetailsSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          projectId,
+          updatedProject,
+        },
+      }) => {
+        await ctx.db.project.update({
+          where: { id: projectId },
+          data: {
+            title: updatedProject.title,
+            description: updatedProject.description,
+            // capacityUpperBound: updatedProject.capacityUpperBound,
+            // preAllocatedStudentId: updatedProject.preAllocatedStudentId,
+          },
+        });
+
+        await ctx.db.flagOnProject.deleteMany({
+          where: {
+            projectId,
+            AND: { flagId: { notIn: updatedProject.flagIds } },
+          },
+        });
+
+        await createManyFlags(ctx.db, projectId, updatedProject.flagIds);
+
+        await ctx.db.tag.createMany({
+          data: updatedProject.tags.map((tag) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            ...tag,
+          })),
+          skipDuplicates: true,
+        });
+
+        await ctx.db.tagOnProject.deleteMany({
+          where: {
+            projectId,
+            AND: { tagId: { notIn: updatedProject.tags.map(({ id }) => id) } },
+          },
+        });
+
+        await ctx.db.tagOnProject.createMany({
+          data: updatedProject.tags.map(({ id }) => ({ tagId: id, projectId })),
+          skipDuplicates: true,
+        });
+      },
+    ),
 
   getTableData: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

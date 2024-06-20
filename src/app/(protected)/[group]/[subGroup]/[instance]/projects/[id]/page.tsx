@@ -8,10 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/server";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { ProjectRemovalButton } from "./_components/project-removal-button";
 import { StudentPreferenceButton } from "./_components/student-preference-button";
 
 interface pageParams extends InstanceParams {
@@ -20,6 +20,7 @@ interface pageParams extends InstanceParams {
 
 export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
+  const instancePath = formatParamsAsPath(params);
 
   const project = await api.project.getById({ projectId });
   const user = await api.user.get();
@@ -47,7 +48,11 @@ export default async function Project({ params }: { params: pageParams }) {
           allowedStages={previousStages(Stage.PROJECT_SELECTION)}
           extraConditions={{ RBAC: { OR: project.supervisor.id === user.id } }}
         >
-          <ProjectRemovalButton projectId={projectId} />
+          <Button asChild>
+            <Link href={`${instancePath}/projects/${projectId}/edit`}>
+              Edit or Delete
+            </Link>
+          </Button>
         </AccessControl>
       </Heading>
       <div className="mt-6 flex gap-6">

@@ -3,22 +3,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, Tag } from "@prisma/client";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { useInstanceParams } from "@/components/params-context";
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -29,110 +20,70 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { nullable } from "@/lib/utils/general/nullable";
+import {
+  CurrentProjectFormDetails,
+  UpdatedProjectFormDetails,
+  updatedProjectFormDetailsSchema,
+} from "@/lib/validations/project";
 
-const FormSchema = z.object({
-  title: z.string().min(4, "Please enter a longer title"),
-  description: z.string().min(10, "Please enter a longer description"),
-  flagIds: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one flag for a project.",
-  }),
-  tags: z
-    .array(z.object({ id: z.string(), title: z.string() }))
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one tag for a project.",
-    }),
-  capacityUpperBound: z.coerce.number().int().positive().optional(),
-  preAllocatedStudentId: z.string().optional(),
-});
-
-type FormData = z.infer<typeof FormSchema>;
-
-type FormProject = {
-  title: string;
-  description: string;
-  capacityUpperBound: number;
-  preAllocatedStudentId: string | undefined;
-  supervisor: {
-    id: string;
-    name: string | null;
-  };
-  flags: {
-    id: string;
-    title: string;
-  }[];
-  tags: {
-    id: string;
-    title: string;
-  }[];
-};
+import { ProjectRemovalButton } from "./project-removal-button";
 
 export function EditProjectForm({
   flags,
   tags,
-  students,
+  // students,
   project,
 }: {
   flags: Pick<Flag, "id" | "title">[];
   tags: TagType[];
   students: { id: string }[];
-  project: FormProject;
+  project: CurrentProjectFormDetails;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
   const [selectedTags, setSelectedTags] = useState<TagType[]>(project.tags);
-  const [preAllocated, setPreAllocated] = useState(
-    !!project.preAllocatedStudentId,
-  );
+  // const [preAllocated, setPreAllocated] = useState(
+  //   project.preAllocatedStudentId !== "",
+  // );
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<UpdatedProjectFormDetails>({
+    resolver: zodResolver(updatedProjectFormDetailsSchema),
     defaultValues: {
       title: project.title,
       description: project.description,
-      capacityUpperBound: project.capacityUpperBound,
-      preAllocatedStudentId: project.preAllocatedStudentId,
+      // capacityUpperBound: project.capacityUpperBound,
+      // preAllocatedStudentId: project.preAllocatedStudentId,
       flagIds: project.flags.map(({ id }) => id),
       tags: project.tags,
     },
   });
 
-  const { mutateAsync } = api.user.supervisor.createProject.useMutation();
+  const { mutateAsync } = api.project.updateProjectDetails.useMutation();
 
-  const onSubmit = (data: FormData) => {
+  function onSubmit(data: UpdatedProjectFormDetails) {
     void toast.promise(
       mutateAsync({
         params,
-        ...data,
-        capacityUpperBound: !preAllocated
-          ? nullable(data.capacityUpperBound)
-          : 1,
-        preAllocatedStudentId: preAllocated
-          ? nullable(data.preAllocatedStudentId)
-          : null,
-      }).then(() => router.push(`${instancePath}/my-projects`)),
+        projectId: project.id,
+        updatedProject: data,
+      }).then(() => {
+        router.push(`${instancePath}/projects/${project.id}`);
+        router.refresh();
+      }),
       {
-        loading: "Creating Project...",
+        loading: `Updating Project ${project.id}...`,
         error: "Something went wrong",
-        success: "Success",
+        success: `Successfully updated Project ${project.id}`,
       },
     );
-  };
+  }
 
   return (
     <Form {...form}>
@@ -259,16 +210,16 @@ export function EditProjectForm({
         </div>
 
         <Separator className="my-4" />
-
+        {/* 
         <div className="mb-3 flex items-center space-x-2">
           <Switch
             id="airplane-mode"
             onCheckedChange={() => setPreAllocated(!preAllocated)}
           />
           <Label htmlFor="airplane-mode">Student defined project</Label>
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-2">
+        {/* <div className="grid grid-cols-2">
           <FormField
             control={form.control}
             name="capacityUpperBound"
@@ -276,10 +227,7 @@ export function EditProjectForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={cn(
-                    "text-xl",
-                    preAllocated && "text-muted-foreground",
-                  )}
+                  className={cn("text-xl", preAllocated && "text-slate-400")}
                 >
                   Capacity Upper Bound
                 </FormLabel>
@@ -306,10 +254,7 @@ export function EditProjectForm({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel
-                  className={cn(
-                    "text-xl",
-                    !preAllocated && "text-muted-foreground",
-                  )}
+                  className={cn("text-xl", !preAllocated && "text-slate-400")}
                 >
                   Student
                 </FormLabel>
@@ -321,7 +266,7 @@ export function EditProjectForm({
                         role="combobox"
                         className={cn(
                           "w-[200px] justify-between overflow-hidden",
-                          !field.value && "text-muted-foreground",
+                          !field.value && "text-slate-400",
                         )}
                       >
                         {field.value
@@ -346,7 +291,7 @@ export function EditProjectForm({
                             onSelect={() => {
                               form.setValue(
                                 "preAllocatedStudentId",
-                                student.id,
+                                student.id, 
                               );
                             }}
                           >
@@ -372,12 +317,13 @@ export function EditProjectForm({
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
 
         <Separator className="my-14" />
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-8">
+          <ProjectRemovalButton projectId={project.id} />
           <Button type="submit" size="lg">
-            create new project
+            Update Project
           </Button>
         </div>
       </form>

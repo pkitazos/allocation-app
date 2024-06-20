@@ -9,6 +9,7 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { createManyFlags } from "@/server/utils/flag";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -84,8 +85,8 @@ export const supervisorRouter = createTRPCRouter({
         description: z.string(),
         flagIds: z.array(z.string()),
         tags: z.array(z.object({ id: z.string(), title: z.string() })),
-        capacityUpperBound: z.number().nullable(),
-        preAllocatedStudentId: z.string().nullable(),
+        // capacityUpperBound: z.number().nullable(),
+        // preAllocatedStudentId: z.string().nullable(),
       }),
     )
     .mutation(
@@ -97,8 +98,8 @@ export const supervisorRouter = createTRPCRouter({
           description,
           flagIds,
           tags,
-          capacityUpperBound,
-          preAllocatedStudentId,
+          // capacityUpperBound,
+          // preAllocatedStudentId,
         },
       }) => {
         const user = ctx.session.user;
@@ -111,14 +112,12 @@ export const supervisorRouter = createTRPCRouter({
             title,
             description,
             capacityLowerBound: 0,
-            capacityUpperBound: capacityUpperBound ?? 1,
-            preAllocatedStudentId,
+            capacityUpperBound: 1, // TODO: fix this
+            // preAllocatedStudentId,
           },
         });
 
-        await ctx.db.flagOnProject.createMany({
-          data: flagIds.map((flagId) => ({ flagId, projectId: project.id })),
-        });
+        await createManyFlags(ctx.db, project.id, flagIds);
 
         const existingTags = await ctx.db.tag.findMany({
           where: {

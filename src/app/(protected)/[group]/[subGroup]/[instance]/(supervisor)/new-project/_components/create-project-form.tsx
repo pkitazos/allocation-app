@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, Tag } from "@prisma/client";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -12,13 +11,6 @@ import { useInstanceParams } from "@/components/params-context";
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -29,20 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { nullable } from "@/lib/utils/general/nullable";
 
 const FormSchema = z.object({
   title: z.string().min(4, "Please enter a longer title"),
@@ -64,7 +47,7 @@ type FormData = z.infer<typeof FormSchema>;
 export function CreateProjectForm({
   flags,
   tags,
-  students,
+  // students,
 }: {
   flags: Pick<Flag, "id" | "title">[];
   tags: TagType[];
@@ -75,7 +58,7 @@ export function CreateProjectForm({
   const instancePath = formatParamsAsPath(params);
 
   const [selectedTags, setSelectedTags] = useState<TagType[]>([]);
-  const [preAllocated, setPreAllocated] = useState(false);
+  // const [preAllocated, setPreAllocated] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
@@ -95,13 +78,16 @@ export function CreateProjectForm({
       mutateAsync({
         params,
         ...data,
-        capacityUpperBound: !preAllocated
-          ? nullable(data.capacityUpperBound)
-          : 1,
-        preAllocatedStudentId: preAllocated
-          ? nullable(data.preAllocatedStudentId)
-          : null,
-      }).then(() => router.push(`${instancePath}/my-projects`)),
+        // capacityUpperBound: !preAllocated
+        //   ? nullable(data.capacityUpperBound)
+        //   : 1,
+        // preAllocatedStudentId: preAllocated
+        //   ? nullable(data.preAllocatedStudentId)
+        //   : null,
+      }).then(() => {
+        router.push(`${instancePath}/my-projects`);
+        router.refresh();
+      }),
       {
         loading: "Creating Project...",
         error: "Something went wrong",
@@ -235,16 +221,16 @@ export function CreateProjectForm({
         </div>
 
         <Separator className="my-4" />
-
+        {/* 
         <div className="mb-3 flex items-center space-x-2">
           <Switch
             id="airplane-mode"
             onCheckedChange={() => setPreAllocated(!preAllocated)}
           />
           <Label htmlFor="airplane-mode">Student defined project</Label>
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-2">
+        {/* <div className="grid grid-cols-2">
           <FormField
             control={form.control}
             name="capacityUpperBound"
@@ -348,7 +334,7 @@ export function CreateProjectForm({
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
 
         <Separator className="my-14" />
         <div className="flex justify-end">
