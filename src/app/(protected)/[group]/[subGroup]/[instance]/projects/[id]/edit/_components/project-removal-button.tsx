@@ -35,8 +35,9 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
   return (
     <Button
       className="flex items-center gap-2"
-      onClick={handleDelete}
       variant="destructive"
+      size="lg"
+      onClick={handleDelete}
       type="button"
     >
       <Trash2 className="h-4 w-4" />
