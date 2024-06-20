@@ -34,7 +34,7 @@ export function DestructiveButton({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            Allocation {content} and all related data.
+            {content} and all related data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -43,7 +43,7 @@ export function DestructiveButton({
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={action}
           >
-            Yes, delete everything
+            Yes, delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
