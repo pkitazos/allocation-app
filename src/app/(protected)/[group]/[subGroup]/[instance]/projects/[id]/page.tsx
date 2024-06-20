@@ -1,6 +1,7 @@
 import { Role, Stage } from "@prisma/client";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { Heading, SubHeading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,6 @@ import { api } from "@/lib/trpc/server";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { AccessControl } from "@/components/access-control";
 import { ProjectRemovalButton } from "./_components/project-removal-button";
 import { StudentPreferenceButton } from "./_components/student-preference-button";
 
@@ -45,9 +45,7 @@ export default async function Project({ params }: { params: pageParams }) {
         <AccessControl
           allowedRoles={[Role.ADMIN]}
           allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-          extraConditions={{
-            RBAC: { OR: project.supervisor.user.id === user.id },
-          }}
+          extraConditions={{ RBAC: { OR: project.supervisor.id === user.id } }}
         >
           <ProjectRemovalButton projectId={projectId} />
         </AccessControl>
@@ -62,9 +60,9 @@ export default async function Project({ params }: { params: pageParams }) {
             <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Supervisor:
             </h2>
-            <Link href={`../supervisors/${project.supervisor.user.id}`}>
+            <Link href={`../supervisors/${project.supervisor.id}`}>
               <Button className="text-lg" variant="link">
-                {project.supervisor.user.name}
+                {project.supervisor.name}
               </Button>
             </Link>
           </div>
@@ -72,7 +70,7 @@ export default async function Project({ params }: { params: pageParams }) {
             <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Flags:
             </h2>
-            {project.flagOnProjects.map(({ flag }, i) => (
+            {project.flags.map((flag, i) => (
               <Badge key={i} variant="outline">
                 {flag.title}
               </Badge>
@@ -82,7 +80,7 @@ export default async function Project({ params }: { params: pageParams }) {
             <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Tags:
             </h2>
-            {project.tagOnProject.map(({ tag }, i) => (
+            {project.tags.map((tag, i) => (
               <Badge key={i} variant="outline">
                 {tag.title}
               </Badge>

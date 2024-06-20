@@ -11,6 +11,20 @@ import {
 } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
+  getEditFormDetails: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input: { projectId } }) => {
+      const project = await ctx.db.project.findFirstOrThrow({
+        where: { id: projectId },
+        select: { capacityUpperBound: true, preAllocatedStudentId: true },
+      });
+
+      return {
+        capacityUpperBound: project.capacityUpperBound,
+        preAllocatedStudentId: project.preAllocatedStudentId ?? undefined,
+      };
+    }),
+
   getTableData: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -51,7 +65,7 @@ export const projectRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input: { projectId } }) => {
-      return await ctx.db.project.findFirstOrThrow({
+      const project = await ctx.db.project.findFirstOrThrow({
         where: { id: projectId },
         select: {
           title: true,
@@ -67,6 +81,13 @@ export const projectRouter = createTRPCRouter({
           },
         },
       });
+      return {
+        title: project.title,
+        description: project.description,
+        supervisor: project.supervisor.user,
+        flags: project.flagOnProjects.map(({ flag }) => flag),
+        tags: project.tagOnProject.map(({ tag }) => tag),
+      };
     }),
 
   delete: stageAwareProcedure

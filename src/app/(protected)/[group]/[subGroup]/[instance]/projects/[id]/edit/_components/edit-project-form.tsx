@@ -1,10 +1,10 @@
 "use client";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -62,25 +62,21 @@ const FormSchema = z.object({
 type FormData = z.infer<typeof FormSchema>;
 
 type FormProject = {
-  tagOnProject: {
-    tag: {
-      id: string;
-      title: string;
-    };
-  }[];
   title: string;
   description: string;
+  capacityUpperBound: number;
+  preAllocatedStudentId: string | undefined;
   supervisor: {
-    user: {
-      id: string;
-      name: string | null;
-    };
+    id: string;
+    name: string | null;
   };
-  flagOnProjects: {
-    flag: {
-      id: string;
-      title: string;
-    };
+  flags: {
+    id: string;
+    title: string;
+  }[];
+  tags: {
+    id: string;
+    title: string;
   }[];
 };
 
@@ -99,19 +95,20 @@ export function EditProjectForm({
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
-  const [selectedTags, setSelectedTags] = useState<TagType[]>(
-    project.tagOnProject.map(({ tag }) => tag),
+  const [selectedTags, setSelectedTags] = useState<TagType[]>(project.tags);
+  const [preAllocated, setPreAllocated] = useState(
+    !!project.preAllocatedStudentId,
   );
-  const [preAllocated, setPreAllocated] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: project.title,
       description: project.description,
-      capacityUpperBound: 1,
-      flagIds: project.flagOnProjects.map(({ flag }) => flag.id),
-      tags: project.tagOnProject.map(({ tag }) => tag),
+      capacityUpperBound: project.capacityUpperBound,
+      preAllocatedStudentId: project.preAllocatedStudentId,
+      flagIds: project.flags.map(({ id }) => id),
+      tags: project.tags,
     },
   });
 
