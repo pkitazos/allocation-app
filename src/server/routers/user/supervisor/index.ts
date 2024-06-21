@@ -10,6 +10,7 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { createManyFlags } from "@/server/utils/flag";
+import { updatedProjectFormDetailsSchema } from "@/lib/validations/project-form";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -81,12 +82,7 @@ export const supervisorRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        title: z.string(),
-        description: z.string(),
-        flagIds: z.array(z.string()),
-        tags: z.array(z.object({ id: z.string(), title: z.string() })),
-        // capacityUpperBound: z.number().nullable(),
-        // preAllocatedStudentId: z.string().nullable(),
+        newProject: updatedProjectFormDetailsSchema,
       }),
     )
     .mutation(
@@ -94,12 +90,14 @@ export const supervisorRouter = createTRPCRouter({
         ctx,
         input: {
           params: { group, subGroup, instance },
-          title,
-          description,
-          flagIds,
-          tags,
-          // capacityUpperBound,
-          // preAllocatedStudentId,
+          newProject: {
+            title,
+            description,
+            flagIds,
+            tags,
+            capacityUpperBound,
+            preAllocatedStudentId,
+          },
         },
       }) => {
         const user = ctx.session.user;
@@ -112,8 +110,8 @@ export const supervisorRouter = createTRPCRouter({
             title,
             description,
             capacityLowerBound: 0,
-            capacityUpperBound: 1, // TODO: fix this
-            // preAllocatedStudentId,
+            capacityUpperBound,
+            preAllocatedStudentId,
           },
         });
 

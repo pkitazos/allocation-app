@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
-import { updatedProjectFormDetailsSchema } from "@/lib/validations/project";
+import { updatedProjectFormDetailsSchema } from "@/lib/validations/project-form";
 
 import {
   createTRPCRouter,

@@ -20,8 +20,8 @@ export const updatedProjectFormDetailsSchema = z.object({
     .refine((value) => value.some((item) => item), {
       message: "You have to select at least one tag for a project.",
     }),
-  // capacityUpperBound: z.coerce.number().int().positive(),
-  // preAllocatedStudentId: z.string().optional(),
+  capacityUpperBound: z.coerce.number().int().positive(),
+  preAllocatedStudentId: z.string().optional(),
 });
 
 export type UpdatedProjectFormDetails = z.infer<
@@ -31,14 +31,14 @@ export type UpdatedProjectFormDetails = z.infer<
 const currentProjectFormDetailsSchema = updatedProjectFormDetailsSchema
   .omit({
     flagIds: true,
-    // capacityUpperBound: true,
-    // preAllocatedStudentId: true,
+    capacityUpperBound: true,
+    preAllocatedStudentId: true,
   })
   .extend({
     id: z.string(),
-    // capacityUpperBound: z.number(),
-    // preAllocatedStudentId: z.string(),
-    flags: z.array(z.object({ id: z.string(), title: z.string() })),
+    capacityUpperBound: z.number(),
+    preAllocatedStudentId: z.string(),
+    flagIds: z.array(z.string()),
   });
 
 export type CurrentProjectFormDetails = z.infer<
