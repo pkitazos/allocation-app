@@ -19,7 +19,10 @@ export function DangerZone({ spaceTitle }: { spaceTitle: string }) {
 
   async function destructiveAction() {
     void toast.promise(
-      deleteAsync({ params }).then(() => router.push(`/${group}/${subGroup}`)),
+      deleteAsync({ params }).then(() => {
+        router.push(`/${group}/${subGroup}`);
+        router.refresh();
+      }),
       {
         loading: `Deleting ${spaceTitle}`,
         error: "Something went wrong",
