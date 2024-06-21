@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
+import { ProjectForm } from "@/components/project-form";
 import { TagType } from "@/components/tag/tag-input";
 
 import { api } from "@/lib/trpc/client";
@@ -13,7 +14,6 @@ import {
   UpdatedProjectFormDetails,
 } from "@/lib/validations/project-form";
 
-import { ProjectForm } from "@/components/project-form";
 import { ProjectRemovalButton } from "./project-removal-button";
 
 export function EditProjectForm({

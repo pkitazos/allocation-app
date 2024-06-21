@@ -49,8 +49,8 @@ export const projectRouter = createTRPCRouter({
           data: {
             title: updatedProject.title,
             description: updatedProject.description,
-            // capacityUpperBound: updatedProject.capacityUpperBound,
-            // preAllocatedStudentId: updatedProject.preAllocatedStudentId,
+            capacityUpperBound: updatedProject.capacityUpperBound,
+            preAllocatedStudentId: updatedProject.preAllocatedStudentId,
           },
         });
 

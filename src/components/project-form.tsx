@@ -1,9 +1,9 @@
 "use client";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Flag, Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { ReactNode, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -35,13 +35,12 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
+import { cn } from "@/lib/utils";
 import {
   CurrentProjectFormDetails,
   UpdatedProjectFormDetails,
   updatedProjectFormDetailsSchema,
 } from "@/lib/validations/project-form";
-
-import { cn } from "@/lib/utils";
 
 export function ProjectForm({
   flags,
@@ -89,25 +88,15 @@ export function ProjectForm({
   function handleSwitch() {
     const newState = !preAllocated;
 
-    form.setValue(
-      "capacityUpperBound",
-      newState ? 1 : form.getValues().capacityUpperBound,
-    );
+    if (newState) {
+      form.setValue("capacityUpperBound", 1);
+    } else {
+      form.setValue("preAllocatedStudentId", "");
+    }
 
-    form.setValue(
-      "preAllocatedStudentId",
-      newState ? form.getValues().preAllocatedStudentId : "",
-    );
-
+    form.setValue("isPreAllocated", newState);
     setPreAllocated(newState);
   }
-
-  useEffect(() => {
-    console.log({
-      preAllocated,
-      studentId: form.getValues().preAllocatedStudentId,
-    });
-  });
 
   return (
     <Form {...form}>
@@ -235,16 +224,27 @@ export function ProjectForm({
 
         <Separator className="my-4" />
 
-        <div className="mb-3 flex items-center space-x-2">
-          <Switch
-            id="pre-allocated-student-id"
-            checked={preAllocated}
-            onCheckedChange={handleSwitch}
-          />
-          <Label htmlFor="pre-allocated-student-id">
-            Student defined project
-          </Label>
-        </div>
+        <FormField
+          control={form.control}
+          name="isPreAllocated"
+          render={() => (
+            <FormItem className="mb-3 flex items-center space-x-2">
+              <FormControl>
+                <>
+                  <Switch
+                    id="pre-allocated-student-id"
+                    checked={preAllocated}
+                    onCheckedChange={handleSwitch}
+                  />
+                  <Label htmlFor="pre-allocated-student-id">
+                    Student defined project
+                  </Label>
+                </>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="grid grid-cols-2">
           <FormField
@@ -318,9 +318,12 @@ export function ProjectForm({
                             className="overflow-hidden"
                             value={student.id}
                             key={student.id}
-                            onSelect={(studentId) => {
+                            onSelect={() => {
                               setPreAllocated(true);
-                              form.setValue("preAllocatedStudentId", studentId);
+                              form.setValue(
+                                "preAllocatedStudentId",
+                                student.id,
+                              );
                             }}
                           >
                             <Check

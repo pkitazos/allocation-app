@@ -9,7 +9,7 @@ import { z } from "zod";
 //   preAllocatedStudentId: z.string().optional(),
 // });
 
-export const updatedProjectFormDetailsSchema = z.object({
+const baseProjectFormSchema = z.object({
   title: z.string().min(4, "Please enter a longer title"),
   description: z.string().min(10, "Please enter a longer description"),
   flagIds: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -20,15 +20,22 @@ export const updatedProjectFormDetailsSchema = z.object({
     .refine((value) => value.some((item) => item), {
       message: "You have to select at least one tag for a project.",
     }),
+  isPreAllocated: z.boolean(),
   capacityUpperBound: z.coerce.number().int().positive(),
   preAllocatedStudentId: z.string().optional(),
 });
+
+export const updatedProjectFormDetailsSchema = baseProjectFormSchema.refine(
+  ({ isPreAllocated, preAllocatedStudentId }) =>
+    isPreAllocated && preAllocatedStudentId !== "",
+  { message: "Please select a student", path: ["preAllocatedStudentId"] },
+);
 
 export type UpdatedProjectFormDetails = z.infer<
   typeof updatedProjectFormDetailsSchema
 >;
 
-const currentProjectFormDetailsSchema = updatedProjectFormDetailsSchema
+const currentProjectFormDetailsSchema = baseProjectFormSchema
   .omit({
     flagIds: true,
     capacityUpperBound: true,
