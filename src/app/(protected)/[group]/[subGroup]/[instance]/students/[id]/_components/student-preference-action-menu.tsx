@@ -60,7 +60,7 @@ export function StudentPreferenceActionMenu({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger className="text-primary">
             Change preference type to
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>

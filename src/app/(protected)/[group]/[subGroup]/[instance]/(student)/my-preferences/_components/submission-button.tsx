@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { PreferenceType } from "@prisma/client";
 import { AlertCircle } from "lucide-react";

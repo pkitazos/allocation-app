@@ -15,9 +15,11 @@ import { ProjectPreferenceCard } from "./project-preference-card";
 export function ColumnContainer({
   column,
   projects,
+  deletePreference,
 }: {
   column: BoardColumn;
   projects: ProjectPreference[];
+  deletePreference: (id: string) => Promise<void>;
 }) {
   const stage = useInstanceStage();
 
@@ -45,7 +47,12 @@ export function ColumnContainer({
       </p>
       <SortableContext items={projectIds}>
         {projects.map((e, i) => (
-          <ProjectPreferenceCard key={e.id} project={e} idx={i + 1} />
+          <ProjectPreferenceCard
+            key={e.id}
+            project={e}
+            idx={i + 1}
+            deletePreference={deletePreference}
+          />
         ))}
       </SortableContext>
     </div>

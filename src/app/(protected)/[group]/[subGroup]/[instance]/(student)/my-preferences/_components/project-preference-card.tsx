@@ -4,18 +4,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 import { AccessControl } from "@/components/access-control";
-import {
-  useInstanceParams,
-  useInstanceStage,
-} from "@/components/params-context";
+import { useInstanceStage } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import {
   previousStages,
@@ -26,28 +20,13 @@ import { ProjectPreference } from "@/lib/validations/board";
 export function ProjectPreferenceCard({
   project,
   idx,
+  deletePreference,
 }: {
   project: ProjectPreference;
   idx?: number;
+  deletePreference: (id: string) => Promise<void>;
 }) {
-  const params = useInstanceParams();
-  const router = useRouter();
-  const { mutateAsync } = api.user.student.preference.update.useMutation();
-
   const stage = useInstanceStage();
-
-  function deletePreference(projectId: string) {
-    void toast.promise(
-      mutateAsync({ params, projectId, preferenceType: "None" }).then(() =>
-        router.refresh(),
-      ),
-      {
-        loading: `Removing project ${projectId} from preferences...`,
-        error: "Something went wrong",
-        success: `Successfully removed project ${projectId} from preferences`,
-      },
-    );
-  }
 
   const {
     setNodeRef,

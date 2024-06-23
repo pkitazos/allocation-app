@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -21,7 +22,9 @@ import { columns } from "./new-student-columns";
 export const csvHeaders = ["full_name", "university_id", "email"];
 
 export function AddStudents() {
+  const router = useRouter();
   const params = useInstanceParams();
+
   const [newStudents, setNewStudents] = useState<NewStudent[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewStudent>({
@@ -40,12 +43,15 @@ export function AddStudents() {
   const { mutateAsync } =
     api.institution.instance.addStudentDetails.useMutation();
 
-  async function handleMutation() {
+  async function handleAddStudentDetails() {
     void toast.promise(
       mutateAsync({
         params,
         newStudents,
-      }).then(() => setNewStudents([])),
+      }).then(() => {
+        setNewStudents([]);
+        router.refresh();
+      }),
       {
         loading: "Adding students...",
         error: "Something went wrong",
@@ -98,7 +104,10 @@ export function AddStudents() {
         data={newStudents}
       />
       <div className="flex justify-end">
-        <Button onClick={handleMutation} disabled={newStudents.length === 0}>
+        <Button
+          onClick={handleAddStudentDetails}
+          disabled={newStudents.length === 0}
+        >
           Add Students
         </Button>
       </div>
