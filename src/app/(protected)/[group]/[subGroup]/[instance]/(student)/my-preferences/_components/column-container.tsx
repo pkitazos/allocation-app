@@ -7,7 +7,7 @@ import { Stage } from "@prisma/client";
 import { useInstanceStage } from "@/components/params-context";
 
 import { cn } from "@/lib/utils";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 
 import { ProjectPreferenceCard } from "./project-preference-card";
@@ -29,7 +29,7 @@ export function ColumnContainer({
       type: "Column",
       column,
     },
-    disabled: stageCheck(stage, Stage.PROJECT_ALLOCATION),
+    disabled: stageGte(stage, Stage.PROJECT_ALLOCATION),
   });
 
   const projectIds = useMemo(() => projects.map((e) => e.id), [projects]);

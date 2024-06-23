@@ -21,11 +21,9 @@ import {
 
 import { AccessControl } from "@/components/access-control";
 import { useInstanceParams } from "@/components/params-context";
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 import { CheckedState } from "@radix-ui/react-checkbox";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
 
 export interface ProjectTableData {
   user: User;
@@ -59,43 +57,7 @@ export function projectColumns(
   deleteProject: (id: string) => void,
   deleteSelectedProjects: (ids: string[]) => void,
 ): ColumnDef<ProjectTableData>[] {
-  const selectCol: ColumnDef<ProjectTableData> = {
-    id: "select",
-    header: ({ table }) => {
-      const allRowsSelected = table.getIsAllPageRowsSelected();
-      const someRowsSelected = table.getIsSomePageRowsSelected();
-
-      const checkedState = allRowsSelected
-        ? true
-        : someRowsSelected
-          ? "indeterminate"
-          : false;
-
-      function handleCheck(value: CheckedState) {
-        if (value === "indeterminate") table.toggleAllPageRowsSelected(true);
-        else table.toggleAllPageRowsSelected(!!value);
-      }
-
-      return (
-        <Checkbox
-          checked={checkedState}
-          onCheckedChange={handleCheck}
-          aria-label="Select all"
-        />
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      );
-    },
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<ProjectTableData>();
 
   const userCols: ColumnDef<ProjectTableData>[] = [
     {
@@ -212,7 +174,7 @@ export function projectColumns(
       if (
         someSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       )
         return (
           <div className="flex justify-center">
@@ -275,7 +237,7 @@ export function projectColumns(
 
   if (role === Role.SUPERVISOR) return [...userCols, actionsCol];
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
+  return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
     : [selectCol, ...userCols, actionsCol];
 }

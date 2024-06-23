@@ -19,6 +19,7 @@ import {
 } from "@/lib/validations/student-preference";
 import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
+import { BookmarkIcon } from "lucide-react";
 
 export function ChangePreferenceButton({
   buttonLabelType = "static",
@@ -43,13 +44,18 @@ export function ChangePreferenceButton({
   }
 
   const buttonLabel =
-    buttonLabelType === "static"
-      ? "Change Type"
-      : selectStatus === PreferenceType.PREFERENCE
-        ? "In Preferences"
-        : selectStatus === PreferenceType.SHORTLIST
-          ? "In Shortlist"
-          : "Select";
+    buttonLabelType === "static" ? (
+      <div className="flex items-center gap-2">
+        <BookmarkIcon className="h-5 w-5" />
+        <span className="text-start text-xs">Change Type</span>
+      </div>
+    ) : selectStatus === PreferenceType.PREFERENCE ? (
+      "In Preferences"
+    ) : selectStatus === PreferenceType.SHORTLIST ? (
+      "In Shortlist"
+    ) : (
+      "Select"
+    );
 
   return (
     <>

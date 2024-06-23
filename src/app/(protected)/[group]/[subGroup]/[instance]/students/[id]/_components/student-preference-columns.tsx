@@ -3,24 +3,19 @@ import { PreferenceType, Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { AccessControl } from "@/components/access-control";
 import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-import { useRouter } from "next/navigation";
 import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
@@ -43,31 +38,12 @@ export function studentPreferenceColumns(
     newPreferenceType: StudentPreferenceType,
     projectId: string,
   ) => Promise<void>,
-  changeAllPreferences: (
+  changeSelectedPreferences: (
     newPreferenceType: StudentPreferenceType,
+    projectIds: string[],
   ) => Promise<void>,
 ): ColumnDef<PreferenceData>[] {
-  const router = useRouter();
-
-  const selectCol: ColumnDef<PreferenceData> = {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<PreferenceData>();
 
   const userCols: ColumnDef<PreferenceData>[] = [
     {
@@ -171,19 +147,26 @@ export function studentPreferenceColumns(
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedProjectIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.project.id);
 
       if (
-        allSelected &&
+        someSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
           <ChangePreferenceButton
             className="w-24 text-xs"
             dropdownLabel="Change Type to:"
             defaultStatus="None"
-            changeFunction={changeAllPreferences}
+            changeFunction={async (newPreference) => {
+              changeSelectedPreferences(newPreference, selectedProjectIds);
+            }}
           />
         );
       }

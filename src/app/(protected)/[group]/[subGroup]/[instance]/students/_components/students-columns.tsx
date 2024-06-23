@@ -1,10 +1,15 @@
+"use client";
 import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  LucideMoreHorizontal,
+  Trash2,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   DropdownMenu,
@@ -21,11 +26,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+import { AccessControl } from "@/components/access-control";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+
 import {
   previousStages,
-  stageCheck,
+  stageGte,
+  stageLte,
 } from "@/lib/utils/permissions/stage-check";
-import { AccessControl } from "@/components/access-control";
+
+import { spacesLabels } from "@/content/spaces";
 
 export interface StudentData {
   id: string;
@@ -36,28 +46,10 @@ export interface StudentData {
 export function studentsColumns(
   role: Role,
   stage: Stage,
-  deleteStudent: (id: string) => void,
-  deleteAllStudents: () => void,
+  deleteStudent: (id: string) => Promise<void>,
+  deleteSelectedStudents: (ids: string[]) => Promise<void>,
 ): ColumnDef<StudentData>[] {
-  const selectCol: ColumnDef<StudentData> = {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<StudentData>();
 
   const userCols: ColumnDef<StudentData>[] = [
     {
@@ -107,73 +99,98 @@ export function studentsColumns(
       ),
     },
   ];
+
   const actionsCol: ColumnDef<StudentData> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedStudentIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.id);
 
       if (
-        allSelected &&
+        someSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
-      ) {
+        stageLte(stage, Stage.PROJECT_SELECTION)
+      )
         return (
-          <div className="flex justify-center">
+          <div className="flex w-14 justify-center">
             <Button
               className="flex items-center gap-2"
               variant="destructive"
               size="sm"
-              onClick={deleteAllStudents}
+              onClick={async () => {
+                await deleteSelectedStudents(selectedStudentIds).then(() => {
+                  table.toggleAllRowsSelected(false);
+                });
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         );
-      }
-      return <div className="text-xs text-muted-foreground">Actions</div>;
-    },
-    cell: ({ row: { original: student } }) => {
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Button variant="link" asChild>
-                <Link href={`./students/${student.id}`}>View Details</Link>
+        <div className="flex w-14 justify-center">
+          <p className="text-xs text-gray-500">Actions</p>
+        </div>
+      );
+    },
+    cell: ({ row: { original: student }, table }) => {
+      return (
+        <div className="flex w-14 justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <LucideMoreHorizontal className="h-4 w-4" />
               </Button>
-            </DropdownMenuItem>
-            <AccessControl
-              allowedRoles={[Role.ADMIN]}
-              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-            >
-              <DropdownMenuItem>
-                <Button
-                  className="w-full"
-                  variant="destructive"
-                  onClick={() => deleteStudent(student.id)}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  href={`./students/${student.id}`}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Student Details</span>
+                </Link>
               </DropdownMenuItem>
-            </AccessControl>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={async () => {
+                      await deleteStudent(student.id).then(() => {
+                        table.toggleAllRowsSelected(false);
+                      });
+                    }}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>
+                      Remove Student from {spacesLabels.instance.short}
+                    </span>
+                  </button>
+                </DropdownMenuItem>
+              </AccessControl>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   };
 
   if (role !== Role.ADMIN) return userCols;
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
+  return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
     : [selectCol, ...userCols, actionsCol];
 }
