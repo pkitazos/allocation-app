@@ -1,19 +1,16 @@
-import { ReactNode } from "react";
 import { Role, Stage } from "@prisma/client";
 import { Home } from "lucide-react";
 import Link from "next/link";
+import { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
+import { AccessControl } from "@/components/access-control";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
-import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
@@ -30,7 +27,7 @@ export default async function Layout({
       <Unauthorised message="You need to be a Student to access this page" />
     );
   }
-  if (!stageCheck(stage, Stage.PROJECT_SELECTION)) {
+  if (stageLt(stage, Stage.PROJECT_SELECTION)) {
     return (
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );

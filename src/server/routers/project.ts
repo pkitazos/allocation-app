@@ -1,7 +1,7 @@
 import { Stage } from "@prisma/client";
 import { z } from "zod";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -75,7 +75,7 @@ export const projectRouter = createTRPCRouter({
           projectId,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.delete({
           where: {
@@ -103,7 +103,7 @@ export const projectRouter = createTRPCRouter({
           projectIds,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.deleteMany({
           where: {

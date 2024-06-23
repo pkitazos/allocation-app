@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 
 export function columns(
   stage: Stage,
@@ -126,7 +126,7 @@ export function columns(
       header: ({ table }) => {
         const allSelected = table.getIsAllRowsSelected();
 
-        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(stage, Stage.PROJECT_ALLOCATION)) return;
         if (allSelected)
           return (
             <Button variant="ghost" size="icon" onClick={clearTable}>
@@ -141,7 +141,7 @@ export function columns(
           original: { id },
         },
       }) => {
-        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(stage, Stage.PROJECT_ALLOCATION)) return;
         return (
           <Button variant="ghost" size="icon" onClick={() => removeRow(id)}>
             <X className="h-5 w-5" />

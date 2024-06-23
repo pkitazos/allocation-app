@@ -24,10 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 import { AccessControl } from "@/components/access-control";
 
 export interface SupervisorProjectData {
@@ -191,7 +188,7 @@ export function supervisorProjectsColumns(
       if (
         allSelected &&
         (role === Role.ADMIN || user.id === supervisorId) &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
           <div className="flex justify-center">
@@ -249,7 +246,7 @@ export function supervisorProjectsColumns(
 
   if (role !== Role.ADMIN && user.id !== supervisorId) return userCols;
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
+  return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
     : [selectCol, ...userCols, actionsCol];
 }

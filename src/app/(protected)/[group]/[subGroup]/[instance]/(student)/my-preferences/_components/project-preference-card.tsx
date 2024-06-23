@@ -11,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
 
 export function ProjectPreferenceCard({
@@ -42,7 +39,7 @@ export function ProjectPreferenceCard({
       type: "ProjectPreference",
       project,
     },
-    disabled: stageCheck(stage, Stage.PROJECT_ALLOCATION),
+    disabled: stageGte(stage, Stage.PROJECT_ALLOCATION),
   });
 
   const style = { transition, transform: CSS.Transform.toString(transform) };

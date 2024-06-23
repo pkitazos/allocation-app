@@ -22,10 +22,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  previousStages,
-  stageCheck,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 import { AccessControl } from "@/components/access-control";
 
 export type SupervisorData = {
@@ -123,7 +120,7 @@ export function supervisorColumns(
       if (
         allSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       )
         return (
           <div className="flex justify-center">
@@ -152,7 +149,7 @@ export function supervisorColumns(
                 <LucideMoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="start" side="bottom">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
@@ -185,7 +182,7 @@ export function supervisorColumns(
 
   if (role !== Role.ADMIN) return userCols;
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
+  return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
     : [selectCol, ...userCols, actionsCol];
 }
