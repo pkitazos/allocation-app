@@ -3,13 +3,12 @@ import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
-  LucideMoreHorizontal,
-  Trash2,
+  LucideMoreHorizontal as MoreIon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   DropdownMenu,
@@ -117,7 +116,7 @@ export function studentsColumns(
         stageLte(stage, Stage.PROJECT_SELECTION)
       )
         return (
-          <div className="flex w-14 justify-center">
+          <div className="flex w-14 items-center justify-center">
             <Button
               className="flex items-center gap-2"
               variant="destructive"
@@ -128,25 +127,25 @@ export function studentsColumns(
                 });
               }}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2Icon className="h-4 w-4" />
             </Button>
           </div>
         );
 
       return (
-        <div className="flex w-14 justify-center">
+        <div className="flex w-14 items-center justify-center">
           <p className="text-xs text-gray-500">Actions</p>
         </div>
       );
     },
     cell: ({ row: { original: student }, table }) => {
       return (
-        <div className="flex w-14 justify-center">
+        <div className="flex w-14 items-center justify-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
-                <LucideMoreHorizontal className="h-4 w-4" />
+                <MoreIon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="bottom">

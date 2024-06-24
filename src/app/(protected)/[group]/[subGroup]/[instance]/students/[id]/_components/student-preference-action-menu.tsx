@@ -3,7 +3,7 @@ import { PreferenceType } from "@prisma/client";
 import {
   BookmarkIcon,
   CornerDownRightIcon,
-  LucideMoreHorizontal,
+  LucideMoreHorizontal as MoreIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -50,7 +50,7 @@ export function StudentPreferenceActionMenu({
       <DropdownMenuTrigger asChild>
         <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
-          <LucideMoreHorizontal className="h-4 w-4" />
+          <MoreIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-68" align="center" side="bottom">

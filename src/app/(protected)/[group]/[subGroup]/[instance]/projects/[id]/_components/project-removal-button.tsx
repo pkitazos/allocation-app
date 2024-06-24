@@ -1,5 +1,5 @@
 "use client";
-import { Trash2 } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -36,7 +36,7 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
       onClick={handleDelete}
       variant="destructive"
     >
-      <Trash2 className="h-4 w-4" />
+      <Trash2Icon className="h-4 w-4" />
       <p>Delete Project</p>
     </Button>
   );
