@@ -361,12 +361,13 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  changeAll: adminProcedure
+  changeSelected: adminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
         studentId: z.string(),
         newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+        projectIds: z.array(z.string()),
       }),
     )
     .mutation(
@@ -376,6 +377,7 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
           studentId,
           newPreferenceType,
+          projectIds,
         },
       }) => {
         if (newPreferenceType === "None") {
@@ -385,6 +387,7 @@ export const preferenceRouter = createTRPCRouter({
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
               userId: studentId,
+              projectId: { in: projectIds },
             },
           });
           return;
@@ -396,6 +399,7 @@ export const preferenceRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             userId: studentId,
+            projectId: { in: projectIds },
           },
           data: { type: newPreferenceType },
         });
