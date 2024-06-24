@@ -11,6 +11,7 @@ import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
 import { supervisorColumns, SupervisorData } from "./supervisors-columns";
+import { spacesLabels } from "@/content/spaces";
 
 export function SupervisorsDataTable({
   user,
@@ -34,7 +35,7 @@ export function SupervisorsDataTable({
     void toast.promise(
       deleteAsync({ params, supervisorId }).then(() => router.refresh()),
       {
-        loading: "Deleting Supervisor...",
+        loading: `Removing Supervisor ${supervisorId} from ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
         success: `Supervisor ${supervisorId} deleted successfully`,
       },
@@ -47,9 +48,9 @@ export function SupervisorsDataTable({
         router.refresh(),
       ),
       {
-        loading: "Deleting Supervisor...",
+        loading: `Removing ${supervisorIds.length} supervisors from ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
-        success: `All Supervisors deleted successfully`,
+        success: `Successfully removed ${supervisorIds.length} Supervisors from ${spacesLabels.instance.short}`,
       },
     );
   }

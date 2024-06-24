@@ -6,14 +6,10 @@ import Link from "next/link";
 import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
@@ -58,18 +54,11 @@ export function studentPreferenceColumns(
         },
       }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-20 truncate">{project.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{project.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={project.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-20 truncate">{project.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -170,11 +159,7 @@ export function studentPreferenceColumns(
           />
         );
       }
-      return (
-        <div className="w-24 text-center text-sm text-muted-foreground">
-          Actions
-        </div>
-      );
+      return <ActionColumnLabel className="w-24" />;
     },
     cell: ({
       row: {

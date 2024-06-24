@@ -18,12 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { AccessControl } from "@/components/access-control";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -34,6 +28,8 @@ import {
   stageLte,
 } from "@/lib/utils/permissions/stage-check";
 
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { spacesLabels } from "@/content/spaces";
 
 export interface StudentData {
@@ -59,18 +55,11 @@ export function studentsColumns(
       ),
       cell: ({ row: { original: student } }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-20 truncate">{student.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{student.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={student.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-20 truncate">{student.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -117,28 +106,38 @@ export function studentsColumns(
       )
         return (
           <div className="flex w-14 items-center justify-center">
-            <Button
-              className="flex items-center gap-2"
-              variant="destructive"
-              size="sm"
-              onClick={async () => {
-                await deleteSelectedStudents(selectedStudentIds).then(() => {
-                  table.toggleAllRowsSelected(false);
-                });
-              }}
+            <WithTooltip
+              tip={
+                <p className="text-gray-700">
+                  Remove selected Students from {spacesLabels.instance.short}
+                </p>
+              }
+              duration={500}
             >
-              <Trash2Icon className="h-4 w-4" />
-            </Button>
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={async () => {
+                  await deleteSelectedStudents(selectedStudentIds).then(() => {
+                    table.toggleAllRowsSelected(false);
+                  });
+                }}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </WithTooltip>
           </div>
         );
 
-      return (
-        <div className="flex w-14 items-center justify-center">
-          <p className="text-xs text-gray-500">Actions</p>
-        </div>
-      );
+      return <ActionColumnLabel />;
     },
     cell: ({ row: { original: student }, table }) => {
+      async function handleDelete() {
+        await deleteStudent(student.id).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
       return (
         <div className="flex w-14 items-center justify-center">
           <DropdownMenu>
@@ -167,11 +166,7 @@ export function studentsColumns(
                 <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
                   <button
                     className="flex items-center gap-2"
-                    onClick={async () => {
-                      await deleteStudent(student.id).then(() => {
-                        table.toggleAllRowsSelected(false);
-                      });
-                    }}
+                    onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
                     <span>

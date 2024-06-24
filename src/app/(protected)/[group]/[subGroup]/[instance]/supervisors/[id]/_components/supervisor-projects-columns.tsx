@@ -20,16 +20,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { AccessControl } from "@/components/access-control";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
-import { spacesLabels } from "@/content/spaces";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 
 export interface SupervisorProjectData {
@@ -71,18 +66,11 @@ export function supervisorProjectsColumns(
       ),
       cell: ({ row: { original: project } }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-16 truncate"> {project.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p> {project.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={project.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-16 truncate">{project.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -184,26 +172,27 @@ export function supervisorProjectsColumns(
       ) {
         return (
           <div className="flex w-14 items-center justify-center">
-            <Button
-              className="flex items-center gap-2"
-              variant="destructive"
-              size="sm"
-              onClick={async () =>
-                await deleteSelectedSupervisorProjects(selectedProjectIds).then(
-                  () => table.toggleAllRowsSelected(false),
-                )
-              }
+            <WithTooltip
+              tip={<p className="text-gray-700">Delete selected Projects</p>}
+              duration={500}
             >
-              <Trash2Icon className="h-4 w-4" />
-            </Button>
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={async () =>
+                  await deleteSelectedSupervisorProjects(
+                    selectedProjectIds,
+                  ).then(() => table.toggleAllRowsSelected(false))
+                }
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </WithTooltip>
           </div>
         );
       }
-      return (
-        <div className="flex w-14 items-center justify-center">
-          <p className="text-xs text-gray-500">Actions</p>
-        </div>
-      );
+      return <ActionColumnLabel />;
     },
     cell: ({ row: { original: project }, table }) => {
       async function handleDelete() {
@@ -243,9 +232,7 @@ export function supervisorProjectsColumns(
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>
-                      Remove Project from {spacesLabels.instance.short}
-                    </span>
+                    <span>Delete Project</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>

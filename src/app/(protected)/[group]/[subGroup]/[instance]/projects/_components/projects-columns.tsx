@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { AccessControl } from "@/components/access-control";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
-import { spacesLabels } from "@/content/spaces";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import {
   previousStages,
   stageGte,
@@ -184,22 +185,23 @@ export function projectColumns(
       )
         return (
           <div className="flex w-14 items-center justify-center">
-            <Button
-              className="flex items-center gap-2"
-              variant="destructive"
-              size="sm"
-              onClick={() => deleteSelectedProjects(selectedProjectIds)}
+            <WithTooltip
+              tip={<p className="text-gray-700">Delete selected Projects</p>}
+              duration={500}
             >
-              <Trash2Icon className="h-4 w-4" />
-            </Button>
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={() => deleteSelectedProjects(selectedProjectIds)}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </WithTooltip>
           </div>
         );
 
-      return (
-        <div className="flex w-14 items-center justify-center">
-          <p className="text-xs text-gray-500">Actions</p>
-        </div>
-      );
+      return <ActionColumnLabel />;
     },
     cell: ({ row, table }) => {
       const project = row.original;
@@ -228,7 +230,7 @@ export function projectColumns(
                   href={`./projects/${project.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
-                  <span>View Project Details</span>
+                  <span>View Project details</span>
                 </Link>
               </DropdownMenuItem>
               <AccessControl
@@ -242,9 +244,7 @@ export function projectColumns(
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>
-                      Remove Project from {spacesLabels.instance.short}
-                    </span>
+                    <span>Delete Project</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>
