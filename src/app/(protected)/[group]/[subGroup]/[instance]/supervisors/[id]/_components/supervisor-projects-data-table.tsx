@@ -46,13 +46,13 @@ export function SupervisorProjectsDataTable({
     );
   }
 
-  async function handleDeleteAll(projectIds: string[]) {
+  async function handleDeleteSelected(projectIds: string[]) {
     void toast.promise(
       deleteSelectedAsync({ params, projectIds }).then(() => router.refresh()),
       {
-        loading: "Deleting Project...",
+        loading: `Deleting ${projectIds.length} Projects...`,
         error: "Something went wrong",
-        success: `All Projects deleted successfully`,
+        success: `Successfully deleted ${projectIds.length} Projects`,
       },
     );
   }
@@ -72,7 +72,7 @@ export function SupervisorProjectsDataTable({
         stage,
         supervisorId,
         handleDelete,
-        handleDeleteAll,
+        handleDeleteSelected,
       )}
       data={data}
     />

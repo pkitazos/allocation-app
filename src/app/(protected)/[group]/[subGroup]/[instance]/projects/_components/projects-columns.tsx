@@ -1,14 +1,17 @@
 "use client";
 import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  LucideMoreHorizontal as MoreIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
 
 import { TagType } from "@/components/tag/tag-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   DropdownMenu,
@@ -20,10 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { AccessControl } from "@/components/access-control";
-import { useInstanceParams } from "@/components/params-context";
-import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
-import { CheckedState } from "@radix-ui/react-checkbox";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import { spacesLabels } from "@/content/spaces";
+import {
+  previousStages,
+  stageGte,
+  stageLt,
+} from "@/lib/utils/permissions/stage-check";
 
 export interface ProjectTableData {
   user: User;
@@ -54,8 +60,8 @@ export function projectColumns(
   user: User,
   role: Role,
   stage: Stage,
-  deleteProject: (id: string) => void,
-  deleteSelectedProjects: (ids: string[]) => void,
+  deleteProject: (id: string) => Promise<void>,
+  deleteSelectedProjects: (ids: string[]) => Promise<void>,
 ): ColumnDef<ProjectTableData>[] {
   const selectCol = getSelectColumn<ProjectTableData>();
 
@@ -174,61 +180,77 @@ export function projectColumns(
       if (
         someSelected &&
         role === Role.ADMIN &&
-        !stageGte(stage, Stage.PROJECT_ALLOCATION)
+        stageLt(stage, Stage.PROJECT_ALLOCATION)
       )
         return (
-          <div className="flex justify-center">
+          <div className="flex w-14 items-center justify-center">
             <Button
               className="flex items-center gap-2"
               variant="destructive"
               size="sm"
               onClick={() => deleteSelectedProjects(selectedProjectIds)}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2Icon className="h-4 w-4" />
             </Button>
           </div>
         );
 
-      return <div className="text-xs text-gray-500">Actions</div>;
+      return (
+        <div className="flex w-14 items-center justify-center">
+          <p className="text-xs text-gray-500">Actions</p>
+        </div>
+      );
     },
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const project = row.original;
       const supervisor = row.original.supervisor.user;
 
+      async function handleDelete() {
+        await deleteProject(project.id).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href={`./projects/${project.id}`}>
-                <Button variant="link">View Details</Button>
-              </Link>
-            </DropdownMenuItem>
-            <AccessControl
-              allowedRoles={[Role.ADMIN]}
-              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-              extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
-            >
-              <DropdownMenuItem>
-                <Button
-                  className="flex w-full items-center gap-2"
-                  variant="destructive"
-                  onClick={() => deleteProject(project.id)}
+        <div className="flex w-14 items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  href={`./projects/${project.id}`}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  <p>Delete</p>
-                </Button>
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Project Details</span>
+                </Link>
               </DropdownMenuItem>
-            </AccessControl>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+                extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={handleDelete}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>
+                      Remove Project from {spacesLabels.instance.short}
+                    </span>
+                  </button>
+                </DropdownMenuItem>
+              </AccessControl>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   };

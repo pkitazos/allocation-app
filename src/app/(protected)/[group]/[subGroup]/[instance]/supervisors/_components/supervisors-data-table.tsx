@@ -27,8 +27,8 @@ export function SupervisorsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.user.supervisor.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } =
-    api.user.supervisor.deleteAll.useMutation();
+  const { mutateAsync: deleteSelectedAsync } =
+    api.user.supervisor.deleteSelected.useMutation();
 
   async function handleDelete(supervisorId: string) {
     void toast.promise(
@@ -41,9 +41,11 @@ export function SupervisorsDataTable({
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(supervisorIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteSelectedAsync({ params, supervisorIds }).then(() =>
+        router.refresh(),
+      ),
       {
         loading: "Deleting Supervisor...",
         error: "Something went wrong",
@@ -66,7 +68,7 @@ export function SupervisorsDataTable({
         role,
         stage,
         handleDelete,
-        handleDeleteAll,
+        handleDeleteSelected,
       )}
       data={data}
     />

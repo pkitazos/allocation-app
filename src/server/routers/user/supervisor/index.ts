@@ -224,13 +224,19 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: stageAwareProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  deleteSelected: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        supervisorIds: z.array(z.string()),
+      }),
+    )
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
+          supervisorIds,
         },
       }) => {
         if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
@@ -240,7 +246,7 @@ export const supervisorRouter = createTRPCRouter({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.SUPERVISOR,
+            userId: { in: supervisorIds },
           },
         });
       },
