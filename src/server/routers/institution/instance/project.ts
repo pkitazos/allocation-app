@@ -115,7 +115,7 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  creationDetails: protectedProcedure
+  formDetails: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -143,6 +143,7 @@ export const projectRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             role: Role.STUDENT,
+            studentAllocation: { is: null },
           },
         });
 

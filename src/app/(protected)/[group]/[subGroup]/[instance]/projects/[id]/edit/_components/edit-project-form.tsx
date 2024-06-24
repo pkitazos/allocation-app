@@ -31,7 +31,7 @@ export function EditProjectForm({
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
-  const { mutateAsync } = api.project.updateProjectDetails.useMutation();
+  const { mutateAsync } = api.project.edit.useMutation();
 
   function onSubmit(data: UpdatedProjectFormDetails) {
     void toast.promise(

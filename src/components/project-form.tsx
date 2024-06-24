@@ -64,13 +64,15 @@ export function ProjectForm({
     description: project?.description ?? "",
     capacityUpperBound: project?.capacityUpperBound ?? 1,
     preAllocatedStudentId: project?.preAllocatedStudentId ?? "",
+    isPreAllocated: project?.isPreAllocated ?? false,
     flagIds: project?.flagIds ?? [],
     tags: project?.tags ?? [],
   };
 
+  const preAllocatedStudentId = formProject.preAllocatedStudentId;
   const [selectedTags, setSelectedTags] = useState<TagType[]>(formProject.tags);
-  const [preAllocated, setPreAllocated] = useState(
-    formProject.preAllocatedStudentId !== "",
+  const [preAllocatedSwitchControl, setPreAllocatedSwitchControl] = useState(
+    preAllocatedStudentId !== "",
   );
 
   const form = useForm<UpdatedProjectFormDetails>({
@@ -86,7 +88,7 @@ export function ProjectForm({
   });
 
   function handleSwitch() {
-    const newState = !preAllocated;
+    const newState = !preAllocatedSwitchControl;
 
     if (newState) {
       form.setValue("capacityUpperBound", 1);
@@ -95,8 +97,13 @@ export function ProjectForm({
     }
 
     form.setValue("isPreAllocated", newState);
-    setPreAllocated(newState);
+    setPreAllocatedSwitchControl(newState);
   }
+
+  const availableStudents =
+    preAllocatedStudentId !== ""
+      ? [{ id: preAllocatedStudentId }, ...students]
+      : students;
 
   return (
     <Form {...form}>
@@ -233,7 +240,7 @@ export function ProjectForm({
                 <>
                   <Switch
                     id="pre-allocated-student-id"
-                    checked={preAllocated}
+                    checked={preAllocatedSwitchControl}
                     onCheckedChange={handleSwitch}
                   />
                   <Label htmlFor="pre-allocated-student-id">
@@ -253,20 +260,23 @@ export function ProjectForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={cn("text-xl", preAllocated && "text-slate-400")}
+                  className={cn(
+                    "text-xl",
+                    preAllocatedSwitchControl && "text-slate-400",
+                  )}
                 >
                   Capacity Upper Bound
                 </FormLabel>
                 <FormControl>
                   <Input
-                    disabled={preAllocated}
+                    disabled={preAllocatedSwitchControl}
                     className="w-16"
                     placeholder="1"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription
-                  className={cn(preAllocated && "text-slate-400")}
+                  className={cn(preAllocatedSwitchControl && "text-slate-400")}
                 >
                   The maximum number this project is suitable for
                 </FormDescription>
@@ -281,12 +291,15 @@ export function ProjectForm({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel
-                  className={cn("text-xl", !preAllocated && "text-slate-400")}
+                  className={cn(
+                    "text-xl",
+                    !preAllocatedSwitchControl && "text-slate-400",
+                  )}
                 >
                   Student
                 </FormLabel>
                 <Popover>
-                  <PopoverTrigger disabled={!preAllocated} asChild>
+                  <PopoverTrigger disabled={!preAllocatedSwitchControl} asChild>
                     <FormControl>
                       <Button
                         variant="outline"
@@ -296,11 +309,9 @@ export function ProjectForm({
                           !field.value && "text-slate-400",
                         )}
                       >
-                        {field.value
-                          ? students.find(
-                              (student) => student.id === field.value,
-                            )?.id
-                          : "Enter Student ID"}
+                        {field.value === "" || !field.value
+                          ? "Enter Student ID"
+                          : field.value}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </FormControl>
@@ -309,17 +320,17 @@ export function ProjectForm({
                     <Command>
                       <CommandInput
                         placeholder="Search student..."
-                        disabled={!preAllocated}
+                        disabled={!preAllocatedSwitchControl}
                       />
                       <CommandEmpty>No Student found.</CommandEmpty>
                       <CommandGroup>
-                        {students.map((student) => (
+                        {availableStudents.map((student) => (
                           <CommandItem
                             className="overflow-hidden"
                             value={student.id}
                             key={student.id}
                             onSelect={() => {
-                              setPreAllocated(true);
+                              setPreAllocatedSwitchControl(true);
                               form.setValue(
                                 "preAllocatedStudentId",
                                 student.id,
@@ -342,7 +353,7 @@ export function ProjectForm({
                   </PopoverContent>
                 </Popover>
                 <FormDescription
-                  className={cn(!preAllocated && "text-slate-400")}
+                  className={cn(!preAllocatedSwitchControl && "text-slate-400")}
                 >
                   This is the student which self-defined this project.
                 </FormDescription>

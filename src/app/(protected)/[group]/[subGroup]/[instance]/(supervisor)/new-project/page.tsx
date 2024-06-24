@@ -10,7 +10,7 @@ import { CreateProjectForm } from "./_components/create-project-form";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { flags, tags, students } =
-    await api.institution.instance.project.creationDetails({ params });
+    await api.institution.instance.project.formDetails({ params });
 
   const stage = await api.institution.instance.currentStage({ params });
 
@@ -21,11 +21,18 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
+  const supervisor = await api.user.get();
+
   return (
     <div className="w-full max-w-5xl">
       <Heading>New Project</Heading>
       <div className="mx-10">
-        <CreateProjectForm students={students} flags={flags} tags={tags} />
+        <CreateProjectForm
+          students={students}
+          flags={flags}
+          tags={tags}
+          supervisor={supervisor}
+        />
       </div>
     </div>
   );

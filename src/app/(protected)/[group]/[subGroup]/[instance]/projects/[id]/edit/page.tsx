@@ -1,14 +1,14 @@
+import { Role, Stage } from "@prisma/client";
+
 import { Heading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { EditProjectForm } from "./_components/edit-project-form";
-import { auth } from "@/lib/auth";
-import { Role, Stage } from "@prisma/client";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
-import { Unauthorised } from "@/components/unauthorised";
 
 type PageParams = InstanceParams & { id: string };
 
@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: PageParams }) {
   }
 
   const { flags, tags, students } =
-    await api.institution.instance.project.creationDetails({ params });
+    await api.institution.instance.project.formDetails({ params });
 
   const { capacityUpperBound, preAllocatedStudentId } =
     await api.project.getEditFormDetails({ projectId });
@@ -44,6 +44,7 @@ export default async function Page({ params }: { params: PageParams }) {
     flagIds: project.flags.map((f) => f.id),
     capacityUpperBound,
     preAllocatedStudentId,
+    isPreAllocated: preAllocatedStudentId !== "",
   };
 
   return (

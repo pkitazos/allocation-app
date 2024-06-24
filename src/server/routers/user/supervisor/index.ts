@@ -9,8 +9,6 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createManyFlags } from "@/server/utils/flag";
-import { updatedProjectFormDetailsSchema } from "@/lib/validations/project-form";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -78,72 +76,6 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  createProject: protectedProcedure
-    .input(
-      z.object({
-        params: instanceParamsSchema,
-        newProject: updatedProjectFormDetailsSchema,
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          newProject: {
-            title,
-            description,
-            flagIds,
-            tags,
-            capacityUpperBound,
-            preAllocatedStudentId,
-          },
-        },
-      }) => {
-        const user = ctx.session.user;
-        const project = await ctx.db.project.create({
-          data: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            supervisorId: user.id,
-            title,
-            description,
-            capacityLowerBound: 0,
-            capacityUpperBound,
-            preAllocatedStudentId,
-          },
-        });
-
-        await createManyFlags(ctx.db, project.id, flagIds);
-
-        const existingTags = await ctx.db.tag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
-
-        const newTags = tags.filter((t) => {
-          return !existingTags.map((e) => e.id).includes(t.id);
-        });
-
-        await ctx.db.tag.createMany({
-          data: newTags.map((tag) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            ...tag,
-          })),
-        });
-
-        await ctx.db.tagOnProject.createMany({
-          data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
-        });
-      },
-    ),
-
   projects: protectedProcedure
     .input(
       z.object({
@@ -175,7 +107,7 @@ export const supervisorRouter = createTRPCRouter({
           },
         });
 
-        const { projectAllocationTarget: target } =
+        const { projectAllocationTarget: targetProjectCount } =
           await ctx.db.supervisorInstanceDetails.findFirstOrThrow({
             where: {
               allocationGroupId: group,
@@ -186,11 +118,12 @@ export const supervisorRouter = createTRPCRouter({
             select: { projectAllocationTarget: true },
           });
 
-        const preAllocated = projects.reduce(
+        const preAllocatedProjectCount = projects.reduce(
           (acc, val) => (val.preAllocatedStudentId ? acc + 1 : acc),
           0,
         );
-        const submissionTarget = 2 * (target - preAllocated);
+        const submissionTarget =
+          2 * (targetProjectCount - preAllocatedProjectCount);
 
         return { projects, submissionTarget };
       },

@@ -20,14 +20,16 @@ const baseProjectFormSchema = z.object({
     .refine((value) => value.some((item) => item), {
       message: "You have to select at least one tag for a project.",
     }),
-  isPreAllocated: z.boolean(),
+  isPreAllocated: z.boolean().optional(),
   capacityUpperBound: z.coerce.number().int().positive(),
   preAllocatedStudentId: z.string().optional(),
 });
 
 export const updatedProjectFormDetailsSchema = baseProjectFormSchema.refine(
-  ({ isPreAllocated, preAllocatedStudentId }) =>
-    isPreAllocated && preAllocatedStudentId !== "",
+  ({ isPreAllocated, preAllocatedStudentId }) => {
+    isPreAllocated = Boolean(isPreAllocated);
+    return !(isPreAllocated && preAllocatedStudentId === "");
+  },
   { message: "Please select a student", path: ["preAllocatedStudentId"] },
 );
 

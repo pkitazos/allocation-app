@@ -2,6 +2,7 @@
 import { Flag } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -17,22 +18,25 @@ export function CreateProjectForm({
   flags,
   tags,
   students,
+  supervisor,
 }: {
   flags: Pick<Flag, "id" | "title">[];
   tags: TagType[];
   students: { id: string }[];
+  supervisor: User;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
-  const { mutateAsync } = api.user.supervisor.createProject.useMutation();
+  const { mutateAsync } = api.project.create.useMutation();
 
   const onSubmit = (data: UpdatedProjectFormDetails) => {
     void toast.promise(
       mutateAsync({
         params,
         newProject: data,
+        supervisorId: supervisor.id,
       }).then(() => {
         router.push(`${instancePath}/my-projects`);
         router.refresh();

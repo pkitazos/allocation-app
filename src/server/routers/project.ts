@@ -11,6 +11,7 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { createManyFlags } from "@/server/utils/flag";
+import { updateProjectAllocation } from "@/server/utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
   getEditFormDetails: protectedProcedure
@@ -27,7 +28,7 @@ export const projectRouter = createTRPCRouter({
       };
     }),
 
-  updateProjectDetails: protectedProcedure
+  edit: stageAwareProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -41,30 +42,74 @@ export const projectRouter = createTRPCRouter({
         input: {
           params: { group, subGroup, instance },
           projectId,
-          updatedProject,
+          updatedProject: {
+            title,
+            description,
+            capacityUpperBound,
+            preAllocatedStudentId,
+            tags,
+            flagIds,
+          },
         },
       }) => {
+        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
         await ctx.db.project.update({
           where: { id: projectId },
           data: {
-            title: updatedProject.title,
-            description: updatedProject.description,
-            capacityUpperBound: updatedProject.capacityUpperBound,
-            preAllocatedStudentId: updatedProject.preAllocatedStudentId,
+            title: title,
+            description: description,
+            capacityUpperBound: capacityUpperBound,
+            preAllocatedStudentId: preAllocatedStudentId,
           },
         });
+
+        if (preAllocatedStudentId && preAllocatedStudentId !== "") {
+          await updateProjectAllocation(ctx.db, {
+            group,
+            subGroup,
+            instance,
+            preAllocatedStudentId,
+            projectId: projectId,
+          });
+        }
+
+        if (!preAllocatedStudentId || preAllocatedStudentId === "") {
+          const projectAllocation = await ctx.db.projectAllocation.findFirst({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+            },
+          });
+
+          if (projectAllocation) {
+            await ctx.db.projectAllocation.delete({
+              where: {
+                allocationId: {
+                  allocationGroupId: group,
+                  allocationSubGroupId: subGroup,
+                  allocationInstanceId: instance,
+                  projectId,
+                  userId: projectAllocation.userId,
+                },
+              },
+            });
+          }
+        }
 
         await ctx.db.flagOnProject.deleteMany({
           where: {
             projectId,
-            AND: { flagId: { notIn: updatedProject.flagIds } },
+            AND: { flagId: { notIn: flagIds } },
           },
         });
 
-        await createManyFlags(ctx.db, projectId, updatedProject.flagIds);
+        await createManyFlags(ctx.db, projectId, flagIds);
 
         await ctx.db.tag.createMany({
-          data: updatedProject.tags.map((tag) => ({
+          data: tags.map((tag) => ({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
@@ -76,12 +121,12 @@ export const projectRouter = createTRPCRouter({
         await ctx.db.tagOnProject.deleteMany({
           where: {
             projectId,
-            AND: { tagId: { notIn: updatedProject.tags.map(({ id }) => id) } },
+            AND: { tagId: { notIn: tags.map(({ id }) => id) } },
           },
         });
 
         await ctx.db.tagOnProject.createMany({
-          data: updatedProject.tags.map(({ id }) => ({ tagId: id, projectId })),
+          data: tags.map(({ id }) => ({ tagId: id, projectId })),
           skipDuplicates: true,
         });
       },
@@ -246,6 +291,83 @@ export const projectRouter = createTRPCRouter({
             .filter((t) => t.tagOnProject.length !== 0)
             .map((e) => ({ id: e.id, title: e.title })),
         };
+      },
+    ),
+
+  create: protectedProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newProject: updatedProjectFormDetailsSchema,
+        supervisorId: z.string(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorId,
+          newProject: {
+            title,
+            description,
+            flagIds,
+            tags,
+            capacityUpperBound,
+            preAllocatedStudentId,
+          },
+        },
+      }) => {
+        const project = await ctx.db.project.create({
+          data: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            supervisorId: supervisorId,
+            title,
+            description,
+            capacityLowerBound: 0,
+            capacityUpperBound,
+            preAllocatedStudentId,
+          },
+        });
+
+        if (preAllocatedStudentId && preAllocatedStudentId !== "") {
+          await updateProjectAllocation(ctx.db, {
+            group,
+            subGroup,
+            instance,
+            preAllocatedStudentId,
+            projectId: project.id,
+          });
+        }
+
+        await createManyFlags(ctx.db, project.id, flagIds);
+
+        const existingTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newTags = tags.filter((t) => {
+          return !existingTags.map((e) => e.id).includes(t.id);
+        });
+
+        await ctx.db.tag.createMany({
+          data: newTags.map((tag) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            ...tag,
+          })),
+        });
+
+        await ctx.db.tagOnProject.createMany({
+          data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
+        });
       },
     ),
 });
