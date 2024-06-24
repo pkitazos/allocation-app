@@ -9,8 +9,7 @@ import { InstanceParams } from "@/lib/validations/params";
 import { CreateProjectForm } from "./_components/create-project-form";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { flags, tags, students } =
-    await api.institution.instance.project.formDetails({ params });
+  const formDetails = await api.project.getFormDetails({ params });
 
   const stage = await api.institution.instance.currentStage({ params });
 
@@ -28,9 +27,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
       <Heading>New Project</Heading>
       <div className="mx-10">
         <CreateProjectForm
-          students={students}
-          flags={flags}
-          tags={tags}
+          formInternalData={formDetails}
           supervisor={supervisor}
         />
       </div>

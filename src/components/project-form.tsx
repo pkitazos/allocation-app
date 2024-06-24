@@ -38,22 +38,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
   CurrentProjectFormDetails,
+  FormInternalData,
   UpdatedProjectFormDetails,
   updatedProjectFormDetailsSchema,
 } from "@/lib/validations/project-form";
 
 export function ProjectForm({
-  flags,
-  tags,
-  students,
+  formInternalData: { flags, tags, students },
   submissionButtonLabel,
   project,
   onSubmit,
   children: dismissalButton,
 }: {
-  flags: Pick<Flag, "id" | "title">[];
-  tags: TagType[];
-  students: { id: string }[];
+  formInternalData: FormInternalData;
   submissionButtonLabel: string;
   onSubmit: (data: UpdatedProjectFormDetails) => void;
   project?: CurrentProjectFormDetails;

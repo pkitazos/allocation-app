@@ -1,4 +1,4 @@
-import { Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
@@ -53,6 +53,59 @@ export const projectRouter = createTRPCRouter({
         },
       }) => {
         if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+
+        // we have 4 scenarios to handle
+        // 0. project was previously not pre-allocated to a student and now we are not pre-allocating to any student (no change)
+        // 1. project was previously not pre-allocated to a student and now we are selecting a student to pre-allocate to
+        // 2. project was previously pre-allocated to a student and now we are selecting a different student to pre-allocate to
+        // 3. project was previously pre-allocated to a student and now we are removing the pre-allocation
+
+        // for 1-3 we need to make sure that the `project`, the `userInInstance` and the `projectAllocation` are updated correctly
+
+        // for scenario 1 we need to:
+        // - create a new `projectAllocation`
+        // - connect it to the `userInInstance`
+        // - assign to the `project` the new `preAllocatedStudentId`
+
+        // for scenario 2 we need to:
+        // - delete the old `projectAllocation`
+        // - create a new `projectAllocation`
+        // - connect it to the `userInInstance`
+        // - assign to the `project` the new `preAllocatedStudentId`
+
+        // for scenario 3 we need to:
+        // - delete the old `projectAllocation`
+        // - remove the `preAllocatedStudentId` from the `project`
+
+        // ? how can we identify which scenario we are in?
+
+        // we can check if the `preAllocatedStudentId` has changed
+
+        // we are in scenario 0 if the `preAllocatedStudentId` was empty and now it is  empty
+        // we are in scenario 1 if the `preAllocatedStudentId` was empty and now it is not
+        // we are in scenario 2 if the `preAllocatedStudentId` was not empty and now it is different
+        // we are in scenario 3 if the `preAllocatedStudentId` was not empty and now it is empty
+
+        const prev = await ctx.db.project.findFirstOrThrow({
+          where: { id: projectId },
+          select: { preAllocatedStudentId: true },
+        });
+
+        if (!prev.preAllocatedStudentId) {
+          if (!preAllocatedStudentId || preAllocatedStudentId === "") {
+            // either preAllocatedStudentId is undefined or it is an empty string
+            // scenario 0 (no change)
+          } else {
+            // scenario 1
+          }
+        } else if (prev.preAllocatedStudentId !== "") {
+          if (preAllocatedStudentId && preAllocatedStudentId !== "") {
+            // scenario 2
+          } else {
+            // either preAllocatedStudentId is undefined or it is an empty string
+            // scenario 3
+          }
+        }
 
         await ctx.db.project.update({
           where: { id: projectId },
@@ -368,6 +421,46 @@ export const projectRouter = createTRPCRouter({
         await ctx.db.tagOnProject.createMany({
           data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
         });
+      },
+    ),
+
+  getFormDetails: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const { flags, tags } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              flags: { select: { id: true, title: true } },
+              tags: { select: { id: true, title: true } },
+            },
+          });
+
+        const studentData = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+            studentAllocation: { is: null },
+          },
+        });
+
+        return {
+          flags,
+          tags,
+          students: studentData.map(({ userId }) => ({ id: userId })),
+        };
       },
     ),
 });

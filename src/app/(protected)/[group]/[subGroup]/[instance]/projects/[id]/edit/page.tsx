@@ -32,8 +32,7 @@ export default async function Page({ params }: { params: PageParams }) {
     );
   }
 
-  const { flags, tags, students } =
-    await api.institution.instance.project.formDetails({ params });
+  const formInternalData = await api.project.getFormDetails({ params });
 
   const { capacityUpperBound, preAllocatedStudentId } =
     await api.project.getEditFormDetails({ projectId });
@@ -51,10 +50,8 @@ export default async function Page({ params }: { params: PageParams }) {
     <PageWrapper>
       <Heading>Edit Project</Heading>
       <EditProjectForm
+        formInternalData={formInternalData}
         project={projectDetails}
-        flags={flags}
-        tags={tags}
-        students={students}
       />
     </PageWrapper>
   );

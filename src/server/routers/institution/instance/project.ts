@@ -3,11 +3,7 @@ import { z } from "zod";
 
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import {
-  adminProcedure,
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/server/trpc";
+import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
   submissionInfo: adminProcedure
@@ -112,46 +108,6 @@ export const projectRouter = createTRPCRouter({
           },
         );
         return { studentData, preferenceCapacities };
-      },
-    ),
-
-  formDetails: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const { flags, tags } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: {
-              flags: { select: { id: true, title: true } },
-              tags: { select: { id: true, title: true } },
-            },
-          });
-
-        const studentData = await ctx.db.userInInstance.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            role: Role.STUDENT,
-            studentAllocation: { is: null },
-          },
-        });
-
-        return {
-          flags,
-          tags,
-          students: studentData.map(({ userId }) => ({ id: userId })),
-        };
       },
     ),
 });

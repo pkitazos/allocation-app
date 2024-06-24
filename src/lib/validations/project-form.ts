@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-// export const projectDetailsSchema = z.object({
-//   title: z.string(),
-//   description: z.string(),
-//   flagIds: z.array(z.string()),
-//   tags: z.array(z.object({ id: z.string(), title: z.string() })),
-//   capacityUpperBound: z.coerce.number().int().positive().optional(),
-//   preAllocatedStudentId: z.string().optional(),
-// });
+import { tagTypeSchema } from "@/components/tag/tag-input";
 
 const baseProjectFormSchema = z.object({
   title: z.string().min(4, "Please enter a longer title"),
@@ -53,3 +46,10 @@ const currentProjectFormDetailsSchema = baseProjectFormSchema
 export type CurrentProjectFormDetails = z.infer<
   typeof currentProjectFormDetailsSchema
 >;
+export const formInternalDataSchema = z.object({
+  flags: z.array(z.object({ id: z.string(), title: z.string() })),
+  tags: z.array(tagTypeSchema),
+  students: z.array(z.object({ id: z.string() })),
+});
+
+export type FormInternalData = z.infer<typeof formInternalDataSchema>;

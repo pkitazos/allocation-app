@@ -1,41 +1,36 @@
 "use client";
-import { Flag } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { ProjectForm } from "@/components/project-form";
-import { TagType } from "@/components/tag/tag-input";
 
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import {
   CurrentProjectFormDetails,
+  FormInternalData,
   UpdatedProjectFormDetails,
 } from "@/lib/validations/project-form";
 
 import { ProjectRemovalButton } from "./project-removal-button";
 
 export function EditProjectForm({
-  flags,
-  tags,
-  students,
+  formInternalData,
   project,
 }: {
-  flags: Pick<Flag, "id" | "title">[];
-  tags: TagType[];
-  students: { id: string }[];
+  formInternalData: FormInternalData;
   project: CurrentProjectFormDetails;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
-  const { mutateAsync } = api.project.edit.useMutation();
+  const { mutateAsync: editAsync } = api.project.edit.useMutation();
 
   function onSubmit(data: UpdatedProjectFormDetails) {
     void toast.promise(
-      mutateAsync({
+      editAsync({
         params,
         projectId: project.id,
         updatedProject: data,
@@ -53,9 +48,7 @@ export function EditProjectForm({
 
   return (
     <ProjectForm
-      flags={flags}
-      tags={tags}
-      students={students}
+      formInternalData={formInternalData}
       project={project}
       submissionButtonLabel="Update Project"
       onSubmit={onSubmit}

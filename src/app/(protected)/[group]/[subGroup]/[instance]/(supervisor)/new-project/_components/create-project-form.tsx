@@ -1,28 +1,25 @@
 "use client";
-import { Flag } from "@prisma/client";
+import { User } from "next-auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { ProjectForm } from "@/components/project-form";
-import { TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { UpdatedProjectFormDetails } from "@/lib/validations/project-form";
+import {
+  FormInternalData,
+  UpdatedProjectFormDetails,
+} from "@/lib/validations/project-form";
 
 export function CreateProjectForm({
-  flags,
-  tags,
-  students,
+  formInternalData,
   supervisor,
 }: {
-  flags: Pick<Flag, "id" | "title">[];
-  tags: TagType[];
-  students: { id: string }[];
+  formInternalData: FormInternalData;
   supervisor: User;
 }) {
   const params = useInstanceParams();
@@ -51,9 +48,7 @@ export function CreateProjectForm({
 
   return (
     <ProjectForm
-      flags={flags}
-      tags={tags}
-      students={students}
+      formInternalData={formInternalData}
       submissionButtonLabel="Create New Project"
       onSubmit={onSubmit}
     >
