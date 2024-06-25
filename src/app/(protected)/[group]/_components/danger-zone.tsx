@@ -21,7 +21,10 @@ export function DangerZone({
 
   async function destructiveAction() {
     void toast.promise(
-      deleteAsync({ params }).then(() => router.push(`/admin`)),
+      deleteAsync({ params }).then(() => {
+        router.push(`/admin`);
+        router.refresh();
+      }),
       {
         loading: `Deleting ${spaceTitle}`,
         error: "Something went wrong",
@@ -36,7 +39,7 @@ export function DangerZone({
       </CardHeader>
       <CardContent className="flex items-center gap-5">
         <DestructiveButton action={destructiveAction}>
-          {spaceTitle}
+          Allocation {spaceTitle}
         </DestructiveButton>
         <p>
           Once you delete an Allocation {spaceTitle}, there is no going back.

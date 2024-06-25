@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+// import { DestructiveButton } from "@/components/destructive-button";
 import {
   useInstanceParams,
   useInstancePath,
@@ -20,9 +21,10 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
 
   function handleDelete() {
     void toast.promise(
-      deleteAsync({ params, projectId }).then(() =>
-        router.push(`${instancePath}/projects`),
-      ),
+      deleteAsync({ params, projectId }).then(() => {
+        router.push(`${instancePath}/my-projects`);
+        router.refresh();
+      }),
       {
         loading: "Deleting Project...",
         error: "Something went wrong",
@@ -33,8 +35,10 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
   return (
     <Button
       className="flex items-center gap-2"
-      onClick={handleDelete}
       variant="destructive"
+      size="lg"
+      onClick={handleDelete}
+      type="button"
     >
       <Trash2 className="h-4 w-4" />
       <p>Delete Project</p>

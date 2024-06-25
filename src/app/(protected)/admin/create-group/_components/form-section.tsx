@@ -48,9 +48,10 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
 
   const onSubmit = ({ groupName }: { groupName: string }) => {
     void toast.promise(
-      createGroupAsync({ groupName }).then(() =>
-        router.push(`/${slugify(groupName)}`),
-      ),
+      createGroupAsync({ groupName }).then(() => {
+        router.push(`/${slugify(groupName)}`);
+        router.refresh();
+      }),
       {
         loading: "Loading",
         error: "Something went wrong",

@@ -99,9 +99,10 @@ export function FormSection({
         maxPreferences: f.maxNumPreferences,
         maxPreferencesPerSupervisor: f.maxNumPerSupervisor,
         preferenceSubmissionDeadline: f.preferenceSubmissionDeadline,
-      }).then(() =>
-        router.push(`/${group}/${subGroup}/${slugify(f.instanceName)}`),
-      ),
+      }).then(() => {
+        router.push(`/${group}/${subGroup}/${slugify(f.instanceName)}`);
+        router.refresh();
+      }),
       {
         loading: "Creating Instance...",
         error: "Something went wrong",
