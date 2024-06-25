@@ -76,7 +76,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
         <div className="mt-9 flex flex-col gap-4">
           <SubHeading>Allocations Released</SubHeading>
           <p className="text-lg">
-            Check the &ldquo;My Allocations&rdquo; page to view your allocated
+            Check the &ldquo;My Allocation&rdquo; page to view your allocated
             projects
           </p>
         </div>

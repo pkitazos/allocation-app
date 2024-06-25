@@ -134,6 +134,8 @@ export const matchingRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
+        // TODO: remove preAllocated students and their preferences from the pool of choices
+
         const { selectedAlgName } =
           await ctx.db.allocationInstance.findFirstOrThrow({
             where: {
