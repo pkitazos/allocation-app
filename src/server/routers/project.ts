@@ -1,6 +1,7 @@
 import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
+import { nullable } from "@/lib/utils/general/nullable";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
@@ -70,15 +71,6 @@ export const projectRouter = createTRPCRouter({
               preAllocatedStudentId: newPreAllocatedStudentId,
               projectId: projectId,
             });
-            await ctx.db.project.update({
-              where: { id: projectId },
-              data: {
-                title: title,
-                description: description,
-                capacityUpperBound: capacityUpperBound,
-                preAllocatedStudentId: newPreAllocatedStudentId,
-              },
-            });
           }
         } else {
           if (!newPreAllocatedStudentId) {
@@ -91,15 +83,6 @@ export const projectRouter = createTRPCRouter({
                   projectId,
                   userId: prev.preAllocatedStudentId,
                 },
-              },
-            });
-            await ctx.db.project.update({
-              where: { id: projectId },
-              data: {
-                title: title,
-                description: description,
-                capacityUpperBound: capacityUpperBound,
-                preAllocatedStudentId: null,
               },
             });
           } else if (prev.preAllocatedStudentId !== newPreAllocatedStudentId) {
@@ -121,17 +104,18 @@ export const projectRouter = createTRPCRouter({
               preAllocatedStudentId: newPreAllocatedStudentId,
               projectId,
             });
-            await ctx.db.project.update({
-              where: { id: projectId },
-              data: {
-                title: title,
-                description: description,
-                capacityUpperBound: capacityUpperBound,
-                preAllocatedStudentId: newPreAllocatedStudentId,
-              },
-            });
           }
         }
+
+        await ctx.db.project.update({
+          where: { id: projectId },
+          data: {
+            title: title,
+            description: description,
+            capacityUpperBound: capacityUpperBound,
+            preAllocatedStudentId: nullable(newPreAllocatedStudentId),
+          },
+        });
 
         await ctx.db.flagOnProject.deleteMany({
           where: {
