@@ -10,7 +10,7 @@ import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import {
   CurrentProjectFormDetails,
   FormInternalData,
-  UpdatedProjectFormDetails,
+  UpdatedProject,
 } from "@/lib/validations/project-form";
 
 import { ProjectRemovalButton } from "./project-removal-button";
@@ -28,7 +28,7 @@ export function EditProjectForm({
 
   const { mutateAsync: editAsync } = api.project.edit.useMutation();
 
-  function onSubmit(data: UpdatedProjectFormDetails) {
+  function onSubmit(data: UpdatedProject) {
     void toast.promise(
       editAsync({
         params,

@@ -2,7 +2,7 @@
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Flag, Tag } from "@prisma/client";
+import { Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
@@ -39,8 +39,8 @@ import { cn } from "@/lib/utils";
 import {
   CurrentProjectFormDetails,
   FormInternalData,
-  UpdatedProjectFormDetails,
-  updatedProjectFormDetailsSchema,
+  UpdatedProject,
+  updatedProjectSchema,
 } from "@/lib/validations/project-form";
 
 export function ProjectForm({
@@ -52,7 +52,7 @@ export function ProjectForm({
 }: {
   formInternalData: FormInternalData;
   submissionButtonLabel: string;
-  onSubmit: (data: UpdatedProjectFormDetails) => void;
+  onSubmit: (data: UpdatedProject) => void;
   project?: CurrentProjectFormDetails;
   children: ReactNode;
 }) {
@@ -72,8 +72,8 @@ export function ProjectForm({
     preAllocatedStudentId !== "",
   );
 
-  const form = useForm<UpdatedProjectFormDetails>({
-    resolver: zodResolver(updatedProjectFormDetailsSchema),
+  const form = useForm<UpdatedProject>({
+    resolver: zodResolver(updatedProjectSchema),
     defaultValues: {
       title: formProject.title,
       description: formProject.description,

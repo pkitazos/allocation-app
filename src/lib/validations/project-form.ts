@@ -18,7 +18,7 @@ const baseProjectFormSchema = z.object({
   preAllocatedStudentId: z.string().optional(),
 });
 
-export const updatedProjectFormDetailsSchema = baseProjectFormSchema.refine(
+export const updatedProjectSchema = baseProjectFormSchema.refine(
   ({ isPreAllocated, preAllocatedStudentId }) => {
     isPreAllocated = Boolean(isPreAllocated);
     return !(isPreAllocated && preAllocatedStudentId === "");
@@ -26,13 +26,10 @@ export const updatedProjectFormDetailsSchema = baseProjectFormSchema.refine(
   { message: "Please select a student", path: ["preAllocatedStudentId"] },
 );
 
-export type UpdatedProjectFormDetails = z.infer<
-  typeof updatedProjectFormDetailsSchema
->;
+export type UpdatedProject = z.infer<typeof updatedProjectSchema>;
 
-const currentProjectFormDetailsSchema = baseProjectFormSchema
+export const currentProjectFormDetailsSchema = baseProjectFormSchema
   .omit({
-    flagIds: true,
     capacityUpperBound: true,
     preAllocatedStudentId: true,
   })
@@ -40,7 +37,6 @@ const currentProjectFormDetailsSchema = baseProjectFormSchema
     id: z.string(),
     capacityUpperBound: z.number(),
     preAllocatedStudentId: z.string(),
-    flagIds: z.array(z.string()),
   });
 
 export type CurrentProjectFormDetails = z.infer<

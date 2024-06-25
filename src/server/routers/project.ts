@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
-import { updatedProjectFormDetailsSchema } from "@/lib/validations/project-form";
+import { updatedProjectSchema } from "@/lib/validations/project-form";
 
 import {
   createTRPCRouter,
@@ -33,7 +33,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         projectId: z.string(),
-        updatedProject: updatedProjectFormDetailsSchema,
+        updatedProject: updatedProjectSchema,
       }),
     )
     .mutation(
@@ -54,37 +54,7 @@ export const projectRouter = createTRPCRouter({
       }) => {
         if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
-        // we have 4 scenarios to handle
-        // 0. project was previously not pre-allocated to a student and now we are not pre-allocating to any student (no change)
-        // 1. project was previously not pre-allocated to a student and now we are selecting a student to pre-allocate to
-        // 2. project was previously pre-allocated to a student and now we are selecting a different student to pre-allocate to
-        // 3. project was previously pre-allocated to a student and now we are removing the pre-allocation
-
-        // for 1-3 we need to make sure that the `project`, the `userInInstance` and the `projectAllocation` are updated correctly
-
-        // for scenario 1 we need to:
-        // - create a new `projectAllocation`
-        // - connect it to the `userInInstance`
-        // - assign to the `project` the new `preAllocatedStudentId`
-
-        // for scenario 2 we need to:
-        // - delete the old `projectAllocation`
-        // - create a new `projectAllocation`
-        // - connect it to the `userInInstance`
-        // - assign to the `project` the new `preAllocatedStudentId`
-
-        // for scenario 3 we need to:
-        // - delete the old `projectAllocation`
-        // - remove the `preAllocatedStudentId` from the `project`
-
-        // ? how can we identify which scenario we are in?
-
-        // we can check if the `preAllocatedStudentId` has changed
-
-        // we are in scenario 0 if the `preAllocatedStudentId` was empty and now it is  empty
-        // we are in scenario 1 if the `preAllocatedStudentId` was empty and now it is not
-        // we are in scenario 2 if the `preAllocatedStudentId` was not empty and now it is different
-        // we are in scenario 3 if the `preAllocatedStudentId` was not empty and now it is empty
+        const newPreAllocatedStudentId = preAllocatedStudentId || undefined;
 
         const prev = await ctx.db.project.findFirstOrThrow({
           where: { id: projectId },
@@ -92,52 +62,26 @@ export const projectRouter = createTRPCRouter({
         });
 
         if (!prev.preAllocatedStudentId) {
-          if (!preAllocatedStudentId || preAllocatedStudentId === "") {
-            // either preAllocatedStudentId is undefined or it is an empty string
-            // scenario 0 (no change)
-          } else {
-            // scenario 1
+          if (newPreAllocatedStudentId) {
+            await updateProjectAllocation(ctx.db, {
+              group,
+              subGroup,
+              instance,
+              preAllocatedStudentId: newPreAllocatedStudentId,
+              projectId: projectId,
+            });
+            await ctx.db.project.update({
+              where: { id: projectId },
+              data: {
+                title: title,
+                description: description,
+                capacityUpperBound: capacityUpperBound,
+                preAllocatedStudentId: newPreAllocatedStudentId,
+              },
+            });
           }
-        } else if (prev.preAllocatedStudentId !== "") {
-          if (preAllocatedStudentId && preAllocatedStudentId !== "") {
-            // scenario 2
-          } else {
-            // either preAllocatedStudentId is undefined or it is an empty string
-            // scenario 3
-          }
-        }
-
-        await ctx.db.project.update({
-          where: { id: projectId },
-          data: {
-            title: title,
-            description: description,
-            capacityUpperBound: capacityUpperBound,
-            preAllocatedStudentId: preAllocatedStudentId,
-          },
-        });
-
-        if (preAllocatedStudentId && preAllocatedStudentId !== "") {
-          await updateProjectAllocation(ctx.db, {
-            group,
-            subGroup,
-            instance,
-            preAllocatedStudentId,
-            projectId: projectId,
-          });
-        }
-
-        if (!preAllocatedStudentId || preAllocatedStudentId === "") {
-          const projectAllocation = await ctx.db.projectAllocation.findFirst({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-            },
-          });
-
-          if (projectAllocation) {
+        } else {
+          if (!newPreAllocatedStudentId) {
             await ctx.db.projectAllocation.delete({
               where: {
                 allocationId: {
@@ -145,8 +89,45 @@ export const projectRouter = createTRPCRouter({
                   allocationSubGroupId: subGroup,
                   allocationInstanceId: instance,
                   projectId,
-                  userId: projectAllocation.userId,
+                  userId: prev.preAllocatedStudentId,
                 },
+              },
+            });
+            await ctx.db.project.update({
+              where: { id: projectId },
+              data: {
+                title: title,
+                description: description,
+                capacityUpperBound: capacityUpperBound,
+                preAllocatedStudentId: null,
+              },
+            });
+          } else if (prev.preAllocatedStudentId !== newPreAllocatedStudentId) {
+            await ctx.db.projectAllocation.delete({
+              where: {
+                allocationId: {
+                  allocationGroupId: group,
+                  allocationSubGroupId: subGroup,
+                  allocationInstanceId: instance,
+                  projectId,
+                  userId: prev.preAllocatedStudentId,
+                },
+              },
+            });
+            await updateProjectAllocation(ctx.db, {
+              group,
+              subGroup,
+              instance,
+              preAllocatedStudentId: newPreAllocatedStudentId,
+              projectId,
+            });
+            await ctx.db.project.update({
+              where: { id: projectId },
+              data: {
+                title: title,
+                description: description,
+                capacityUpperBound: capacityUpperBound,
+                preAllocatedStudentId: newPreAllocatedStudentId,
               },
             });
           }
@@ -351,7 +332,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        newProject: updatedProjectFormDetailsSchema,
+        newProject: updatedProjectSchema,
         supervisorId: z.string(),
       }),
     )
