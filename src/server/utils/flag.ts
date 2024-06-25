@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-export async function createManyFlags(
+export async function createProjectFlags(
   db: PrismaClient,
   projectId: string,
   flagIds: string[],

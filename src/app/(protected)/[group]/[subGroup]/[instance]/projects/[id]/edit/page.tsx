@@ -34,16 +34,13 @@ export default async function Page({ params }: { params: PageParams }) {
 
   const formInternalData = await api.project.getFormDetails({ params });
 
-  const { capacityUpperBound, preAllocatedStudentId } =
-    await api.project.getEditFormDetails({ projectId });
-
   const projectDetails = {
     id: projectId,
     ...project,
     flagIds: project.flags.map((f) => f.id),
-    capacityUpperBound,
-    preAllocatedStudentId,
-    isPreAllocated: preAllocatedStudentId !== "",
+    capacityUpperBound: project.capacityUpperBound,
+    preAllocatedStudentId: project.preAllocatedStudentId ?? "",
+    isPreAllocated: project.preAllocatedStudentId !== "",
   };
 
   return (

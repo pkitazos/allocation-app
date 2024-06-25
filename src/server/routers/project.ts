@@ -11,24 +11,10 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createManyFlags } from "@/server/utils/flag";
+import { createProjectFlags } from "@/server/utils/flag";
 import { updateProjectAllocation } from "@/server/utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
-  getEditFormDetails: protectedProcedure
-    .input(z.object({ projectId: z.string() }))
-    .query(async ({ ctx, input: { projectId } }) => {
-      const project = await ctx.db.project.findFirstOrThrow({
-        where: { id: projectId },
-        select: { capacityUpperBound: true, preAllocatedStudentId: true },
-      });
-
-      return {
-        capacityUpperBound: project.capacityUpperBound,
-        preAllocatedStudentId: project.preAllocatedStudentId ?? "",
-      };
-    }),
-
   edit: stageAwareProcedure
     .input(
       z.object({
@@ -124,7 +110,7 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
-        await createManyFlags(ctx.db, projectId, flagIds);
+        await createProjectFlags(ctx.db, projectId, flagIds);
 
         await ctx.db.tag.createMany({
           data: tags.map((tag) => ({
@@ -195,6 +181,8 @@ export const projectRouter = createTRPCRouter({
         select: {
           title: true,
           description: true,
+          capacityUpperBound: true,
+          preAllocatedStudentId: true,
           supervisor: {
             select: { user: { select: { id: true, name: true } } },
           },
@@ -210,6 +198,8 @@ export const projectRouter = createTRPCRouter({
         title: project.title,
         description: project.description,
         supervisor: project.supervisor.user,
+        capacityUpperBound: project.capacityUpperBound,
+        preAllocatedStudentId: project.preAllocatedStudentId,
         flags: project.flagOnProjects.map(({ flag }) => flag),
         tags: project.tagOnProject.map(({ tag }) => tag),
       };
@@ -360,9 +350,9 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await createManyFlags(ctx.db, project.id, flagIds);
+        await createProjectFlags(ctx.db, project.id, flagIds);
 
-        const existingTags = await ctx.db.tag.findMany({
+        const currentInstanceTags = await ctx.db.tag.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -370,12 +360,12 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
-        const newTags = tags.filter((t) => {
-          return !existingTags.map((e) => e.id).includes(t.id);
+        const newInstanceTags = tags.filter((t) => {
+          return !currentInstanceTags.map((e) => e.id).includes(t.id);
         });
 
         await ctx.db.tag.createMany({
-          data: newTags.map((tag) => ({
+          data: newInstanceTags.map((tag) => ({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
