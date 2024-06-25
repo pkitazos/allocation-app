@@ -1,60 +1,59 @@
 "use client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { ProjectForm } from "@/components/project-form";
-import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import {
+  CurrentProjectFormDetails,
   FormInternalData,
   UpdatedProject,
 } from "@/lib/validations/project-form";
 
-export function CreateProjectForm({
+import { ProjectRemovalButton } from "./project-removal-button";
+
+export function EditProjectForm({
   formInternalData,
-  supervisor,
+  project,
 }: {
   formInternalData: FormInternalData;
-  supervisor: User;
+  project: CurrentProjectFormDetails;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
 
-  const { mutateAsync } = api.project.create.useMutation();
+  const { mutateAsync: editAsync } = api.project.edit.useMutation();
 
-  const onSubmit = (data: UpdatedProject) => {
+  function onSubmit(data: UpdatedProject) {
     void toast.promise(
-      mutateAsync({
+      editAsync({
         params,
-        supervisorId: supervisor.id,
-        newProject: data,
+        projectId: project.id,
+        updatedProject: data,
       }).then(() => {
-        router.push(`${instancePath}/my-projects`);
+        router.push(`${instancePath}/projects/${project.id}`);
         router.refresh();
       }),
       {
-        loading: "Creating Project...",
+        loading: `Updating Project ${project.id}...`,
         error: "Something went wrong",
-        success: "Success",
+        success: `Successfully updated Project ${project.id}`,
       },
     );
-  };
+  }
 
   return (
     <ProjectForm
       formInternalData={formInternalData}
-      submissionButtonLabel="Create New Project"
+      project={project}
+      submissionButtonLabel="Update Project"
       onSubmit={onSubmit}
     >
-      <Button variant="outline" size="lg" type="button" asChild>
-        <Link href={`${instancePath}/my-projects`}>Cancel</Link>
-      </Button>
+      <ProjectRemovalButton projectId={project.id} />
     </ProjectForm>
   );
 }

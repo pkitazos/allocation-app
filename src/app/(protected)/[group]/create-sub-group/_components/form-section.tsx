@@ -57,7 +57,10 @@ export function FormSection({
       createSubGroupAsync({
         params,
         name: subGroupName,
-      }).then(() => router.push(`/${params.group}/${slugify(subGroupName)}`)),
+      }).then(() => {
+        router.push(`/${params.group}/${slugify(subGroupName)}`);
+        router.refresh();
+      }),
       {
         loading: "Loading",
         error: "Something went wrong",

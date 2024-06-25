@@ -10,6 +10,7 @@ import { CommandInput } from "@/components/ui/command";
 import { Autocomplete } from "./autocomplete";
 import { tagVariants } from "./tag";
 import { TagList } from "./tag-list";
+import { z } from "zod";
 
 export enum Delimiter {
   Comma = ",",
@@ -21,11 +22,11 @@ type OmittedInputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "size" | "value"
 >;
-
-export type TagType = {
-  id: string;
-  title: string;
-};
+export const tagTypeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+});
+export type TagType = z.infer<typeof tagTypeSchema>;
 
 export interface TagInputProps
   extends OmittedInputProps,
@@ -161,8 +162,8 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>((props) => {
         inputFieldPosition === "bottom"
           ? "flex-col"
           : inputFieldPosition === "top"
-          ? "flex-col-reverse"
-          : "flex-row"
+            ? "flex-col-reverse"
+            : "flex-row"
       }`}
     >
       <TagList
