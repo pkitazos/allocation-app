@@ -1,6 +1,6 @@
 "use client";
-import { AdminLevel } from "@prisma/client";
 import { ReactNode } from "react";
+import { AdminLevel } from "@prisma/client";
 
 import { api } from "@/lib/trpc/client";
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";

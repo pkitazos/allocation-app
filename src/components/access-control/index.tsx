@@ -1,14 +1,17 @@
 "use client";
-import { AdminLevel, Role, Stage } from "@prisma/client";
 import { ReactNode } from "react";
+import { AdminLevel, Role, Stage } from "@prisma/client";
+
+import { stageSchema } from "@/lib/validations/stage";
+
+import { AdminLevelAC } from "./admin-level-ac";
 import { RBAC } from "./rbac";
 import { SBAC } from "./sbac";
-import { AdminLevelAC } from "./admin-level-ac";
 
 export function AccessControl({
   children,
-  allowedStages = [],
-  allowedRoles = [],
+  allowedStages = stageSchema.options,
+  allowedRoles = [Role.ADMIN, Role.SUPERVISOR, Role.STUDENT],
   minimumAdminLevel,
   extraConditions,
 }: {
