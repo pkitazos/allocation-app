@@ -30,18 +30,20 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/utils/general/slugify";
-import { SubGroupParams } from "@/lib/validations/params";
+import { InstanceParams, SubGroupParams } from "@/lib/validations/params";
 
 import { buildFormSchema } from "./form-schema";
 
 export function FormSection({
+  currentInstanceDetails,
   takenNames,
   params,
 }: {
+  currentInstanceDetails: any;
   takenNames: string[];
-  params: SubGroupParams;
+  params: InstanceParams;
 }) {
-  const { group, subGroup } = params;
+  const { group, subGroup, instance } = params;
   const router = useRouter();
 
   const FormSchema = buildFormSchema(takenNames);
@@ -51,14 +53,16 @@ export function FormSection({
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      instanceName: "",
+      instanceName: currentInstanceDetails.name,
       flags: [{ flag: "" }],
       tags: [{ tag: "" }],
-      projectSubmissionDeadline: addDays(new Date(), 1),
-      minNumPreferences: 0,
-      maxNumPreferences: 0,
-      maxNumPerSupervisor: 0,
-      preferenceSubmissionDeadline: addDays(new Date(), 1),
+      projectSubmissionDeadline:
+        currentInstanceDetails.projectSubmissionDeadline,
+      minNumPreferences: currentInstanceDetails.minPreferences,
+      maxNumPreferences: currentInstanceDetails.maxPreferences,
+      maxNumPerSupervisor: currentInstanceDetails.maxPreferencesPerSupervisor,
+      preferenceSubmissionDeadline:
+        currentInstanceDetails.preferenceSubmissionDeadline,
     },
   });
 
@@ -84,29 +88,30 @@ export function FormSection({
     name: "tags",
   });
 
-  const { mutateAsync: createInstanceAsync } =
-    api.institution.subGroup.createInstance.useMutation();
+  const { mutateAsync: editInstanceAsync } =
+    api.institution.instance.edit.useMutation();
 
-  async function onSubmit(f: FormData) {
+  async function onSubmit(updatedInstance: FormData) {
     void toast.promise(
-      createInstanceAsync({
+      editInstanceAsync({
         params,
-        name: f.instanceName,
-        flags: f.flags,
-        tags: f.tags,
-        projectSubmissionDeadline: f.projectSubmissionDeadline,
-        minPreferences: f.minNumPreferences,
-        maxPreferences: f.maxNumPreferences,
-        maxPreferencesPerSupervisor: f.maxNumPerSupervisor,
-        preferenceSubmissionDeadline: f.preferenceSubmissionDeadline,
+        updatedInstance: {
+          ...updatedInstance,
+          displayName: updatedInstance.instanceName,
+          minPreferences: updatedInstance.minNumPreferences,
+          maxPreferences: updatedInstance.maxNumPreferences,
+          maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
+        },
       }).then(() => {
-        router.push(`/${group}/${subGroup}/${slugify(f.instanceName)}`);
+        router.push(
+          `/${group}/${subGroup}/${instance})}`,
+        );
         router.refresh();
       }),
       {
-        loading: "Creating Instance...",
+        loading: `Updating ${spaceLabels.instance.short} Details...`,
         error: "Something went wrong",
-        success: "Success",
+        success: `Successfully updated ${spaceLabels.instance.short} Details`,},
       },
     );
   }

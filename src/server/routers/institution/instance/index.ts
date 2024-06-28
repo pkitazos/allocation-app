@@ -212,6 +212,26 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
+  getEditFormDetails: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          include: { flags: true, tags: true },
+        });
+      },
+    ),
+
   supervisors: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -537,6 +557,56 @@ export const instanceRouter = createTRPCRouter({
             studentsCanAccess: platformAccess,
           },
         });
+      },
+    ),
+
+  edit: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        updatedInstance: z.object({
+          displayName: z.string(),
+          projectSubmissionDeadline: z.date(),
+          minPreferences: z.number().int(),
+          maxPreferences: z.number().int(),
+          maxPreferencesPerSupervisor: z.number().int(),
+          preferenceSubmissionDeadline: z.date(),
+          flags: z.array(z.object({ flag: z.string() })),
+          tags: z.array(z.object({ tag: z.string() })),
+        }),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          updatedInstance: { flags, tags, ...updatedData },
+        },
+      }) => {
+        await ctx.db.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+          },
+          data: updatedData,
+        });
+        const currentInstanceFlags = await ctx.db.flag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+        //   const newInstanceFlags = flags.filter((f) => {return });
+        // },
+
+        // await ctx.db.allocationInstance.createMany({
+        //   data: flags.
+        // })
       },
     ),
 });
