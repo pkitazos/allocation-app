@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
+import { updatedInstanceSchema } from "@/lib/validations/instance-form";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
@@ -221,7 +222,7 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
+        const data = await ctx.db.allocationInstance.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -229,6 +230,14 @@ export const instanceRouter = createTRPCRouter({
           },
           include: { flags: true, tags: true },
         });
+
+        return {
+          ...data,
+          instanceName: data.displayName,
+          minNumPreferences: data.minPreferences,
+          maxNumPreferences: data.maxPreferences,
+          maxNumPerSupervisor: data.maxPreferencesPerSupervisor,
+        };
       },
     ),
 
@@ -571,8 +580,8 @@ export const instanceRouter = createTRPCRouter({
           maxPreferences: z.number().int(),
           maxPreferencesPerSupervisor: z.number().int(),
           preferenceSubmissionDeadline: z.date(),
-          flags: z.array(z.object({ flag: z.string() })),
-          tags: z.array(z.object({ tag: z.string() })),
+          flags: z.array(z.object({ title: z.string() })),
+          tags: z.array(z.object({ title: z.string() })),
         }),
       }),
     )
@@ -601,12 +610,24 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
         });
-        //   const newInstanceFlags = flags.filter((f) => {return });
-        // },
-
-        // await ctx.db.allocationInstance.createMany({
-        //   data: flags.
-        // })
+        const newInstanceFlags = setDiff(flags, currentInstanceFlags); //set A
+        const flagsToDelete = setDiff(currentInstanceFlags, flags); // set B
       },
     ),
+
+  /**
+   *  existing = [A, B, C]
+   *  from_form = [A, D]
+   *
+   *  new = from_form - existing = [A,D] - [A, B, C] = [D]
+   *  delete = existing - from_form = [A, B, C] - [A, D] = [B, C]
+   */
+
+  // await ctx.db.allocationInstance.createMany({
+  //   data: flags.
+  // })
 });
+
+function setDiff<T extends { title: string }>(setA: T[], setB: T[]) {
+  return setA.filter((a) => !setB.map((b) => b.title).includes(a.title));
+}

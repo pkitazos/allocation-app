@@ -12,9 +12,9 @@ export const buildFormSchema = (takenNames: string[]) =>
           "This name is already taken",
         ),
 
-      tags: z.array(z.object({ tag: z.string().min(1, "Please add a tag") })),
+      tags: z.array(z.object({ title: z.string().min(1, "Please add a tag") })),
       flags: z.array(
-        z.object({ flag: z.string().min(1, "Please add a flag") }),
+        z.object({ title: z.string().min(1, "Please add a flag") }),
       ),
 
       projectSubmissionDeadline: z.date(),
@@ -58,6 +58,6 @@ export const buildFormSchema = (takenNames: string[]) =>
       },
       {
         message: "Flags must have distinct values",
-        path: ["flags.0.flag"],
+        path: ["flags.0.title"],
       },
     );
