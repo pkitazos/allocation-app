@@ -1,7 +1,7 @@
 "use client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -29,17 +29,19 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
-import { slugify } from "@/lib/utils/general/slugify";
-import { InstanceParams, SubGroupParams } from "@/lib/validations/params";
+import { UpdatedInstance } from "@/lib/validations/instance-form";
+import { InstanceParams } from "@/lib/validations/params";
 
 import { buildFormSchema } from "./form-schema";
+
+import { spacesLabels } from "@/content/space-labels";
 
 export function FormSection({
   currentInstanceDetails,
   takenNames,
   params,
 }: {
-  currentInstanceDetails: any;
+  currentInstanceDetails: UpdatedInstance;
   takenNames: string[];
   params: InstanceParams;
 }) {
@@ -52,18 +54,7 @@ export function FormSection({
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      instanceName: currentInstanceDetails.name,
-      flags: [{ flag: "" }],
-      tags: [{ tag: "" }],
-      projectSubmissionDeadline:
-        currentInstanceDetails.projectSubmissionDeadline,
-      minNumPreferences: currentInstanceDetails.minPreferences,
-      maxNumPreferences: currentInstanceDetails.maxPreferences,
-      maxNumPerSupervisor: currentInstanceDetails.maxPreferencesPerSupervisor,
-      preferenceSubmissionDeadline:
-        currentInstanceDetails.preferenceSubmissionDeadline,
-    },
+    defaultValues: currentInstanceDetails,
   });
 
   const {
@@ -103,15 +94,13 @@ export function FormSection({
           maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
         },
       }).then(() => {
-        router.push(
-          `/${group}/${subGroup}/${instance})}`,
-        );
+        router.push(`/${group}/${subGroup}/${instance})}`);
         router.refresh();
       }),
       {
-        loading: `Updating ${spaceLabels.instance.short} Details...`,
+        loading: `Updating ${spacesLabels.instance.short} Details...`,
         error: "Something went wrong",
-        success: `Successfully updated ${spaceLabels.instance.short} Details`,},
+        success: `Successfully updated ${spacesLabels.instance.short} Details`,
       },
     );
   }
@@ -162,7 +151,7 @@ export function FormSection({
                       <div className="flex gap-2">
                         <Input
                           placeholder="Flag"
-                          {...form.register(`flags.${idx}.flag`)}
+                          {...form.register(`flags.${idx}.title`)}
                         />
                         <Button
                           variant="ghost"
@@ -175,7 +164,7 @@ export function FormSection({
                       </div>
                     </FormControl>
                     <p className="text-sm font-medium text-destructive">
-                      {form.formState.errors.flags?.[idx]?.flag?.message ?? ""}
+                      {form.formState.errors.flags?.[idx]?.title?.message ?? ""}
                     </p>
                   </FormItem>
                 )}
@@ -185,7 +174,7 @@ export function FormSection({
               className="flex w-80 items-center gap-2"
               variant="outline"
               type="button"
-              onClick={() => appendFlag({ flag: "" })}
+              onClick={() => appendFlag({ title: "" })}
             >
               <Plus />
               <p>Add new Flag</p>
@@ -209,7 +198,7 @@ export function FormSection({
                       <div className="flex gap-2">
                         <Input
                           placeholder="Tag"
-                          {...form.register(`tags.${idx}.tag`)}
+                          {...form.register(`tags.${idx}.title`)}
                         />
                         <Button
                           variant="ghost"
@@ -222,7 +211,7 @@ export function FormSection({
                       </div>
                     </FormControl>
                     <p className="text-sm font-medium text-destructive">
-                      {form.formState.errors.tags?.[idx]?.tag?.message ?? ""}
+                      {form.formState.errors.tags?.[idx]?.title?.message ?? ""}
                     </p>
                   </FormItem>
                 )}
@@ -232,7 +221,7 @@ export function FormSection({
               className="flex w-80 items-center gap-2"
               variant="outline"
               type="button"
-              onClick={() => appendTag({ tag: "" })}
+              onClick={() => appendTag({ title: "" })}
             >
               <Plus />
               <p>Add new Tag</p>
