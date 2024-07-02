@@ -1,24 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { withinBounds } from "@/lib/utils/allocation-adjustment/project";
-import {
-  getCurrentCapacity,
-  withinCapacity,
-} from "@/lib/utils/allocation-adjustment/supervisor";
-import {
-  ProjectInfo,
-  SupervisorDetails,
-} from "@/lib/validations/allocation-adjustment";
+import { withinCapacity } from "@/lib/utils/allocation-adjustment/supervisor";
 
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
+import { AdminLevel } from "@prisma/client";
 import { useAllocDetails } from ".";
 import { ConflictBanner } from "./conflict-banner";
-import { AccessControl } from "@/components/access-control";
-import { AdminLevel, Role } from "@prisma/client";
+import { DebugComponent } from "./debug-component";
 
 export function ConflictToaster() {
-  const DEBUG = false;
-
   const allProjects = useAllocDetails((s) => s.projects);
   const supervisors = useAllocDetails((s) => s.supervisors);
 
@@ -29,16 +20,13 @@ export function ConflictToaster() {
 
   return (
     <div className="flex flex-col gap-3">
-      <AccessControl
-        allowedRoles={[Role.ADMIN]}
-        minimumAdminLevel={AdminLevel.SUPER}
-      >
+      <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
         <DebugComponent
-          DEBUG={DEBUG}
+          DEBUG={false}
           supervisors={supervisors}
           allProjects={allProjects}
         />
-      </AccessControl>
+      </AdminLevelAC>
       {oversubscribedProjects.map((p, i) => (
         <ConflictBanner key={i} type="project">
           Project {p.id} is oversubscribed
@@ -52,38 +40,4 @@ export function ConflictToaster() {
       ))}
     </div>
   );
-}
-
-function DebugComponent({
-  DEBUG,
-  supervisors,
-  allProjects,
-}: {
-  DEBUG: boolean;
-  supervisors: SupervisorDetails[];
-  allProjects: ProjectInfo[];
-}) {
-  if (DEBUG)
-    return (
-      <>
-        {supervisors.map((s) => {
-          const capacity = getCurrentCapacity(allProjects, s);
-          const invalid = !withinCapacity(allProjects, s);
-          return (
-            <div
-              className={cn("mt-5", invalid && "text-destructive")}
-              key={s.supervisorId}
-            >
-              <p className="font-semibold">{s.supervisorId}</p>
-              <p>projects: [{s.projects.join(", ")}]</p>
-              <p>current capacity: {capacity}</p>
-              <p>lowerBound: {s.lowerBound}</p>
-              <p>target: {s.target}</p>
-              <p>upperBound: {s.upperBound}</p>
-            </div>
-          );
-        })}
-        )
-      </>
-    );
 }
