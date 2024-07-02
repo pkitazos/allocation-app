@@ -41,10 +41,7 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link href={`${instancePath}/my-projects`}>My Projects</Link>
           </Button>
-
-          <AccessControl
-            allowedStages={[Stage.PROJECT_SUBMISSION, Stage.PROJECT_SELECTION]}
-          >
+          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
             <Button variant="secondary" className="w-full" asChild>
               <Link
                 className="flex items-center gap-2"
@@ -55,7 +52,6 @@ export default async function Layout({
               </Link>
             </Button>
           </AccessControl>
-
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
               <Link href={`${instancePath}/my-allocations`}>
