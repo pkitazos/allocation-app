@@ -186,7 +186,7 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const user = ctx.session.user;
-        return await ctx.db.projectAllocation.findMany({
+        const data = await ctx.db.projectAllocation.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -195,9 +195,21 @@ export const supervisorRouter = createTRPCRouter({
           },
           select: {
             project: { select: { id: true, title: true } },
-            student: { select: { userId: true } },
+            student: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
           },
         });
+        return data.map(({ project, student }) => ({
+          project,
+          student: {
+            id: student.user.id,
+            name: student.user.name!,
+            email: student.user.email!,
+          },
+        }));
       },
     ),
 });

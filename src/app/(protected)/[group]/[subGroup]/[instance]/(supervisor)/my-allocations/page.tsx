@@ -25,11 +25,26 @@ export default async function Page({ params }: { params: InstanceParams }) {
                 <CardHeader>
                   <CardTitle>{project.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="flex items-center gap-4">
-                  <p className="text-lg">Student ID:</p>
-                  <Badge variant="secondary" className="text-base">
-                    {student.userId}
+                <CardContent className="grid grid-cols-4 items-center justify-start gap-x-4 gap-y-2">
+                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
+                    ID
+                  </p>
+                  <Badge
+                    variant="secondary"
+                    className="col-span-3 w-max text-base"
+                  >
+                    {student.id}
                   </Badge>
+                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
+                    Name
+                  </p>
+                  <p className="col-span-3 text-lg font-semibold">
+                    {student.name}
+                  </p>
+                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
+                    Email
+                  </p>
+                  <p className="col-span-3 text-lg">{student.email}</p>
                 </CardContent>
               </Card>
             ))}
