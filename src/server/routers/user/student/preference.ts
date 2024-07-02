@@ -1,7 +1,7 @@
 import { PreferenceType, Stage } from "@prisma/client";
 import { z } from "zod";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
@@ -186,7 +186,7 @@ export const preferenceRouter = createTRPCRouter({
           updatedRank,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.preference.update({
           where: {
@@ -245,7 +245,7 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.update({
           where: {
@@ -361,12 +361,13 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  changeAll: adminProcedure
+  changeSelected: adminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
         studentId: z.string(),
         newPreferenceType: z.nativeEnum(PreferenceType).or(z.literal("None")),
+        projectIds: z.array(z.string()),
       }),
     )
     .mutation(
@@ -376,6 +377,7 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
           studentId,
           newPreferenceType,
+          projectIds,
         },
       }) => {
         if (newPreferenceType === "None") {
@@ -385,6 +387,7 @@ export const preferenceRouter = createTRPCRouter({
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
               userId: studentId,
+              projectId: { in: projectIds },
             },
           });
           return;
@@ -396,6 +399,7 @@ export const preferenceRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             userId: studentId,
+            projectId: { in: projectIds },
           },
           data: { type: newPreferenceType },
         });

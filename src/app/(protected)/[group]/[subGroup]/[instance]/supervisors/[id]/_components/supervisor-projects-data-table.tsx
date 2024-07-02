@@ -32,7 +32,8 @@ export function SupervisorProjectsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.project.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } = api.project.deleteAll.useMutation();
+  const { mutateAsync: deleteSelectedAsync } =
+    api.project.deleteSelected.useMutation();
 
   async function handleDelete(projectId: string) {
     void toast.promise(
@@ -45,13 +46,13 @@ export function SupervisorProjectsDataTable({
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(projectIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteSelectedAsync({ params, projectIds }).then(() => router.refresh()),
       {
-        loading: "Deleting Project...",
+        loading: `Deleting ${projectIds.length} Projects...`,
         error: "Something went wrong",
-        success: `All Projects deleted successfully`,
+        success: `Successfully deleted ${projectIds.length} Projects`,
       },
     );
   }
@@ -71,7 +72,7 @@ export function SupervisorProjectsDataTable({
         stage,
         supervisorId,
         handleDelete,
-        handleDeleteAll,
+        handleDeleteSelected,
       )}
       data={data}
     />

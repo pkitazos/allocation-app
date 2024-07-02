@@ -5,6 +5,7 @@ import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -23,9 +24,7 @@ export const userRouter = createTRPCRouter({
   student: studentRouter,
   supervisor: supervisorRouter,
 
-  get: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.session?.user;
-  }),
+  get: protectedProcedure.query(async ({ ctx }) => ctx.session?.user),
 
   role: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
@@ -74,6 +73,56 @@ export const userRouter = createTRPCRouter({
         return { user, role: userInInstance.role };
       },
     ),
+
+  adminLevel: adminProcedure.query(async ({ ctx }) => {
+    const user = ctx.session.user;
+
+    const data = await ctx.db.adminInSpace.findMany({
+      where: { userId: user.id },
+      select: { adminLevel: true },
+    });
+
+    const adminLevels = data.map(({ adminLevel }) => adminLevel);
+    const highestLevel = getHighestAdminLevel(adminLevels);
+
+    return highestLevel;
+  }),
+
+  adminLevelInGroup: adminProcedure
+    .input(z.object({ group: z.string() }))
+    .query(async ({ ctx, input: { group } }) => {
+      const user = ctx.session.user;
+
+      const data = await ctx.db.adminInSpace.findMany({
+        where: { userId: user.id, allocationGroupId: group },
+        select: { adminLevel: true },
+      });
+
+      const adminLevels = data.map(({ adminLevel }) => adminLevel);
+      const highestLevel = getHighestAdminLevel(adminLevels);
+
+      return highestLevel;
+    }),
+
+  adminLevelInSubGroup: adminProcedure
+    .input(z.object({ group: z.string(), subGroup: z.string() }))
+    .query(async ({ ctx, input: { group, subGroup } }) => {
+      const user = ctx.session.user;
+
+      const data = await ctx.db.adminInSpace.findMany({
+        where: {
+          userId: user.id,
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+        },
+        select: { adminLevel: true },
+      });
+
+      const adminLevels = data.map(({ adminLevel }) => adminLevel);
+      const highestLevel = getHighestAdminLevel(adminLevels);
+
+      return highestLevel;
+    }),
 
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) return;
@@ -170,3 +219,10 @@ export const userRouter = createTRPCRouter({
     );
   }),
 });
+
+function getHighestAdminLevel(adminLevels: AdminLevel[]) {
+  return adminLevels.reduce(
+    (acc, val) => (permissionCheck(acc, val) ? acc : val),
+    AdminLevel.SUB_GROUP,
+  );
+}

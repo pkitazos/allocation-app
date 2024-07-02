@@ -1,8 +1,9 @@
 "use client";
-import { Role } from "@prisma/client";
 import { ReactNode } from "react";
+import { Role } from "@prisma/client";
 
 import { api } from "@/lib/trpc/client";
+
 import { useInstanceParams } from "../params-context";
 
 export function RBAC({

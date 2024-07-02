@@ -1,4 +1,13 @@
 "use client";
+import { PreferenceType } from "@prisma/client";
+import {
+  BookmarkIcon,
+  CornerDownRightIcon,
+  LucideMoreHorizontal as MoreIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,10 +27,6 @@ import {
   StudentPreferenceType,
   studentPreferenceSchema,
 } from "@/lib/validations/student-preference";
-import { PreferenceType } from "@prisma/client";
-import { LucideMoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
 
 export function StudentPreferenceActionMenu({
   defaultType,
@@ -45,23 +50,25 @@ export function StudentPreferenceActionMenu({
       <DropdownMenuTrigger asChild>
         <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
-          <LucideMoreHorizontal className="h-4 w-4" />
+          <MoreIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-68" align="center" side="bottom">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="group/item" asChild>
+        <DropdownMenuItem className="group/item">
           <Link
-            className="text-primary underline-offset-4 hover:underline group-hover/item:underline"
+            className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
             href={`../projects/${projectId}`}
           >
-            View project details
+            <CornerDownRightIcon className="h-4 w-4" />
+            <span>View Project details</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="text-primary">
-            Change preference type to
+          <DropdownMenuSubTrigger className="flex items-center gap-2 text-primary">
+            <BookmarkIcon className="h-4 w-4" />
+            <span>Change preference type to</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>

@@ -10,6 +10,7 @@ import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
 import { StudentData, studentsColumns } from "./students-columns";
+import { spacesLabels } from "@/content/spaces";
 
 export function StudentsDataTable({
   role,
@@ -24,27 +25,27 @@ export function StudentsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.user.student.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } =
-    api.user.student.deleteAll.useMutation();
+  const { mutateAsync: deleteSelectedAsync } =
+    api.user.student.deleteSelected.useMutation();
 
   async function handleDelete(studentId: string) {
     void toast.promise(
       deleteAsync({ params, studentId }).then(() => router.refresh()),
       {
-        loading: "Deleting Student...",
+        loading: `Removing Student from this ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
         success: `Student ${studentId} deleted successfully`,
       },
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(studentIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteSelectedAsync({ params, studentIds }).then(() => router.refresh()),
       {
-        loading: "Deleting Project...",
+        loading: `Removing Students from this ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
-        success: `All Students deleted successfully`,
+        success: `Successfully removed ${studentIds.length} students`,
       },
     );
   }
@@ -58,7 +59,7 @@ export function StudentsDataTable({
     <DataTable
       searchableColumn={primaryColumn}
       className="w-full"
-      columns={studentsColumns(role, stage, handleDelete, handleDeleteAll)}
+      columns={studentsColumns(role, stage, handleDelete, handleDeleteSelected)}
       data={data}
     />
   );

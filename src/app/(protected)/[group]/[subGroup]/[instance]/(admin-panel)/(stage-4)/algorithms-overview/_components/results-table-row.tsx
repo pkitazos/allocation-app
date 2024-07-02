@@ -41,9 +41,9 @@ export function ResultsTableRow({
         setSelectedMatching(algName);
       }),
       {
-        loading: "Running...",
+        loading: "Changing selection...",
         error: "Something went wrong",
-        success: "Success",
+        success: "Successfully updated selection",
       },
     );
   };

@@ -2,14 +2,14 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { Heading } from "@/components/heading";
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
+import { Heading, SubHeading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
@@ -47,11 +47,11 @@ export default async function Page({
                 <TableRow className="flex w-full items-center" key={i}>
                   <TableCell className="w-1/3 font-medium">{name}</TableCell>
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
-                  {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+                  <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
                     <TableCell className="flex w-1/3 justify-end">
                       <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
-                  )}
+                  </AdminLevelAC>
                 </TableRow>
               ))}
             </TableBody>
@@ -61,10 +61,7 @@ export default async function Page({
           </div>
         </CardContent>
       </Card>
-
-      <h2 className="text-3xl font-medium leading-none tracking-tight underline decoration-secondary underline-offset-4">
-        Manage Allocation Instances
-      </h2>
+      <SubHeading>Manage Allocation Instances</SubHeading>
       <div className="flex w-full flex-col gap-6">
         <Link href={`/${group}/${subGroup}/create-instance`} className="w-fit">
           <Button
@@ -94,11 +91,11 @@ export default async function Page({
           ))}
         </div>
       </div>
-      {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+      <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
         <div className="mt-16">
           <DangerZone spaceTitle="Sub-Group" params={params} />
         </div>
-      )}
+      </AdminLevelAC>
     </div>
   );
 }

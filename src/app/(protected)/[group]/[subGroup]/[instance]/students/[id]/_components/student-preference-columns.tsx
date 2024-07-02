@@ -6,17 +6,12 @@ import Link from "next/link";
 import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-import { useRouter } from "next/navigation";
 import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
@@ -39,31 +34,12 @@ export function studentPreferenceColumns(
     newPreferenceType: StudentPreferenceType,
     projectId: string,
   ) => Promise<void>,
-  changeAllPreferences: (
+  changeSelectedPreferences: (
     newPreferenceType: StudentPreferenceType,
+    projectIds: string[],
   ) => Promise<void>,
 ): ColumnDef<PreferenceData>[] {
-  const router = useRouter();
-
-  const selectCol: ColumnDef<PreferenceData> = {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<PreferenceData>();
 
   const userCols: ColumnDef<PreferenceData>[] = [
     {
@@ -78,18 +54,11 @@ export function studentPreferenceColumns(
         },
       }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-20 truncate">{project.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{project.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={project.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-20 truncate">{project.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -167,27 +136,30 @@ export function studentPreferenceColumns(
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedProjectIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.project.id);
 
       if (
-        allSelected &&
+        someSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
           <ChangePreferenceButton
             className="w-24 text-xs"
             dropdownLabel="Change Type to:"
             defaultStatus="None"
-            changeFunction={changeAllPreferences}
+            changeFunction={async (newPreference) => {
+              changeSelectedPreferences(newPreference, selectedProjectIds);
+            }}
           />
         );
       }
-      return (
-        <div className="w-24 text-center text-sm text-muted-foreground">
-          Actions
-        </div>
-      );
+      return <ActionColumnLabel className="w-24" />;
     },
     cell: ({
       row: {

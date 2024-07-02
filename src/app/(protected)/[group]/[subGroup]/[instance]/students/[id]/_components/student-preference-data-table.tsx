@@ -32,8 +32,8 @@ export function StudentPreferenceDataTable({
   const { mutateAsync: changePreferenceAsync } =
     api.user.student.preference.change.useMutation();
 
-  const { mutateAsync: changeAllPreferencesAsync } =
-    api.user.student.preference.changeAll.useMutation();
+  const { mutateAsync: changeSelectedPreferencesAsync } =
+    api.user.student.preference.changeSelected.useMutation();
 
   async function changePreference(
     newPreferenceType: StudentPreferenceType,
@@ -54,14 +54,16 @@ export function StudentPreferenceDataTable({
     );
   }
 
-  async function changeAllPreferences(
+  async function changeSelectedPreferences(
     newPreferenceType: StudentPreferenceType,
+    projectIds: string[],
   ) {
     void toast.promise(
-      changeAllPreferencesAsync({
+      changeSelectedPreferencesAsync({
         params,
         newPreferenceType,
         studentId,
+        projectIds,
       }).then(() => router.refresh()),
       {
         loading: "Updating all project preferences...",
@@ -84,7 +86,7 @@ export function StudentPreferenceDataTable({
         role,
         stage,
         changePreference,
-        changeAllPreferences,
+        changeSelectedPreferences,
       )}
       data={data}
     />
