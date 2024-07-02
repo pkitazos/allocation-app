@@ -22,11 +22,7 @@ import {
 import { AccessControl } from "@/components/access-control";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 
-import {
-  previousStages,
-  stageGte,
-  stageLte,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
 
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
@@ -184,7 +180,7 @@ export function studentsColumns(
 
   if (role !== Role.ADMIN) return userCols;
 
-  return stageGte(stage, Stage.PROJECT_ALLOCATION)
-    ? [...userCols, actionsCol]
-    : [selectCol, ...userCols, actionsCol];
+  return stageLte(stage, Stage.PROJECT_SELECTION)
+    ? [selectCol, ...userCols, actionsCol]
+    : [...userCols, actionsCol];
 }
