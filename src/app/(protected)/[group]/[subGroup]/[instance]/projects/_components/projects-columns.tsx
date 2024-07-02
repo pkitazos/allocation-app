@@ -26,11 +26,7 @@ import { AccessControl } from "@/components/access-control";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-import {
-  previousStages,
-  stageGte,
-  stageLt,
-} from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
 
 export interface ProjectTableData {
   user: User;
@@ -235,7 +231,7 @@ export function projectColumns(
               </DropdownMenuItem>
               <AccessControl
                 allowedRoles={[Role.ADMIN]}
-                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+                allowedStages={previousStages(Stage.PROJECT_SUBMISSION)}
                 extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
               >
                 <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
@@ -259,7 +255,7 @@ export function projectColumns(
 
   if (role === Role.SUPERVISOR) return [...userCols, actionsCol];
 
-  return stageGte(stage, Stage.PROJECT_ALLOCATION)
-    ? [...userCols, actionsCol]
-    : [selectCol, ...userCols, actionsCol];
+  return stage === Stage.PROJECT_SUBMISSION
+    ? [selectCol, ...userCols, actionsCol]
+    : [...userCols, actionsCol];
 }
