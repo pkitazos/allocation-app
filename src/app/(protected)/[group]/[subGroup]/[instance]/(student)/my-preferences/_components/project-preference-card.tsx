@@ -79,7 +79,7 @@ export function ProjectPreferenceCard({
           <p className="font-semibold">{project.supervisorName}</p>
         </div>
       </CardContent>
-      <AccessControl allowedStages={previousStages(Stage.PROJECT_SELECTION)}>
+      <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
         <Button
           variant="ghost"
           size="icon"
