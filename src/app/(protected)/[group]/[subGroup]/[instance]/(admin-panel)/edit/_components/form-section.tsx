@@ -35,15 +35,18 @@ import { InstanceParams } from "@/lib/validations/params";
 import { buildFormSchema } from "./form-schema";
 
 import { spacesLabels } from "@/content/space-labels";
+import { ReactNode } from "react";
 
 export function FormSection({
   currentInstanceDetails,
   takenNames,
   params,
+  children: dismissalButton,
 }: {
   currentInstanceDetails: UpdatedInstance;
   takenNames: string[];
   params: InstanceParams;
+  children: ReactNode;
 }) {
   const { group, subGroup, instance } = params;
   const router = useRouter();
@@ -391,9 +394,10 @@ export function FormSection({
           />
         </div>
         <Separator className="my-10" />
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-8">
+          {dismissalButton}
           <Button type="submit" size="lg" onClick={() => {}}>
-            create new instance
+            Create new {spacesLabels.instance.short}
           </Button>
         </div>
       </form>
