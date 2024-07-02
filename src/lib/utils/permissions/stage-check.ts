@@ -48,7 +48,7 @@ export function stageLte(currentStage: Stage, maxStage: Stage) {
  * @param minStage the minimum stage to include in the returned array
  * @returns all stages that are after the `minStage` inclusive
  */
-export function subsequentStages(minStage: Stage) {
+export function subsequentStages(minStage: Stage): Stage[] {
   return stageSchema.options.filter((s) => stageOrd[s] >= stageOrd[minStage]);
 }
 
@@ -57,6 +57,6 @@ export function subsequentStages(minStage: Stage) {
  * @param maxStage the maximum stage to include in the returned array
  * @returns all stages that are before the `maxStage` inclusive
  */
-export function previousStages(maxStage: Stage) {
+export function previousStages(maxStage: Stage): Stage[] {
   return stageSchema.options.filter((s) => stageOrd[s] <= stageOrd[maxStage]);
 }

@@ -24,7 +24,11 @@ import { ActionColumnLabel } from "@/components/ui/data-table/action-column-labe
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { spacesLabels } from "@/content/spaces";
-import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
+import {
+  previousStages,
+  stageGte,
+  stageLte,
+} from "@/lib/utils/permissions/stage-check";
 
 export type SupervisorData = {
   id: string;
@@ -179,7 +183,7 @@ export function supervisorColumns(
 
   if (role !== Role.ADMIN) return userCols;
 
-  return stageGte(stage, Stage.PROJECT_ALLOCATION)
-    ? [...userCols, actionsCol]
-    : [selectCol, ...userCols, actionsCol];
+  return stageLte(stage, Stage.PROJECT_SELECTION)
+    ? [selectCol, ...userCols, actionsCol]
+    : [...userCols, actionsCol];
 }
