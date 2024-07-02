@@ -603,6 +603,7 @@ export const instanceRouter = createTRPCRouter({
           },
           data: updatedData,
         });
+
         const currentInstanceFlags = await ctx.db.flag.findMany({
           where: {
             allocationGroupId: group,
@@ -610,24 +611,41 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
         });
-        const newInstanceFlags = setDiff(flags, currentInstanceFlags); //set A
-        const flagsToDelete = setDiff(currentInstanceFlags, flags); // set B
+
+        const newInstanceFlags = setDiff(flags, currentInstanceFlags);
+        const staleInstanceFlags = setDiff(currentInstanceFlags, flags);
+
+        const currentInstanceTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newInstanceTags = setDiff(tags, currentInstanceTags);
+        const staleInstanceTags = setDiff(currentInstanceTags, tags);
+
+        // TODO:
+        // delete all stale flags
+        // delete all flagOnProjects with stale flags
+        // delete all flagOnStudents with stale flags (not currently implemented)
+        // create all new flags
+
+        // delete all stale tags
+        // delete all tagOnProjects with stale tags
+        // create all new tags
       },
     ),
-
-  /**
-   *  existing = [A, B, C]
-   *  from_form = [A, D]
-   *
-   *  new = from_form - existing = [A,D] - [A, B, C] = [D]
-   *  delete = existing - from_form = [A, B, C] - [A, D] = [B, C]
-   */
-
-  // await ctx.db.allocationInstance.createMany({
-  //   data: flags.
-  // })
 });
 
-function setDiff<T extends { title: string }>(setA: T[], setB: T[]) {
+/**
+ *  existing = [A, B, C]
+ *  from_form = [A, D]
+ *
+ *  new = from_form - existing = [A,D] - [A, B, C] = [D]
+ *  delete = existing - from_form = [A, B, C] - [A, D] = [B, C]
+ */
+function setDiffOLD<T extends { title: string }>(setA: T[], setB: T[]) {
   return setA.filter((a) => !setB.map((b) => b.title).includes(a.title));
 }
