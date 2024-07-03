@@ -13,7 +13,10 @@
  * const newItems = setDiff(fromForm, fromDatabase);
  * console.log(newItems); // Output: [{ title: 'D' }]
  */
-function setDiff<T extends { title: string }>(setA: T[], setB: T[]): T[] {
+export function setDiff<T extends { title: string }>(
+  setA: T[],
+  setB: T[],
+): T[] {
   const titlesB = new Set(setB.map((b) => b.title));
 
   return setA.filter((a) => !titlesB.has(a.title));

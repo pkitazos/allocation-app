@@ -3,7 +3,6 @@ import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
-import { updatedInstanceSchema } from "@/lib/validations/instance-form";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
@@ -15,6 +14,7 @@ import {
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { setDiff } from "@/server/utils/set-difference";
 
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
@@ -24,6 +24,25 @@ export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
   algorithm: algorithmRouter,
   project: projectRouter,
+
+  get: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+        });
+      },
+    ),
 
   access: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
@@ -615,6 +634,24 @@ export const instanceRouter = createTRPCRouter({
         const newInstanceFlags = setDiff(flags, currentInstanceFlags);
         const staleInstanceFlags = setDiff(currentInstanceFlags, flags);
 
+        await ctx.db.flag.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: { in: staleInstanceFlags.map((f) => f.title) },
+          },
+        });
+
+        await ctx.db.flag.createMany({
+          data: newInstanceFlags.map((f) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: f.title,
+          })),
+        });
+
         const currentInstanceTags = await ctx.db.tag.findMany({
           where: {
             allocationGroupId: group,
@@ -626,26 +663,23 @@ export const instanceRouter = createTRPCRouter({
         const newInstanceTags = setDiff(tags, currentInstanceTags);
         const staleInstanceTags = setDiff(currentInstanceTags, tags);
 
-        // TODO:
-        // delete all stale flags
-        // delete all flagOnProjects with stale flags
-        // delete all flagOnStudents with stale flags (not currently implemented)
-        // create all new flags
+        await ctx.db.tag.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: { in: staleInstanceTags.map((f) => f.title) },
+          },
+        });
 
-        // delete all stale tags
-        // delete all tagOnProjects with stale tags
-        // create all new tags
+        await ctx.db.tag.createMany({
+          data: newInstanceTags.map((f) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: f.title,
+          })),
+        });
       },
     ),
 });
-
-/**
- *  existing = [A, B, C]
- *  from_form = [A, D]
- *
- *  new = from_form - existing = [A,D] - [A, B, C] = [D]
- *  delete = existing - from_form = [A, B, C] - [A, D] = [B, C]
- */
-function setDiffOLD<T extends { title: string }>(setA: T[], setB: T[]) {
-  return setA.filter((a) => !setB.map((b) => b.title).includes(a.title));
-}
