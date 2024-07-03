@@ -11,6 +11,8 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import Layout from "./layout";
 
+import { dateFormatter } from "@/lib/utils/date/formatter";
+
 export async function SupervisorOverview({
   params,
 }: {
@@ -34,7 +36,7 @@ export async function SupervisorOverview({
           <div className="flex flex-col justify-start">
             <div className="flex flex-col gap-4">
               <SubHeading>Project Upload Deadline</SubHeading>
-              <p className="text-xl">{deadline.toLocaleDateString()}</p>
+              <p className="text-xl">{dateFormatter(deadline)}</p>
             </div>
             <div className="mt-16 flex flex-col gap-4">
               <SubHeading>Task List</SubHeading>

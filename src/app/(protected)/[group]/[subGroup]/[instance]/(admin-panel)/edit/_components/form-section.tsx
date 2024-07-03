@@ -1,7 +1,7 @@
 "use client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ import { buildFormSchema } from "./form-schema";
 
 import { spacesLabels } from "@/content/space-labels";
 import { ReactNode } from "react";
+import { deadlineHandler } from "@/lib/utils/date/deadline-handler";
 
 export function FormSection({
   currentInstanceDetails,
@@ -97,7 +98,7 @@ export function FormSection({
           maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
         },
       }).then(() => {
-        router.push(`/${group}/${subGroup}/${instance})}`);
+        router.push(`/${group}/${subGroup}/${instance}`);
         router.refresh();
       }),
       {
@@ -264,7 +265,11 @@ export function FormSection({
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(date) => {
+                      if (!date) return;
+                      const actualDate = deadlineHandler(date);
+                      field.onChange(actualDate);
+                    }}
                     disabled={(date) => date < new Date()}
                     initialFocus
                   />
@@ -378,7 +383,11 @@ export function FormSection({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        if (!date) return;
+                        const actualDate = deadlineHandler(date);
+                        field.onChange(actualDate);
+                      }}
                       disabled={(date) => date < new Date()}
                       initialFocus
                     />
@@ -397,7 +406,7 @@ export function FormSection({
         <div className="flex justify-end gap-8">
           {dismissalButton}
           <Button type="submit" size="lg" onClick={() => {}}>
-            Create new {spacesLabels.instance.short}
+            Update {spacesLabels.instance.short}
           </Button>
         </div>
       </form>

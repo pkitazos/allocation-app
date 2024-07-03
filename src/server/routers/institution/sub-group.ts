@@ -159,7 +159,7 @@ export const subGroupRouter = createTRPCRouter({
 
         await ctx.db.flag.createMany({
           data: flags.map(({ flag }) => ({
-            id: slugify(flag),
+            // id: slugify(flag),
             title: flag,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -169,7 +169,7 @@ export const subGroupRouter = createTRPCRouter({
 
         await ctx.db.tag.createMany({
           data: tags.map(({ tag }) => ({
-            id: slugify(tag),
+            // id: slugify(tag),
             title: tag,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
