@@ -33,7 +33,7 @@ export function InstanceTabs() {
         stageGte(stage, Stage.PROJECT_SELECTION)) && (
         <InstanceLink href={`${instancePath}/projects`}>Projects</InstanceLink>
       )}
-      {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
+      {roleCheck(role, [Role.ADMIN]) && (
         <InstanceLink href={`${instancePath}/supervisors`}>
           Supervisors
         </InstanceLink>
