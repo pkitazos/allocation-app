@@ -1,5 +1,5 @@
 "use client";
-import { X } from "lucide-react";
+import { MinusCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -9,7 +9,7 @@ import {
   getSelectedProject,
   getStudent,
   removeFromAllocations,
-} from "../../../../../../../../../lib/utils/allocation-adjustment";
+} from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from "./allocation-store";
 
@@ -62,10 +62,10 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
     <Button
       variant="ghost"
       size="icon"
-      className="h-12 w-12"
+      className="h-12 w-12 text-muted-foreground"
       onClick={() => handleRowRemoval(rowIdx)}
     >
-      <X className="h-5 w-5" />
+      <MinusCircleIcon className="h-5 w-5" />
     </Button>
   );
 }

@@ -15,6 +15,6 @@ export {
   getSelectedProject,
   getStudent,
   getStudents,
-  inAllocatedTo,
+  getProjectIdx,
   removeFromAllocations,
 } from "./student";

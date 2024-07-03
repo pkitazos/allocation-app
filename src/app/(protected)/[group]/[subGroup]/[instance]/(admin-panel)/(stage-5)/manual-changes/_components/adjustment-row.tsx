@@ -1,21 +1,24 @@
 "use client";
+import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 
 import {
   addToAllocations,
   getProjectInfo,
   getStudent,
-  inAllocatedTo,
+  getProjectIdx,
   removeFromAllocations,
   replaceUpdated,
 } from "@/lib/utils/allocation-adjustment";
 
+import { Button } from "@/components/ui/button";
+import { MinusCircleIcon, TrashIcon } from "lucide-react";
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";
 import { StudentCard } from "./student-card";
+import { UnmatchButton } from "./unmatch-button";
 
 export function AdjustmentRow({
   rowIdx,
@@ -39,7 +42,7 @@ export function AdjustmentRow({
     if (!over) return;
 
     const newProjects = structuredClone(projects);
-    const selectedIdx = inAllocatedTo(newProjects, studentId);
+    const selectedIdx = getProjectIdx(newProjects, studentId);
     const overIdx = newProjects.findIndex((e) => e.id === over.id);
 
     if (selectedIdx === overIdx) return;
@@ -62,6 +65,7 @@ export function AdjustmentRow({
     <DndContext onDragStart={() => setDragging(true)} onDragEnd={onDragEnd}>
       <div className="no-scrollbar flex items-start gap-3 overflow-x-scroll py-1.5">
         <div className="flex items-center gap-2 border-r pr-3">
+          <UnmatchButton rowIdx={rowIdx} />
           <RowRemovalButton rowIdx={rowIdx} />
           <StudentCard studentId={studentId} />
         </div>
