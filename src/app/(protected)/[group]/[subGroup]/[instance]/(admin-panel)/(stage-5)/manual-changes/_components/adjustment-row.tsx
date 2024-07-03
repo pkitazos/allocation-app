@@ -42,21 +42,23 @@ export function AdjustmentRow({
     if (!over) return;
 
     const newProjects = structuredClone(projects);
+
     const selectedIdx = getProjectIdx(newProjects, studentId);
     const overIdx = newProjects.findIndex((e) => e.id === over.id);
 
     if (selectedIdx === overIdx) return;
 
     const overProject = newProjects[overIdx];
-    const selectedProject = newProjects[selectedIdx];
-    const updatedSelected = removeFromAllocations(selectedProject, studentId);
     const updatedOver = addToAllocations(overProject, studentId);
-
-    newProjects[selectedIdx] = updatedSelected;
     newProjects[overIdx] = updatedOver;
 
-    const updatedProjects = replaceUpdated(allProjects, newProjects);
+    if (selectedIdx !== -1) {
+      const selectedProject = newProjects[selectedIdx];
+      const updatedSelected = removeFromAllocations(selectedProject, studentId);
+      newProjects[selectedIdx] = updatedSelected;
+    }
 
+    const updatedProjects = replaceUpdated(allProjects, newProjects);
     updateProjects(updatedProjects);
     setDragging(false);
   }
