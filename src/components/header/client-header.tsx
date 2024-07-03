@@ -34,12 +34,14 @@ export function InstanceTabs() {
         <InstanceLink href={`${instancePath}/projects`}>Projects</InstanceLink>
       )}
       {roleCheck(role, [Role.ADMIN]) && (
-        <InstanceLink href={`${instancePath}/supervisors`}>
-          Supervisors
-        </InstanceLink>
-      )}
-      {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}/students`}>Students</InstanceLink>
+        <>
+          <InstanceLink href={`${instancePath}/supervisors`}>
+            Supervisors
+          </InstanceLink>
+          <InstanceLink href={`${instancePath}/students`}>
+            Students
+          </InstanceLink>
+        </>
       )}
       {roleCheck(role, [Role.STUDENT]) &&
         stageCheck(stage, Stage.PROJECT_SELECTION) && (
