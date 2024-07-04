@@ -40,18 +40,49 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
     const originalAlloc = getSelectedProject(allProjects, student);
     const currentAlloc = findAllocation(allProjects, studentId);
 
-    const originalIdx = allProjects.findIndex((p) => p.id === originalAlloc.id);
-    const currentIdx = allProjects.findIndex((p) => p.id === currentAlloc.id);
+    if (originalAlloc) {
+      if (!currentAlloc) {
+        const originalIdx = allProjects.findIndex(
+          (p) => p.id === originalAlloc.id,
+        );
 
-    if (originalAlloc.id !== currentAlloc.id) {
-      const updatedOriginal = addToAllocations(originalAlloc, studentId);
-      const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+        const updatedOriginal = addToAllocations(originalAlloc, studentId);
 
-      const projects = structuredClone(allProjects);
-      projects[originalIdx] = updatedOriginal;
-      projects[currentIdx] = updatedCurrent;
+        const projects = structuredClone(allProjects);
+        projects[originalIdx] = updatedOriginal;
 
-      updateProjects(projects);
+        updateProjects(projects);
+      } else {
+        const originalIdx = allProjects.findIndex(
+          (p) => p.id === originalAlloc.id,
+        );
+        const currentIdx = allProjects.findIndex(
+          (p) => p.id === currentAlloc.id,
+        );
+
+        if (originalAlloc.id !== currentAlloc.id) {
+          const updatedOriginal = addToAllocations(originalAlloc, studentId);
+          const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+
+          const projects = structuredClone(allProjects);
+          projects[originalIdx] = updatedOriginal;
+          projects[currentIdx] = updatedCurrent;
+
+          updateProjects(projects);
+        }
+      }
+    } else {
+      if (currentAlloc) {
+        const currentIdx = allProjects.findIndex(
+          (p) => p.id === currentAlloc.id,
+        );
+
+        const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+
+        const projects = structuredClone(allProjects);
+        projects[currentIdx] = updatedCurrent;
+        updateProjects(projects);
+      }
     }
 
     setSelectedStudentIds(selectedStudentIds.toSpliced(idx, 1));

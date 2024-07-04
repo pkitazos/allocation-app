@@ -1,10 +1,13 @@
+import { TrashIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
 import { replaceUpdated } from "@/lib/utils/allocation-adjustment/project";
 import {
   getProjectIdx,
   removeFromAllocations,
 } from "@/lib/utils/allocation-adjustment/student";
-import { TrashIcon } from "lucide-react";
+
 import { useAllocDetails } from "./allocation-store";
 
 export function UnmatchButton({ rowIdx }: { rowIdx: number }) {

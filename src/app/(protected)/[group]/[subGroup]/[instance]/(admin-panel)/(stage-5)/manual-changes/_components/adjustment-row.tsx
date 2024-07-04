@@ -1,19 +1,17 @@
 "use client";
-import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 
 import {
   addToAllocations,
+  getProjectIdx,
   getProjectInfo,
   getStudent,
-  getProjectIdx,
   removeFromAllocations,
   replaceUpdated,
 } from "@/lib/utils/allocation-adjustment";
 
-import { Button } from "@/components/ui/button";
-import { MinusCircleIcon, TrashIcon } from "lucide-react";
 import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";
