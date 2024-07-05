@@ -6,8 +6,9 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { DangerZone } from "./_components/danger-zone";
 import { spacesLabels } from "@/content/space-labels";
+
+import { DangerZone } from "./_components/danger-zone";
 
 export default async function Page() {
   return (
@@ -18,9 +19,9 @@ export default async function Page() {
           <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-start gap-5">
-          <Button className="flex items-center gap-2" size="lg">
-            <PenIcon className="h-4 w-4" />
-            <Link href="./edit">
+          <Button size="lg" asChild>
+            <Link className="flex items-center gap-2" href="./edit">
+              <PenIcon className="h-4 w-4" />
               View or Edit {spacesLabels.instance.short} Details
             </Link>
           </Button>
