@@ -2,8 +2,8 @@ import { isAfter } from "date-fns";
 import { z } from "zod";
 
 const baseFormDetailsSchema = z.object({
-  tags: z.array(z.object({ title: z.string().min(1, "Please add a tag") })),
-  flags: z.array(z.object({ title: z.string().min(1, "Please add a flag") })),
+  tags: z.array(z.object({ title: z.string() })),
+  flags: z.array(z.object({ title: z.string() })),
 
   projectSubmissionDeadline: z.date(),
 

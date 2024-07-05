@@ -1,11 +1,11 @@
 "use client";
+import { ReactNode } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, setHours, setMinutes } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -31,14 +31,14 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
 import { UpdatedInstance } from "@/lib/validations/instance-form";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { spacesLabels } from "@/content/space-labels";
-
-import { updateDateOnly } from "@/lib/utils/date/update-date-only";
 import { editFormDetailsSchema } from "./form-schema";
 import { TimePicker } from "./time-picker";
+
+import { spacesLabels } from "@/content/space-labels";
 
 export function FormSection({
   currentInstanceDetails,
@@ -66,10 +66,6 @@ export function FormSection({
   } = useFieldArray({
     control: form.control,
     name: "flags",
-    rules: {
-      required: "Please add at least 1 Flag",
-      validate: (array) => array.length !== 0,
-    },
   });
 
   const {
@@ -135,7 +131,6 @@ export function FormSection({
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={flagFields.length === 1}
                           onClick={() => removeFlag(idx)}
                         >
                           <X className="h-4 w-4" />
