@@ -3,18 +3,15 @@ export {
   allProjectsValid,
   getAsProjects,
   getProjectInfo,
-  getRowProject,
   replaceUpdated,
   toProjectInfos,
-  toRowProjects,
 } from "./project";
 export { getAllocPairs, getStudentRank } from "./rank";
 export {
   addToAllocations,
   findAllocation,
+  getProjectIdx,
   getSelectedProject,
   getStudent,
-  getStudents,
-  inAllocatedTo,
   removeFromAllocations,
 } from "./student";

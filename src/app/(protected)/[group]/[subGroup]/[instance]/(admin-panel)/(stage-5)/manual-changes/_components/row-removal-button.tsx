@@ -1,5 +1,5 @@
 "use client";
-import { X } from "lucide-react";
+import { MinusCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -9,7 +9,7 @@ import {
   getSelectedProject,
   getStudent,
   removeFromAllocations,
-} from "../../../../../../../../../lib/utils/allocation-adjustment";
+} from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from "./allocation-store";
 
@@ -37,21 +37,44 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
     const studentId = selectedStudentIds[idx];
     const student = getStudent(studentsBackup, studentId);
 
-    const originalAlloc = getSelectedProject(allProjects, student);
-    const currentAlloc = findAllocation(allProjects, studentId);
+    const prevAlloc = getSelectedProject(allProjects, student);
+    const currAlloc = findAllocation(allProjects, studentId);
 
-    const originalIdx = allProjects.findIndex((p) => p.id === originalAlloc.id);
-    const currentIdx = allProjects.findIndex((p) => p.id === currentAlloc.id);
+    if (prevAlloc) {
+      if (!currAlloc) {
+        const prevIdx = allProjects.findIndex((p) => p.id === prevAlloc.id);
 
-    if (originalAlloc.id !== currentAlloc.id) {
-      const updatedOriginal = addToAllocations(originalAlloc, studentId);
-      const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+        const updatedPrev = addToAllocations(prevAlloc, studentId);
 
-      const projects = structuredClone(allProjects);
-      projects[originalIdx] = updatedOriginal;
-      projects[currentIdx] = updatedCurrent;
+        const projects = structuredClone(allProjects);
+        projects[prevIdx] = updatedPrev;
 
-      updateProjects(projects);
+        updateProjects(projects);
+      } else {
+        const prevIdx = allProjects.findIndex((p) => p.id === prevAlloc.id);
+        const currIdx = allProjects.findIndex((p) => p.id === currAlloc.id);
+
+        if (prevAlloc.id !== currAlloc.id) {
+          const revertedAlloc = addToAllocations(prevAlloc, studentId);
+          const discardedAlloc = removeFromAllocations(currAlloc, studentId);
+
+          const projects = structuredClone(allProjects);
+          projects[prevIdx] = revertedAlloc;
+          projects[currIdx] = discardedAlloc;
+
+          updateProjects(projects);
+        }
+      }
+    } else {
+      if (currAlloc) {
+        const currIdx = allProjects.findIndex((p) => p.id === currAlloc.id);
+
+        const discardedAlloc = removeFromAllocations(currAlloc, studentId);
+
+        const projects = structuredClone(allProjects);
+        projects[currIdx] = discardedAlloc;
+        updateProjects(projects);
+      }
     }
 
     setSelectedStudentIds(selectedStudentIds.toSpliced(idx, 1));
@@ -62,10 +85,10 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
     <Button
       variant="ghost"
       size="icon"
-      className="h-12 w-12"
+      className="h-12 w-12 text-muted-foreground"
       onClick={() => handleRowRemoval(rowIdx)}
     >
-      <X className="h-5 w-5" />
+      <MinusCircleIcon className="h-5 w-5" />
     </Button>
   );
 }

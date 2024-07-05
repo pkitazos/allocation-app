@@ -5,9 +5,9 @@ import { DndContext, DragEndEvent, DragOverlay } from "@dnd-kit/core";
 
 import {
   addToAllocations,
+  getProjectIdx,
   getProjectInfo,
   getStudent,
-  inAllocatedTo,
   removeFromAllocations,
   replaceUpdated,
 } from "@/lib/utils/allocation-adjustment";
@@ -16,6 +16,7 @@ import { useAllocDetails } from "./allocation-store";
 import { ProjectCard } from "./project-card";
 import { RowRemovalButton } from "./row-removal-button";
 import { StudentCard } from "./student-card";
+import { UnmatchButton } from "./unmatch-button";
 
 export function AdjustmentRow({
   rowIdx,
@@ -39,21 +40,23 @@ export function AdjustmentRow({
     if (!over) return;
 
     const newProjects = structuredClone(projects);
-    const selectedIdx = inAllocatedTo(newProjects, studentId);
+
+    const selectedIdx = getProjectIdx(newProjects, studentId);
     const overIdx = newProjects.findIndex((e) => e.id === over.id);
 
     if (selectedIdx === overIdx) return;
 
     const overProject = newProjects[overIdx];
-    const selectedProject = newProjects[selectedIdx];
-    const updatedSelected = removeFromAllocations(selectedProject, studentId);
     const updatedOver = addToAllocations(overProject, studentId);
-
-    newProjects[selectedIdx] = updatedSelected;
     newProjects[overIdx] = updatedOver;
 
-    const updatedProjects = replaceUpdated(allProjects, newProjects);
+    if (selectedIdx !== -1) {
+      const selectedProject = newProjects[selectedIdx];
+      const updatedSelected = removeFromAllocations(selectedProject, studentId);
+      newProjects[selectedIdx] = updatedSelected;
+    }
 
+    const updatedProjects = replaceUpdated(allProjects, newProjects);
     updateProjects(updatedProjects);
     setDragging(false);
   }
@@ -62,6 +65,7 @@ export function AdjustmentRow({
     <DndContext onDragStart={() => setDragging(true)} onDragEnd={onDragEnd}>
       <div className="no-scrollbar flex items-start gap-3 overflow-x-scroll py-1.5">
         <div className="flex items-center gap-2 border-r pr-3">
+          <UnmatchButton rowIdx={rowIdx} />
           <RowRemovalButton rowIdx={rowIdx} />
           <StudentCard studentId={studentId} />
         </div>
