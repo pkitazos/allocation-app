@@ -22,17 +22,6 @@ export function toProjectInfos(
   return allProjects.filter((p) => projectIds.includes(p.id));
 }
 
-export function getRowProject(
-  studentProjects: RowProject[],
-  projectId: string,
-) {
-  return studentProjects.find((p) => p.id === projectId)!;
-}
-
-export function toRowProjects(projects: RowProject[], projectIds: string[]) {
-  return projects.filter((p) => projectIds.includes(p.id));
-}
-
 export function getAsProjects(
   allProjects: ProjectInfo[],
   rowProjects: RowProject[],

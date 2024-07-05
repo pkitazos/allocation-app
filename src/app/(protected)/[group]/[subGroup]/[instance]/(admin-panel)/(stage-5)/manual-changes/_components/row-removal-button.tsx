@@ -37,50 +37,42 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
     const studentId = selectedStudentIds[idx];
     const student = getStudent(studentsBackup, studentId);
 
-    const originalAlloc = getSelectedProject(allProjects, student);
-    const currentAlloc = findAllocation(allProjects, studentId);
+    const prevAlloc = getSelectedProject(allProjects, student);
+    const currAlloc = findAllocation(allProjects, studentId);
 
-    if (originalAlloc) {
-      if (!currentAlloc) {
-        const originalIdx = allProjects.findIndex(
-          (p) => p.id === originalAlloc.id,
-        );
+    if (prevAlloc) {
+      if (!currAlloc) {
+        const prevIdx = allProjects.findIndex((p) => p.id === prevAlloc.id);
 
-        const updatedOriginal = addToAllocations(originalAlloc, studentId);
+        const updatedPrev = addToAllocations(prevAlloc, studentId);
 
         const projects = structuredClone(allProjects);
-        projects[originalIdx] = updatedOriginal;
+        projects[prevIdx] = updatedPrev;
 
         updateProjects(projects);
       } else {
-        const originalIdx = allProjects.findIndex(
-          (p) => p.id === originalAlloc.id,
-        );
-        const currentIdx = allProjects.findIndex(
-          (p) => p.id === currentAlloc.id,
-        );
+        const prevIdx = allProjects.findIndex((p) => p.id === prevAlloc.id);
+        const currIdx = allProjects.findIndex((p) => p.id === currAlloc.id);
 
-        if (originalAlloc.id !== currentAlloc.id) {
-          const updatedOriginal = addToAllocations(originalAlloc, studentId);
-          const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+        if (prevAlloc.id !== currAlloc.id) {
+          const revertedAlloc = addToAllocations(prevAlloc, studentId);
+          const discardedAlloc = removeFromAllocations(currAlloc, studentId);
 
           const projects = structuredClone(allProjects);
-          projects[originalIdx] = updatedOriginal;
-          projects[currentIdx] = updatedCurrent;
+          projects[prevIdx] = revertedAlloc;
+          projects[currIdx] = discardedAlloc;
 
           updateProjects(projects);
         }
       }
     } else {
-      if (currentAlloc) {
-        const currentIdx = allProjects.findIndex(
-          (p) => p.id === currentAlloc.id,
-        );
+      if (currAlloc) {
+        const currIdx = allProjects.findIndex((p) => p.id === currAlloc.id);
 
-        const updatedCurrent = removeFromAllocations(currentAlloc, studentId);
+        const discardedAlloc = removeFromAllocations(currAlloc, studentId);
 
         const projects = structuredClone(allProjects);
-        projects[currentIdx] = updatedCurrent;
+        projects[currIdx] = discardedAlloc;
         updateProjects(projects);
       }
     }

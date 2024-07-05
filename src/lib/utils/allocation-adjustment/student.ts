@@ -11,15 +11,6 @@ export function getStudent(students: StudentRow[], studentId: string) {
 }
 
 /**
- * @param allStudents list of all students
- * @param studentIds list of student IDs
- * @returns a a list of the StudentRow corresponding to each student ID
- */
-export function getStudents(allStudents: StudentRow[], studentIds: string[]) {
-  return allStudents.filter(({ student }) => studentIds.includes(student.id));
-}
-
-/**
  *  Get the index of the project in the ProjectInfo array that the student is allocated to
  * @param allProjects list of all projects
  * @param studentId a student ID
@@ -29,22 +20,6 @@ export function getStudents(allStudents: StudentRow[], studentIds: string[]) {
  */
 export function getProjectIdx(allProjects: ProjectInfo[], studentId: string) {
   return allProjects.findIndex((p) => p.allocatedTo.includes(studentId));
-}
-
-/**
- * Get the project that the student is allocated to
- * @param allProjects list of all projects
- * @param studentId a student ID
- * @returns the project that the student is allocated to
- * @example const projects = [{id: "1", allocatedTo: ["1", "2"]}, {id: "2", allocatedTo: ["3"]}]
- * getProjectInfo(projects, "2") // {id: "1", allocatedTo: ["1", "2"]}
- */
-export function getProjectInfoFromStudentId(
-  allProjects: ProjectInfo[],
-  studentId: string,
-): ProjectInfo | undefined {
-  const idx = getProjectIdx(allProjects, studentId);
-  return allProjects.at(idx);
 }
 
 export function getSelectedProject(

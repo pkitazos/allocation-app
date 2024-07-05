@@ -21,11 +21,14 @@ export function UnmatchButton({ rowIdx }: { rowIdx: number }) {
 
     const selectedIdx = getProjectIdx(newProjects, studentId);
 
-    const selectedProject = newProjects[selectedIdx]; // gets the project information for the project that the student has been allocated to
+    const allocatedProject = newProjects[selectedIdx];
 
-    const updatedSelected = removeFromAllocations(selectedProject, studentId); // removes the student in this row from the list of students allocated to the project
+    const unallocatedProject = removeFromAllocations(
+      allocatedProject,
+      studentId,
+    );
 
-    newProjects[selectedIdx] = updatedSelected;
+    newProjects[selectedIdx] = unallocatedProject;
     const updatedProjects = replaceUpdated(allProjects, newProjects);
 
     updateProjects(updatedProjects);
