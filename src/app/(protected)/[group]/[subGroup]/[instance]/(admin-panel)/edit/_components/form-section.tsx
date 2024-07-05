@@ -34,7 +34,6 @@ import { UpdatedInstance } from "@/lib/validations/instance-form";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { spacesLabels } from "@/content/space-labels";
-import { deadlineHandler } from "@/lib/utils/date/deadline-handler";
 
 import { editFormDetailsSchema } from "./form-schema";
 import { TimePicker } from "./time-picker";
