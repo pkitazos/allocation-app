@@ -14,20 +14,10 @@ export default async function Page({ params }: { params: InstanceParams }) {
     params,
   });
 
-  const allTakenNames = await api.institution.subGroup.takenNames({ params });
-
-  const takenNames = allTakenNames.filter(
-    (name) => name !== currentInstance.displayName,
-  );
-
   return (
     <div className="mb-40 mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
-      <SubHeading>Edit {spacesLabels.instance.full}</SubHeading>
-      <FormSection
-        currentInstanceDetails={currentInstance}
-        takenNames={takenNames}
-        params={params}
-      >
+      <SubHeading>Edit {spacesLabels.instance.full} Details</SubHeading>
+      <FormSection currentInstanceDetails={currentInstance} params={params}>
         <Button type="button" size="lg" variant="outline" asChild>
           <Link href="./settings">Cancel</Link>
         </Button>

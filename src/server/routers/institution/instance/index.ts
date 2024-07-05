@@ -593,7 +593,6 @@ export const instanceRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         updatedInstance: z.object({
-          displayName: z.string(),
           projectSubmissionDeadline: z.date(),
           minPreferences: z.number().int(),
           maxPreferences: z.number().int(),
