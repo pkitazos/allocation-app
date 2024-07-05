@@ -7,11 +7,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { dateFormatter } from "@/lib/utils/date/formatter";
 import { InstanceParams } from "@/lib/validations/params";
 
 import Layout from "./layout";
-
-import { dateFormatter } from "@/lib/utils/date/formatter";
 
 export async function SupervisorOverview({
   params,

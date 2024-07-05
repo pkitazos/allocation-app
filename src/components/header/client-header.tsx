@@ -28,10 +28,15 @@ export function InstanceTabs() {
 
   return (
     <>
+      {roleCheck(role, [Role.SUPERVISOR]) && (
+        <InstanceLink href={`${instancePath}`}>Instance Home</InstanceLink>
+      )}
       {((roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) &&
         stageCheck(stage, Stage.PROJECT_SUBMISSION)) ||
         stageCheck(stage, Stage.PROJECT_SELECTION)) && (
-        <InstanceLink href={`${instancePath}/projects`}>Projects</InstanceLink>
+        <InstanceLink href={`${instancePath}/projects`}>
+          All Projects
+        </InstanceLink>
       )}
       {roleCheck(role, [Role.ADMIN]) && (
         <>
@@ -53,17 +58,6 @@ export function InstanceTabs() {
         stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
           <InstanceLink href={`${instancePath}/my-allocation`}>
             My Allocation
-          </InstanceLink>
-        )}
-      {roleCheck(role, [Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}/my-projects`}>
-          My Projects
-        </InstanceLink>
-      )}
-      {roleCheck(role, [Role.SUPERVISOR]) &&
-        stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
-          <InstanceLink href={`${instancePath}/my-allocations`}>
-            My Allocations
           </InstanceLink>
         )}
     </>
