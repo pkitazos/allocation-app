@@ -104,7 +104,27 @@ export const supervisorRouter = createTRPCRouter({
             capacityLowerBound: true,
             capacityUpperBound: true,
             preAllocatedStudentId: true,
+            allocations: { select: { userId: true } },
           },
+        });
+
+        const allProjects = projects;
+
+        const rowProjects = allProjects.flatMap((project) => {
+          const { allocations, preAllocatedStudentId, ...rest } = project;
+
+          if (preAllocatedStudentId) {
+            return { ...rest, allocatedStudentId: preAllocatedStudentId };
+          }
+
+          if (allocations.length === 0) {
+            return { ...rest, allocatedStudentId: undefined };
+          }
+
+          return allocations.map((allocation) => ({
+            ...rest,
+            allocatedStudentId: allocation.userId,
+          }));
         });
 
         const { projectAllocationTarget: targetProjectCount } =
@@ -125,7 +145,7 @@ export const supervisorRouter = createTRPCRouter({
         const submissionTarget =
           2 * (targetProjectCount - preAllocatedProjectCount);
 
-        return { projects, submissionTarget };
+        return { submissionTarget, rowProjects };
       },
     ),
 

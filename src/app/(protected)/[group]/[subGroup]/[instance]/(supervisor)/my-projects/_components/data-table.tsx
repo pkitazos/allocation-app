@@ -10,21 +10,14 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import { columns } from "./project-columns";
+import { columns, SupervisorProjectData } from "./project-columns";
 
 export function ProjectsDataTable({
   stage,
   projects,
 }: {
   stage: Stage;
-  projects: Pick<
-    Project,
-    | "id"
-    | "title"
-    | "capacityLowerBound"
-    | "capacityUpperBound"
-    | "preAllocatedStudentId"
-  >[];
+  projects: SupervisorProjectData[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();

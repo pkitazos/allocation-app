@@ -15,20 +15,16 @@ import {
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 
+export type SupervisorProjectData = Pick<
+  Project,
+  "id" | "title" | "capacityLowerBound" | "capacityUpperBound"
+> & { allocatedStudentId?: string };
+
 export function columns(
   stage: Stage,
   removeRow: (id: string) => void,
   clearTable: () => void,
-): ColumnDef<
-  Pick<
-    Project,
-    | "id"
-    | "title"
-    | "capacityLowerBound"
-    | "capacityUpperBound"
-    | "preAllocatedStudentId"
-  >
->[] {
+): ColumnDef<SupervisorProjectData>[] {
   return [
     {
       id: "select",
@@ -98,10 +94,10 @@ export function columns(
       ),
     },
     {
-      id: "Pre-Allocated StudentId",
-      accessorFn: ({ preAllocatedStudentId }) => preAllocatedStudentId,
+      id: "Allocated Student ID",
+      accessorFn: ({ allocatedStudentId }) => allocatedStudentId,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Pre-allocated Student" />
+        <DataTableColumnHeader column={column} title="Allocated Student" />
       ),
     },
     {
