@@ -28,9 +28,7 @@ export function InstanceTabs() {
 
   return (
     <>
-      {roleCheck(role, [Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}`}>Instance Home</InstanceLink>
-      )}
+      <InstanceLink href={`${instancePath}`}>Instance Home</InstanceLink>
       {((roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) &&
         stageCheck(stage, Stage.PROJECT_SUBMISSION)) ||
         stageCheck(stage, Stage.PROJECT_SELECTION)) && (
