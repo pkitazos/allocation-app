@@ -19,6 +19,7 @@ interface AllocDetailsProps {
 interface AllocDetailsState extends AllocDetailsProps {
   setSelectedStudentIds: (ids: string[]) => void;
   updateProjects: (projects: ProjectInfo[]) => void;
+  updateStudents: (students: StudentRow[]) => void;
 }
 
 type AllocDetailsStore = ReturnType<typeof createAllocDetailsStore>;
@@ -37,6 +38,7 @@ const createAllocDetailsStore = (initProps?: Partial<AllocDetailsProps>) => {
     ...initProps,
     setSelectedStudentIds: (val) => set(() => ({ selectedStudentIds: val })),
     updateProjects: (projects) => set(() => ({ projects })),
+    updateStudents: (students) => set(() => ({ students })),
   }));
 };
 
