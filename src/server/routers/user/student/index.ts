@@ -11,6 +11,7 @@ import {
 } from "@/server/trpc";
 
 import { preferenceRouter } from "./preference";
+import { toZonedTime } from "date-fns-tz";
 
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
@@ -50,17 +51,25 @@ export const studentRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            displayName: true,
-            preferenceSubmissionDeadline: true,
-          },
-        });
+        const { displayName, preferenceSubmissionDeadline } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              displayName: true,
+              preferenceSubmissionDeadline: true,
+            },
+          });
+        return {
+          displayName,
+          preferenceSubmissionDeadline: toZonedTime(
+            preferenceSubmissionDeadline,
+            "Europe/London",
+          ),
+        };
       },
     ),
 

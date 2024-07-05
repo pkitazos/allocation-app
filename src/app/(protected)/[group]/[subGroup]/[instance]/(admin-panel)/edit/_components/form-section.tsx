@@ -1,6 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, getHours, getMinutes, setHours, setMinutes } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReactNode } from "react";
@@ -35,6 +36,7 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { spacesLabels } from "@/content/space-labels";
 
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
 import { editFormDetailsSchema } from "./form-schema";
 import { TimePicker } from "./time-picker";
 
@@ -239,7 +241,11 @@ export function FormSection({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(val) => {
+                        if (!val) return;
+                        const newDate = updateDateOnly(field.value, val);
+                        field.onChange(newDate);
+                      }}
                       disabled={(date) => date < new Date()}
                       initialFocus
                     />
@@ -250,18 +256,19 @@ export function FormSection({
                   onHourChange={(val) => {
                     const newHour = parseInt(val, 10);
                     const newDate = setHours(field.value, newHour);
-                    field.onChange(newDate);
+                    const zonedDate = toZonedTime(newDate, "Europe/London");
+                    field.onChange(zonedDate);
                   }}
                   onMinuteChange={(val) => {
                     const newMinute = parseInt(val, 10);
                     const newDate = setMinutes(field.value, newMinute);
-                    field.onChange(newDate);
+                    const zonedDate = toZonedTime(newDate, "Europe/London");
+                    field.onChange(zonedDate);
                   }}
                 />
               </div>
               <FormDescription>
-                The deadline for supervisors to submit their projects (Timezone
-                GMT+0000)
+                The deadline for supervisors to submit their projects.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -369,7 +376,11 @@ export function FormSection({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(val) => {
+                          if (!val) return;
+                          const newDate = updateDateOnly(field.value, val);
+                          field.onChange(newDate);
+                        }}
                         disabled={(date) => date < new Date()}
                         initialFocus
                       />
@@ -380,18 +391,20 @@ export function FormSection({
                     onHourChange={(val) => {
                       const newHour = parseInt(val, 10);
                       const newDate = setHours(field.value, newHour);
-                      field.onChange(newDate);
+                      const zonedDate = toZonedTime(newDate, "Europe/London");
+                      field.onChange(zonedDate);
                     }}
                     onMinuteChange={(val) => {
                       const newMinute = parseInt(val, 10);
                       const newDate = setMinutes(field.value, newMinute);
-                      field.onChange(newDate);
+                      const zonedDate = toZonedTime(newDate, "Europe/London");
+                      console.log(zonedDate);
+                      field.onChange(zonedDate);
                     }}
                   />
                 </div>
                 <FormDescription>
-                  The deadline for students to submit their preference list
-                  (Timezone GMT+0000)
+                  The deadline for students to submit their preference list.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
