@@ -20,6 +20,9 @@ export function StageControl({ stage }: { stage: Stage }) {
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
 
+  const utils = api.useUtils();
+  const refetchTabs = utils.institution.instance.headerTabs.refetch;
+
   const { mutateAsync } = api.institution.instance.setStage.useMutation();
 
   const handleConfirmation = (idx: number) => {
@@ -31,12 +34,13 @@ export function StageControl({ stage }: { stage: Stage }) {
         setSelectedIdx(-1);
         setConfirmedIdx(idx);
         router.refresh();
+        refetchTabs();
       }),
       {
         loading: "Updating Stage...",
         error: "Something went wrong",
         success: "Success",
-      }
+      },
     );
   };
 

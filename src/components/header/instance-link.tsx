@@ -2,13 +2,17 @@ import { ReactNode } from "react";
 import Link, { LinkProps } from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ClassValue } from "clsx";
 
-type props = LinkProps & { children: ReactNode };
+type props = LinkProps & { children: ReactNode; className?: ClassValue };
 
-export function InstanceLink({ href, children }: props) {
+export function InstanceLink({ href, children, className }: props) {
   return (
-    <Link className="text-white hover:underline" href={href}>
-      <Button variant="ghost">{children}</Button>
-    </Link>
+    <Button className={cn("w-max", className)} variant="ghost" asChild>
+      <Link className="text-white" href={href}>
+        {children}
+      </Link>
+    </Button>
   );
 }

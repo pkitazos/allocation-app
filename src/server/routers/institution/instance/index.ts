@@ -16,6 +16,8 @@ import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { setDiff } from "@/server/utils/set-difference";
 
+import { instanceTabs } from "@/lib/validations/instance-tabs";
+import { getUserRole } from "@/server/utils/user-role";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
@@ -668,18 +670,34 @@ export const instanceRouter = createTRPCRouter({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            title: { in: staleInstanceTags.map((f) => f.title) },
+            title: { in: staleInstanceTags.map((t) => t.title) },
           },
         });
 
         await ctx.db.tag.createMany({
-          data: newInstanceTags.map((f) => ({
+          data: newInstanceTags.map((t) => ({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            title: f.title,
+            title: t.title,
           })),
         });
       },
     ),
+
+  headerTabs: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const stage = ctx.stage;
+      const role = await getUserRole(ctx.db, ctx.session.user, params);
+
+      const adminTabs = [instanceTabs.supervisors, instanceTabs.students];
+
+      if (role === Role.ADMIN)
+        return stage === Stage.SETUP
+          ? [instanceTabs.instanceHome, ...adminTabs]
+          : [instanceTabs.instanceHome, instanceTabs.allProjects, ...adminTabs];
+
+      return [instanceTabs.instanceHome, instanceTabs.allProjects];
+    }),
 });
