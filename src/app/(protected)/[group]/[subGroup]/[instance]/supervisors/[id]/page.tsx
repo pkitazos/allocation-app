@@ -11,13 +11,13 @@ interface pageParams extends InstanceParams {
 }
 
 export default async function Page({ params }: { params: pageParams }) {
+  const role = await api.user.role({ params });
   const { supervisorProjects, user: supervisor } =
     await api.user.supervisor.instanceData({
       params,
       supervisorId: params.id,
     });
 
-  const { user, role } = await api.user.userRole({ params });
   const stage = await api.institution.instance.currentStage({ params });
 
   return (
@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: pageParams }) {
       <Heading>{supervisor.name}</Heading>
       <SubHeading className="mt-6">All Projects</SubHeading>
       <SupervisorProjectsDataTable
-        user={user}
+        user={supervisor}
         role={role}
         stage={stage}
         supervisorId={supervisor.id}

@@ -18,6 +18,7 @@ import {
 
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
+import { getUserRole } from "@/server/utils/user-role";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,
@@ -29,51 +30,10 @@ export const userRouter = createTRPCRouter({
 
   role: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-        const userInInstance = await ctx.db.userInInstance.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: user.id,
-          },
-        });
-
-        if (!userInInstance) return Role.ADMIN;
-        return userInInstance.role;
-      },
-    ),
-
-  userRole: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-        const userInInstance = await ctx.db.userInInstance.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: user.id,
-          },
-        });
-
-        if (!userInInstance) return { user, role: Role.ADMIN };
-        return { user, role: userInInstance.role };
-      },
-    ),
+    .query(async ({ ctx, input: { params } }) => {
+      const role = await getUserRole(ctx.db, ctx.session.user, params);
+      return role;
+    }),
 
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) return;
