@@ -1,7 +1,6 @@
-import { ReactNode } from "react";
-import { Stage } from "@prisma/client";
 import { Settings } from "lucide-react";
 import Link from "next/link";
+import { ReactNode } from "react";
 
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
@@ -9,17 +8,8 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { slugify } from "@/lib/utils/general/slugify";
+import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 import { InstanceParams } from "@/lib/validations/params";
-
-const tabsRecord: Record<Stage, string[]> = {
-  SETUP: ["Add Supervisors", "Add Students"],
-  PROJECT_SUBMISSION: ["Supervisor Invites", "Project Submissions"],
-  PROJECT_SELECTION: ["Student Invites", "Preference Submissions"],
-  PROJECT_ALLOCATION: ["Algorithms Overview", "Algorithm Details"],
-  ALLOCATION_ADJUSTMENT: ["Manual Changes"],
-  ALLOCATION_PUBLICATION: ["Allocation Overview"],
-};
 
 export default async function Layout({
   params,
@@ -30,37 +20,33 @@ export default async function Layout({
 }) {
   const instancePath = formatParamsAsPath(params);
   const instance = await api.institution.instance.get({ params });
-  const tabs = tabsRecord[instance.stage];
+  const tabs = adminPanelTabs[instance.stage];
 
   return (
     <div className="grid w-full grid-cols-6">
       <div className="col-span-1 mt-28 flex justify-center border-r">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
-          <Link href={`${instancePath}/settings`} className="w-full">
-            <Button
-              variant="outline"
+          <Button variant="outline" asChild>
+            <Link
+              href={`${instancePath}/settings`}
               className="flex w-full items-center gap-2"
             >
               <Settings className="h-4 w-4" />
               <p>Settings</p>
-            </Button>
-          </Link>
-          <Link href={instancePath} className="w-full">
-            <Button variant="outline" className="w-full">
-              Stage Control
-            </Button>
-          </Link>
-          <Separator className="my-1 w-3/4" />
-          {tabs.map((tab, i) => (
-            <Link
-              key={i}
-              href={`${instancePath}/${slugify(tab)}`}
-              className="w-full"
-            >
-              <Button variant="outline" className="w-full">
-                {tab}
-              </Button>
             </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href={instancePath} className="w-full">
+              Stage Control
+            </Link>
+          </Button>
+          <Separator className="my-1 w-3/4" />
+          {tabs.map(({ title, href }, i) => (
+            <Button variant="outline" asChild>
+              <Link key={i} href={`${instancePath}/${href}`} className="w-full">
+                {title}
+              </Link>
+            </Button>
           ))}
         </div>
       </div>
