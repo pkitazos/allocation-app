@@ -1,13 +1,15 @@
-import { ReactNode } from "react";
 import { Role, Stage } from "@prisma/client";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
+import { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
+import { AccessControl } from "@/components/access-control";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -18,7 +20,6 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const role = await api.user.role({ params });
-  const stage = await api.institution.instance.currentStage({ params });
 
   if (role !== Role.SUPERVISOR) {
     return (
@@ -35,31 +36,32 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link className="flex items-center gap-2" href={instancePath}>
               <Home className="h-4 w-4" />
-              <p>Home</p>
+              <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link href={`${instancePath}/my-projects`}>My Projects</Link>
+            <Link href={`${instancePath}/${instanceTabs.myProjects.href}`}>
+              {instanceTabs.myProjects.title}
+            </Link>
           </Button>
-          {(stage === Stage.PROJECT_SUBMISSION ||
-            stage === Stage.PROJECT_SELECTION) && (
+          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
             <Button variant="secondary" className="w-full" asChild>
               <Link
                 className="flex items-center gap-2"
-                href={`${instancePath}/new-project`}
+                href={`${instancePath}/${instanceTabs.newProject.href}`}
               >
                 <Plus className="h-4 w-4" />
-                <p>New Project</p>
+                <p>{instanceTabs.newProject.title}</p>
               </Link>
             </Button>
-          )}
-          {stage === Stage.ALLOCATION_PUBLICATION && (
+          </AccessControl>
+          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/my-allocations`}>
-                My Allocations
+              <Link href={`${instancePath}/${instanceTabs.myAllocations.href}`}>
+                {instanceTabs.myAllocations.title}
               </Link>
             </Button>
-          )}
+          </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>

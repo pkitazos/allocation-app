@@ -10,6 +10,8 @@ import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
+import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
@@ -38,20 +40,30 @@ export default async function Layout({
     <div className="grid w-full grid-cols-6">
       <div className="col-span-1 mt-28 flex justify-center border-r">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
-          <Button variant="outline" className="w-full" asChild>
+          <Button variant="outline" asChild>
             <Link className="flex items-center gap-2" href={instancePath}>
               <Home className="h-4 w-4" />
-              <p>Home</p>
+              <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
-          <Button variant="outline" className="w-full" asChild>
-            <Link href={`${instancePath}/my-preferences`}>My Preferences</Link>
+          <Button variant="outline" asChild>
+            <Link
+              className="w-full"
+              href={`${instancePath}/${instanceTabs.myPreferences.href}`}
+            >
+              {instanceTabs.myPreferences.title}
+            </Link>
           </Button>
-          {stage === Stage.ALLOCATION_PUBLICATION && (
-            <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
+          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
+            <Button variant="outline" asChild>
+              <Link
+                className="w-full"
+                href={`${instancePath}/${instanceTabs.myAllocation.href}`}
+              >
+                {instanceTabs.myAllocation.title}
+              </Link>
             </Button>
-          )}
+          </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>
