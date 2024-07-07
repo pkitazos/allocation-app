@@ -145,7 +145,11 @@ export const supervisorRouter = createTRPCRouter({
         const submissionTarget =
           2 * (targetProjectCount - preAllocatedProjectCount);
 
-        return { submissionTarget, rowProjects };
+        return {
+          currentSubmissionCount: projects.length,
+          submissionTarget,
+          rowProjects,
+        };
       },
     ),
 
