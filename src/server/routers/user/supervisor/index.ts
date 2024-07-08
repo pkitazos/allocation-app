@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
@@ -20,17 +21,26 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            displayName: true,
-            projectSubmissionDeadline: true,
-          },
-        });
+        const { displayName, projectSubmissionDeadline } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              displayName: true,
+              projectSubmissionDeadline: true,
+            },
+          });
+
+        return {
+          displayName,
+          projectSubmissionDeadline: toZonedTime(
+            projectSubmissionDeadline,
+            "Europe/London",
+          ),
+        };
       },
     ),
 

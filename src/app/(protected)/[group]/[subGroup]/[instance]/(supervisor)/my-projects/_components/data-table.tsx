@@ -1,6 +1,6 @@
 "use client";
 
-import { Project, Stage } from "@prisma/client";
+import { Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 

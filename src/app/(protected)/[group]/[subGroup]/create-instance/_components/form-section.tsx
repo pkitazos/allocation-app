@@ -131,7 +131,15 @@ export function FormSection({
                 </FormControl>
                 <FormDescription>
                   Please select a unique name within the group and sub-group for
-                  this instance
+                  this instance.
+                  <br />
+                  <p className="pt-1 text-black">
+                    Please note: This name{" "}
+                    <span className="font-semibold underline">
+                      cannot be changed
+                    </span>{" "}
+                    later.
+                  </p>
                 </FormDescription>
                 <FormMessage />
               </FormItem>

@@ -4,6 +4,8 @@ import { api } from "@/lib/trpc/server";
 import { SubGroupParams } from "@/lib/validations/params";
 
 import { FormSection } from "./_components/form-section";
+import { Heading } from "@/components/heading";
+import { spacesLabels } from "@/content/space-labels";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
   const access = await api.institution.subGroup.access({ params });
@@ -20,10 +22,9 @@ export default async function Page({ params }: { params: SubGroupParams }) {
 
   return (
     <div className="mb-40 mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
-      <h2 className="text-4xl">
-        Create new{" "}
-        <span className="font-semibold text-sky-500">Allocation Instance</span>
-      </h2>
+      <Heading className="text-4xl">
+        Create new {spacesLabels.instance.full}
+      </Heading>
       <FormSection takenNames={takenNames} params={params} />
     </div>
   );
