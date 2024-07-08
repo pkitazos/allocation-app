@@ -24,7 +24,7 @@ export const userRouter = createTRPCRouter({
   student: studentRouter,
   supervisor: supervisorRouter,
 
-  get: protectedProcedure.query(async ({ ctx }) => ctx.session?.user),
+  get: protectedProcedure.query(async ({ ctx }) => ctx.session.user),
 
   role: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
