@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/server";
+import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
@@ -72,7 +73,12 @@ export default async function Project({ params }: { params: pageParams }) {
             </Link>
           </div>
           <div>
-            <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
+            <h2
+              className={cn(
+                "mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2",
+                project.flags.length === 0 && "hidden",
+              )}
+            >
               Flags:
             </h2>
             {project.flags.map((flag, i) => (
@@ -82,7 +88,12 @@ export default async function Project({ params }: { params: pageParams }) {
             ))}
           </div>
           <div>
-            <h2 className="mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
+            <h2
+              className={cn(
+                "mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2",
+                project.tags.length === 0 && "hidden",
+              )}
+            >
               Tags:
             </h2>
             {project.tags.map((tag, i) => (

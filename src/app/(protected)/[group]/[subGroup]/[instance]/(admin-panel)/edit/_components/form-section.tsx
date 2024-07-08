@@ -1,7 +1,9 @@
 "use client";
+import { ReactNode } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addHours, format } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -29,35 +31,31 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
 import { UpdatedInstance } from "@/lib/validations/instance-form";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { buildFormSchema } from "./form-schema";
+import { editFormDetailsSchema } from "./form-schema";
+import { TimePicker } from "./time-picker";
 
 import { spacesLabels } from "@/content/space-labels";
-import { ReactNode } from "react";
-import { deadlineHandler } from "@/lib/utils/date/deadline-handler";
 
 export function FormSection({
   currentInstanceDetails,
-  takenNames,
   params,
   children: dismissalButton,
 }: {
   currentInstanceDetails: UpdatedInstance;
-  takenNames: string[];
   params: InstanceParams;
   children: ReactNode;
 }) {
   const { group, subGroup, instance } = params;
   const router = useRouter();
 
-  const FormSchema = buildFormSchema(takenNames);
-
-  type FormData = z.infer<typeof FormSchema>;
+  type FormData = z.infer<typeof editFormDetailsSchema>;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(FormSchema),
+    resolver: zodResolver(editFormDetailsSchema),
     defaultValues: currentInstanceDetails,
   });
 
@@ -68,10 +66,6 @@ export function FormSection({
   } = useFieldArray({
     control: form.control,
     name: "flags",
-    rules: {
-      required: "Please add at least 1 Flag",
-      validate: (array) => array.length !== 0,
-    },
   });
 
   const {
@@ -92,7 +86,6 @@ export function FormSection({
         params,
         updatedInstance: {
           ...updatedInstance,
-          displayName: updatedInstance.instanceName,
           minPreferences: updatedInstance.minNumPreferences,
           maxPreferences: updatedInstance.maxNumPreferences,
           maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
@@ -115,28 +108,6 @@ export function FormSection({
         onSubmit={form.handleSubmit(onSubmit)}
         className="mt-10 flex flex-col gap-6"
       >
-        <div className="flex flex-col items-start gap-3">
-          <FormField
-            control={form.control}
-            name="instanceName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-2xl">
-                  Allocation Instance Name
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="Instance Name" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Please select a unique name within the group and sub-group for
-                  this instance
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Separator className="my-14" />
         <SubHeading className="text-2xl">Project Details</SubHeading>
         <div className="grid w-full grid-cols-2">
           <div className="flex flex-col gap-2">
@@ -160,7 +131,6 @@ export function FormSection({
                         <Button
                           variant="ghost"
                           size="icon"
-                          disabled={flagFields.length === 1}
                           onClick={() => removeFlag(idx)}
                         >
                           <X className="h-4 w-4" />
@@ -242,41 +212,58 @@ export function FormSection({
               <FormLabel className="text-base">
                 Project Submission deadline
               </FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(date) => {
-                      if (!date) return;
-                      const actualDate = deadlineHandler(date);
-                      field.onChange(actualDate);
-                    }}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="flex items-center justify-start gap-14">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={(val) => {
+                        if (!val) return;
+                        const newDate = updateDateOnly(field.value, val);
+                        field.onChange(newDate);
+                      }}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <TimePicker
+                  currentTime={field.value}
+                  onHourChange={(val) => {
+                    const newHour = parseInt(val, 10);
+                    const newDate = setHours(field.value, newHour);
+                    const zonedDate = toZonedTime(newDate, "Europe/London");
+                    field.onChange(zonedDate);
+                  }}
+                  onMinuteChange={(val) => {
+                    const newMinute = parseInt(val, 10);
+                    const newDate = setMinutes(field.value, newMinute);
+                    const zonedDate = toZonedTime(newDate, "Europe/London");
+                    field.onChange(zonedDate);
+                  }}
+                />
+              </div>
               <FormDescription>
-                The last day supervisors will be able to submit their projects
+                The deadline for supervisors to submit their projects.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -284,7 +271,7 @@ export function FormSection({
         />
         <Separator className="my-14" />
         <SubHeading className="text-2xl">Student Restrictions</SubHeading>
-        <div className="grid w-full grid-cols-2">
+        <div className="grid w-full gap-16 md:grid-cols-1 lg:grid-cols-2">
           <div className="flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -360,42 +347,59 @@ export function FormSection({
                 <FormLabel className="text-base">
                   Preference Submission deadline
                 </FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[240px] pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => {
-                        if (!date) return;
-                        const actualDate = deadlineHandler(date);
-                        field.onChange(actualDate);
-                      }}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <div className="flex items-center justify-start gap-14">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(val) => {
+                          if (!val) return;
+                          const newDate = updateDateOnly(field.value, val);
+                          field.onChange(newDate);
+                        }}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <TimePicker
+                    currentTime={field.value}
+                    onHourChange={(val) => {
+                      const newHour = parseInt(val, 10);
+                      const newDate = setHours(field.value, newHour);
+                      const zonedDate = toZonedTime(newDate, "Europe/London");
+                      field.onChange(zonedDate);
+                    }}
+                    onMinuteChange={(val) => {
+                      const newMinute = parseInt(val, 10);
+                      const newDate = setMinutes(field.value, newMinute);
+                      const zonedDate = toZonedTime(newDate, "Europe/London");
+                      console.log(zonedDate);
+                      field.onChange(zonedDate);
+                    }}
+                  />
+                </div>
                 <FormDescription>
-                  The last day students will be able to submit their preference
-                  list
+                  The deadline for students to submit their preference list.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

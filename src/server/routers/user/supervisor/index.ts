@@ -9,6 +9,7 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { toZonedTime } from "date-fns-tz";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -20,17 +21,26 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            displayName: true,
-            projectSubmissionDeadline: true,
-          },
-        });
+        const { displayName, projectSubmissionDeadline } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              displayName: true,
+              projectSubmissionDeadline: true,
+            },
+          });
+
+        return {
+          displayName,
+          projectSubmissionDeadline: toZonedTime(
+            projectSubmissionDeadline,
+            "Europe/London",
+          ),
+        };
       },
     ),
 
