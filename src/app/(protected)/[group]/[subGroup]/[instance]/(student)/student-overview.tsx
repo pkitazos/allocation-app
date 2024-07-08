@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
 import { Stage } from "@prisma/client";
 import { format } from "date-fns";
+import { ReactNode } from "react";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -10,6 +10,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
+import { getGMTOffset } from "@/lib/utils/date/timezone";
 import Layout from "./layout";
 
 export async function StudentOverview({ params }: { params: InstanceParams }) {
@@ -26,6 +27,8 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     });
 
   if (stage === Stage.PROJECT_SELECTION) {
+    const timeZoneOffset = getGMTOffset(deadline);
+
     return (
       <ThinLayout pageName={displayName} params={params}>
         <div className="mt-9 flex justify-between">
@@ -36,7 +39,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
                 {format(deadline, "dd MMM yyyy")}
                 {" - "}
                 {format(deadline, "HH:mm")}
-                <span className="text-muted-foreground">GMT</span>
+                <span className="text-muted-foreground">{timeZoneOffset}</span>
               </p>
             </div>
             <div className="mt-16 flex flex-col gap-4">
