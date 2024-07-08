@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -11,11 +12,16 @@ import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/superviso
 import { useAllocDetails } from "./allocation-store";
 
 export function SubmitButton() {
+  const router = useRouter();
+
   const params = useInstanceParams();
   const allProjects = useAllocDetails((s) => s.projects);
   const allStudents = useAllocDetails((s) => s.students);
   const allSupervisors = useAllocDetails((s) => s.supervisors);
   const setSelectedStudentIds = useAllocDetails((s) => s.setSelectedStudentIds);
+  const updateStudents = useAllocDetails((s) => s.updateStudents);
+  const updateProjects = useAllocDetails((s) => s.updateProjects);
+
   const valid =
     allProjectsValid(allProjects) &&
     allSupervisorsValid(allProjects, allSupervisors);
@@ -23,21 +29,21 @@ export function SubmitButton() {
   const { mutateAsync } =
     api.institution.instance.matching.updateAllocation.useMutation();
 
-  // TODO: fix refetch bug
   const utils = api.useUtils();
-  const refetch = () =>
-    utils.institution.instance.matching.rowData.refetch({
-      params,
-    });
+  const fetchUpdatedRowData = utils.institution.instance.matching.rowData.fetch;
+
+  async function updateInternalState() {
+    const { students, projects } = await fetchUpdatedRowData({ params });
+    updateStudents(students);
+    updateProjects(projects);
+  }
 
   async function handleSubmission() {
     setSelectedStudentIds([]);
     void toast.promise(
-      mutateAsync({
-        params,
-        allProjects: allProjects,
-        allStudents: allStudents,
-      }).then(refetch),
+      mutateAsync({ params, allProjects, allStudents })
+        .then(updateInternalState)
+        .then(() => router.refresh()),
       {
         loading: "Updating project allocations",
         error: "Something went wrong",
