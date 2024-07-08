@@ -11,7 +11,6 @@ import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
-import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
