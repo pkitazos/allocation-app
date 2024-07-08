@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: PageParams }) {
 
   if (stageGte(stage, Stage.PROJECT_ALLOCATION)) {
     return (
-      <Unauthorised message="You are not allowed to access the platform at this time" />
+      <Unauthorised message="You are not allowed to edit projects at this time" />
     );
   }
 
