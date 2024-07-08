@@ -24,9 +24,10 @@ export async function SupervisorOverview({
       params,
     });
 
-  const { projects, submissionTarget } = await api.user.supervisor.projects({
-    params,
-  });
+  const { currentSubmissionCount, submissionTarget } =
+    await api.user.supervisor.projects({
+      params,
+    });
 
   if (stage === Stage.PROJECT_SUBMISSION) {
     return (
@@ -48,7 +49,7 @@ export async function SupervisorOverview({
                 <li>
                   Submit {submissionTarget} projects{" "}
                   <span className="text-muted-foreground">
-                    (currently submitted: {projects.length})
+                    (currently submitted: {currentSubmissionCount})
                   </span>
                 </li>
                 <li>Submit any self-defined projects</li>

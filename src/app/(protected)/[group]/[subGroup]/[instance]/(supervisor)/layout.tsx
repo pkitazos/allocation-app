@@ -3,13 +3,14 @@ import { Role, Stage } from "@prisma/client";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
-import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
@@ -35,27 +36,29 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link className="flex items-center gap-2" href={instancePath}>
               <Home className="h-4 w-4" />
-              <p>Home</p>
+              <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link href={`${instancePath}/my-projects`}>My Projects</Link>
+            <Link href={`${instancePath}/${instanceTabs.myProjects.href}`}>
+              {instanceTabs.myProjects.title}
+            </Link>
           </Button>
           <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
             <Button variant="secondary" className="w-full" asChild>
               <Link
                 className="flex items-center gap-2"
-                href={`${instancePath}/new-project`}
+                href={`${instancePath}/${instanceTabs.newProject.href}`}
               >
                 <Plus className="h-4 w-4" />
-                <p>New Project</p>
+                <p>{instanceTabs.newProject.title}</p>
               </Link>
             </Button>
           </AccessControl>
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/my-allocations`}>
-                My Allocations
+              <Link href={`${instancePath}/${instanceTabs.myAllocations.href}`}>
+                {instanceTabs.myAllocations.title}
               </Link>
             </Button>
           </AccessControl>

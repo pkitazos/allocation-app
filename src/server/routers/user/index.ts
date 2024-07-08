@@ -1,4 +1,4 @@
-import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
+import { AdminLevel, AllocationInstance } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -16,6 +16,7 @@ import {
   getSubGroupInstances,
   getUserInstances,
 } from "@/server/utils/user-instances";
+import { getUserRole } from "@/server/utils/user-role";
 
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
@@ -28,51 +29,10 @@ export const userRouter = createTRPCRouter({
 
   role: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-        const userInInstance = await ctx.db.userInInstance.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: user.id,
-          },
-        });
-
-        if (!userInInstance) return Role.ADMIN;
-        return userInInstance.role;
-      },
-    ),
-
-  userRole: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-        const userInInstance = await ctx.db.userInInstance.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: user.id,
-          },
-        });
-
-        if (!userInInstance) return { user, role: Role.ADMIN };
-        return { user, role: userInInstance.role };
-      },
-    ),
+    .query(async ({ ctx, input: { params } }) => {
+      const role = await getUserRole(ctx.db, ctx.session.user, params);
+      return role;
+    }),
 
   adminLevel: adminProcedure.query(async ({ ctx }) => {
     const user = ctx.session.user;

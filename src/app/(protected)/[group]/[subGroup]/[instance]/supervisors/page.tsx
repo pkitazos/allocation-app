@@ -7,7 +7,8 @@ import { InstanceParams } from "@/lib/validations/params";
 import { SupervisorsDataTable } from "./_components/supervisors-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { user, role } = await api.user.userRole({ params });
+  const user = await api.user.get();
+  const role = await api.user.role({ params });
 
   const stage = await api.institution.instance.currentStage({ params });
   const tableData = await api.institution.instance.supervisors({
