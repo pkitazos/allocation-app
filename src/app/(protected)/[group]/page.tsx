@@ -14,6 +14,7 @@ import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
+import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.group.access({ params });
@@ -32,7 +33,7 @@ export default async function Page({ params }: { params: { group: string } }) {
       <Heading>{displayName}</Heading>
       <Card className="my-10 flex flex-col gap-2">
         <CardHeader className="-mb-3 mt-3">
-          <CardTitle>Group Admins</CardTitle>
+          <CardTitle>{spacesLabels.group.short} Admins</CardTitle>
         </CardHeader>
         <CardContent>
           <Table className="flex items-center gap-5">
@@ -55,7 +56,7 @@ export default async function Page({ params }: { params: { group: string } }) {
           </div>
         </CardContent>
       </Card>
-      <SubHeading>Manage Allocation Sub-Groups</SubHeading>
+      <SubHeading>Manage {spacesLabels.subGroup.full}s</SubHeading>
       <div className="flex w-full flex-col gap-6">
         <Link href={`/${params.group}/create-sub-group`} className="w-fit">
           <Button
@@ -64,7 +65,7 @@ export default async function Page({ params }: { params: { group: string } }) {
             className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
           >
             <Plus className="h-6 w-6 stroke-[3px]" />
-            <p className="text-lg">Create Sub-Group</p>
+            <p className="text-lg">Create {spacesLabels.subGroup.short}</p>
           </Button>
         </Link>
         <div className="grid grid-cols-3 gap-6">
@@ -87,7 +88,7 @@ export default async function Page({ params }: { params: { group: string } }) {
       </div>
       <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
         <div className="mt-16">
-          <DangerZone spaceTitle="Group" params={params} />
+          <DangerZone spaceLabel={spacesLabels.group.full} params={params} />
         </div>
       </AdminLevelAC>
     </div>

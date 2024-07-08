@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import { api } from "@/lib/trpc/server";
+import { spacesLabels } from "@/content/spaces";
 
 export default async function Page() {
   const { superAdmin, groups } = await api.institution.groupManagement();
@@ -33,7 +34,7 @@ export default async function Page() {
           </Table>
         </CardContent>
       </Card>
-      <SubHeading>Manage Allocation Groups</SubHeading>
+      <SubHeading>Manage {spacesLabels.group.full}s</SubHeading>
       <div className="flex w-full flex-col gap-6">
         <Link href="/admin/create-group" className="w-fit">
           <Button
@@ -42,7 +43,7 @@ export default async function Page() {
             className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
           >
             <Plus className="h-6 w-6 stroke-[3px]" />{" "}
-            <p className="text-lg">Create Group</p>
+            <p className="text-lg">Create {spacesLabels.group.short}</p>
           </Button>
         </Link>
         <div className="grid w-full grid-cols-3 gap-6">

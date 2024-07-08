@@ -4,11 +4,11 @@ export const spacesLabels = {
     short: "Group",
   },
   subGroup: {
-    full: "Allocation Sub Group",
-    short: "Sub Group",
+    full: "Allocation Sub-Group",
+    short: "Sub-Group",
   },
   instance: {
     full: "Allocation Instance",
     short: "Instance",
   },
-};
+} as const;
