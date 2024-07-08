@@ -13,42 +13,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { stageGt, stageGte } from "@/lib/utils/permissions/stage-check";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+
+type SupervisorProjectsData = Pick<
+  Project,
+  | "id"
+  | "title"
+  | "capacityLowerBound"
+  | "capacityUpperBound"
+  | "preAllocatedStudentId"
+>;
 
 export function columns(
   stage: Stage,
   removeRow: (id: string) => void,
   clearTable: () => void,
-): ColumnDef<
-  Pick<
-    Project,
-    | "id"
-    | "title"
-    | "capacityLowerBound"
-    | "capacityUpperBound"
-    | "preAllocatedStudentId"
-  >
->[] {
-  return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+): ColumnDef<SupervisorProjectsData>[] {
+  const selectCol = getSelectColumn<SupervisorProjectsData>();
+
+  const userCols: ColumnDef<SupervisorProjectsData>[] = [
     {
       id: "id",
       accessorFn: ({ id }) => id,
@@ -150,4 +134,7 @@ export function columns(
       },
     },
   ];
+
+  if (stageGt(stage, Stage.PROJECT_SUBMISSION)) return userCols;
+  return [selectCol, ...userCols];
 }
