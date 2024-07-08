@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <>
-      <Heading>My Allocations</Heading>
+      <Heading>My Allocation</Heading>
       <PanelWrapper className="px-16">
         {!allocatedProject ? (
           <div className="mt-9 flex flex-col gap-4">

@@ -28,6 +28,10 @@ export interface ProjectData {
   userId: string;
 }
 
+// TODO: fix procedure so that data model and UI are not tightly coupled
+// TODO: fix data table view menu so that it renders the project IDs properly
+// do this for all three data tables
+
 export const byProjectColumns: ColumnDef<ProjectData>[] = [
   {
     id: "project ID",

@@ -13,7 +13,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGt, stageGte } from "@/lib/utils/permissions/stage-check";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
 
 export type SupervisorProjectData = Pick<
   Project,
@@ -25,26 +26,9 @@ export function columns(
   removeRow: (id: string) => void,
   clearTable: () => void,
 ): ColumnDef<SupervisorProjectData>[] {
-  return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+  const selectCol = getSelectColumn<SupervisorProjectData>();
+
+  const userCols: ColumnDef<SupervisorProjectData>[] = [
     {
       id: "id",
       accessorFn: ({ id }) => id,
@@ -122,7 +106,7 @@ export function columns(
       header: ({ table }) => {
         const allSelected = table.getIsAllRowsSelected();
 
-        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(stage, Stage.PROJECT_ALLOCATION)) return;
         if (allSelected)
           return (
             <Button variant="ghost" size="icon" onClick={clearTable}>
@@ -137,7 +121,7 @@ export function columns(
           original: { id },
         },
       }) => {
-        if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(stage, Stage.PROJECT_ALLOCATION)) return;
         return (
           <Button variant="ghost" size="icon" onClick={() => removeRow(id)}>
             <X className="h-5 w-5" />
@@ -146,4 +130,7 @@ export function columns(
       },
     },
   ];
+
+  if (stageGt(stage, Stage.PROJECT_SUBMISSION)) return userCols;
+  return [selectCol, ...userCols];
 }

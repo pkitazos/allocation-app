@@ -2,7 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -141,7 +141,7 @@ export const studentRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.delete({
           where: {
@@ -156,23 +156,29 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: stageAwareProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  deleteSelected: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentIds: z.array(z.string()),
+      }),
+    )
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
+          studentIds,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.deleteMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
+            userId: { in: studentIds },
           },
         });
       },

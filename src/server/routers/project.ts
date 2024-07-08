@@ -2,7 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { nullable } from "@/lib/utils/general/nullable";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
@@ -39,7 +39,7 @@ export const projectRouter = createTRPCRouter({
           },
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         const newPreAllocatedStudentId = preAllocatedStudentId || undefined;
 
@@ -215,7 +215,7 @@ export const projectRouter = createTRPCRouter({
           projectId,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.delete({
           where: {
@@ -243,7 +243,7 @@ export const projectRouter = createTRPCRouter({
           projectIds,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.deleteMany({
           where: {

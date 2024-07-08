@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { roleCheck } from "@/lib/utils/permissions/role-check";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams, instanceParamsSchema } from "@/lib/validations/params";
 
 import { InstanceLink } from "./instance-link";
@@ -30,8 +30,8 @@ export function InstanceTabs() {
     <>
       <InstanceLink href={`${instancePath}`}>Instance Home</InstanceLink>
       {((roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) &&
-        stageCheck(stage, Stage.PROJECT_SUBMISSION)) ||
-        stageCheck(stage, Stage.PROJECT_SELECTION)) && (
+        stageGte(stage, Stage.PROJECT_SUBMISSION)) ||
+        stageGte(stage, Stage.PROJECT_SELECTION)) && (
         <InstanceLink href={`${instancePath}/projects`}>
           All Projects
         </InstanceLink>
@@ -47,13 +47,13 @@ export function InstanceTabs() {
         </>
       )}
       {roleCheck(role, [Role.STUDENT]) &&
-        stageCheck(stage, Stage.PROJECT_SELECTION) && (
+        stageGte(stage, Stage.PROJECT_SELECTION) && (
           <InstanceLink href={`${instancePath}/my-preferences`}>
             My Preferences
           </InstanceLink>
         )}
       {roleCheck(role, [Role.STUDENT]) &&
-        stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
+        stageGte(stage, Stage.ALLOCATION_PUBLICATION) && (
           <InstanceLink href={`${instancePath}/my-allocation`}>
             My Allocation
           </InstanceLink>

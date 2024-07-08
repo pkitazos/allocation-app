@@ -9,6 +9,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { InstanceParams } from "@/lib/validations/params";
+import { AccessControl } from "@/components/access-control";
 
 export default async function Layout({
   params,
@@ -18,7 +19,6 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const role = await api.user.role({ params });
-  const stage = await api.institution.instance.currentStage({ params });
 
   if (role !== Role.SUPERVISOR) {
     return (
@@ -41,8 +41,7 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link href={`${instancePath}/my-projects`}>My Projects</Link>
           </Button>
-          {(stage === Stage.PROJECT_SUBMISSION ||
-            stage === Stage.PROJECT_SELECTION) && (
+          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
             <Button variant="secondary" className="w-full" asChild>
               <Link
                 className="flex items-center gap-2"
@@ -52,14 +51,14 @@ export default async function Layout({
                 <p>New Project</p>
               </Link>
             </Button>
-          )}
-          {stage === Stage.ALLOCATION_PUBLICATION && (
+          </AccessControl>
+          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
               <Link href={`${instancePath}/my-allocations`}>
                 My Allocations
               </Link>
             </Button>
-          )}
+          </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>

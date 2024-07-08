@@ -8,8 +8,7 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input";
 
 import { NewSupervisor } from "@/lib/validations/csv";
-
-import { csvHeaders } from "./add-supervisors";
+import { addSupervisorsCsvHeaders } from "@/lib/validations/add-supervisors";
 
 const csvRowSchema = z.object({
   full_name: z.string(),
@@ -36,7 +35,7 @@ export function CSVUploadButton({
             return;
           }
 
-          if (csvHeaders.join() !== headers.join()) {
+          if (addSupervisorsCsvHeaders.join() !== headers.join()) {
             toast.error("CSV does not have the required headers");
             return;
           }

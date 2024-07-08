@@ -5,12 +5,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
 import { X } from "lucide-react";
 
+import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
 
 export function ProjectPreferenceCard({
@@ -38,7 +39,7 @@ export function ProjectPreferenceCard({
       type: "ProjectPreference",
       project,
     },
-    disabled: stageCheck(stage, Stage.PROJECT_ALLOCATION),
+    disabled: stageGte(stage, Stage.PROJECT_ALLOCATION),
   });
 
   const style = { transition, transform: CSS.Transform.toString(transform) };
@@ -78,7 +79,7 @@ export function ProjectPreferenceCard({
           <p className="font-semibold">{project.supervisorName}</p>
         </div>
       </CardContent>
-      {!stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
+      <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
         <Button
           variant="ghost"
           size="icon"
@@ -87,7 +88,7 @@ export function ProjectPreferenceCard({
         >
           <X className="h-4 w-4 font-bold" />
         </Button>
-      )}
+      </AccessControl>
     </Card>
   );
 }

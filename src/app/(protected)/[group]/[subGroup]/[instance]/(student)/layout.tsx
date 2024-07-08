@@ -3,12 +3,13 @@ import { Role, Stage } from "@prisma/client";
 import { Home } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -26,7 +27,7 @@ export default async function Layout({
       <Unauthorised message="You need to be a Student to access this page" />
     );
   }
-  if (!stageCheck(stage, Stage.PROJECT_SELECTION)) {
+  if (stageLt(stage, Stage.PROJECT_SELECTION)) {
     return (
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );
@@ -47,11 +48,11 @@ export default async function Layout({
           <Button variant="outline" className="w-full" asChild>
             <Link href={`${instancePath}/my-preferences`}>My Preferences</Link>
           </Button>
-          {stage === Stage.ALLOCATION_PUBLICATION && (
+          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
               <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
             </Button>
-          )}
+          </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>

@@ -5,7 +5,7 @@ import { PageWrapper } from "@/components/page-wrapper";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { EditProjectForm } from "./_components/edit-project-form";
@@ -26,9 +26,10 @@ export default async function Page({ params }: { params: PageParams }) {
       <Unauthorised message="You need to be an Admin to access this page" />
     );
   }
-  if (stageCheck(stage, Stage.PROJECT_ALLOCATION)) {
+
+  if (stageGte(stage, Stage.PROJECT_ALLOCATION)) {
     return (
-      <Unauthorised message="You are not allowed to access the platform at this time" />
+      <Unauthorised message="You are not allowed to edit projects at this time" />
     );
   }
 

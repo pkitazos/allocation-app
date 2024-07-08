@@ -2,14 +2,16 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { Heading } from "@/components/heading";
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
+import { Heading, SubHeading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+
+import { spacesLabels } from "@/content/spaces";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
@@ -28,7 +30,7 @@ export default async function Page({
     );
   }
 
-  const { subGroupAdmins, allocationInstances, displayName, adminLevel } =
+  const { subGroupAdmins, allocationInstances, displayName } =
     await api.institution.subGroup.instanceManagement({ params });
 
   const { group, subGroup } = params;
@@ -38,7 +40,7 @@ export default async function Page({
       <Heading>{displayName}</Heading>
       <Card className="my-10 flex flex-col gap-2">
         <CardHeader className="-mb-3 mt-3">
-          <CardTitle>Sub-Group Admins</CardTitle>
+          <CardTitle>{spacesLabels.subGroup.short} Admins</CardTitle>
         </CardHeader>
         <CardContent>
           <Table className="flex items-center gap-5">
@@ -47,11 +49,11 @@ export default async function Page({
                 <TableRow className="flex w-full items-center" key={i}>
                   <TableCell className="w-1/3 font-medium">{name}</TableCell>
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
-                  {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+                  <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
                     <TableCell className="flex w-1/3 justify-end">
                       <AdminRemovalButton userId={id} params={params} />
                     </TableCell>
-                  )}
+                  </AdminLevelAC>
                 </TableRow>
               ))}
             </TableBody>
@@ -61,10 +63,7 @@ export default async function Page({
           </div>
         </CardContent>
       </Card>
-
-      <h2 className="text-3xl font-medium leading-none tracking-tight underline decoration-secondary underline-offset-4">
-        Manage Allocation Instances
-      </h2>
+      <SubHeading>Manage {spacesLabels.instance.full}s</SubHeading>
       <div className="flex w-full flex-col gap-6">
         <Link href={`/${group}/${subGroup}/create-instance`} className="w-fit">
           <Button
@@ -73,7 +72,7 @@ export default async function Page({
             className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
           >
             <Plus className="h-6 w-6 stroke-[3px]" />
-            <p className="text-lg">Create Instance</p>
+            <p className="text-lg">Create {spacesLabels.instance.short}</p>
           </Button>
         </Link>
         <div className="grid grid-cols-3 gap-6">
@@ -94,11 +93,11 @@ export default async function Page({
           ))}
         </div>
       </div>
-      {permissionCheck(adminLevel, AdminLevel.GROUP) && (
+      <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
         <div className="mt-16">
-          <DangerZone spaceTitle="Sub-Group" params={params} />
+          <DangerZone spaceLabel={spacesLabels.subGroup.full} params={params} />
         </div>
-      )}
+      </AdminLevelAC>
     </div>
   );
 }
