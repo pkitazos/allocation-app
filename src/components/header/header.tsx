@@ -5,11 +5,11 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 
-import whiteLogo from "@/assets/uofg-white.png";
-
 import { InstanceHeader } from "./instance-header";
 import { InstanceLink } from "./instance-link";
 import { UserButton } from "./user-button";
+
+import whiteLogo from "@/assets/uofg-white.png";
 
 export async function Header() {
   const session = await auth();

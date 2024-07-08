@@ -3,15 +3,15 @@ import { Role, Stage } from "@prisma/client";
 import { Home } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { Button } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { stageCheck } from "@/lib/utils/permissions/stage-check";
-import { InstanceParams } from "@/lib/validations/params";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
-import { AccessControl } from "@/components/access-control";
+import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
   params,

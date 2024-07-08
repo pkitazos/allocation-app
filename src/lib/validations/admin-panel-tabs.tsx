@@ -24,4 +24,4 @@ export const adminPanelTabs: Record<Stage, { title: string; href: string }[]> =
     ALLOCATION_PUBLICATION: [
       { title: "Allocation Overview", href: "allocation-overview" },
     ],
-  };
+  } as const;

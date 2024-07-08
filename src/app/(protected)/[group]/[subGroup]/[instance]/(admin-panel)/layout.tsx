@@ -1,6 +1,6 @@
+import { ReactNode } from "react";
 import { Settings } from "lucide-react";
 import Link from "next/link";
-import { ReactNode } from "react";
 
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
@@ -42,8 +42,8 @@ export default async function Layout({
           </Button>
           <Separator className="my-1 w-3/4" />
           {tabs.map(({ title, href }, i) => (
-            <Button variant="outline" asChild>
-              <Link key={i} href={`${instancePath}/${href}`} className="w-full">
+            <Button key={i} variant="outline" asChild>
+              <Link href={`${instancePath}/${href}`} className="w-full">
                 {title}
               </Link>
             </Button>

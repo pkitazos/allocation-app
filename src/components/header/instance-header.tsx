@@ -20,8 +20,10 @@ export function InstanceHeader() {
 
   return (
     <div className="mx-auto flex items-center justify-center gap-6">
-      {tabs.map(({ href, title }) => (
-        <InstanceLink href={`${instancePath}/${href}`}>{title}</InstanceLink>
+      {tabs.map(({ href, title }, i) => (
+        <InstanceLink key={i} href={`${instancePath}/${href}`}>
+          {title}
+        </InstanceLink>
       ))}
     </div>
   );

@@ -1,4 +1,4 @@
-import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
+import { AdminLevel, AllocationInstance } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -15,10 +15,10 @@ import {
   getSubGroupInstances,
   getUserInstances,
 } from "@/server/utils/user-instances";
+import { getUserRole } from "@/server/utils/user-role";
 
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
-import { getUserRole } from "@/server/utils/user-role";
 
 export const userRouter = createTRPCRouter({
   student: studentRouter,

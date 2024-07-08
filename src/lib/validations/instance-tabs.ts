@@ -21,7 +21,7 @@ export const instanceTabs = {
   },
   newProject: {
     title: "New Project",
-    href: "new-projects",
+    href: "new-project",
   },
   myAllocations: {
     title: "My Allocations",
@@ -35,4 +35,4 @@ export const instanceTabs = {
     title: "My Allocation",
     href: "my-allocation",
   },
-};
+} as const;
