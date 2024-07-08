@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Stage } from "@prisma/client";
+import { format } from "date-fns";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -34,7 +35,12 @@ export async function SupervisorOverview({
           <div className="flex flex-col justify-start">
             <div className="flex flex-col gap-4">
               <SubHeading>Project Upload Deadline</SubHeading>
-              <p className="text-xl">{deadline.toLocaleDateString()}</p>
+              <p className="flex gap-2 text-xl">
+                {format(deadline, "dd MMM yyyy")}
+                {" - "}
+                {format(deadline, "HH:mm")}
+                <span className="text-muted-foreground">GMT</span>
+              </p>
             </div>
             <div className="mt-16 flex flex-col gap-4">
               <SubHeading>Task List</SubHeading>

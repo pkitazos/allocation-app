@@ -414,7 +414,7 @@ const builtInAlgorithms = [
 export const algorithms = (ID: string) =>
   builtInAlgorithms.map((alg) =>
     inInstance(ID, {
-      ...alg, // TODO: confirm descriptions
+      ...alg,
       matchingResultData: JSON.stringify({}),
     }),
   );

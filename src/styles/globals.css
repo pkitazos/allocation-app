@@ -41,17 +41,21 @@
   .dark {
     --background: 229 84% 5%;
   }
-  
+
   ::-webkit-scrollbar {
+    height: 6px;
     width: 6px;
   }
-  
+
   ::-webkit-scrollbar:horizontal {
     height: 8px;
   }
-  
+
+  ::-webkit-scrollbar:vertical {
+    width: 8px;
+  }
+
   ::-webkit-scrollbar-thumb {
     @apply rounded-xl bg-slate-600;
   }
-
 }

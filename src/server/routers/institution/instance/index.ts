@@ -14,6 +14,7 @@ import {
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { setDiff } from "@/server/utils/set-difference";
 
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
@@ -23,6 +24,25 @@ export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
   algorithm: algorithmRouter,
   project: projectRouter,
+
+  get: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+        });
+      },
+    ),
 
   access: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
@@ -209,6 +229,34 @@ export const instanceRouter = createTRPCRouter({
         });
 
         return { byStudent, byProject, bySupervisor };
+      },
+    ),
+
+  getEditFormDetails: stageAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const data = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          include: { flags: true, tags: true },
+        });
+
+        return {
+          ...data,
+          instanceName: data.displayName,
+          minNumPreferences: data.minPreferences,
+          maxNumPreferences: data.maxPreferences,
+          maxNumPerSupervisor: data.maxPreferencesPerSupervisor,
+        };
       },
     ),
 
@@ -536,6 +584,100 @@ export const instanceRouter = createTRPCRouter({
           data: {
             studentsCanAccess: platformAccess,
           },
+        });
+      },
+    ),
+
+  edit: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        updatedInstance: z.object({
+          projectSubmissionDeadline: z.date(),
+          minPreferences: z.number().int(),
+          maxPreferences: z.number().int(),
+          maxPreferencesPerSupervisor: z.number().int(),
+          preferenceSubmissionDeadline: z.date(),
+          flags: z.array(z.object({ title: z.string() })),
+          tags: z.array(z.object({ title: z.string() })),
+        }),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          updatedInstance: { flags, tags, ...updatedData },
+        },
+      }) => {
+        await ctx.db.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+          },
+          data: updatedData,
+        });
+
+        const currentInstanceFlags = await ctx.db.flag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newInstanceFlags = setDiff(flags, currentInstanceFlags);
+        const staleInstanceFlags = setDiff(currentInstanceFlags, flags);
+
+        await ctx.db.flag.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: { in: staleInstanceFlags.map((f) => f.title) },
+          },
+        });
+
+        await ctx.db.flag.createMany({
+          data: newInstanceFlags.map((f) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: f.title,
+          })),
+        });
+
+        const currentInstanceTags = await ctx.db.tag.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        const newInstanceTags = setDiff(tags, currentInstanceTags);
+        const staleInstanceTags = setDiff(currentInstanceTags, tags);
+
+        await ctx.db.tag.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: { in: staleInstanceTags.map((f) => f.title) },
+          },
+        });
+
+        await ctx.db.tag.createMany({
+          data: newInstanceTags.map((f) => ({
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            title: f.title,
+          })),
         });
       },
     ),

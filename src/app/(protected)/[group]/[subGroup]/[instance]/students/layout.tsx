@@ -15,8 +15,7 @@ export default async function Layout({
 }) {
   const role = await api.user.role({ params });
 
-  // TODO: decide how supervisors should have access to this page
-  if (role !== Role.ADMIN && role !== Role.SUPERVISOR) {
+  if (role !== Role.ADMIN) {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );

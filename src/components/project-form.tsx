@@ -149,7 +149,7 @@ export function ProjectForm({
             control={form.control}
             name="flagIds"
             render={() => (
-              <FormItem>
+              <FormItem className={cn(flags.length === 0 && "hidden")}>
                 <div className="mb-3">
                   <FormLabel className="text-2xl">Flags</FormLabel>
                   <FormDescription>

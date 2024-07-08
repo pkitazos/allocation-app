@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
 import { stageGte } from "@/lib/utils/permissions/stage-check";
@@ -20,17 +21,26 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            displayName: true,
-            projectSubmissionDeadline: true,
-          },
-        });
+        const { displayName, projectSubmissionDeadline } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              displayName: true,
+              projectSubmissionDeadline: true,
+            },
+          });
+
+        return {
+          displayName,
+          projectSubmissionDeadline: toZonedTime(
+            projectSubmissionDeadline,
+            "Europe/London",
+          ),
+        };
       },
     ),
 
@@ -104,7 +114,27 @@ export const supervisorRouter = createTRPCRouter({
             capacityLowerBound: true,
             capacityUpperBound: true,
             preAllocatedStudentId: true,
+            allocations: { select: { userId: true } },
           },
+        });
+
+        const allProjects = projects;
+
+        const rowProjects = allProjects.flatMap((project) => {
+          const { allocations, preAllocatedStudentId, ...rest } = project;
+
+          if (preAllocatedStudentId) {
+            return { ...rest, allocatedStudentId: preAllocatedStudentId };
+          }
+
+          if (allocations.length === 0) {
+            return { ...rest, allocatedStudentId: undefined };
+          }
+
+          return allocations.map((allocation) => ({
+            ...rest,
+            allocatedStudentId: allocation.userId,
+          }));
         });
 
         const { projectAllocationTarget: targetProjectCount } =
@@ -125,7 +155,7 @@ export const supervisorRouter = createTRPCRouter({
         const submissionTarget =
           2 * (targetProjectCount - preAllocatedProjectCount);
 
-        return { projects, submissionTarget };
+        return { projects, submissionTarget, rowProjects };
       },
     ),
 
@@ -192,7 +222,7 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const user = ctx.session.user;
-        return await ctx.db.projectAllocation.findMany({
+        const data = await ctx.db.projectAllocation.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -201,9 +231,21 @@ export const supervisorRouter = createTRPCRouter({
           },
           select: {
             project: { select: { id: true, title: true } },
-            student: { select: { userId: true } },
+            student: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
           },
         });
+        return data.map(({ project, student }) => ({
+          project,
+          student: {
+            id: student.user.id,
+            name: student.user.name!,
+            email: student.user.email!,
+          },
+        }));
       },
     ),
 });

@@ -16,23 +16,19 @@ import {
 import { stageGt, stageGte } from "@/lib/utils/permissions/stage-check";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 
-type SupervisorProjectsData = Pick<
+export type SupervisorProjectData = Pick<
   Project,
-  | "id"
-  | "title"
-  | "capacityLowerBound"
-  | "capacityUpperBound"
-  | "preAllocatedStudentId"
->;
+  "id" | "title" | "capacityLowerBound" | "capacityUpperBound"
+> & { allocatedStudentId?: string };
 
 export function columns(
   stage: Stage,
   removeRow: (id: string) => void,
   clearTable: () => void,
-): ColumnDef<SupervisorProjectsData>[] {
-  const selectCol = getSelectColumn<SupervisorProjectsData>();
+): ColumnDef<SupervisorProjectData>[] {
+  const selectCol = getSelectColumn<SupervisorProjectData>();
 
-  const userCols: ColumnDef<SupervisorProjectsData>[] = [
+  const userCols: ColumnDef<SupervisorProjectData>[] = [
     {
       id: "id",
       accessorFn: ({ id }) => id,
@@ -82,10 +78,10 @@ export function columns(
       ),
     },
     {
-      id: "Pre-Allocated StudentId",
-      accessorFn: ({ preAllocatedStudentId }) => preAllocatedStudentId,
+      id: "Allocated Student ID",
+      accessorFn: ({ allocatedStudentId }) => allocatedStudentId,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Pre-allocated Student" />
+        <DataTableColumnHeader column={column} title="Allocated Student" />
       ),
     },
     {
