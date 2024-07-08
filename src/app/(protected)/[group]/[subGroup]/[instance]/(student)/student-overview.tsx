@@ -8,18 +8,21 @@ import { Calendar } from "@/components/ui/calendar";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+
 import { InstanceParams } from "@/lib/validations/params";
 
-import { getGMTOffset } from "@/lib/utils/date/timezone";
 import Layout from "./layout";
 
 export async function StudentOverview({ params }: { params: InstanceParams }) {
   const stage = await api.institution.instance.currentStage({ params });
 
-  const { displayName, preferenceSubmissionDeadline: deadline } =
-    await api.user.student.overviewData({
-      params,
-    });
+  const {
+    displayName,
+    preferenceSubmissionDeadline: deadline,
+    deadlineTimeZoneOffset: timeZoneOffset,
+  } = await api.user.student.overviewData({
+    params,
+  });
 
   const { minPreferences, maxPreferences } =
     await api.user.student.preferenceRestrictions({
@@ -27,8 +30,6 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     });
 
   if (stage === Stage.PROJECT_SELECTION) {
-    const timeZoneOffset = getGMTOffset(deadline);
-
     return (
       <ThinLayout pageName={displayName} params={params}>
         <div className="mt-9 flex justify-between">
@@ -36,9 +37,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
             <div className="flex flex-col gap-4">
               <SubHeading>Preference List Submission Deadline</SubHeading>
               <p className="flex gap-2 text-xl">
-                {format(deadline, "dd MMM yyyy")}
-                {" - "}
-                {format(deadline, "HH:mm")}
+                {format(deadline, "dd MMM yyyy - HH:mm")}
                 <span className="text-muted-foreground">{timeZoneOffset}</span>
               </p>
             </div>

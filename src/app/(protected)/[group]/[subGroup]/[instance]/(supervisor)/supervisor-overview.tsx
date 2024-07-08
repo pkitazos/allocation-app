@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
 import { Stage } from "@prisma/client";
 import { format } from "date-fns";
+import { ReactNode } from "react";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -19,10 +19,13 @@ export async function SupervisorOverview({
 }) {
   const stage = await api.institution.instance.currentStage({ params });
 
-  const { displayName, projectSubmissionDeadline: deadline } =
-    await api.user.supervisor.instancePage({
-      params,
-    });
+  const {
+    displayName,
+    projectSubmissionDeadline: deadline,
+    deadlineTimeZoneOffset: timeZoneOffset,
+  } = await api.user.supervisor.instancePage({
+    params,
+  });
 
   const { currentSubmissionCount, submissionTarget } =
     await api.user.supervisor.projects({
@@ -37,10 +40,8 @@ export async function SupervisorOverview({
             <div className="flex flex-col gap-4">
               <SubHeading>Project Upload Deadline</SubHeading>
               <p className="flex gap-2 text-xl">
-                {format(deadline, "dd MMM yyyy")}
-                {" - "}
-                {format(deadline, "HH:mm")}
-                <span className="text-muted-foreground">GMT</span>
+                {format(deadline, "dd MMM yyyy - HH:mm")}
+                <span className="text-muted-foreground">{timeZoneOffset}</span>
               </p>
             </div>
             <div className="mt-16 flex flex-col gap-4">
