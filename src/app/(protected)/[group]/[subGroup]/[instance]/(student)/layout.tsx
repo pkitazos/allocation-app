@@ -9,7 +9,7 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
@@ -28,7 +28,7 @@ export default async function Layout({
       <Unauthorised message="You need to be a Student to access this page" />
     );
   }
-  if (!stageCheck(stage, Stage.PROJECT_SELECTION)) {
+  if (stageLt(stage, Stage.PROJECT_SELECTION)) {
     return (
       <Unauthorised message="You are not allowed to access the platform at this time" />
     );
@@ -55,13 +55,8 @@ export default async function Layout({
             </Link>
           </Button>
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
-            <Button variant="outline" asChild>
-              <Link
-                className="w-full"
-                href={`${instancePath}/${instanceTabs.myAllocation.href}`}
-              >
-                {instanceTabs.myAllocation.title}
-              </Link>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
             </Button>
           </AccessControl>
         </div>

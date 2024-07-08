@@ -28,7 +28,7 @@ export default async function Page() {
           <p>Modify {spacesLabels.instance.short}-specific details.</p>
         </CardContent>
       </Card>
-      <DangerZone spaceTitle={spacesLabels.instance.short} />
+      <DangerZone spaceLabel={spacesLabels.instance.short} />
     </PanelWrapper>
   );
 }

@@ -9,10 +9,10 @@ import { api } from "@/lib/trpc/client";
 import { GroupParams } from "@/lib/validations/params";
 
 export function DangerZone({
-  spaceTitle,
+  spaceLabel,
   params,
 }: {
-  spaceTitle: string;
+  spaceLabel: string;
   params: GroupParams;
 }) {
   const router = useRouter();
@@ -26,9 +26,9 @@ export function DangerZone({
         router.refresh();
       }),
       {
-        loading: `Deleting ${spaceTitle}`,
+        loading: `Deleting ${spaceLabel}`,
         error: "Something went wrong",
-        success: `Successfully deleted ${spaceTitle}`,
+        success: `Successfully deleted ${spaceLabel}`,
       },
     );
   }
@@ -39,11 +39,9 @@ export function DangerZone({
       </CardHeader>
       <CardContent className="flex items-center gap-5">
         <DestructiveButton action={destructiveAction}>
-          Allocation {spaceTitle}
+          {spaceLabel}
         </DestructiveButton>
-        <p>
-          Once you delete an Allocation {spaceTitle}, there is no going back.
-        </p>
+        <p>Once you delete an {spaceLabel}, there is no going back.</p>
       </CardContent>
     </Card>
   );

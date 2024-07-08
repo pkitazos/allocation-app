@@ -11,6 +11,7 @@ import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
 import { supervisorColumns, SupervisorData } from "./supervisors-columns";
+import { spacesLabels } from "@/content/spaces";
 
 export function SupervisorsDataTable({
   user,
@@ -27,27 +28,29 @@ export function SupervisorsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.user.supervisor.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } =
-    api.user.supervisor.deleteAll.useMutation();
+  const { mutateAsync: deleteSelectedAsync } =
+    api.user.supervisor.deleteSelected.useMutation();
 
   async function handleDelete(supervisorId: string) {
     void toast.promise(
       deleteAsync({ params, supervisorId }).then(() => router.refresh()),
       {
-        loading: "Deleting Supervisor...",
+        loading: `Removing Supervisor ${supervisorId} from ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
         success: `Supervisor ${supervisorId} deleted successfully`,
       },
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(supervisorIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteSelectedAsync({ params, supervisorIds }).then(() =>
+        router.refresh(),
+      ),
       {
-        loading: "Deleting Supervisor...",
+        loading: `Removing ${supervisorIds.length} supervisors from ${spacesLabels.instance.short}...`,
         error: "Something went wrong",
-        success: `All Supervisors deleted successfully`,
+        success: `Successfully removed ${supervisorIds.length} Supervisors from ${spacesLabels.instance.short}`,
       },
     );
   }
@@ -66,7 +69,7 @@ export function SupervisorsDataTable({
         role,
         stage,
         handleDelete,
-        handleDeleteAll,
+        handleDeleteSelected,
       )}
       data={data}
     />

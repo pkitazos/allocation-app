@@ -1,10 +1,14 @@
+"use client";
 import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideMoreHorizontal, Trash2 } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  LucideMoreHorizontal as MoreIon,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   DropdownMenu,
@@ -14,14 +18,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { AccessControl } from "@/components/access-control";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+
+import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
+
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import { spacesLabels } from "@/content/spaces";
 
 export interface StudentData {
   id: string;
@@ -32,28 +37,10 @@ export interface StudentData {
 export function studentsColumns(
   role: Role,
   stage: Stage,
-  deleteStudent: (id: string) => void,
-  deleteAllStudents: () => void,
+  deleteStudent: (id: string) => Promise<void>,
+  deleteSelectedStudents: (ids: string[]) => Promise<void>,
 ): ColumnDef<StudentData>[] {
-  const selectCol: ColumnDef<StudentData> = {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<StudentData>();
 
   const userCols: ColumnDef<StudentData>[] = [
     {
@@ -64,18 +51,11 @@ export function studentsColumns(
       ),
       cell: ({ row: { original: student } }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-20 truncate">{student.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{student.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={student.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-20 truncate">{student.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -103,71 +83,104 @@ export function studentsColumns(
       ),
     },
   ];
+
   const actionsCol: ColumnDef<StudentData> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedStudentIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.id);
 
       if (
-        allSelected &&
+        someSelected &&
         role === Role.ADMIN &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
-      ) {
+        stageLte(stage, Stage.PROJECT_SELECTION)
+      )
         return (
-          <div className="flex justify-center">
-            <Button
-              className="flex items-center gap-2"
-              variant="destructive"
-              size="sm"
-              onClick={deleteAllStudents}
+          <div className="flex w-14 items-center justify-center">
+            <WithTooltip
+              tip={
+                <p className="text-gray-700">
+                  Remove selected Students from {spacesLabels.instance.short}
+                </p>
+              }
+              duration={500}
             >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={async () => {
+                  await deleteSelectedStudents(selectedStudentIds).then(() => {
+                    table.toggleAllRowsSelected(false);
+                  });
+                }}
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </WithTooltip>
           </div>
         );
-      }
-      return <div className="text-xs text-muted-foreground">Actions</div>;
+
+      return <ActionColumnLabel />;
     },
-    cell: ({ row: { original: student } }) => {
+    cell: ({ row: { original: student }, table }) => {
+      async function handleDelete() {
+        await deleteStudent(student.id).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Button variant="link" asChild>
-                <Link href={`./students/${student.id}`}>View Details</Link>
+        <div className="flex w-14 items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreIon className="h-4 w-4" />
               </Button>
-            </DropdownMenuItem>
-            {role === Role.ADMIN &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <Button
-                    className="w-full"
-                    variant="destructive"
-                    onClick={() => deleteStudent(student.id)}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  href={`./students/${student.id}`}
+                >
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Student Details</span>
+                </Link>
+              </DropdownMenuItem>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={handleDelete}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>
+                      Remove Student from {spacesLabels.instance.short}
+                    </span>
+                  </button>
                 </DropdownMenuItem>
-              )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </AccessControl>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   };
 
   if (role !== Role.ADMIN) return userCols;
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
-    ? [...userCols, actionsCol]
-    : [selectCol, ...userCols, actionsCol];
+  return stageLte(stage, Stage.PROJECT_SELECTION)
+    ? [selectCol, ...userCols, actionsCol]
+    : [...userCols, actionsCol];
 }

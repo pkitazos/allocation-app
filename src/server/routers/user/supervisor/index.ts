@@ -2,7 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -173,7 +173,7 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.delete({
           where: {
@@ -188,23 +188,29 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  deleteAll: stageAwareProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  deleteSelected: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        supervisorIds: z.array(z.string()),
+      }),
+    )
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
+          supervisorIds,
         },
       }) => {
-        if (stageCheck(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.deleteMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.SUPERVISOR,
+            userId: { in: supervisorIds },
           },
         });
       },

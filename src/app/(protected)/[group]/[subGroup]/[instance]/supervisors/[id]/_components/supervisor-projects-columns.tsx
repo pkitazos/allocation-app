@@ -1,13 +1,16 @@
 import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { LucideMoreHorizontal, Trash2 } from "lucide-react";
-import Link from "next/link";
+import {
+  CornerDownRightIcon,
+  LucideMoreHorizontal as MoreIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { User } from "next-auth";
+import Link from "next/link";
 
 import { TagType } from "@/components/tag/tag-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import {
   DropdownMenu,
@@ -17,14 +20,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-import { stageCheck } from "@/lib/utils/permissions/stage-check";
+import { AccessControl } from "@/components/access-control";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 
 export interface SupervisorProjectData {
   title: string;
@@ -51,28 +52,10 @@ export function supervisorProjectsColumns(
   role: Role,
   stage: Stage,
   supervisorId: string,
-  deleteSupervisor: (id: string) => void,
-  deleteAllSupervisors: () => void,
+  deleteSupervisorProject: (id: string) => Promise<void>,
+  deleteSelectedSupervisorProjects: (ids: string[]) => Promise<void>,
 ): ColumnDef<SupervisorProjectData>[] {
-  const selectCol: ColumnDef<SupervisorProjectData> = {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  };
+  const selectCol = getSelectColumn<SupervisorProjectData>();
 
   const userCols: ColumnDef<SupervisorProjectData>[] = [
     {
@@ -83,18 +66,11 @@ export function supervisorProjectsColumns(
       ),
       cell: ({ row: { original: project } }) => (
         <div className="text-left">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-16 truncate"> {project.id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p> {project.id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <WithTooltip tip={project.id}>
+            <Button variant="ghost" className="cursor-default">
+              <div className="w-16 truncate">{project.id}</div>
+            </Button>
+          </WithTooltip>
         </div>
       ),
     },
@@ -182,67 +158,94 @@ export function supervisorProjectsColumns(
     id: "actions",
     accessorKey: "actions",
     header: ({ table }) => {
-      const allSelected = table.getIsAllRowsSelected();
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+
+      const selectedProjectIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.id);
 
       if (
-        allSelected &&
+        someSelected &&
         (role === Role.ADMIN || user.id === supervisorId) &&
-        !stageCheck(stage, Stage.PROJECT_ALLOCATION)
+        !stageGte(stage, Stage.PROJECT_ALLOCATION)
       ) {
         return (
-          <div className="flex justify-center">
-            <Button
-              className="flex items-center gap-2"
-              variant="destructive"
-              size="sm"
-              onClick={deleteAllSupervisors}
+          <div className="flex w-14 items-center justify-center">
+            <WithTooltip
+              tip={<p className="text-gray-700">Delete selected Projects</p>}
+              duration={500}
             >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+              <Button
+                className="flex items-center gap-2"
+                variant="destructive"
+                size="sm"
+                onClick={async () =>
+                  await deleteSelectedSupervisorProjects(
+                    selectedProjectIds,
+                  ).then(() => table.toggleAllRowsSelected(false))
+                }
+              >
+                <Trash2Icon className="h-4 w-4" />
+              </Button>
+            </WithTooltip>
           </div>
         );
       }
-      return <div className="text-xs text-muted-foreground">Actions</div>;
+      return <ActionColumnLabel />;
     },
-    cell: ({ row: { original: project } }) => {
+    cell: ({ row: { original: project }, table }) => {
+      async function handleDelete() {
+        await deleteSupervisorProject(project.id).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <span className="sr-only">Open menu</span>
-              <LucideMoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href={`../projects/${project.id}`}>
-                <Button variant="link">View Details</Button>
-              </Link>
-            </DropdownMenuItem>
-            {(role === Role.ADMIN || user.id === supervisorId) &&
-              !stageCheck(stage, Stage.PROJECT_ALLOCATION) && (
-                <DropdownMenuItem>
-                  <Button
-                    className="flex w-full items-center gap-2"
-                    variant="destructive"
-                    onClick={() => deleteSupervisor(project.id)}
+        <div className="flex w-14 items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  href={`../projects/${project.id}`}
+                >
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Project Details</span>
+                </Link>
+              </DropdownMenuItem>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+                extraConditions={{ RBAC: { OR: supervisorId === user.id } }}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={handleDelete}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    <p>Delete</p>
-                  </Button>
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>Delete Project</span>
+                  </button>
                 </DropdownMenuItem>
-              )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </AccessControl>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   };
 
   if (role !== Role.ADMIN && user.id !== supervisorId) return userCols;
 
-  return stageCheck(stage, Stage.PROJECT_ALLOCATION)
+  return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
     : [selectCol, ...userCols, actionsCol];
 }

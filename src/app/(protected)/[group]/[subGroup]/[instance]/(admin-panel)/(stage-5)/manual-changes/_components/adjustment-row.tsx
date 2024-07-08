@@ -63,7 +63,7 @@ export function AdjustmentRow({
 
   return (
     <DndContext onDragStart={() => setDragging(true)} onDragEnd={onDragEnd}>
-      <div className="no-scrollbar flex items-start gap-3 overflow-x-scroll py-1.5">
+      <div className="flex items-start gap-3 overflow-x-scroll py-1.5">
         <div className="flex items-center gap-2 border-r pr-3">
           <UnmatchButton rowIdx={rowIdx} />
           <RowRemovalButton rowIdx={rowIdx} />
