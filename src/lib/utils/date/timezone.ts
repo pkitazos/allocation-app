@@ -80,6 +80,12 @@ function getLondonTime(d: Date) {
   return formatDate(d, 0);
 }
 
+/**
+ * Returns a string representation of the timezone offset of the date in the format "GMT+HH:MM"
+ * @param date a date object
+ * @returns a string representation of the timezone offset of the date in the format "GMT+HH:MM"
+ * @example getGMTOffset(new Date("2021-10-10T12:00:00Z")) // "GMT+01:00" if the date falls in daylight saving time
+ */
 export function getGMTOffset(date: Date) {
   const dateStr = getLondonTime(date);
   const timeZoneOffset = dateStr.split("+")[1];
