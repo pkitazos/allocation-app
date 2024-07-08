@@ -247,7 +247,7 @@ export function FormSection({
                   </PopoverContent>
                 </Popover>
                 <TimePicker
-                  value={field.value}
+                  currentTime={field.value}
                   onHourChange={(val) => {
                     const newHour = parseInt(val, 10);
                     const newDate = setHours(field.value, newHour);
@@ -382,7 +382,7 @@ export function FormSection({
                     </PopoverContent>
                   </Popover>
                   <TimePicker
-                    value={field.value}
+                    currentTime={field.value}
                     onHourChange={(val) => {
                       const newHour = parseInt(val, 10);
                       const newDate = setHours(field.value, newHour);

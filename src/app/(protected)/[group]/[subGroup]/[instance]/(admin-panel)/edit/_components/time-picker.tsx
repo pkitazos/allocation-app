@@ -1,5 +1,7 @@
 "use client";
 
+import { format } from "date-fns";
+
 import {
   Select,
   SelectContent,
@@ -7,14 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { format, getHours, getMinutes } from "date-fns";
 
 export function TimePicker({
-  value,
+  currentTime,
   onHourChange,
   onMinuteChange,
 }: {
-  value: Date;
+  currentTime: Date;
   onMinuteChange: (val: string) => void;
   onHourChange: (val: string) => void;
 }) {
@@ -22,7 +23,7 @@ export function TimePicker({
     <div className="flex items-center justify-center gap-2">
       <Select onValueChange={onHourChange}>
         <SelectTrigger className="flex w-16 items-center justify-center gap-2">
-          <SelectValue placeholder={format(value, "HH")} />
+          <SelectValue placeholder={format(currentTime, "HH")} />
         </SelectTrigger>
         <SelectContent className="h-40">
           {Array.from({ length: 24 }).map((_, i) => (
@@ -35,7 +36,7 @@ export function TimePicker({
       <p className="text-lg font-bold text-muted-foreground">:</p>
       <Select onValueChange={onMinuteChange}>
         <SelectTrigger className="flex w-16 items-center justify-center gap-2">
-          <SelectValue placeholder={format(value, "mm")} />
+          <SelectValue placeholder={format(currentTime, "mm")} />
         </SelectTrigger>
         <SelectContent className="h-40">
           {Array.from({ length: 60 }).map((_, i) => (
