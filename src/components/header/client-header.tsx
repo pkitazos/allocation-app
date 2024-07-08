@@ -28,18 +28,23 @@ export function InstanceTabs() {
 
   return (
     <>
+      <InstanceLink href={`${instancePath}`}>Instance Home</InstanceLink>
       {((roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) &&
         stageCheck(stage, Stage.PROJECT_SUBMISSION)) ||
         stageCheck(stage, Stage.PROJECT_SELECTION)) && (
-        <InstanceLink href={`${instancePath}/projects`}>Projects</InstanceLink>
-      )}
-      {roleCheck(role, [Role.ADMIN]) && (
-        <InstanceLink href={`${instancePath}/supervisors`}>
-          Supervisors
+        <InstanceLink href={`${instancePath}/projects`}>
+          All Projects
         </InstanceLink>
       )}
-      {roleCheck(role, [Role.ADMIN, Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}/students`}>Students</InstanceLink>
+      {roleCheck(role, [Role.ADMIN]) && (
+        <>
+          <InstanceLink href={`${instancePath}/supervisors`}>
+            Supervisors
+          </InstanceLink>
+          <InstanceLink href={`${instancePath}/students`}>
+            Students
+          </InstanceLink>
+        </>
       )}
       {roleCheck(role, [Role.STUDENT]) &&
         stageCheck(stage, Stage.PROJECT_SELECTION) && (
@@ -51,17 +56,6 @@ export function InstanceTabs() {
         stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
           <InstanceLink href={`${instancePath}/my-allocation`}>
             My Allocation
-          </InstanceLink>
-        )}
-      {roleCheck(role, [Role.SUPERVISOR]) && (
-        <InstanceLink href={`${instancePath}/my-projects`}>
-          My Projects
-        </InstanceLink>
-      )}
-      {roleCheck(role, [Role.SUPERVISOR]) &&
-        stageCheck(stage, Stage.ALLOCATION_PUBLICATION) && (
-          <InstanceLink href={`${instancePath}/my-allocations`}>
-            My Allocations
           </InstanceLink>
         )}
     </>

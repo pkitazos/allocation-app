@@ -1,5 +1,6 @@
-import { Stage } from "@prisma/client";
 import { ReactNode } from "react";
+import { Stage } from "@prisma/client";
+import { format } from "date-fns";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -10,8 +11,6 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import Layout from "./layout";
-
-import { format } from "date-fns";
 
 export async function SupervisorOverview({
   params,
@@ -38,7 +37,7 @@ export async function SupervisorOverview({
               <SubHeading>Project Upload Deadline</SubHeading>
               <p className="flex gap-2 text-xl">
                 {format(deadline, "dd MMM yyyy")}
-                <span className="text-muted-foreground">//</span>
+                {" - "}
                 {format(deadline, "HH:mm")}
                 <span className="text-muted-foreground">GMT</span>
               </p>

@@ -22,9 +22,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   const stage = await api.institution.instance.currentStage({ params });
 
-  const { projects, submissionTarget } = await api.user.supervisor.projects({
+  const { submissionTarget, rowProjects } = await api.user.supervisor.projects({
     params,
   });
+
+  const uniqueProjectIds = new Set(rowProjects.map((project) => project.id));
 
   return (
     <>
@@ -43,15 +45,15 @@ export default async function Page({ params }: { params: InstanceParams }) {
             <p
               className={cn(
                 "text-lg font-medium",
-                projects.length < submissionTarget && "text-destructive",
-                projects.length >= submissionTarget && "text-green-500",
+                uniqueProjectIds.size < submissionTarget && "text-destructive",
+                uniqueProjectIds.size >= submissionTarget && "text-green-500",
               )}
             >
-              {projects.length} / {submissionTarget}
+              {uniqueProjectIds.size} / {submissionTarget}
             </p>
           )}
         </Card>
-        <ProjectsDataTable stage={stage} projects={projects} />
+        <ProjectsDataTable stage={stage} projects={rowProjects} />
       </PanelWrapper>
     </>
   );
