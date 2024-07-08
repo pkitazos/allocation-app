@@ -5,14 +5,8 @@ import { tagTypeSchema } from "@/components/tag/tag-input";
 const baseProjectFormSchema = z.object({
   title: z.string().min(4, "Please enter a longer title"),
   description: z.string().min(10, "Please enter a longer description"),
-  flagIds: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "You have to select at least one flag for a project.",
-  }),
-  tags: z
-    .array(z.object({ id: z.string(), title: z.string() }))
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one tag for a project.",
-    }),
+  flagIds: z.array(z.string()),
+  tags: z.array(z.object({ id: z.string(), title: z.string() })),
   isPreAllocated: z.boolean().optional(),
   capacityUpperBound: z.coerce.number().int().positive(),
   preAllocatedStudentId: z.string().optional(),

@@ -208,7 +208,7 @@ model ProjectAllocation {
 }
 
 model Flag {
-    id                   String             @id //@default(uuid())
+    id                   String             @id @default(uuid())
     title                String
     // ---
     allocationGroupId    String             @map("allocation_group_id")
@@ -233,7 +233,7 @@ model FlagOnProject {
 }
 
 model Tag {
-    id                   String             @id //@default(uuid())
+    id                   String             @id @default(uuid())
     title                String
     // ---
     allocationGroupId    String             @map("allocation_group_id")

@@ -9,6 +9,7 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { toZonedTime } from "date-fns-tz";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -20,17 +21,26 @@ export const supervisorRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            displayName: true,
-            projectSubmissionDeadline: true,
-          },
-        });
+        const { displayName, projectSubmissionDeadline } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              displayName: true,
+              projectSubmissionDeadline: true,
+            },
+          });
+
+        return {
+          displayName,
+          projectSubmissionDeadline: toZonedTime(
+            projectSubmissionDeadline,
+            "Europe/London",
+          ),
+        };
       },
     ),
 
@@ -186,7 +196,7 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const user = ctx.session.user;
-        return await ctx.db.projectAllocation.findMany({
+        const data = await ctx.db.projectAllocation.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -195,9 +205,21 @@ export const supervisorRouter = createTRPCRouter({
           },
           select: {
             project: { select: { id: true, title: true } },
-            student: { select: { userId: true } },
+            student: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+              },
+            },
           },
         });
+        return data.map(({ project, student }) => ({
+          project,
+          student: {
+            id: student.user.id,
+            name: student.user.name!,
+            email: student.user.email!,
+          },
+        }));
       },
     ),
 });

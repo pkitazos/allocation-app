@@ -29,8 +29,8 @@ export default async function Layout({
   children: ReactNode;
 }) {
   const instancePath = formatParamsAsPath(params);
-  const stage = await api.institution.instance.currentStage({ params });
-  const tabs = tabsRecord[stage];
+  const instance = await api.institution.instance.get({ params });
+  const tabs = tabsRecord[instance.stage];
 
   return (
     <div className="grid w-full grid-cols-6">
@@ -65,7 +65,7 @@ export default async function Layout({
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">
-        <Heading>{params.instance}</Heading>
+        <Heading>{instance.displayName}</Heading>
         {children}
       </section>
     </div>
