@@ -18,8 +18,7 @@ import { NewStudent, newStudentSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { columns } from "./_components/new-student-columns";
-
-export const csvHeaders = ["full_name", "university_id", "email"];
+import { addStudentsCsvHeaders } from "@/lib/validations/add-students";
 
 export default async function Page() {
   const router = useRouter();
@@ -69,7 +68,7 @@ export default async function Page() {
           <div className="flex flex-col items-start">
             <p className="text-muted-foreground">must contain header: </p>
             <code className="text-muted-foreground">
-              {csvHeaders.join(",")}
+              {addStudentsCsvHeaders.join(",")}
             </code>
           </div>
         </div>
