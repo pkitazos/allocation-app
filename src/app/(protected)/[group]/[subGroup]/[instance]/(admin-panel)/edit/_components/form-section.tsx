@@ -38,7 +38,7 @@ import { InstanceParams } from "@/lib/validations/params";
 import { editFormDetailsSchema } from "./form-schema";
 import { TimePicker } from "./time-picker";
 
-import { spacesLabels } from "@/content/space-labels";
+import { spacesLabels } from "@/content/spaces";
 
 export function FormSection({
   currentInstanceDetails,

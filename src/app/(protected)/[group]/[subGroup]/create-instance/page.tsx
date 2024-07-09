@@ -5,7 +5,7 @@ import { SubGroupParams } from "@/lib/validations/params";
 
 import { FormSection } from "./_components/form-section";
 import { Heading } from "@/components/heading";
-import { spacesLabels } from "@/content/space-labels";
+import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
   const access = await api.institution.subGroup.access({ params });
