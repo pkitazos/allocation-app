@@ -1,17 +1,23 @@
 "use client";
-import { ReactNode } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, setHours, setMinutes } from "date-fns";
+import { addDays, format, setHours, setMinutes } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { ReactNode } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { SubHeading } from "@/components/heading";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
+import { api } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
+import {
+  UpdatedInstance,
+  editFormDetailsSchema2,
+} from "@/lib/validations/instance-form";
+
+import { SubHeading } from "./heading";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
 import {
   Form,
   FormControl,
@@ -20,43 +26,47 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Separator } from "./ui/separator";
+import { TimePicker } from "./ui/time-picker";
 
-import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
-import { updateDateOnly } from "@/lib/utils/date/update-date-only";
-import { UpdatedInstance } from "@/lib/validations/instance-form";
-import { InstanceParams } from "@/lib/validations/params";
+type FormData = z.infer<typeof editFormDetailsSchema2>;
 
-import { editFormDetailsSchema } from "./form-schema";
-import { TimePicker } from "@/components/ui/time-picker";
+type FormData2 = FormData & {
+  instanceName?: string;
+};
 
-import { spacesLabels } from "@/content/spaces";
-
-export function FormSection({
+export function InstanceForm({
+  submissionButtonLabel,
   currentInstanceDetails,
-  params,
+  onSubmit,
   children: dismissalButton,
 }: {
-  currentInstanceDetails: UpdatedInstance;
-  params: InstanceParams;
+  submissionButtonLabel: string;
+  currentInstanceDetails?: UpdatedInstance; // ? should this be named current
+  onSubmit: (data: FormData2) => Promise<void>;
   children: ReactNode;
 }) {
-  const { group, subGroup, instance } = params;
-  const router = useRouter();
+  const formInstance = {
+    instanceName: currentInstanceDetails?.instanceName ?? "",
+    flags: currentInstanceDetails?.flags ?? [],
+    tags: currentInstanceDetails?.tags ?? [],
+    projectSubmissionDeadline:
+      currentInstanceDetails?.projectSubmissionDeadline ??
+      addDays(new Date(), 1),
+    minNumPreferences: currentInstanceDetails?.minNumPreferences ?? 0,
+    maxNumPreferences: currentInstanceDetails?.maxNumPreferences ?? 0,
+    maxNumPerSupervisor: currentInstanceDetails?.maxNumPerSupervisor ?? 0,
+    preferenceSubmissionDeadline:
+      currentInstanceDetails?.preferenceSubmissionDeadline ??
+      addDays(new Date(), 2),
+  };
 
-  type FormData = z.infer<typeof editFormDetailsSchema>;
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(editFormDetailsSchema),
-    defaultValues: currentInstanceDetails,
+  const form = useForm<FormData2>({
+    resolver: zodResolver(editFormDetailsSchema2),
+    defaultValues: formInstance,
   });
 
   const {
@@ -79,28 +89,6 @@ export function FormSection({
 
   const { mutateAsync: editInstanceAsync } =
     api.institution.instance.edit.useMutation();
-
-  async function onSubmit(updatedInstance: FormData) {
-    void toast.promise(
-      editInstanceAsync({
-        params,
-        updatedInstance: {
-          ...updatedInstance,
-          minPreferences: updatedInstance.minNumPreferences,
-          maxPreferences: updatedInstance.maxNumPreferences,
-          maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
-        },
-      }).then(() => {
-        router.push(`/${group}/${subGroup}/${instance}`);
-        router.refresh();
-      }),
-      {
-        loading: `Updating ${spacesLabels.instance.short} Details...`,
-        error: "Something went wrong",
-        success: `Successfully updated ${spacesLabels.instance.short} Details`,
-      },
-    );
-  }
 
   return (
     <Form {...form}>
@@ -409,8 +397,8 @@ export function FormSection({
         <Separator className="my-10" />
         <div className="flex justify-end gap-8">
           {dismissalButton}
-          <Button type="submit" size="lg" onClick={() => {}}>
-            Update {spacesLabels.instance.short}
+          <Button type="submit" size="lg">
+            {submissionButtonLabel}
           </Button>
         </div>
       </form>

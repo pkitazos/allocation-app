@@ -12,3 +12,17 @@ export const updatedInstanceSchema = z.object({
 });
 
 export type UpdatedInstance = z.infer<typeof updatedInstanceSchema>;
+
+export const editFormDetailsSchema2 = z.object({
+  tags: z.array(z.object({ title: z.string() })),
+  flags: z.array(z.object({ title: z.string() })),
+
+  projectSubmissionDeadline: z.date(),
+
+  minNumPreferences: z.coerce.number().int().positive(),
+  maxNumPreferences: z.coerce.number().int().positive(),
+  maxNumPerSupervisor: z.coerce.number().int().positive(),
+  preferenceSubmissionDeadline: z.date(),
+});
+
+export type EditFormData = z.infer<typeof editFormDetailsSchema2>;
