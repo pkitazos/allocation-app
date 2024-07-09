@@ -7,13 +7,14 @@ import { ReactNode } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { updateDateOnly } from "@/lib/utils/date/update-date-only";
-import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
 import {
-  UpdatedInstance,
-  editFormDetailsSchema2,
+  buildInstanceFormSchema,
+  ValidatedInstanceDetails,
 } from "@/lib/validations/instance-form";
+
+import { spacesLabels } from "@/content/spaces";
 
 import { SubHeading } from "./heading";
 import { Button } from "./ui/button";
@@ -32,41 +33,36 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 import { TimePicker } from "./ui/time-picker";
 
-type FormData = z.infer<typeof editFormDetailsSchema2>;
-
-type FormData2 = FormData & {
-  instanceName?: string;
-};
-
 export function InstanceForm({
   submissionButtonLabel,
+  takenNames = [],
   currentInstanceDetails,
   onSubmit,
   children: dismissalButton,
 }: {
   submissionButtonLabel: string;
-  currentInstanceDetails?: UpdatedInstance; // ? should this be named current
-  onSubmit: (data: FormData2) => Promise<void>;
+  takenNames?: string[];
+  currentInstanceDetails?: ValidatedInstanceDetails;
+  onSubmit: (data: ValidatedInstanceDetails) => Promise<void>;
   children: ReactNode;
 }) {
-  const formInstance = {
-    instanceName: currentInstanceDetails?.instanceName ?? "",
-    flags: currentInstanceDetails?.flags ?? [],
-    tags: currentInstanceDetails?.tags ?? [],
-    projectSubmissionDeadline:
-      currentInstanceDetails?.projectSubmissionDeadline ??
-      addDays(new Date(), 1),
-    minNumPreferences: currentInstanceDetails?.minNumPreferences ?? 0,
-    maxNumPreferences: currentInstanceDetails?.maxNumPreferences ?? 0,
-    maxNumPerSupervisor: currentInstanceDetails?.maxNumPerSupervisor ?? 0,
-    preferenceSubmissionDeadline:
-      currentInstanceDetails?.preferenceSubmissionDeadline ??
-      addDays(new Date(), 2),
+  const defaultInstanceDetails = currentInstanceDetails ?? {
+    instanceName: "",
+    flags: [],
+    tags: [],
+    projectSubmissionDeadline: addDays(new Date(), 1),
+    minNumPreferences: 1,
+    maxNumPreferences: 1,
+    maxNumPerSupervisor: 1,
+    preferenceSubmissionDeadline: addDays(new Date(), 2),
   };
 
-  const form = useForm<FormData2>({
-    resolver: zodResolver(editFormDetailsSchema2),
-    defaultValues: formInstance,
+  const formSchema = buildInstanceFormSchema(takenNames);
+  type FormSchemaType = z.infer<typeof formSchema>;
+
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: defaultInstanceDetails,
   });
 
   const {
@@ -87,15 +83,52 @@ export function InstanceForm({
     name: "tags",
   });
 
-  const { mutateAsync: editInstanceAsync } =
-    api.institution.instance.edit.useMutation();
-
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="mt-10 flex flex-col gap-6"
       >
+        <div
+          className={cn(
+            "flex flex-col items-start gap-3",
+            currentInstanceDetails && "hidden",
+          )}
+        >
+          <FormField
+            control={form.control}
+            name="instanceName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-2xl">
+                  {spacesLabels.instance.full} Name
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={`${spacesLabels.instance.short} Name`}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Please select a unique name within the{" "}
+                  {spacesLabels.group.short} and {spacesLabels.subGroup.short}{" "}
+                  for this {spacesLabels.instance.short}.
+                  <br />
+                  <p className="pt-1 text-black">
+                    Please note: This name{" "}
+                    <span className="font-semibold underline">
+                      cannot be changed
+                    </span>{" "}
+                    later.
+                  </p>
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Separator className="my-14" />
+        </div>
+
         <SubHeading className="text-2xl">Project Details</SubHeading>
         <div className="grid w-full grid-cols-2">
           <div className="flex flex-col gap-2">
@@ -263,7 +296,7 @@ export function InstanceForm({
           <div className="flex flex-col gap-4">
             <FormField
               control={form.control}
-              name="minNumPreferences"
+              name="minPreferences"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
@@ -272,7 +305,7 @@ export function InstanceForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />
@@ -284,7 +317,7 @@ export function InstanceForm({
             />
             <FormField
               control={form.control}
-              name="maxNumPreferences"
+              name="maxPreferences"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
@@ -293,7 +326,7 @@ export function InstanceForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />
@@ -305,14 +338,14 @@ export function InstanceForm({
             />
             <FormField
               control={form.control}
-              name="maxNumPerSupervisor"
+              name="maxPreferencesPerSupervisor"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
                     <FormLabel className="text-base">per Supervisor:</FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />

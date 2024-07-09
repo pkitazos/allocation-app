@@ -7,55 +7,59 @@ import { InstanceForm } from "@/components/instance-form";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
-import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { slugify } from "@/lib/utils/general/slugify";
 import { ValidatedInstanceDetails } from "@/lib/validations/instance-form";
-import { InstanceParams } from "@/lib/validations/params";
+import { SubGroupParams } from "@/lib/validations/params";
 
 import { spacesLabels } from "@/content/spaces";
 
-export function EditInstanceForm({
+export function CreateInstanceForm({
   params,
-  currentInstance,
+  takenNames,
 }: {
-  params: InstanceParams;
-  currentInstance: ValidatedInstanceDetails;
+  params: SubGroupParams;
+  takenNames: string[];
 }) {
+  const { group, subGroup } = params;
   const router = useRouter();
-  const instancePath = formatParamsAsPath(params);
 
-  const { mutateAsync: editInstanceAsync } =
-    api.institution.instance.edit.useMutation();
+  const { mutateAsync: createInstanceAsync } =
+    api.institution.subGroup.createInstance.useMutation();
 
   async function onSubmit(data: ValidatedInstanceDetails) {
     void toast.promise(
-      editInstanceAsync({
+      createInstanceAsync({
         params,
-        updatedInstance: {
-          ...data,
+        newInstance: {
+          instanceName: data.instanceName,
+          flags: data.flags,
+          tags: data.tags,
+          projectSubmissionDeadline: data.projectSubmissionDeadline,
           minPreferences: data.minPreferences,
           maxPreferences: data.maxPreferences,
           maxPreferencesPerSupervisor: data.maxPreferencesPerSupervisor,
+          preferenceSubmissionDeadline: data.preferenceSubmissionDeadline,
         },
       }).then(() => {
-        router.push(instancePath);
+        router.push(`/${group}/${subGroup}/${slugify(data.instanceName)}`);
         router.refresh();
       }),
       {
-        loading: `Updating ${spacesLabels.instance.short} Details...`,
+        loading: "Creating Instance...",
         error: "Something went wrong",
-        success: `Successfully updated ${spacesLabels.instance.short} Details`,
+        success: "Success",
       },
     );
   }
 
   return (
     <InstanceForm
-      currentInstanceDetails={currentInstance}
-      submissionButtonLabel={`Update ${spacesLabels.instance.short} Details`}
+      takenNames={takenNames}
+      submissionButtonLabel={`Create new ${spacesLabels.instance.full}`}
       onSubmit={onSubmit}
     >
       <Button type="button" size="lg" variant="outline" asChild>
-        <Link href="./settings">Cancel</Link>
+        <Link href={`/${group}/${subGroup}`}>Cancel</Link>
       </Button>
     </InstanceForm>
   );

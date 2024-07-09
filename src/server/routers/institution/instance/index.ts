@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
+import { updatedInstanceSchema } from "@/lib/validations/instance-form";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
@@ -15,9 +17,8 @@ import {
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { setDiff } from "@/server/utils/set-difference";
-
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { getUserRole } from "@/server/utils/user-role";
+
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
@@ -594,15 +595,7 @@ export const instanceRouter = createTRPCRouter({
     .input(
       z.object({
         params: instanceParamsSchema,
-        updatedInstance: z.object({
-          projectSubmissionDeadline: z.date(),
-          minPreferences: z.number().int(),
-          maxPreferences: z.number().int(),
-          maxPreferencesPerSupervisor: z.number().int(),
-          preferenceSubmissionDeadline: z.date(),
-          flags: z.array(z.object({ title: z.string() })),
-          tags: z.array(z.object({ title: z.string() })),
-        }),
+        updatedInstance: updatedInstanceSchema,
       }),
     )
     .mutation(
