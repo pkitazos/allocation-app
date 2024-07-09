@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Settings } from "lucide-react";
+import { Settings, SplitIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Heading } from "@/components/heading";
@@ -41,9 +41,13 @@ export default async function Layout({
             </Link>
           </Button>
           <Separator className="my-1 w-3/4" />
-          {tabs.map(({ title, href }, i) => (
-            <Button key={i} variant="outline" asChild>
-              <Link href={`${instancePath}/${href}`} className="w-full">
+          {tabs.map(({ title, href, action }, i) => (
+            <Button key={i} variant={action ? "secondary" : "outline"} asChild>
+              <Link
+                href={`${instancePath}/${href}`}
+                className="flex w-full items-center gap-2"
+              >
+                {action && <SplitIcon className="h-4 w-4" />}
                 {title}
               </Link>
             </Button>
