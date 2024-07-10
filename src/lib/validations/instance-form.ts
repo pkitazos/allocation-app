@@ -1,4 +1,4 @@
-import { isAfter } from "date-fns";
+import { addDays, isAfter } from "date-fns";
 import { z } from "zod";
 
 const baseSchema = z.object({
@@ -88,6 +88,39 @@ export function buildInstanceFormSchema(takenNames: string[]) {
       {
         message: "Flags must have distinct values",
         path: ["flags.0.title"],
+      },
+    );
+}
+
+const baseForkedSchema = z.object({
+  instanceName: z.string().min(1, "Please enter a name"),
+  preferenceSubmissionDeadline: z.date(),
+  projectSubmissionDeadline: z.date(),
+});
+
+export type ForkedInstanceDetails = z.infer<typeof baseForkedSchema>;
+
+export function forked(takenNames: string[]) {
+  return baseForkedSchema
+    .refine(({ instanceName }) => !takenNames.includes(instanceName), {
+      message: "This name is already taken",
+      path: ["instanceName"],
+    })
+    .refine(
+      ({ projectSubmissionDeadline }) =>
+        isAfter(projectSubmissionDeadline, addDays(new Date(), 1)),
+      {
+        message: "Project Submission Deadline must be after today",
+        path: ["projectSubmissionDeadline"],
+      },
+    )
+    .refine(
+      ({ projectSubmissionDeadline, preferenceSubmissionDeadline }) =>
+        isAfter(preferenceSubmissionDeadline, projectSubmissionDeadline),
+      {
+        message:
+          "Preference Submission deadline can't be before Project Upload deadline",
+        path: ["preferenceSubmissionDeadline"],
       },
     );
 }

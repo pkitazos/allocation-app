@@ -1,12 +1,12 @@
-import { Unauthorised } from "@/components/unauthorised";
 import { Heading } from "@/components/heading";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { SubGroupParams } from "@/lib/validations/params";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { CreateInstanceForm } from "./_components/create-instance-form";
+
+import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
   const access = await api.institution.subGroup.access({ params });

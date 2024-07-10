@@ -4,6 +4,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { EditInstanceForm } from "./_components/edit-instance-form";
+
 import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: InstanceParams }) {

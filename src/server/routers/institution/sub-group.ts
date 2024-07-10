@@ -2,6 +2,7 @@ import { AdminLevel } from "@prisma/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
+import { createdInstanceSchema } from "@/lib/validations/instance-form";
 import {
   instanceParamsSchema,
   subGroupParamsSchema,
@@ -14,7 +15,6 @@ import {
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { createdInstanceSchema } from "@/lib/validations/instance-form";
 
 export const subGroupRouter = createTRPCRouter({
   access: protectedProcedure
