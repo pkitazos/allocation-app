@@ -98,6 +98,8 @@ const baseForkedSchema = z.object({
   projectSubmissionDeadline: z.date(),
 });
 
+export const forkedInstanceSchema = baseForkedSchema;
+
 export type ForkedInstanceDetails = z.infer<typeof baseForkedSchema>;
 
 export function forked(takenNames: string[]) {

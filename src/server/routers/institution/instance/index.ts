@@ -1,11 +1,14 @@
-import { Role, Stage } from "@prisma/client";
+import { Prisma, PrismaClient, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
-import { updatedInstanceSchema } from "@/lib/validations/instance-form";
+import {
+  forkedInstanceSchema,
+  updatedInstanceSchema,
+} from "@/lib/validations/instance-form";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
-import { instanceParamsSchema } from "@/lib/validations/params";
+import { InstanceParams, instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
 import {
@@ -22,6 +25,22 @@ import { getUserRole } from "@/server/utils/user-role";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { slugify } from "@/lib/utils/general/slugify";
+import { createProjectFlags } from "@/server/utils/flag";
+import {
+  copyInstanceFlags,
+  copyInstanceTags,
+  createFlagOnProjects,
+  createProjects,
+  createStudents,
+  createSupervisors,
+  createTagOnProjects,
+  findItemFromTitle,
+  getAvailableProjects,
+  getAvailableStudents,
+  getAvailableSupervisors,
+} from "@/server/utils/instance-forking";
+import { title } from "process";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -692,4 +711,180 @@ export const instanceRouter = createTRPCRouter({
 
       return [instanceTabs.instanceHome, instanceTabs.allProjects];
     }),
+
+  fork: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newInstance: forkedInstanceSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newInstance: forked,
+        },
+      }) => {
+        const params = { group, subGroup, instance };
+        if (ctx.stage !== Stage.ALLOCATION_PUBLICATION) return;
+
+        const forkedInstanceId = slugify(forked.instanceName);
+
+        const availableStudents = await getAvailableStudents(ctx.db, params);
+
+        const availableSupervisors = await getAvailableSupervisors(
+          ctx.db,
+          params,
+        );
+
+        // list of projects (ids + capacity upper bound + the number of students the project is allocated to) from available supervisors
+        // projects MUST be in this list
+        const availableProjects =
+          await getAvailableProjects(availableSupervisors);
+
+        // copy CURRENT instance Details
+        const parent = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+        });
+
+        // create new instance
+        // forkedInstance is an AllocationInstance
+        const forkedInstance = await ctx.db.allocationInstance.create({
+          data: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: forkedInstanceId,
+            displayName: forked.instanceName,
+            projectSubmissionDeadline: forked.projectSubmissionDeadline,
+            preferenceSubmissionDeadline: forked.preferenceSubmissionDeadline,
+            minPreferences: parent.minPreferences,
+            maxPreferences: parent.maxPreferences,
+            maxPreferencesPerSupervisor: parent.maxPreferencesPerSupervisor,
+          },
+        });
+
+        const newFlags = await copyInstanceFlags(
+          ctx.db,
+          params,
+          forkedInstanceId,
+        );
+
+        const newTags = await copyInstanceTags(
+          ctx.db,
+          params,
+          forkedInstanceId,
+        );
+
+        await createStudents(ctx.db, availableStudents, forkedInstanceId);
+
+        await createSupervisors(
+          ctx.db,
+          availableSupervisors,
+          params,
+          forkedInstanceId,
+        );
+
+        const newProjects = await createProjects(
+          ctx.db,
+          availableProjects,
+          params,
+          forkedInstanceId,
+        );
+
+        await createFlagOnProjects(ctx.db, newProjects, newFlags);
+        await createTagOnProjects(ctx.db, newProjects, newTags);
+      },
+    ),
 });
+
+/**
+ *
+ * BEFORE PROCEDURE RUNS
+ *
+ *  - new instanceName (and by extension new instanceId (because of slugify))
+ *  - new projectSubmissionDeadline
+ *  - new preferenceSubmissionDeadline
+ *
+ * PROCEDURE IS CALLED
+ *
+ * (USERS - STUDENTS)
+ *  - get all students that are not allocated to a project
+ *    - get all students in the instance where their allocation is null
+ *
+ * (USERS - SUPERVISORS)
+ *  - get all supervisors that are not at capacity
+ *    - get all supervisors in the instance + all of their projects (in the instance) + their instance details (projectAllocationUpperBound)
+ *    - filter out supervisors that are at capacity:
+ *       - by checking how many of their projects have allocations
+ *       - if that number is less than projectAllocationUpperBound, then they are not at capacity so we keep these supervisors (and all their projects (for now))
+ *
+ * (PROJECTS)
+ * - get all available projects
+ *  - get all supervisor projects (from above)
+ *  - check how many allocated students each project has
+ *    - if the number of students allocated to a project is less than the capacityUpperBound for the project, then keep this project
+ *
+ *
+ * create new instance:
+ * - carry forward details from parent and updated instanceName, projectSubmissionDeadline and preferencesSubmissionDeadline.
+ *
+ *
+ * (FLAGS)
+ * - get all flags for parent instance
+ * - create equivalent flags for the forked instance
+ *    - for each available project, assign equivalent flag from parent instance via flagOnProjects
+ *
+ * (TAGS)
+ * - get all tags for parent instance
+ * - create equivalent tags for the forked instance
+ *    - for each available project, assign equivalent tag from parent instance via tagOnProject
+ *
+ * (DONE)
+ * create new students:
+ * - copy userId
+ * - copy allocationGroupId, allocationSubGroupId
+ * - set allocationInstanceId to forkedInstanceId
+ * - set Role to STUDENT
+ *
+ * (DONE)
+ * create new Supervisors:
+ * - copy userId
+ * - copy allocationGroupId, allocationSubGroupId
+ * - set allocationInstanceId to forkedInstanceId
+ * - set Role to SUPERVISOR
+ *
+ * (DONE)
+ * - create SupervisorInstanceDetails for each supervisor
+ *  - carry forward lowerBound and target
+ *  - compute new upperBound
+ *
+ *
+ * create new projects:
+ * - get title, description, supervisorId from availableProjects
+ * - set capacityLowerBound to 0
+ * - set upperBoundCapacity to availableProjects[i].remainingCapacity
+ * - set allocationGroupId to parent group, allocationSubGroupId to parent subGroup
+ * - set allocationInstanceId to forkedInstanceId
+ *
+ *
+ *
+ * (PENDING)
+ * - copy over flags (DONE)
+ *  - find existing instance flags (DONE)
+ *  - create counterpart in forked instance (DONE)
+ *  - create flagOnProject for each project in forked instance (DONE)
+ *
+ * (PENDING)
+ * - copy over tags (DONE)
+ *  - find existing instance tags (DONE)
+ *  - create counterpart in forked instance (DONE)
+ *  - create tagOnProject for each project in forked instance (DONE)
+ *
+ *
+ */
