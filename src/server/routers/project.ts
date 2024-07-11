@@ -411,7 +411,17 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
+        const projectTitles = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { title: true },
+        });
+
         return {
+          takenTitles: projectTitles.map(({ title }) => title),
           flags,
           tags,
           students: studentData.map(({ userId }) => ({ id: userId })),

@@ -33,7 +33,9 @@ export default async function Page({ params }: { params: PageParams }) {
     );
   }
 
-  const formInternalData = await api.project.getFormDetails({ params });
+  const { takenTitles, ...rest } = await api.project.getFormDetails({ params });
+  const availableTitles = takenTitles.filter((t) => t !== project.title);
+  const formInternalData = { takenTitles: availableTitles, ...rest };
 
   const projectDetails = {
     id: projectId,

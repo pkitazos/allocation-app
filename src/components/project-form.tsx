@@ -37,14 +37,14 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
 import {
+  buildUpdatedProjectSchema,
   CurrentProjectFormDetails,
   FormInternalData,
   UpdatedProject,
-  updatedProjectSchema,
 } from "@/lib/validations/project-form";
 
 export function ProjectForm({
-  formInternalData: { flags, tags, students },
+  formInternalData: { takenTitles, flags, tags, students },
   submissionButtonLabel,
   project,
   onSubmit,
@@ -56,14 +56,14 @@ export function ProjectForm({
   project?: CurrentProjectFormDetails;
   children: ReactNode;
 }) {
-  const formProject = {
-    title: project?.title ?? "",
-    description: project?.description ?? "",
-    capacityUpperBound: project?.capacityUpperBound ?? 1,
-    preAllocatedStudentId: project?.preAllocatedStudentId ?? "",
-    isPreAllocated: project?.isPreAllocated ?? false,
-    flagIds: project?.flagIds ?? [],
-    tags: project?.tags ?? [],
+  const formProject = project ?? {
+    title: "",
+    description: "",
+    capacityUpperBound: 1,
+    preAllocatedStudentId: "",
+    isPreAllocated: false,
+    flagIds: [],
+    tags: [],
   };
 
   const preAllocatedStudentId = formProject.preAllocatedStudentId;
@@ -73,7 +73,7 @@ export function ProjectForm({
   );
 
   const form = useForm<UpdatedProject>({
-    resolver: zodResolver(updatedProjectSchema),
+    resolver: zodResolver(buildUpdatedProjectSchema(takenTitles)),
     defaultValues: {
       title: formProject.title,
       description: formProject.description,

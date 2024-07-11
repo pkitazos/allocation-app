@@ -172,6 +172,8 @@ model Project {
     tagOnProject          TagOnProject[]
     inStudentPreferences  Preference[]
     allocations           ProjectAllocation[]
+
+    @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Preference {
