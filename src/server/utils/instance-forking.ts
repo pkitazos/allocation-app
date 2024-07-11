@@ -197,17 +197,18 @@ export async function createSupervisors(
 ) {
   await db.userInInstance.createMany({
     data: availableSupervisors.map((supervisor) => ({
-      ...supervisor,
+      userId: supervisor.userId,
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: forkedInstanceId,
+      role: Role.SUPERVISOR,
     })),
   });
 
   await db.supervisorInstanceDetails.createMany({
     data: availableSupervisors.map((s) => {
       return {
-        ...s,
+        userId: s.userId,
         allocationGroupId: params.group,
         allocationSubGroupId: params.subGroup,
         allocationInstanceId: forkedInstanceId,
@@ -244,16 +245,12 @@ export async function createProjects(
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: forkedInstanceId,
     },
-    include: {
-      flagOnProjects: { select: { flag: true } },
-      tagOnProject: { select: { tag: true } },
-    },
   });
 
   return newProjects.map((p) => ({
     ...p,
-    flags: p.flagOnProjects.map((f) => f.flag),
-    tags: p.tagOnProject.map((t) => t.tag),
+    flags: findItemFromTitle(availableProjects, p.title).flags,
+    tags: findItemFromTitle(availableProjects, p.title).tags,
   }));
 }
 
