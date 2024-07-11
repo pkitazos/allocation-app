@@ -414,7 +414,6 @@ export function InstanceForm({
                       const newMinute = parseInt(val, 10);
                       const newDate = setMinutes(field.value, newMinute);
                       const zonedDate = toZonedTime(newDate, "Europe/London");
-                      console.log(zonedDate);
                       field.onChange(zonedDate);
                     }}
                   />
