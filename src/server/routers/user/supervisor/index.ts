@@ -10,6 +10,7 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
+import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -100,7 +101,8 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const userId = ctx.session.user.id;
-        const projects = await ctx.db.project.findMany({
+
+        const allProjects = await ctx.db.project.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -117,8 +119,6 @@ export const supervisorRouter = createTRPCRouter({
             allocations: { select: { userId: true } },
           },
         });
-
-        const allProjects = projects;
 
         const rowProjects = allProjects.flatMap((project) => {
           const { allocations, preAllocatedStudentId, ...rest } = project;
@@ -137,7 +137,7 @@ export const supervisorRouter = createTRPCRouter({
           }));
         });
 
-        const { projectAllocationTarget: targetProjectCount } =
+        const { projectAllocationTarget } =
           await ctx.db.supervisorInstanceDetails.findFirstOrThrow({
             where: {
               allocationGroupId: group,
@@ -148,15 +148,23 @@ export const supervisorRouter = createTRPCRouter({
             select: { projectAllocationTarget: true },
           });
 
-        const preAllocatedProjectCount = projects.reduce(
+        const preAllocatedProjectCount = allProjects.reduce(
           (acc, val) => (val.preAllocatedStudentId ? acc + 1 : acc),
           0,
         );
-        const submissionTarget =
-          2 * (targetProjectCount - preAllocatedProjectCount);
+
+        const allocatedProjectCount = allProjects.reduce(
+          (acc, val) => acc + val.allocations.length,
+          0,
+        );
+
+        const submissionTarget = computeProjectSubmissionTarget(
+          projectAllocationTarget,
+          allocatedProjectCount,
+        );
 
         return {
-          currentSubmissionCount: projects.length,
+          currentSubmissionCount: allProjects.length,
           submissionTarget,
           rowProjects,
         };

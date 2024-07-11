@@ -4,6 +4,7 @@ import { z } from "zod";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 export const projectRouter = createTRPCRouter({
   submissionInfo: adminProcedure
@@ -49,8 +50,10 @@ export const projectRouter = createTRPCRouter({
           }).length;
 
           // submissionTarget = 2*(t-p)
-          const submissionTarget =
-            2 * (e.projectAllocationTarget - preAllocatedCount);
+          const submissionTarget = computeProjectSubmissionTarget(
+            e.projectAllocationTarget,
+            preAllocatedCount,
+          );
 
           return {
             submissionTarget,
