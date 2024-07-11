@@ -102,7 +102,7 @@ export const forkedInstanceSchema = baseForkedSchema;
 
 export type ForkedInstanceDetails = z.infer<typeof baseForkedSchema>;
 
-export function forked(takenNames: string[]) {
+export function buildForkedInstanceSchema(takenNames: string[]) {
   return baseForkedSchema
     .refine(({ instanceName }) => !takenNames.includes(instanceName), {
       message: "This name is already taken",
@@ -110,7 +110,7 @@ export function forked(takenNames: string[]) {
     })
     .refine(
       ({ projectSubmissionDeadline }) =>
-        isAfter(projectSubmissionDeadline, addDays(new Date(), 1)),
+        isAfter(projectSubmissionDeadline, new Date()),
       {
         message: "Project Submission Deadline must be after today",
         path: ["projectSubmissionDeadline"],

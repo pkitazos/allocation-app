@@ -730,8 +730,6 @@ export const instanceRouter = createTRPCRouter({
         const params = { group, subGroup, instance };
         if (ctx.stage !== Stage.ALLOCATION_PUBLICATION) return;
 
-        const forkedInstanceId = slugify(forked.instanceName);
-
         const availableStudents = await getAvailableStudents(ctx.db, params);
 
         const availableSupervisors = await getAvailableSupervisors(
@@ -759,7 +757,7 @@ export const instanceRouter = createTRPCRouter({
           data: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
-            id: forkedInstanceId,
+            id: slugify(forked.instanceName),
             displayName: forked.instanceName,
             projectSubmissionDeadline: forked.projectSubmissionDeadline,
             preferenceSubmissionDeadline: forked.preferenceSubmissionDeadline,
@@ -772,29 +770,29 @@ export const instanceRouter = createTRPCRouter({
         const newFlags = await copyInstanceFlags(
           ctx.db,
           params,
-          forkedInstanceId,
+          forkedInstance.id,
         );
 
         const newTags = await copyInstanceTags(
           ctx.db,
           params,
-          forkedInstanceId,
+          forkedInstance.id,
         );
 
-        await createStudents(ctx.db, availableStudents, forkedInstanceId);
+        await createStudents(ctx.db, availableStudents, forkedInstance.id);
 
         await createSupervisors(
           ctx.db,
           availableSupervisors,
           params,
-          forkedInstanceId,
+          forkedInstance.id,
         );
 
         const newProjects = await createProjects(
           ctx.db,
           availableProjects,
           params,
-          forkedInstanceId,
+          forkedInstance.id,
         );
 
         await createFlagOnProjects(ctx.db, newProjects, newFlags);
