@@ -7,10 +7,12 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
   createTRPCRouter,
+  forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+import { formatSupervisorRowProjects } from "@/server/utils/supervisor-row-projects";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure
@@ -87,7 +89,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  projects: protectedProcedure
+  projects: forkedInstanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -101,6 +103,7 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const userId = ctx.session.user.id;
+        const parentInstanceId = ctx.parentInstanceId;
 
         const allProjects = await ctx.db.project.findMany({
           where: {
@@ -120,22 +123,35 @@ export const supervisorRouter = createTRPCRouter({
           },
         });
 
-        const rowProjects = allProjects.flatMap((project) => {
-          const { allocations, preAllocatedStudentId, ...rest } = project;
+        let totalAllocatedCount = 0;
+        if (parentInstanceId) {
+          const forkedPreAllocatedCount = allProjects.reduce(
+            (acc, val) => (val.preAllocatedStudentId ? acc + 1 : acc),
+            0,
+          );
 
-          if (preAllocatedStudentId) {
-            return { ...rest, allocatedStudentId: preAllocatedStudentId };
-          }
+          const parentAllocatedCount = await ctx.db.projectAllocation.count({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: parentInstanceId,
+              project: { supervisorId: userId },
+            },
+          });
 
-          if (allocations.length === 0) {
-            return { ...rest, allocatedStudentId: undefined };
-          }
+          totalAllocatedCount += forkedPreAllocatedCount + parentAllocatedCount;
+        } else {
+          const allocatedCount = await ctx.db.projectAllocation.count({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              project: { supervisorId: userId },
+            },
+          });
 
-          return allocations.map((allocation) => ({
-            ...rest,
-            allocatedStudentId: allocation.userId,
-          }));
-        });
+          totalAllocatedCount += allocatedCount;
+        }
 
         const { projectAllocationTarget } =
           await ctx.db.supervisorInstanceDetails.findFirstOrThrow({
@@ -148,25 +164,13 @@ export const supervisorRouter = createTRPCRouter({
             select: { projectAllocationTarget: true },
           });
 
-        const preAllocatedProjectCount = allProjects.reduce(
-          (acc, val) => (val.preAllocatedStudentId ? acc + 1 : acc),
-          0,
-        );
-
-        const allocatedProjectCount = allProjects.reduce(
-          (acc, val) => acc + val.allocations.length,
-          0,
-        );
-
-        const submissionTarget = computeProjectSubmissionTarget(
-          projectAllocationTarget,
-          allocatedProjectCount,
-        );
-
         return {
           currentSubmissionCount: allProjects.length,
-          submissionTarget,
-          rowProjects,
+          submissionTarget: computeProjectSubmissionTarget(
+            projectAllocationTarget,
+            totalAllocatedCount,
+          ),
+          rowProjects: formatSupervisorRowProjects(allProjects),
         };
       },
     ),

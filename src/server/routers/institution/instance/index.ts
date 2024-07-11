@@ -1,14 +1,15 @@
-import { Prisma, PrismaClient, Role, Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
+import { slugify } from "@/lib/utils/general/slugify";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
 import {
   forkedInstanceSchema,
   updatedInstanceSchema,
 } from "@/lib/validations/instance-form";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
-import { InstanceParams, instanceParamsSchema } from "@/lib/validations/params";
+import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
 import {
@@ -18,15 +19,6 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { setDiff } from "@/server/utils/set-difference";
-import { getUserRole } from "@/server/utils/user-role";
-
-import { algorithmRouter } from "./algorithm";
-import { matchingRouter } from "./matching";
-import { projectRouter } from "./project";
-import { slugify } from "@/lib/utils/general/slugify";
-import { createProjectFlags } from "@/server/utils/flag";
 import {
   copyInstanceFlags,
   copyInstanceTags,
@@ -35,12 +27,17 @@ import {
   createStudents,
   createSupervisors,
   createTagOnProjects,
-  findItemFromTitle,
   getAvailableProjects,
   getAvailableStudents,
   getAvailableSupervisors,
 } from "@/server/utils/instance-forking";
-import { title } from "process";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { setDiff } from "@/server/utils/set-difference";
+import { getUserRole } from "@/server/utils/user-role";
+
+import { algorithmRouter } from "./algorithm";
+import { matchingRouter } from "./matching";
+import { projectRouter } from "./project";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -758,6 +755,7 @@ export const instanceRouter = createTRPCRouter({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             id: slugify(forked.instanceName),
+            parentInstanceId: instance,
             displayName: forked.instanceName,
             projectSubmissionDeadline: forked.projectSubmissionDeadline,
             preferenceSubmissionDeadline: forked.preferenceSubmissionDeadline,

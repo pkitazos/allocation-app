@@ -46,12 +46,14 @@ export async function SupervisorOverview({
             <div className="mt-16 flex flex-col gap-4">
               <SubHeading>Task List</SubHeading>
               <ul className="ml-6 list-disc [&>li]:mt-2">
-                <li>
-                  Submit {submissionTarget} projects{" "}
-                  <span className="text-muted-foreground">
-                    (currently submitted: {currentSubmissionCount})
-                  </span>
-                </li>
+                {submissionTarget > 0 && (
+                  <li>
+                    Submit {submissionTarget} projects{" "}
+                    <span className="text-muted-foreground">
+                      (currently submitted: {currentSubmissionCount})
+                    </span>
+                  </li>
+                )}
                 <li>Submit any self-defined projects</li>
               </ul>
             </div>

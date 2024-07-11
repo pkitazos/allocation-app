@@ -165,3 +165,28 @@ export const stageAwareProcedure = t.procedure
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 export const adminProcedure = t.procedure.use(enforceUserIsAdmin);
+
+export const forkedInstanceProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .input(z.object({ params: instanceParamsSchema }))
+  .use(
+    async ({
+      ctx,
+      input: {
+        params: { group, subGroup, instance },
+      },
+      next,
+    }) => {
+      const { parentInstanceId } =
+        await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: { parentInstanceId: true },
+        });
+
+      return next({ ctx: { parentInstanceId } });
+    },
+  );

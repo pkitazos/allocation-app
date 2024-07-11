@@ -1,0 +1,61 @@
+import { PrismaClient } from "@prisma/client";
+import { computeProjectSubmissionTarget } from "./submission-target";
+import { InstanceParams } from "@/lib/validations/params";
+
+export type SubmissionDetails = {
+  userId: string;
+  projectAllocationTarget: number;
+  allocatedCount: number;
+  submissionTarget: number;
+};
+
+export async function computeSubmissionDetails(
+  db: PrismaClient,
+  params: InstanceParams,
+) {
+  const data = await db.supervisorInstanceDetails.findMany({
+    where: {
+      allocationGroupId: params.group,
+      allocationSubGroupId: params.subGroup,
+      allocationInstanceId: params.instance,
+    },
+    select: {
+      projectAllocationLowerBound: true,
+      projectAllocationTarget: true,
+      projectAllocationUpperBound: true,
+      userId: true,
+      userInInstance: {
+        select: {
+          supervisorProjects: { select: { allocations: true } },
+        },
+      },
+    },
+    orderBy: { userId: "asc" },
+  });
+
+  return data.map((s) => {
+    const projectAllocationTarget = s.projectAllocationLowerBound;
+    const allocatedCount = s.userInInstance.supervisorProjects
+      .map((p) => p.allocations.length)
+      .reduce((a, b) => a + b, 0);
+
+    return {
+      userId: s.userId,
+      projectAllocationTarget,
+      allocatedCount,
+      submissionTarget: computeProjectSubmissionTarget(
+        projectAllocationTarget,
+        allocatedCount,
+      ),
+    };
+  });
+}
+
+export function findByUserId<T extends { userId: string }>(
+  items: T[],
+  userId: string,
+) {
+  const idx = items.findIndex((e) => e.userId === userId);
+  if (idx === -1) throw new Error("User not found");
+  return items[idx];
+}

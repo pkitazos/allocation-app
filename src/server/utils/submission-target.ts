@@ -1,9 +1,15 @@
+/**
+ *
+ * @param supervisorProjectAllocationTarget the number of students a supervisor wishes to supervise
+ * @param supervisorAllocatedProjectCount the number of projects by a supervisor that have been allocated
+ * @returns the number of projects a supervisor must submit
+ */
 export function computeProjectSubmissionTarget(
-  supervisorTargetCount: number,
+  supervisorProjectAllocationTarget: number,
   supervisorAllocatedProjectCount: number,
 ) {
-  const submissionTarget =
-    2 * (supervisorTargetCount - supervisorAllocatedProjectCount);
+  const projectSubmissionTarget =
+    2 * (supervisorProjectAllocationTarget - supervisorAllocatedProjectCount);
 
-  return submissionTarget;
+  return projectSubmissionTarget;
 }
