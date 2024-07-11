@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
 import {
   adminProcedure,
@@ -11,7 +12,6 @@ import {
 import {
   computeSubmissionDetails,
   findByUserId,
-  SubmissionDetails,
 } from "@/server/utils/submission-info";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
@@ -27,7 +27,7 @@ export const projectRouter = createTRPCRouter({
       }) => {
         const parentInstanceId = ctx.parentInstanceId;
 
-        const submissionDetails: SubmissionDetails[] = [];
+        const submissionDetails: SupervisorProjectSubmissionDetails[] = [];
 
         if (parentInstanceId) {
           const parentInstanceSubmissionDetails =
@@ -44,15 +44,15 @@ export const projectRouter = createTRPCRouter({
               instance,
             });
 
-          parentInstanceSubmissionDetails.forEach(
-            ({ projectAllocationTarget, userId, ...parent }) => {
-              const forked = findByUserId(
-                forkedInstanceSubmissionDetails,
+          forkedInstanceSubmissionDetails.forEach(
+            ({ projectAllocationTarget, userId, ...forked }) => {
+              const parent = findByUserId(
+                parentInstanceSubmissionDetails,
                 userId,
               );
 
               const newAllocatedCount =
-                parent.allocatedCount + forked.allocatedCount;
+                forked.allocatedCount + parent.allocatedCount;
 
               const newSubmissionTarget = computeProjectSubmissionTarget(
                 projectAllocationTarget,
@@ -63,6 +63,7 @@ export const projectRouter = createTRPCRouter({
                 userId,
                 projectAllocationTarget,
                 allocatedCount: newAllocatedCount,
+                submittedProjectsCount: forked.submittedProjectsCount,
                 submissionTarget: newSubmissionTarget,
               });
             },
@@ -78,54 +79,7 @@ export const projectRouter = createTRPCRouter({
           submissionDetails.push(...currentInstanceSubmissionDetails);
         }
 
-        // ------------
-
-        const capacities = await ctx.db.supervisorInstanceDetails.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            userId: true,
-            projectAllocationLowerBound: true,
-            projectAllocationTarget: true,
-            projectAllocationUpperBound: true,
-          },
-          orderBy: { userId: "asc" },
-        });
-
-        const projects = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { supervisorId: true, preAllocatedStudentId: true },
-        });
-
-        const data = capacities.map((e) => {
-          const preAllocatedCount = projects.filter((p) => {
-            return p.supervisorId === e.userId && p.preAllocatedStudentId;
-          }).length;
-
-          const alreadySubmitted = projects.filter((p) => {
-            return p.supervisorId === e.userId && !p.preAllocatedStudentId;
-          }).length;
-
-          const submissionTarget = computeProjectSubmissionTarget(
-            e.projectAllocationTarget,
-            preAllocatedCount,
-          );
-
-          return {
-            submissionTarget,
-            alreadySubmitted,
-            ...e,
-          };
-        });
-
-        return data;
+        return submissionDetails;
       },
     ),
 

@@ -7,24 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type CapacityInfo = {
-  userId: string;
-  projectAllocationLowerBound: number;
-  projectAllocationTarget: number;
-  projectAllocationUpperBound: number;
-  alreadySubmitted: number;
-  submissionTarget: number;
-};
+import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
 export function SubmissionsTable({
   capacities,
 }: {
-  capacities: CapacityInfo[];
+  capacities: SupervisorProjectSubmissionDetails[];
 }) {
   const totalReached = capacities.reduce(
     (acc, val) =>
-      val.alreadySubmitted >= val.submissionTarget ? acc + 1 : acc,
+      val.submittedProjectsCount >= val.submissionTarget ? acc + 1 : acc,
     0,
   );
 
@@ -41,8 +33,12 @@ export function SubmissionsTable({
         {capacities.map((c, i) => (
           <TableRow key={i}>
             <TableCell className="font-medium">{c.userId}</TableCell>
-            <TableCell className="text-center">{c.alreadySubmitted}</TableCell>
-            <TableCell className="text-center">{c.submissionTarget}</TableCell>
+            <TableCell className="text-center">
+              {c.submittedProjectsCount}
+            </TableCell>
+            <TableCell className="text-center">
+              {c.submissionTarget < 0 && 0}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

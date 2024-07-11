@@ -307,6 +307,7 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
   maxPreferences: 6,
   maxPreferencesPerSupervisor: 2,
   selectedAlgName: null,
+  parentInstanceId: null,
 });
 
 export const adminsInSpaces = (ID: string): New<AdminInSpace>[] => [
