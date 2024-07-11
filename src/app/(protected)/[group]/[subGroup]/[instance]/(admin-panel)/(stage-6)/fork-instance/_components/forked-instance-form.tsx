@@ -28,9 +28,19 @@ import { TimePicker } from "@/components/ui/time-picker";
 
 import { cn } from "@/lib/utils";
 import { updateDateOnly } from "@/lib/utils/date/update-date-only";
-import { forked, ForkedInstanceDetails } from "@/lib/validations/instance-form";
+import {
+  buildForkedInstanceSchema,
+  ForkedInstanceDetails,
+} from "@/lib/validations/instance-form";
 
 import { spacesLabels } from "@/content/spaces";
+import { api } from "@/lib/trpc/client";
+import { toast } from "sonner";
+import { useInstanceParams } from "@/components/params-context";
+import { useRouter } from "next/navigation";
+import { slugify } from "@/lib/utils/general/slugify";
+import Link from "next/link";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 
 export function ForkedInstanceForm({
   takenNames,
@@ -38,8 +48,14 @@ export function ForkedInstanceForm({
   currentInstance: ForkedInstanceDetails;
   takenNames: string[];
 }) {
+  const params = useInstanceParams();
+  const { group, subGroup } = params;
+  const router = useRouter();
+
+  const instancePath = formatParamsAsPath(params);
+
   const form = useForm<ForkedInstanceDetails>({
-    resolver: zodResolver(forked(takenNames)),
+    resolver: zodResolver(buildForkedInstanceSchema(takenNames)),
     defaultValues: {
       instanceName: "",
       projectSubmissionDeadline: addDays(new Date(), 1),
@@ -47,11 +63,21 @@ export function ForkedInstanceForm({
     },
   });
 
-  // import mutation here
+  const { mutateAsync: forkAsync } =
+    api.institution.instance.fork.useMutation();
 
-  // defined onSubmit here
   function onSubmit(data: ForkedInstanceDetails) {
-    console.log(data);
+    void toast.promise(
+      forkAsync({ params, newInstance: data }).then(() => {
+        router.push(`/${group}/${subGroup}/${slugify(data.instanceName)}/`);
+        router.refresh();
+      }),
+      {
+        loading: `Forking ${spacesLabels.instance.full}...`,
+        error: `Failed to fork ${spacesLabels.instance.full}`,
+        success: `Successfully forked ${spacesLabels.instance.full}`,
+      },
+    );
   }
 
   return (
@@ -214,7 +240,6 @@ export function ForkedInstanceForm({
                     const newMinute = parseInt(val, 10);
                     const newDate = setMinutes(field.value, newMinute);
                     const zonedDate = toZonedTime(newDate, "Europe/London");
-                    console.log(zonedDate);
                     field.onChange(zonedDate);
                   }}
                 />
@@ -226,6 +251,13 @@ export function ForkedInstanceForm({
             </FormItem>
           )}
         />
+        <Separator className="my-14" />
+        <div className="flex items-center justify-end gap-8">
+          <Button variant="outline" size="lg" type="button" asChild>
+            <Link href={instancePath}>Cancel</Link>
+          </Button>
+          <Button size="lg">Fork Instance</Button>
+        </div>
       </form>
     </Form>
   );
