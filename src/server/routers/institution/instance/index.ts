@@ -15,6 +15,7 @@ import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import {
   adminProcedure,
   createTRPCRouter,
+  forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
@@ -32,7 +33,7 @@ import {
   getAvailableSupervisors,
 } from "@/server/utils/instance-forking";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { setDiff } from "@/server/utils/set-difference";
+import { setDiff, setDiffDEPRECATED } from "@/server/utils/set-difference";
 import { getUserRole } from "@/server/utils/user-role";
 
 import { algorithmRouter } from "./algorithm";
@@ -564,8 +565,11 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
-        const newInstanceFlags = setDiff(flags, currentInstanceFlags);
-        const staleInstanceFlags = setDiff(currentInstanceFlags, flags);
+        const newInstanceFlags = setDiffDEPRECATED(flags, currentInstanceFlags);
+        const staleInstanceFlags = setDiffDEPRECATED(
+          currentInstanceFlags,
+          flags,
+        );
 
         await ctx.db.flag.deleteMany({
           where: {
@@ -593,8 +597,8 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
-        const newInstanceTags = setDiff(tags, currentInstanceTags);
-        const staleInstanceTags = setDiff(currentInstanceTags, tags);
+        const newInstanceTags = setDiffDEPRECATED(tags, currentInstanceTags);
+        const staleInstanceTags = setDiffDEPRECATED(currentInstanceTags, tags);
 
         await ctx.db.tag.deleteMany({
           where: {
@@ -718,6 +722,68 @@ export const instanceRouter = createTRPCRouter({
 
         await createFlagOnProjects(ctx.db, newProjects, newFlags);
         await createTagOnProjects(ctx.db, newProjects, newTags);
+      },
+    ),
+
+  merge: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        if (!parentInstanceId) return;
+
+        const p = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: parentInstanceId,
+          },
+          include: {
+            users: true,
+            projects: true,
+            flags: true,
+            tags: true,
+          },
+        });
+
+        const f = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          include: {
+            users: true,
+            projects: true,
+            flags: true,
+            tags: true,
+          },
+        });
+        const pStudents = p.users.filter((u) => {
+          u.role === Role.STUDENT;
+        });
+        const fStudents = f.users.filter((u) => {
+          u.role === Role.STUDENT;
+        });
+
+        const pSupervisors = p.users.filter((u) => {
+          u.role === Role.SUPERVISOR;
+        });
+        const fSupervisors = f.users.filter((u) => {
+          u.role === Role.SUPERVISOR;
+        });
+
+        const newStudents = setDiff(fStudents, pStudents, (a) => a.userId);
+        const newSupervisors = setDiff(
+          fSupervisors,
+          pSupervisors,
+          (a) => a.userId,
+        );
       },
     ),
 });

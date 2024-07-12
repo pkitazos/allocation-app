@@ -13,11 +13,20 @@
  * const newItems = setDiff(fromForm, fromDatabase);
  * console.log(newItems); // Output: [{ title: 'D' }]
  */
-export function setDiff<T extends { title: string }>(
+export function setDiffDEPRECATED<T extends { title: string }>(
   setA: T[],
   setB: T[],
 ): T[] {
   const titlesB = new Set(setB.map((b) => b.title));
 
   return setA.filter((a) => !titlesB.has(a.title));
+}
+
+export function setDiff<T>(
+  setA: T[],
+  setB: T[],
+  getKey: (a: T) => string,
+): T[] {
+  const keysB = new Set(setB.map(getKey));
+  return setA.filter((a) => !keysB.has(getKey(a)));
 }
