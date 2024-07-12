@@ -240,68 +240,6 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  allDetails: adminProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const projectData = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            id: true,
-            capacityLowerBound: true,
-            capacityUpperBound: true,
-            supervisor: {
-              select: {
-                supervisorInstanceDetails: {
-                  where: {
-                    allocationGroupId: group,
-                    allocationSubGroupId: subGroup,
-                    allocationInstanceId: instance,
-                  },
-                  select: {
-                    projectAllocationLowerBound: true,
-                    projectAllocationTarget: true,
-                    projectAllocationUpperBound: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        const allocationData = await ctx.db.projectAllocation.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { projectId: true, userId: true },
-        });
-
-        const allocations: Record<string, string[]> = {};
-        allocationData.forEach(({ projectId, userId }) => {
-          if (!allocations[projectId]) allocations[projectId] = [];
-          allocations[projectId].push(userId);
-        });
-
-        const projectDetails: Record<string, ProjectDetails> = {};
-        projectData.forEach(({ id, ...rest }) => {
-          projectDetails[id] = { ...rest, allocatedTo: allocations[id] || [] };
-        });
-
-        return projectDetails;
-      },
-    ),
-
   rowData: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

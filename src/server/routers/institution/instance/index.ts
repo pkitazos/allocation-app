@@ -440,56 +440,6 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  toggleSupervisorPlatformAccess: adminProcedure
-    .input(
-      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          platformAccess,
-        },
-      }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-          },
-          data: {
-            supervisorsCanAccess: platformAccess,
-          },
-        });
-      },
-    ),
-
-  removeUser: adminProcedure
-    .input(z.object({ params: instanceParamsSchema, userId: z.string() }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          userId,
-        },
-      }) => {
-        await ctx.db.userInInstance.delete({
-          where: {
-            instanceMembership: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId,
-            },
-          },
-        });
-      },
-    ),
-
   addStudentDetails: adminProcedure
     .input(
       z.object({
@@ -577,33 +527,6 @@ export const instanceRouter = createTRPCRouter({
         }));
 
         return { students, platformAccess };
-      },
-    ),
-
-  toggleStudentPlatformAccess: adminProcedure
-    .input(
-      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          platformAccess,
-        },
-      }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-          },
-          data: {
-            studentsCanAccess: platformAccess,
-          },
-        });
       },
     ),
 
