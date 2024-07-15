@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
 import { slugify } from "@/lib/utils/general/slugify";
+import {
+  adminPanelTabs,
+  adminPanelTabsByStage,
+} from "@/lib/validations/admin-panel-tabs";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
 import {
   forkedInstanceSchema,
@@ -20,6 +24,7 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
+import { changeInstanceId } from "@/server/utils/change-instance-id";
 import {
   copyInstanceFlags,
   copyInstanceTags,
@@ -35,6 +40,7 @@ import {
 } from "@/server/utils/instance-forking";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { setDiff } from "@/server/utils/set-difference";
+import { setIntersection } from "@/server/utils/set-intersection";
 import { findByUserId } from "@/server/utils/submission-info";
 import { updateCapacityUpperBound } from "@/server/utils/update-capacity-upper-bound";
 import { getUserRole } from "@/server/utils/user-role";
@@ -42,8 +48,6 @@ import { getUserRole } from "@/server/utils/user-role";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
-import { changeInstanceId } from "@/server/utils/change-instance-id";
-import { setIntersection } from "@/server/utils/set-intersection";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -654,6 +658,36 @@ export const instanceRouter = createTRPCRouter({
       return [instanceTabs.instanceHome, instanceTabs.allProjects];
     }),
 
+  adminPanelTabs: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: { stage: true },
+        });
+
+        if (stage === Stage.ALLOCATION_PUBLICATION) {
+          const base = [adminPanelTabs.allocationOverview];
+          return !parentInstanceId
+            ? [...base, adminPanelTabs.forkInstance]
+            : [...base, adminPanelTabs.mergeInstance];
+        }
+
+        return adminPanelTabsByStage[stage];
+      },
+    ),
+
   fork: stageAwareProcedure
     .input(
       z.object({
@@ -740,6 +774,22 @@ export const instanceRouter = createTRPCRouter({
 
         await createFlagOnProjects(ctx.db, newProjects, newFlags);
         await createTagOnProjects(ctx.db, newProjects, newTags);
+
+        const newAlgorithmData = await ctx.db.algorithm.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+        });
+
+        await ctx.db.algorithm.createMany({
+          data: newAlgorithmData.map((a) => ({
+            ...a,
+            allocationInstanceId: forkedInstance.id,
+            matchingResultData: JSON.stringify({}),
+          })),
+        });
       },
     ),
 
@@ -916,7 +966,18 @@ export const instanceRouter = createTRPCRouter({
 
         const newProjectData = changeInstanceId(newProjects, parentInstanceId);
 
-        await ctx.db.project.createMany({ data: newProjectData });
+        await ctx.db.project.createMany({
+          data: newProjectData.map((p) => ({
+            allocationGroupId: p.allocationGroupId,
+            allocationSubGroupId: p.allocationSubGroupId,
+            allocationInstanceId: p.allocationInstanceId,
+            title: p.title,
+            description: p.description,
+            supervisorId: p.supervisorId,
+            capacityLowerBound: p.capacityLowerBound,
+            capacityUpperBound: p.capacityUpperBound,
+          })),
+        });
 
         // Flags on Projects -------------------------------------
 

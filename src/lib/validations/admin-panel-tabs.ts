@@ -1,46 +1,86 @@
 import { Stage } from "@prisma/client";
 
-export const adminPanelTabs: Record<
+export const adminPanelTabs = {
+  addSupervisors: {
+    title: "Add Supervisors",
+    href: "add-supervisors",
+    action: false,
+  },
+  addStudents: {
+    title: "Add Students",
+    href: "add-students",
+    action: false,
+  },
+  supervisorInvites: {
+    title: "Supervisor Invites",
+    href: "supervisor-invites",
+    action: false,
+  },
+  projectSubmissions: {
+    title: "Project Submissions",
+    href: "project-submissions",
+    action: false,
+  },
+  studentInvites: {
+    title: "Student Invites",
+    href: "student-invites",
+    action: false,
+  },
+  preferenceSubmissions: {
+    title: "Preference Submissions",
+    href: "preference-submissions",
+    action: false,
+  },
+  algorithmsOverview: {
+    title: "Algorithms Overview",
+    href: "algorithms-overview",
+    action: false,
+  },
+  algorithmDetails: {
+    title: "Algorithm Details",
+    href: "algorithm-details",
+    action: false,
+  },
+  manualChanges: {
+    title: "Manual Changes",
+    href: "manual-changes",
+    action: false,
+  },
+  allocationOverview: {
+    title: "Allocation Overview",
+    href: "allocation-overview",
+    action: false,
+  },
+  forkInstance: {
+    title: "Fork Instance",
+    href: "fork-instance",
+    action: true,
+  },
+  mergeInstance: {
+    title: "Merge Instance",
+    href: "merge-instance",
+    action: true,
+  },
+} as const;
+
+export const adminPanelTabsByStage: Record<
   Stage,
   { title: string; href: string; action: boolean }[]
 > = {
-  SETUP: [
-    { title: "Add Supervisors", href: "add-supervisors", action: false },
-    { title: "Add Students", href: "add-students", action: false },
-  ],
+  SETUP: [adminPanelTabs.addStudents, adminPanelTabs.addSupervisors],
   PROJECT_SUBMISSION: [
-    { title: "Supervisor Invites", href: "supervisor-invites", action: false },
-    {
-      title: "Project Submissions",
-      href: "project-submissions",
-      action: false,
-    },
+    adminPanelTabs.supervisorInvites,
+    adminPanelTabs.projectSubmissions,
   ],
-  PROJECT_SELECTION: [
-    { title: "Student Invites", href: "student-invites", action: false },
-    {
-      title: "Preference Submissions",
-      href: "preference-submissions",
-      action: false,
-    },
-  ],
+  PROJECT_SELECTION: [adminPanelTabs.studentInvites],
   PROJECT_ALLOCATION: [
-    {
-      title: "Algorithms Overview",
-      href: "algorithms-overview",
-      action: false,
-    },
-    { title: "Algorithm Details", href: "algorithm-details", action: false },
+    adminPanelTabs.algorithmsOverview,
+    adminPanelTabs.algorithmDetails,
   ],
-  ALLOCATION_ADJUSTMENT: [
-    { title: "Manual Changes", href: "manual-changes", action: false },
-  ],
+  ALLOCATION_ADJUSTMENT: [adminPanelTabs.manualChanges],
   ALLOCATION_PUBLICATION: [
-    {
-      title: "Allocation Overview",
-      href: "allocation-overview",
-      action: false,
-    },
-    { title: "Fork Instance", href: "fork-instance", action: true },
+    adminPanelTabs.allocationOverview,
+    adminPanelTabs.forkInstance,
+    adminPanelTabs.mergeInstance,
   ],
-};
+} as const;
