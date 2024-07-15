@@ -6,9 +6,15 @@ import { InstanceParams } from "@/lib/validations/params";
 import { spacesLabels } from "@/content/spaces";
 
 import { ForkedInstanceForm } from "./_components/forked-instance-form";
+import { Unauthorised } from "@/components/unauthorised";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const instance = await api.institution.instance.get({ params });
+
+  if (instance.parentInstanceId) {
+    return <Unauthorised message="Can't fork an already forked Instance" />;
+  }
+
   const takenNames = await api.institution.subGroup.takenNames({ params });
 
   const currentInstance = { instanceName: instance.displayName, ...instance };
