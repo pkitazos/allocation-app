@@ -46,12 +46,15 @@ export default async function Page({ params }: { params: PageParams }) {
     isPreAllocated: project.preAllocatedStudentId !== "",
   };
 
+  const isForked = await api.project.getIsForked({ params, projectId });
+
   return (
     <PageWrapper>
       <Heading>Edit Project</Heading>
       <EditProjectForm
         formInternalData={formInternalData}
         project={projectDetails}
+        isForked={isForked}
       />
     </PageWrapper>
   );

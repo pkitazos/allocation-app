@@ -1,9 +1,9 @@
 "use client";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NoteCard } from "@/components/ui/note-card";
 import {
   Popover,
   PopoverContent,
@@ -48,12 +49,14 @@ export function ProjectForm({
   submissionButtonLabel,
   project,
   onSubmit,
+  isForked = false,
   children: dismissalButton,
 }: {
   formInternalData: FormInternalData;
   submissionButtonLabel: string;
   onSubmit: (data: UpdatedProject) => void;
   project?: CurrentProjectFormDetails;
+  isForked?: boolean;
   children: ReactNode;
 }) {
   const formProject = project ?? {
@@ -144,6 +147,12 @@ export function ProjectForm({
           )}
         />
         <Separator className="mt-4" />
+        {isForked && (
+          <NoteCard>
+            You are in a forked instance. Any changes made to project flags and
+            tags will override previous flags and tags.
+          </NoteCard>
+        )}
         <div className="grid grid-cols-2">
           <FormField
             control={form.control}
@@ -153,7 +162,7 @@ export function ProjectForm({
                 <div className="mb-3">
                   <FormLabel className="text-2xl">Flags</FormLabel>
                   <FormDescription>
-                    Select which students this project is suitable
+                    Select which students this project is suitable. <br />
                   </FormDescription>
                 </div>
                 {flags.map((item) => (
@@ -227,6 +236,12 @@ export function ProjectForm({
         </div>
 
         <Separator className="my-4" />
+        {isForked && (
+          <NoteCard>
+            You are in a forked instance. Any changes made to project capacity
+            will override previous project capacity.
+          </NoteCard>
+        )}
 
         <FormField
           control={form.control}

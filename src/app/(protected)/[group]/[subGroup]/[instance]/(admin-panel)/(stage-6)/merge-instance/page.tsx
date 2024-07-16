@@ -62,8 +62,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
           </Card>
         </div>
         <p>
-          Once you have merged, you will be unable to view the forked instance
-          details separately.{" "}
+          Once you have merged, you will be unable to view the forked{" "}
+          {spacesLabels.instance.short}
+          details separately. Any algorithm results obtained and any algorithms
+          created in the forked {spacesLabels.instance.short} will be lost be
+          merging.{" "}
           <span className="font-semibold underline">
             Merging is final and cannot be undone.
           </span>

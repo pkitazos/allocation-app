@@ -8,6 +8,7 @@ import { updatedProjectSchema } from "@/lib/validations/project-form";
 
 import {
   createTRPCRouter,
+  forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
@@ -194,6 +195,7 @@ export const projectRouter = createTRPCRouter({
           },
         },
       });
+
       return {
         title: project.title,
         description: project.description,
@@ -204,6 +206,36 @@ export const projectRouter = createTRPCRouter({
         tags: project.tagOnProject.map(({ tag }) => tag),
       };
     }),
+
+  getIsForked: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          projectId,
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        const project = await ctx.db.project.findFirstOrThrow({
+          where: { id: projectId },
+        });
+
+        if (!parentInstanceId) return false;
+
+        const parentInstanceProject = await ctx.db.project.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: parentInstanceId,
+            title: project.title,
+          },
+        });
+
+        return !!parentInstanceProject;
+      },
+    ),
 
   delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
