@@ -115,30 +115,24 @@ export async function mergeInstanceTransaction(
       (a) => a.title,
     );
 
-    const updatedProjectData = forkedInstanceUpdatedProjects.map((project) => {
+    for (const updatedProject of forkedInstanceUpdatedProjects) {
       const parentEquivalentProject = findItemFromTitle(
         p.projects,
-        project.title,
+        updatedProject.title,
       );
 
-      return {
-        ...parentEquivalentProject,
-        description: project.description,
-        preAllocatedStudentId: project.preAllocatedStudentId,
-        capacityUpperBound: updateCapacityUpperBound(
-          parentEquivalentProject,
-          project,
-        ),
-      };
-    });
-
-    await tx.project.deleteMany({
-      where: { id: { in: updatedProjectData.map((p) => p.id) } },
-    });
-
-    await tx.project.createMany({
-      data: updatedProjectData.map(extractProjectAttributes),
-    });
+      await tx.project.update({
+        where: { id: parentEquivalentProject.id },
+        data: {
+          description: updatedProject.description,
+          preAllocatedStudentId: updatedProject.preAllocatedStudentId,
+          capacityUpperBound: updateCapacityUpperBound(
+            parentEquivalentProject,
+            updatedProject,
+          ),
+        },
+      });
+    }
 
     const forkedInstanceNewProjects = setDiff(
       f.projects,
@@ -256,6 +250,16 @@ export async function mergeInstanceTransaction(
 
     await tx.projectAllocation.createMany({
       data: forkedInstanceNewProjectAllocations,
+    });
+
+    await tx.allocationInstance.delete({
+      where: {
+        instanceId: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          id: instance,
+        },
+      },
     });
   });
 }

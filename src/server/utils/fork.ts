@@ -23,15 +23,10 @@ export async function forkInstanceTransaction(
   const { group, subGroup, instance } = params;
   return db.$transaction(async (tx) => {
     const availableStudents = await getAvailableStudents(tx, params);
-
     const availableSupervisors = await getAvailableSupervisors(tx, params);
-
-    // list of projects (ids + capacity upper bound + the number of students the project is allocated to) from available supervisors
-    // projects MUST be in this list
     const availableProjects = await getAvailableProjects(availableSupervisors);
 
-    // copy CURRENT instance Details
-    const parent = await tx.allocationInstance.findFirstOrThrow({
+    const parentInstance = await tx.allocationInstance.findFirstOrThrow({
       where: {
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
@@ -39,8 +34,6 @@ export async function forkInstanceTransaction(
       },
     });
 
-    // create new instance
-    // forkedInstance is an AllocationInstance
     const forkedInstance = await tx.allocationInstance.create({
       data: {
         allocationGroupId: group,
@@ -50,9 +43,9 @@ export async function forkInstanceTransaction(
         displayName: forked.instanceName,
         projectSubmissionDeadline: forked.projectSubmissionDeadline,
         preferenceSubmissionDeadline: forked.preferenceSubmissionDeadline,
-        minPreferences: parent.minPreferences,
-        maxPreferences: parent.maxPreferences,
-        maxPreferencesPerSupervisor: parent.maxPreferencesPerSupervisor,
+        minPreferences: parentInstance.minPreferences,
+        maxPreferences: parentInstance.maxPreferences,
+        maxPreferencesPerSupervisor: parentInstance.maxPreferencesPerSupervisor,
       },
     });
 
