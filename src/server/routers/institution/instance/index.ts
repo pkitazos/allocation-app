@@ -24,7 +24,6 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
-import { changeInstanceId } from "@/server/utils/change-instance-id";
 import {
   copyInstanceFlags,
   copyInstanceTags,
@@ -33,16 +32,13 @@ import {
   createStudents,
   createSupervisors,
   createTagOnProjects,
-  findItemFromTitle,
   getAvailableProjects,
   getAvailableStudents,
   getAvailableSupervisors,
 } from "@/server/utils/instance-forking";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { mergeInstanceTransaction } from "@/server/utils/merge";
 import { setDiff } from "@/server/utils/set-difference";
-import { setIntersection } from "@/server/utils/set-intersection";
-import { findByUserId } from "@/server/utils/submission-info";
-import { updateCapacityUpperBound } from "@/server/utils/update-capacity-upper-bound";
 import { getUserRole } from "@/server/utils/user-role";
 
 import { algorithmRouter } from "./algorithm";
@@ -805,289 +801,10 @@ export const instanceRouter = createTRPCRouter({
         const parentInstanceId = ctx.parentInstanceId;
         if (!parentInstanceId) return;
 
-        const p = await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: parentInstanceId,
-          },
-          include: {
-            users: {
-              include: {
-                supervisorInstanceDetails: {
-                  where: {
-                    allocationGroupId: group,
-                    allocationSubGroupId: subGroup,
-                    allocationInstanceId: instance,
-                  },
-                },
-              },
-            },
-            projects: { include: { allocations: true } },
-            flags: true,
-            tags: true,
-          },
-        });
-
-        const f = await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          include: {
-            users: {
-              include: {
-                supervisorInstanceDetails: {
-                  where: {
-                    allocationGroupId: group,
-                    allocationSubGroupId: subGroup,
-                    allocationInstanceId: instance,
-                  },
-                },
-              },
-            },
-            projects: { include: { allocations: true } },
-            flags: true,
-            tags: true,
-          },
-        });
-
-        const pStudents = p.users.filter((u) => u.role === Role.STUDENT);
-        const fStudents = f.users.filter((u) => u.role === Role.STUDENT);
-
-        // Students -------------------------------------
-
-        const forkedNewStudents = setDiff(
-          fStudents,
-          pStudents,
-          (a) => a.userId,
-        );
-
-        const newStudentData = changeInstanceId(
-          forkedNewStudents,
-          parentInstanceId,
-        );
-
-        await ctx.db.userInInstance.createMany({ data: newStudentData });
-
-        // Supervisors -------------------------------------
-
-        // // if the above is correct, then the below is not needed
-        // const fSupervisorInstanceDetails2 =
-        //   await ctx.db.supervisorInstanceDetails.findMany({
-        //     where: {
-        //       allocationGroupId: group,
-        //       allocationSubGroupId: subGroup,
-        //       allocationInstanceId: instance,
-        //     },
-        //     select: {
-        //       userId: true,
-        //       projectAllocationLowerBound: true,
-        //       projectAllocationTarget: true,
-        //       projectAllocationUpperBound: true,
-        //     },
-        //   });
-
-        const pSupervisors = p.users.filter((u) => u.role === Role.SUPERVISOR);
-        const fSupervisors = f.users.filter((u) => u.role === Role.SUPERVISOR);
-
-        const forkedNewSupervisors = setDiff(
-          fSupervisors,
-          pSupervisors,
-          (a) => a.userId,
-        );
-
-        const newSupervisorData = changeInstanceId(
-          forkedNewSupervisors,
-          parentInstanceId,
-        );
-
-        await ctx.db.userInInstance.createMany({ data: newSupervisorData });
-
-        await ctx.db.supervisorInstanceDetails.createMany({
-          data: newSupervisorData.map((u) => u.supervisorInstanceDetails[0]),
-        });
-
-        // Flags -------------------------------------
-
-        const newFlags = setDiff(f.flags, p.flags, (a) => a.title);
-
-        await ctx.db.flag.createMany({
-          data: changeInstanceId(newFlags, parentInstanceId),
-        });
-
-        // Tags -------------------------------------
-
-        const newTags = setDiff(f.tags, p.tags, (a) => a.title);
-
-        await ctx.db.tag.createMany({
-          data: changeInstanceId(newTags, parentInstanceId),
-        });
-
-        // Projects -------------------------------------
-
-        const updatedProjects = setIntersection(
-          f.projects,
-          p.projects,
-          (a) => a.title,
-        );
-
-        const updatedProjectData = updatedProjects.map((project) => {
-          const parentEquivalentProject = findItemFromTitle(
-            p.projects,
-            project.title,
-          );
-
-          return {
-            ...parentEquivalentProject,
-            description: project.description,
-            preAllocatedStudentId: project.preAllocatedStudentId,
-            capacityUpperBound: updateCapacityUpperBound(
-              parentEquivalentProject,
-              project,
-            ),
-          };
-        });
-
-        const updatedProjectIds = updatedProjectData.map((p) => p.id);
-
-        await ctx.db.project.deleteMany({
-          where: { id: { in: updatedProjectIds } },
-        });
-
-        await ctx.db.project.createMany({ data: updatedProjectData });
-
-        const newProjects = setDiff(
-          f.projects,
-          updatedProjects,
-          (a) => a.title,
-        );
-
-        const newProjectData = changeInstanceId(newProjects, parentInstanceId);
-
-        await ctx.db.project.createMany({
-          data: newProjectData.map((p) => ({
-            allocationGroupId: p.allocationGroupId,
-            allocationSubGroupId: p.allocationSubGroupId,
-            allocationInstanceId: p.allocationInstanceId,
-            title: p.title,
-            description: p.description,
-            supervisorId: p.supervisorId,
-            capacityLowerBound: p.capacityLowerBound,
-            capacityUpperBound: p.capacityUpperBound,
-          })),
-        });
-
-        // Flags on Projects -------------------------------------
-
-        await ctx.db.flagOnProject.deleteMany({
-          where: {
-            projectId: { in: updatedProjects.map((p) => p.id) },
-          },
-        });
-
-        const updatedFlagOnProjects = await ctx.db.flagOnProject.findMany({
-          where: {
-            project: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
-          },
-          select: { flag: true, project: true },
-        });
-
-        await ctx.db.flagOnProject.createMany({
-          data: updatedFlagOnProjects.map((f) => ({
-            flagId: findItemFromTitle(p.flags, f.flag.title).id,
-            projectId: findItemFromTitle(p.projects, f.project.title).id,
-          })),
-        });
-
-        // Tags on Projects -------------------------------------
-
-        await ctx.db.tagOnProject.deleteMany({
-          where: {
-            projectId: { in: updatedProjects.map((p) => p.id) },
-          },
-        });
-
-        const updatedTagOnProjects = await ctx.db.tagOnProject.findMany({
-          where: {
-            project: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
-          },
-          select: { tag: true, project: true },
-        });
-
-        await ctx.db.tagOnProject.createMany({
-          data: updatedTagOnProjects.map((f) => ({
-            tagId: findItemFromTitle(p.tags, f.tag.title).id,
-            projectId: findItemFromTitle(p.projects, f.project.title).id,
-          })),
-        });
-
-        // Project Allocations -------------------------------------
-        const forkedProjectAllocations =
-          await ctx.db.projectAllocation.findMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-            },
-            include: { project: true, student: true },
-          });
-
-        // p.projects = parent projects
-        // pStudents = parent students
-        const allParentProjectsAfterStartingMerge =
-          await ctx.db.project.findMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: parentInstanceId,
-            },
-          });
-
-        const allParentStudentsAfterStartingMerge =
-          await ctx.db.userInInstance.findMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: parentInstanceId,
-              role: Role.STUDENT,
-            },
-          });
-
-        const newProjectAllocations = forkedProjectAllocations.map(
-          (projectAllocation) => {
-            const parentEquivalentProject = findItemFromTitle(
-              allParentProjectsAfterStartingMerge,
-              projectAllocation.project.title,
-            );
-
-            const parentEquivalentStudent = findByUserId(
-              allParentStudentsAfterStartingMerge,
-              projectAllocation.student.userId,
-            );
-
-            return {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: parentInstanceId,
-              projectId: parentEquivalentProject.id,
-              userId: parentEquivalentStudent.userId,
-              studentRanking: projectAllocation.studentRanking,
-            };
-          },
-        );
-
-        await ctx.db.projectAllocation.createMany({
-          data: newProjectAllocations,
+        await mergeInstanceTransaction(ctx.db, parentInstanceId, {
+          group,
+          subGroup,
+          instance,
         });
       },
     ),
