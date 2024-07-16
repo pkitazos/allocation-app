@@ -1,7 +1,9 @@
-import { InstanceParams } from "@/lib/validations/params";
 import { PrismaClient } from "@prisma/client";
-import { computeProjectSubmissionTarget } from "./submission-target";
+
+import { InstanceParams } from "@/lib/validations/params";
 import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
+
+import { computeProjectSubmissionTarget } from "./submission-target";
 
 export async function computeSubmissionDetails(
   db: PrismaClient,
@@ -45,13 +47,4 @@ export async function computeSubmissionDetails(
       ),
     };
   });
-}
-
-export function findByUserId<T extends { userId: string }>(
-  items: T[],
-  userId: string,
-) {
-  const idx = items.findIndex((e) => e.userId === userId);
-  if (idx === -1) throw new Error("User not found");
-  return items[idx];
 }

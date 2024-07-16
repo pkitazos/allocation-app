@@ -1,5 +1,8 @@
-import { InstanceParams } from "@/lib/validations/params";
 import { Flag, PrismaClient, Role, Tag, UserInInstance } from "@prisma/client";
+
+import { InstanceParams } from "@/lib/validations/params";
+
+import { findItemFromTitle } from "./find-item-from-title";
 
 export async function getAvailableStudents(
   db: PrismaClient,
@@ -165,15 +168,6 @@ export async function copyInstanceTags(
       allocationInstanceId: forkedInstanceId,
     },
   });
-}
-
-export function findItemFromTitle<T extends { id: string; title: string }>(
-  items: T[],
-  title: string,
-) {
-  const itemIdx = items.findIndex((item) => item.title === title);
-  if (itemIdx === -1) throw new Error(`Title ${title} not found in items`);
-  return items[itemIdx];
 }
 
 export async function createStudents(

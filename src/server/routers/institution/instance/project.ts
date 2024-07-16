@@ -9,10 +9,8 @@ import {
   createTRPCRouter,
   forkedInstanceProcedure,
 } from "@/server/trpc";
-import {
-  computeSubmissionDetails,
-  findByUserId,
-} from "@/server/utils/submission-info";
+import { findByUserId } from "@/server/utils/find-by-user-id";
+import { computeSubmissionDetails } from "@/server/utils/submission-info";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 export const projectRouter = createTRPCRouter({
