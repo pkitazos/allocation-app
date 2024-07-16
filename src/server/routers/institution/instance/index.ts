@@ -2,7 +2,6 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
-import { slugify } from "@/lib/utils/general/slugify";
 import {
   adminPanelTabs,
   adminPanelTabsByStage,
@@ -24,18 +23,7 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
-import {
-  copyInstanceFlags,
-  copyInstanceTags,
-  createFlagOnProjects,
-  createProjects,
-  createStudents,
-  createSupervisors,
-  createTagOnProjects,
-  getAvailableProjects,
-  getAvailableStudents,
-  getAvailableSupervisors,
-} from "@/server/utils/instance-forking";
+import { forkInstanceTransaction } from "@/server/utils/fork";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { mergeInstanceTransaction } from "@/server/utils/merge";
 import { setDiff } from "@/server/utils/set-difference";
@@ -702,90 +690,7 @@ export const instanceRouter = createTRPCRouter({
         const params = { group, subGroup, instance };
         if (ctx.stage !== Stage.ALLOCATION_PUBLICATION) return;
 
-        const availableStudents = await getAvailableStudents(ctx.db, params);
-
-        const availableSupervisors = await getAvailableSupervisors(
-          ctx.db,
-          params,
-        );
-
-        // list of projects (ids + capacity upper bound + the number of students the project is allocated to) from available supervisors
-        // projects MUST be in this list
-        const availableProjects =
-          await getAvailableProjects(availableSupervisors);
-
-        // copy CURRENT instance Details
-        const parent = await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-        });
-
-        // create new instance
-        // forkedInstance is an AllocationInstance
-        const forkedInstance = await ctx.db.allocationInstance.create({
-          data: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: slugify(forked.instanceName),
-            parentInstanceId: instance,
-            displayName: forked.instanceName,
-            projectSubmissionDeadline: forked.projectSubmissionDeadline,
-            preferenceSubmissionDeadline: forked.preferenceSubmissionDeadline,
-            minPreferences: parent.minPreferences,
-            maxPreferences: parent.maxPreferences,
-            maxPreferencesPerSupervisor: parent.maxPreferencesPerSupervisor,
-          },
-        });
-
-        const newFlags = await copyInstanceFlags(
-          ctx.db,
-          params,
-          forkedInstance.id,
-        );
-
-        const newTags = await copyInstanceTags(
-          ctx.db,
-          params,
-          forkedInstance.id,
-        );
-
-        await createStudents(ctx.db, availableStudents, forkedInstance.id);
-
-        await createSupervisors(
-          ctx.db,
-          availableSupervisors,
-          params,
-          forkedInstance.id,
-        );
-
-        const newProjects = await createProjects(
-          ctx.db,
-          availableProjects,
-          params,
-          forkedInstance.id,
-        );
-
-        await createFlagOnProjects(ctx.db, newProjects, newFlags);
-        await createTagOnProjects(ctx.db, newProjects, newTags);
-
-        const newAlgorithmData = await ctx.db.algorithm.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
-
-        await ctx.db.algorithm.createMany({
-          data: newAlgorithmData.map((a) => ({
-            ...a,
-            allocationInstanceId: forkedInstance.id,
-            matchingResultData: JSON.stringify({}),
-          })),
-        });
+        await forkInstanceTransaction(ctx.db, forked, params);
       },
     ),
 

@@ -3,9 +3,10 @@ import { Flag, PrismaClient, Role, Tag, UserInInstance } from "@prisma/client";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { findItemFromTitle } from "./find-item-from-title";
+import { PrismaTransactionClient } from "@/lib/db";
 
 export async function getAvailableStudents(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: InstanceParams,
 ) {
   return await db.userInInstance.findMany({
@@ -20,7 +21,7 @@ export async function getAvailableStudents(
 }
 
 export async function getAvailableSupervisors(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: InstanceParams,
 ): Promise<AvailableSupervisor[]> {
   const allSupervisors = await db.userInInstance.findMany({
@@ -109,7 +110,7 @@ export async function getAvailableProjects(
 }
 
 export async function copyInstanceFlags(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: InstanceParams,
   forkedInstanceId: string,
 ) {
@@ -140,7 +141,7 @@ export async function copyInstanceFlags(
 }
 
 export async function copyInstanceTags(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: InstanceParams,
   forkedInstanceId: string,
 ) {
@@ -171,7 +172,7 @@ export async function copyInstanceTags(
 }
 
 export async function createStudents(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   availableStudents: UserInInstance[],
   forkedInstanceId: string,
 ) {
@@ -184,7 +185,7 @@ export async function createStudents(
 }
 
 export async function createSupervisors(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   availableSupervisors: AvailableSupervisor[],
   params: InstanceParams,
   forkedInstanceId: string,
@@ -215,7 +216,7 @@ export async function createSupervisors(
 }
 
 export async function createProjects(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   availableProjects: AvailableProjects[],
   params: InstanceParams,
   forkedInstanceId: string,
@@ -249,7 +250,7 @@ export async function createProjects(
 }
 
 export async function createFlagOnProjects(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   newProjects: ModifiedProject[],
   newFlags: Flag[],
 ) {
@@ -264,7 +265,7 @@ export async function createFlagOnProjects(
 }
 
 export async function createTagOnProjects(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   newProjects: ModifiedProject[],
   newTags: Tag[],
 ) {
