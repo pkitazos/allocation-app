@@ -15,7 +15,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <div className="mb-40 mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
       <SubHeading>Edit {spacesLabels.instance.full} Details</SubHeading>
-      <EditInstanceForm currentInstance={currentInstance} params={params} />
+      <EditInstanceForm
+        currentInstance={currentInstance}
+        params={params}
+        isForked={!!currentInstance.parentInstanceId}
+      />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
-import { Card, CardContent, CardHeader } from "./card";
-import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
+
+import { cn } from "@/lib/utils";
+
+import { Card, CardContent, CardHeader } from "./card";
 
 export function NoteCard({
   className,

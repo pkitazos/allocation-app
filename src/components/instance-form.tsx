@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { NoteCard } from "./ui/note-card";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 import { TimePicker } from "./ui/time-picker";
@@ -37,12 +38,14 @@ export function InstanceForm({
   submissionButtonLabel,
   takenNames = [],
   currentInstanceDetails,
+  isForked = false,
   onSubmit,
   children: dismissalButton,
 }: {
   submissionButtonLabel: string;
   takenNames?: string[];
   currentInstanceDetails?: ValidatedInstanceDetails;
+  isForked?: boolean;
   onSubmit: (data: ValidatedInstanceDetails) => Promise<void>;
   children: ReactNode;
 }) {
@@ -128,8 +131,15 @@ export function InstanceForm({
           />
           <Separator className="my-14" />
         </div>
-
         <SubHeading className="text-2xl">Project Details</SubHeading>
+        {isForked && (
+          <NoteCard>
+            You are in a forked {spacesLabels.instance.short}. Any new flags or
+            tags created will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any deleted flags or tags will
+            remain in the parent {spacesLabels.instance.short} when merging.
+          </NoteCard>
+        )}
         <div className="grid w-full grid-cols-2">
           <div className="flex flex-col gap-2">
             <FormLabel className="text-base">Project Flags</FormLabel>

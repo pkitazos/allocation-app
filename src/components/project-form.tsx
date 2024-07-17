@@ -1,9 +1,9 @@
 "use client";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,8 @@ import {
   FormInternalData,
   UpdatedProject,
 } from "@/lib/validations/project-form";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function ProjectForm({
   formInternalData: { takenTitles, flags, tags, students },
@@ -149,8 +151,11 @@ export function ProjectForm({
         <Separator className="mt-4" />
         {isForked && (
           <NoteCard>
-            You are in a forked instance. Any changes made to project flags and
-            tags will override previous flags and tags.
+            You are in a forked {spacesLabels.instance.short}. Any new flags or
+            tags assigned to a project will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any flags or tags removed will
+            remain on the project in the parent {spacesLabels.instance.short}{" "}
+            when merging.
           </NoteCard>
         )}
         <div className="grid grid-cols-2">
@@ -238,8 +243,8 @@ export function ProjectForm({
         <Separator className="my-4" />
         {isForked && (
           <NoteCard>
-            You are in a forked instance. Any changes made to project capacity
-            will override previous project capacity.
+            You are in a forked {spacesLabels.instance.short}. Any changes made
+            to project capacity will override previous project capacity.
           </NoteCard>
         )}
 

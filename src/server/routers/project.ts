@@ -213,7 +213,7 @@ export const projectRouter = createTRPCRouter({
       async ({
         ctx,
         input: {
-          params: { group, subGroup, instance },
+          params: { group, subGroup },
           projectId,
         },
       }) => {

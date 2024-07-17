@@ -16,9 +16,11 @@ import { spacesLabels } from "@/content/spaces";
 export function EditInstanceForm({
   params,
   currentInstance,
+  isForked,
 }: {
   params: InstanceParams;
   currentInstance: ValidatedInstanceDetails;
+  isForked: boolean;
 }) {
   const router = useRouter();
   const instancePath = formatParamsAsPath(params);
@@ -53,6 +55,7 @@ export function EditInstanceForm({
       currentInstanceDetails={currentInstance}
       submissionButtonLabel={`Update ${spacesLabels.instance.short} Details`}
       onSubmit={onSubmit}
+      isForked={isForked}
     >
       <Button type="button" size="lg" variant="outline" asChild>
         <Link href="./settings">Cancel</Link>
