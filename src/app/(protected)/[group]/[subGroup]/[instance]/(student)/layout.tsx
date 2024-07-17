@@ -28,6 +28,7 @@ export default async function Layout({
       <Unauthorised message="You need to be a Student to access this page" />
     );
   }
+
   if (stageLt(stage, Stage.PROJECT_SELECTION)) {
     return (
       <Unauthorised message="You are not allowed to access the platform at this time" />
@@ -56,7 +57,9 @@ export default async function Layout({
           </Button>
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
             <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/my-allocation`}>My Allocation</Link>
+              <Link href={`${instancePath}/${instanceTabs.myAllocation.href}`}>
+                {instanceTabs.myAllocation.title}
+              </Link>
             </Button>
           </AccessControl>
         </div>

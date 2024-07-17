@@ -1,7 +1,8 @@
-import { Role, Stage } from "@prisma/client";
+import { Stage } from "@prisma/client";
 import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
+import { getGMTOffset } from "@/lib/utils/date/timezone";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
@@ -40,6 +41,7 @@ export const supervisorRouter = createTRPCRouter({
             projectSubmissionDeadline,
             "Europe/London",
           ),
+          deadlineTimeZoneOffset: getGMTOffset(projectSubmissionDeadline),
         };
       },
     ),
