@@ -22,7 +22,7 @@ The web app is built using:
 
 ### allocation-server
 
-The server is built using:
+The matching server is built using:
 
 - FastAPI
 - Pydantic

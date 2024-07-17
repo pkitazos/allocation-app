@@ -4,8 +4,8 @@
 
 - make a copy of the `.env.example` file, rename it to `.env` and fill in the provided ID_KEY
 
-- once the domain is configured, change the relevant marked environment variables
+- run `make setup-dev` to build and run the development database and app containers
 
-- run `make setup` to build and run the database and app containers
+- run `make setup-prod` to build and run the production database and app containers
 
 - run `make data` to seed the database with the necessary evaluator data
