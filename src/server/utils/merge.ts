@@ -35,8 +35,14 @@ export async function mergeInstanceTransaction(
           },
         },
         projects: { include: { allocations: true } },
-        flags: true,
-        tags: true,
+        flags: {
+          include: {
+            flagOnProjects: { select: { flag: true, project: true } },
+          },
+        },
+        tags: {
+          include: { tagOnProject: { select: { tag: true, project: true } } },
+        },
       },
     });
 
@@ -59,8 +65,14 @@ export async function mergeInstanceTransaction(
           },
         },
         projects: { include: { allocations: true } },
-        flags: true,
-        tags: true,
+        flags: {
+          include: {
+            flagOnProjects: { select: { flag: true, project: true } },
+          },
+        },
+        tags: {
+          include: { tagOnProject: { select: { tag: true, project: true } } },
+        },
       },
     });
 
@@ -74,7 +86,9 @@ export async function mergeInstanceTransaction(
     );
 
     await tx.userInInstance.createMany({
-      data: changeInstanceId(forkedInstanceNewStudents, parentInstanceId),
+      data: forkedInstanceNewStudents.map((s) =>
+        changeInstanceId(s, parentInstanceId),
+      ),
     });
 
     const pSupervisors = p.users.filter((u) => u.role === Role.SUPERVISOR);
@@ -86,9 +100,8 @@ export async function mergeInstanceTransaction(
       (a) => a.userId,
     );
 
-    const newSupervisorData = changeInstanceId(
-      forkedInstanceNewSupervisors,
-      parentInstanceId,
+    const newSupervisorData = forkedInstanceNewSupervisors.map((s) =>
+      changeInstanceId(s, parentInstanceId),
     );
 
     await tx.userInInstance.createMany({ data: newSupervisorData });
@@ -99,14 +112,16 @@ export async function mergeInstanceTransaction(
 
     const forkedInstanceNewFlags = setDiff(f.flags, p.flags, (a) => a.title);
 
-    await tx.flag.createMany({
-      data: changeInstanceId(forkedInstanceNewFlags, parentInstanceId),
+    await tx.flag.updateMany({
+      where: { id: { in: forkedInstanceNewFlags.map((f) => f.id) } },
+      data: { allocationInstanceId: parentInstanceId },
     });
 
     const forkedInstanceNewTags = setDiff(f.tags, p.tags, (a) => a.title);
 
-    await tx.tag.createMany({
-      data: changeInstanceId(forkedInstanceNewTags, parentInstanceId),
+    await tx.tag.updateMany({
+      where: { id: { in: forkedInstanceNewTags.map((t) => t.id) } },
+      data: { allocationInstanceId: parentInstanceId },
     });
 
     const forkedInstanceUpdatedProjects = setIntersection(
@@ -140,48 +155,76 @@ export async function mergeInstanceTransaction(
       (a) => a.title,
     );
 
-    const newProjectData = changeInstanceId(
-      forkedInstanceNewProjects,
-      parentInstanceId,
-    );
+    const newProjectData = forkedInstanceNewProjects
+      .map((p) => changeInstanceId(p, parentInstanceId))
+      .map(extractProjectAttributes);
 
     await tx.project.createMany({
-      data: newProjectData.map(extractProjectAttributes),
+      data: newProjectData,
     });
 
-    await tx.flagOnProject.deleteMany({
+    const postMergeParentInstanceProjects = await tx.project.findMany({
       where: {
-        projectId: { in: forkedInstanceUpdatedProjects.map((p) => p.id) },
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+        allocationInstanceId: parentInstanceId,
       },
     });
 
-    const forkedInstanceUpdatedFlagOnProjects = await tx.flagOnProject.findMany(
-      {
-        where: {
-          project: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        },
-        select: { flag: true, project: true },
+    const postMergeParentInstanceFlags = await tx.flag.findMany({
+      where: {
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+        allocationInstanceId: parentInstanceId,
       },
+    });
+
+    const postMergeParentInstanceTags = await tx.tag.findMany({
+      where: {
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+        allocationInstanceId: parentInstanceId,
+      },
+    });
+
+    const pFlagOnProjects = p.flags.flatMap((f) => f.flagOnProjects);
+    const pTagOnProjects = p.tags.flatMap((f) => f.tagOnProject);
+
+    const forkedInstanceFlagOnProjects = await tx.flagOnProject.findMany({
+      where: {
+        project: {
+          allocationGroupId: group,
+          allocationSubGroupId: subGroup,
+          allocationInstanceId: instance,
+        },
+      },
+      select: { flag: true, project: true },
+    });
+
+    const forkedInstanceNewFlagOnProjects = setDiff(
+      forkedInstanceFlagOnProjects,
+      pFlagOnProjects,
+      (a) => `${a.flag.title}-${a.project.title}`,
     );
 
     await tx.flagOnProject.createMany({
-      data: forkedInstanceUpdatedFlagOnProjects.map((f) => ({
-        flagId: findItemFromTitle(p.flags, f.flag.title).id,
-        projectId: findItemFromTitle(p.projects, f.project.title).id,
-      })),
+      data: forkedInstanceNewFlagOnProjects.map((f) => {
+        const parentEquivalentFlag = findItemFromTitle(
+          postMergeParentInstanceFlags,
+          f.flag.title,
+        );
+        const parentEquivalentProject = findItemFromTitle(
+          postMergeParentInstanceProjects,
+          f.project.title,
+        );
+        return {
+          flagId: parentEquivalentFlag.id,
+          projectId: parentEquivalentProject.id,
+        };
+      }),
     });
 
-    await tx.tagOnProject.deleteMany({
-      where: {
-        projectId: { in: forkedInstanceUpdatedProjects.map((p) => p.id) },
-      },
-    });
-
-    const forkedInstanceUpdatedTagOnProjects = await tx.tagOnProject.findMany({
+    const forkedInstanceTagOnProjects = await tx.tagOnProject.findMany({
       where: {
         project: {
           allocationGroupId: group,
@@ -192,11 +235,28 @@ export async function mergeInstanceTransaction(
       select: { tag: true, project: true },
     });
 
+    const forkedInstanceNewTagOnProjects = setDiff(
+      forkedInstanceTagOnProjects,
+      pTagOnProjects,
+      (a) => `${a.tag.title}-${a.project.title}`,
+    );
+
     await tx.tagOnProject.createMany({
-      data: forkedInstanceUpdatedTagOnProjects.map((f) => ({
-        tagId: findItemFromTitle(p.tags, f.tag.title).id,
-        projectId: findItemFromTitle(p.projects, f.project.title).id,
-      })),
+      data: forkedInstanceNewTagOnProjects.map((t) => {
+        const parentEquivalentProject = findItemFromTitle(
+          postMergeParentInstanceProjects,
+          t.project.title,
+        );
+        const parentEquivalentTag = findItemFromTitle(
+          postMergeParentInstanceTags,
+          t.project.title,
+        );
+
+        return {
+          tagId: parentEquivalentTag.id,
+          projectId: parentEquivalentProject.id,
+        };
+      }),
     });
 
     const forkedInstanceProjectAllocations =
@@ -208,14 +268,6 @@ export async function mergeInstanceTransaction(
         },
         include: { project: true, student: true },
       });
-
-    const postMergeParentInstanceProjects = await tx.project.findMany({
-      where: {
-        allocationGroupId: group,
-        allocationSubGroupId: subGroup,
-        allocationInstanceId: parentInstanceId,
-      },
-    });
 
     const postMergeParentInstanceStudents = await tx.userInInstance.findMany({
       where: {

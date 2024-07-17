@@ -1,9 +1,9 @@
 export function changeInstanceId<T extends { allocationInstanceId: string }>(
-  items: T[],
+  item: T,
   newId: string,
 ) {
-  return items.map((item) => ({
+  return {
     ...item,
     allocationInstanceId: newId,
-  }));
+  };
 }
