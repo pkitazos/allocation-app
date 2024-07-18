@@ -1,0 +1,39 @@
+mini description of the problem:
+
+- we know that the correct project details are sent from parent to forked instance
+- when running matching alg, project id is set to "0"
+- doesn't work on group 1,2,3,5,10 but does work on group 4
+(^ this is so weird)
+
+
+for some reason, even though the project Id is sent to the matching server correctly
+
+the matching server returns "0" as the id of the project that has been allocated to the student
+
+How to recreate bug:
+
+01) go into an instance
+02) do not run any matching algorithms
+03) fork the instance
+
+in the forked instance
+04) change the minimum submission constraint to 1
+05) add a project to the student's preference list from the projects that were carried over from the parent instance (as student)
+06) submit preference list (as student)
+07) run any matching algorithm
+08) select a result
+09) move to stage 5
+10) matching information will not be recorded (preferences will be though)
+11) move to stage 6
+12) project will not be allocated (as matching information was not saved correctly)
+
+-> the server returns a projectId = "0" which indicates no match
+
+if however at step (05) we add a project to the student's preference list which was not present in the parent instance, 
+then the matching server can correctly match the student to that project 
+and will return the projectId correctly
+
+
+
+// TODO
+carry over preferences from forked instance to override parent instance preferences
