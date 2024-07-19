@@ -146,6 +146,29 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
+  selectedAlgName: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const { selectedAlgName } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: { selectedAlgName: true },
+          });
+
+        return selectedAlgName ?? undefined;
+      },
+    ),
+
   projectAllocations: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

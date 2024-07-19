@@ -13,14 +13,11 @@ import {
 
 import { api } from "@/lib/trpc/client";
 import { Algorithm } from "@/lib/validations/algorithm";
-import { MatchingData } from "@/lib/validations/matching";
 
 export function RunAlgorithmButton({
-  matchingData,
   algorithm,
   custom = false,
 }: {
-  matchingData: MatchingData;
   algorithm: Algorithm;
   custom?: boolean;
 }) {
@@ -46,14 +43,11 @@ export function RunAlgorithmButton({
       <Button
         disabled={isPending}
         onClick={() =>
-          toast.promise(
-            runAlgAsync({ params, algorithm, matchingData }).then(refetch),
-            {
-              loading: "Running...",
-              error: "Something went wrong",
-              success: "Success",
-            },
-          )
+          toast.promise(runAlgAsync({ params, algorithm }).then(refetch), {
+            loading: "Running...",
+            error: "Something went wrong",
+            success: "Success",
+          })
         }
       >
         run

@@ -2,7 +2,6 @@ import { z } from "zod";
 
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
-  matchingDataSchema,
   ServerResponse,
   serverResponseSchema,
 } from "@/lib/validations/matching";
@@ -10,6 +9,7 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { getMatching } from "@/server/utils/get-matching";
+import { getMatchingData } from "@/server/utils/get-matching-data";
 
 export const blankResult: ServerResponse = {
   profile: [],
@@ -30,7 +30,6 @@ export const algorithmRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         algorithm: algorithmSchema,
-        matchingData: matchingDataSchema,
       }),
     )
     .mutation(
@@ -39,12 +38,17 @@ export const algorithmRouter = createTRPCRouter({
         input: {
           params: { group, subGroup, instance },
           algorithm,
-          matchingData,
         },
       }) => {
+        const matchingData = await getMatchingData(ctx.db, {
+          group,
+          subGroup,
+          instance,
+        });
+
         const serverResult = await getMatching({ algorithm, matchingData });
 
-        if (!serverResult) return undefined;
+        if (!serverResult) return;
 
         await ctx.db.algorithm.update({
           where: {
@@ -59,8 +63,6 @@ export const algorithmRouter = createTRPCRouter({
             matchingResultData: JSON.stringify(serverResult),
           },
         });
-
-        return serverResult;
       },
     ),
 
