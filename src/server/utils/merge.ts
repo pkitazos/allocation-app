@@ -249,7 +249,7 @@ export async function mergeInstanceTransaction(
         );
         const parentEquivalentTag = findItemFromTitle(
           postMergeParentInstanceTags,
-          t.project.title,
+          t.tag.title,
         );
 
         return {
