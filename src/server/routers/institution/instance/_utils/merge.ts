@@ -1,12 +1,12 @@
 import { PrismaClient, Project, Role } from "@prisma/client";
 
+import { findByUserId } from "@/lib/utils/general/find-by-user-id";
+import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
+import { setDiff } from "@/lib/utils/general/set-difference";
+import { setIntersection } from "@/lib/utils/general/set-intersection";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { changeInstanceId } from "@/server/utils/change-instance-id";
-import { findByUserId } from "@/server/utils/find-by-user-id";
-import { findItemFromTitle } from "@/server/utils/find-item-from-title";
-import { setDiff } from "@/server/utils/set-difference";
-import { setIntersection } from "@/server/utils/set-intersection";
 
 import { updateCapacityUpperBound } from "./update-capacity-upper-bound";
 

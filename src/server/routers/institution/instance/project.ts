@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { z } from "zod";
 
+import { findByUserId } from "@/lib/utils/general/find-by-user-id";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
@@ -9,7 +10,6 @@ import {
   createTRPCRouter,
   forkedInstanceProcedure,
 } from "@/server/trpc";
-import { findByUserId } from "@/server/utils/find-by-user-id";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 import { computeSubmissionDetails } from "./_utils/submission-details";

@@ -1,9 +1,8 @@
 import { Flag, Role, Tag, UserInInstance } from "@prisma/client";
 
 import { PrismaTransactionClient } from "@/lib/db";
+import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
 import { InstanceParams } from "@/lib/validations/params";
-
-import { findItemFromTitle } from "@/server/utils/find-item-from-title";
 
 export async function getAvailableStudents(
   db: PrismaTransactionClient,

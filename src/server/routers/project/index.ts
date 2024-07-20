@@ -12,7 +12,7 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createProjectFlags } from "@/server/routers/project/_utils/flag";
+import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
 import { updateProjectAllocation } from "@/server/routers/project/_utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
