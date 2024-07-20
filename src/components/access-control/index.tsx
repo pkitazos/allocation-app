@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Role, Stage } from "@prisma/client";
 
 import { stageSchema } from "@/lib/validations/stage";
@@ -7,13 +7,11 @@ import { stageSchema } from "@/lib/validations/stage";
 import { RBAC } from "./rbac";
 import { SBAC } from "./sbac";
 
-import { getShibbolethUser, ShibbolethUser } from "@/services/shibbolethAuth";
-
 export function AccessControl({
                                 children,
                                 allowedStages = stageSchema.options,
                                 allowedRoles = [Role.ADMIN, Role.SUPERVISOR, Role.STUDENT],
-                                extraConditions
+                                extraConditions,
                               }: {
   children: ReactNode;
   allowedStages?: Stage[];
@@ -23,17 +21,6 @@ export function AccessControl({
     SBAC?: { AND?: boolean; OR?: boolean };
   };
 }) {
-  const [user, setUser] = useState<ShibbolethUser | null>(null);
-
-  useEffect(() => {
-    const shibbolethUser = getShibbolethUser();
-    setUser(shibbolethUser);
-  }, []);
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <RBAC
       allowedRoles={allowedRoles}
