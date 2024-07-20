@@ -7,20 +7,18 @@ import {
   serverResponseSchema,
 } from "@/lib/validations/matching";
 
-import { generateArgs } from "@/server/utils/generate-args";
+import { generateArgs } from "./generate-args";
 
 import { env } from "@/env";
 
-export async function getMatching({
+export async function executeMatchingAlgorithm({
   algorithm: { algName, flag1, flag2, flag3 },
   matchingData,
 }: {
   algorithm: Algorithm;
   matchingData: MatchingData | MatchingDataWithArgs;
 }) {
-  const endpoint = (builtInAlgSchema.options as string[]).includes(algName)
-    ? algName
-    : "";
+  const endpoint = builtInAlgSchema.safeParse(algName).success ? algName : "";
 
   if (endpoint === "") {
     matchingData = {

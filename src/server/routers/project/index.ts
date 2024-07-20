@@ -12,8 +12,8 @@ import {
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createProjectFlags } from "@/server/utils/flag";
-import { updateProjectAllocation } from "@/server/utils/project-allocation";
+import { createProjectFlags } from "@/server/routers/project/_utils/flag";
+import { updateProjectAllocation } from "@/server/routers/project/_utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
   edit: stageAwareProcedure

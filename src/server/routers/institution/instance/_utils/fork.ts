@@ -1,19 +1,21 @@
-import { slugify } from "@/lib/utils/general/slugify";
-import { InstanceParams } from "@/lib/validations/params";
 import { PrismaClient } from "@prisma/client";
+
+import { slugify } from "@/lib/utils/general/slugify";
+import { ForkedInstanceDetails } from "@/lib/validations/instance-form";
+import { InstanceParams } from "@/lib/validations/params";
+
 import {
-  getAvailableStudents,
-  getAvailableSupervisors,
-  getAvailableProjects,
   copyInstanceFlags,
   copyInstanceTags,
+  createFlagOnProjects,
+  createProjects,
   createStudents,
   createSupervisors,
-  createProjects,
-  createFlagOnProjects,
   createTagOnProjects,
+  getAvailableProjects,
+  getAvailableStudents,
+  getAvailableSupervisors,
 } from "./instance-forking";
-import { ForkedInstanceDetails } from "@/lib/validations/instance-form";
 
 export async function forkInstanceTransaction(
   db: PrismaClient,

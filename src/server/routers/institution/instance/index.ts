@@ -23,15 +23,15 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
-import { forkInstanceTransaction } from "@/server/utils/fork";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { mergeInstanceTransaction } from "@/server/utils/merge";
 import { setDiff } from "@/server/utils/set-difference";
-import { getUserRole } from "@/server/utils/user-role";
 
+import { forkInstanceTransaction } from "./_utils/fork";
+import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { getUserRole } from "@/server/utils/user-role";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,

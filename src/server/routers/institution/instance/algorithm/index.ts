@@ -8,8 +8,9 @@ import {
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { getMatching } from "@/server/utils/get-matching";
-import { getMatchingData } from "@/server/utils/get-matching-data";
+
+import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
+import { getMatchingData } from "./_utils/get-matching-data";
 
 export const blankResult: ServerResponse = {
   profile: [],
@@ -46,7 +47,10 @@ export const algorithmRouter = createTRPCRouter({
           instance,
         });
 
-        const serverResult = await getMatching({ algorithm, matchingData });
+        const serverResult = await executeMatchingAlgorithm({
+          algorithm,
+          matchingData,
+        });
 
         if (!serverResult) return;
 

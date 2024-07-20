@@ -10,8 +10,9 @@ import {
   forkedInstanceProcedure,
 } from "@/server/trpc";
 import { findByUserId } from "@/server/utils/find-by-user-id";
-import { computeSubmissionDetails } from "@/server/utils/submission-info";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+
+import { computeSubmissionDetails } from "./_utils/submission-details";
 
 export const projectRouter = createTRPCRouter({
   submissionInfo: forkedInstanceProcedure // ! this should also be an admin procedure
