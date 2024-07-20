@@ -42,3 +42,5 @@ next-env.d.ts
 # project specific
 *.t.txt
 *.t.*
+
+certificates
