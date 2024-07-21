@@ -7,9 +7,9 @@ import {
   serverResponseSchema,
 } from "@/lib/validations/matching";
 
-import { generateArgs } from "./generate-args";
-
 import { env } from "@/env";
+
+import { generateArgs } from "./generate-args";
 
 export async function executeMatchingAlgorithm({
   algorithm: { algName, flag1, flag2, flag3 },
@@ -27,12 +27,14 @@ export async function executeMatchingAlgorithm({
     };
   }
 
-  const res = await axios.post(`${env.SERVER_URL}/${endpoint}`, {
-    ...matchingData,
-  });
-
-  const result = serverResponseSchema.safeParse(res.data.data);
+  const result = await axios
+    .post(`${env.SERVER_URL}/${endpoint}`, matchingData)
+    .then((res) => serverResponseSchema.safeParse(res.data));
 
   if (!result.success) return;
-  return result.data;
+
+  const serverResponse = result.data;
+  if (serverResponse.status === 400) return;
+
+  return serverResponse.data;
 }

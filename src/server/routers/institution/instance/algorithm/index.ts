@@ -2,8 +2,8 @@ import { z } from "zod";
 
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
-  ServerResponse,
-  serverResponseSchema,
+  MatchingResult,
+  matchingResultSchema,
 } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
@@ -12,7 +12,7 @@ import { adminProcedure, createTRPCRouter } from "@/server/trpc";
 import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
 import { getMatchingData } from "./_utils/get-matching-data";
 
-export const blankResult: ServerResponse = {
+export const blankResult: MatchingResult = {
   profile: [],
   degree: NaN,
   size: NaN,
@@ -47,12 +47,12 @@ export const algorithmRouter = createTRPCRouter({
           instance,
         });
 
-        const serverResult = await executeMatchingAlgorithm({
+        const matchingResults = await executeMatchingAlgorithm({
           algorithm,
           matchingData,
         });
 
-        if (!serverResult) return;
+        if (!matchingResults) return;
 
         await ctx.db.algorithm.update({
           where: {
@@ -64,7 +64,7 @@ export const algorithmRouter = createTRPCRouter({
             },
           },
           data: {
-            matchingResultData: JSON.stringify(serverResult),
+            matchingResultData: JSON.stringify(matchingResults),
           },
         });
       },
@@ -184,7 +184,7 @@ export const algorithmRouter = createTRPCRouter({
 
         if (!res) return blankResult;
 
-        const result = serverResponseSchema.safeParse(
+        const result = matchingResultSchema.safeParse(
           JSON.parse(res.matchingResultData as string),
         );
 
@@ -220,7 +220,7 @@ export const algorithmRouter = createTRPCRouter({
         type tableData = {
           algName: string;
           displayName: string;
-          data: ServerResponse;
+          data: MatchingResult;
         };
 
         if (results.length === 0) {
@@ -230,7 +230,7 @@ export const algorithmRouter = createTRPCRouter({
         const nonEmpty: number[] = [];
         const data = results.map(
           ({ algName, displayName, matchingResultData }, i) => {
-            const res = serverResponseSchema.safeParse(
+            const res = matchingResultSchema.safeParse(
               JSON.parse(matchingResultData as string),
             );
             const data = res.success ? res.data : blankResult;

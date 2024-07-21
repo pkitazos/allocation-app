@@ -1,4 +1,4 @@
-import { PreferenceType, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -11,7 +11,7 @@ import {
   projectInfoSchema,
   studentRowSchema,
 } from "@/lib/validations/allocation-adjustment";
-import { serverResponseSchema } from "@/lib/validations/matching";
+import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
@@ -52,7 +52,7 @@ export const matchingRouter = createTRPCRouter({
           select: { matchingResultData: true },
         });
 
-        const { matching } = serverResponseSchema.parse(
+        const { matching } = matchingResultSchema.parse(
           JSON.parse(matchingResultData as string),
         );
 
