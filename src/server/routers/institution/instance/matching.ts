@@ -14,11 +14,7 @@ import {
 import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import {
-  adminProcedure,
-  createTRPCRouter,
-  instanceAdminProcedure,
-} from "@/server/trpc";
+import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
 // TODO: uncomment once endpoint interfaces are confirmed
 // import {
@@ -349,7 +345,7 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  exportCsvData: adminProcedure
+  exportData: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -373,13 +369,11 @@ export const matchingRouter = createTRPCRouter({
 
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
-          projectExternalId: project.externalId ?? "",
           studentId: student.userId,
           studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,
-          projectSpecialTechnicalRequirements:
-            project.specialTechnicalRequirements ?? "",
+          projectSpecialTechnicalRequirements: project.description, // TODO: change this to the special technical requirements
           studentRanking: e.studentRanking,
         }));
       },
