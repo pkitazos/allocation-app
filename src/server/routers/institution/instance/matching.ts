@@ -15,7 +15,6 @@ import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { allocationCsvDataSchema } from "@/lib/validations/allocation-csv-data";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -523,11 +522,12 @@ export const matchingRouter = createTRPCRouter({
 
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
-          projectExternalId: project.id, // TODO: change this to the external id
+          projectExternalId: project.externalId,
           studentId: student.userId,
           projectTitle: project.title,
           projectDescription: project.description,
-          projectSpecialTechnicalRequirements: project.description, // TODO: change this to the special technical requirements
+          projectSpecialTechnicalRequirements:
+            project.specialTechnicalRequirements,
           studentRanking: e.studentRanking,
         }));
       },
