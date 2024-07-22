@@ -24,6 +24,7 @@ export default async function Project({ params }: { params: pageParams }) {
   const instancePath = formatParamsAsPath(params);
 
   const project = await api.project.getById({ projectId });
+  console.log({ techRequirements: project.specialTechnicalRequirements });
   const user = await api.user.get();
 
   const preferenceStatus = await api.user.student.preference.getForProject({
@@ -60,6 +61,17 @@ export default async function Project({ params }: { params: pageParams }) {
         <div className="w-3/4">
           <SubHeading>Description</SubHeading>
           <p className="mt-6">{project.description}</p>
+        </div>
+        <div
+          className={cn(
+            "",
+            (project.specialTechnicalRequirements === "" ||
+              project.specialTechnicalRequirements === null) &&
+              "hidden",
+          )}
+        >
+          <SubHeading>Special Technical Requirements</SubHeading>
+          <p className="mt-6">{project.specialTechnicalRequirements}</p>
         </div>
         <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
           <div>
