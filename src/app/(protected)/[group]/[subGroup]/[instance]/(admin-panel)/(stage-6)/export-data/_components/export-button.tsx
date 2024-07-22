@@ -39,7 +39,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
     if (downloadLinkRef.current) {
       const link = downloadLinkRef.current;
       link.href = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`);
-      link.download = "candidate_data.csv";
+      link.download = "project_allocation_data.csv";
     }
   }, [csvContent]);
 
