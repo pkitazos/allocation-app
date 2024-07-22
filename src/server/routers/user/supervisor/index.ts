@@ -1,4 +1,4 @@
-import { Role, Stage } from "@prisma/client";
+import { Stage } from "@prisma/client";
 import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
@@ -12,7 +12,8 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
-import { formatSupervisorRowProjects } from "@/server/utils/supervisor-row-projects";
+
+import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
 
 export const supervisorRouter = createTRPCRouter({
   instancePage: protectedProcedure

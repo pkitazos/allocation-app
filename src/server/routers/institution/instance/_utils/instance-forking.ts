@@ -1,9 +1,8 @@
-import { Flag, PrismaClient, Role, Tag, UserInInstance } from "@prisma/client";
+import { Flag, Role, Tag, UserInInstance } from "@prisma/client";
 
-import { InstanceParams } from "@/lib/validations/params";
-
-import { findItemFromTitle } from "./find-item-from-title";
 import { PrismaTransactionClient } from "@/lib/db";
+import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
+import { InstanceParams } from "@/lib/validations/params";
 
 export async function getAvailableStudents(
   db: PrismaTransactionClient,
@@ -34,7 +33,6 @@ export async function getAvailableSupervisors(
     select: {
       userId: true,
       role: true,
-      // get the supervisors projects, and for each project get their allocations
       supervisorProjects: {
         select: {
           id: true,
@@ -46,7 +44,6 @@ export async function getAvailableSupervisors(
           tagOnProject: { select: { tag: { select: { title: true } } } },
         },
       },
-      // for each supervisor also, get their instance details
       supervisorInstanceDetails: {
         where: {
           allocationGroupId: params.group,
@@ -62,7 +59,6 @@ export async function getAvailableSupervisors(
     },
   });
 
-  // this is the list of supervisors that are not at capacity
   return allSupervisors
     .map(({ supervisorInstanceDetails, ...s }) => {
       const capacities = supervisorInstanceDetails[0];
@@ -200,16 +196,36 @@ export async function createSupervisors(
     })),
   });
 
+  /**
+   * example:
+   *
+   * original_target: 2
+   * original_upperBound: 3
+   *
+   * -> fork instance and adjust capacities
+   *
+   * if (adjusted_upperBound === 2) // adjusted_upperBound >= original_target
+   * then the target can remain 2
+   *
+   * if (adjusted_upperBound === 1) // adjusted_upperBound < original_target
+   * then the target should be adjusted to 1 // set adjusted_target = adjusted upperBound
+   */
   await db.supervisorInstanceDetails.createMany({
     data: availableSupervisors.map((s) => {
+      const adjustedUpperBound = s.capacities.remainingCapacity;
+      const originalTarget = s.capacities.projectAllocationTarget;
+      const adjustedTarget =
+        adjustedUpperBound >= originalTarget
+          ? originalTarget
+          : adjustedUpperBound;
       return {
         userId: s.userId,
         allocationGroupId: params.group,
         allocationSubGroupId: params.subGroup,
         allocationInstanceId: forkedInstanceId,
         projectAllocationLowerBound: s.capacities.projectAllocationLowerBound,
-        projectAllocationTarget: s.capacities.projectAllocationTarget,
-        projectAllocationUpperBound: s.capacities.remainingCapacity,
+        projectAllocationTarget: adjustedTarget,
+        projectAllocationUpperBound: adjustedUpperBound,
       };
     }),
   });

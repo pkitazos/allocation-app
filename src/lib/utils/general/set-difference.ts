@@ -9,10 +9,10 @@
  * @returns {T[]} A new array containing the elements unique to `setA`.
  *
  * @example
- * const fromDatabase = [{ title: 'A' }, { title: 'B' }, { title: 'C' }];
- * const fromForm = [{ title: 'A' }, { title: 'D' }];
- * const newItems = setDiff(fromForm, fromDatabase, (item) => item.title;
- * console.log(newItems); // Output: [{ title: 'D' }]
+ * const a = [{ title: 'A' }, { title: 'B' }, { title: 'C' }];
+ * const b = [{ title: 'A' }, { title: 'D' }];
+ * const notInB = setDiff(b, a, (x) => x.title);
+ * console.log(notInB); // Output: [{ title: 'B' }, { title: 'C' }]
  */
 export function setDiff<T>(
   setA: T[],

@@ -2,6 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
+import { setDiff } from "@/lib/utils/general/set-difference";
 import {
   adminPanelTabs,
   adminPanelTabsByStage,
@@ -23,12 +24,11 @@ import {
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
-import { forkInstanceTransaction } from "@/server/utils/fork";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { mergeInstanceTransaction } from "@/server/utils/merge";
-import { setDiff } from "@/server/utils/set-difference";
 import { getUserRole } from "@/server/utils/user-role";
 
+import { forkInstanceTransaction } from "./_utils/fork";
+import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
@@ -143,6 +143,29 @@ export const instanceRouter = createTRPCRouter({
             studentsCanAccess,
           },
         });
+      },
+    ),
+
+  selectedAlgName: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const { selectedAlgName } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: { selectedAlgName: true },
+          });
+
+        return selectedAlgName ?? undefined;
       },
     ),
 

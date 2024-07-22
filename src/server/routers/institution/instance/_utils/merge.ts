@@ -1,12 +1,13 @@
 import { PrismaClient, Project, Role } from "@prisma/client";
 
+import { findByUserId } from "@/lib/utils/general/find-by-user-id";
+import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
+import { setDiff } from "@/lib/utils/general/set-difference";
+import { setIntersection } from "@/lib/utils/general/set-intersection";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { changeInstanceId } from "./change-instance-id";
-import { findByUserId } from "./find-by-user-id";
-import { findItemFromTitle } from "./find-item-from-title";
-import { setDiff } from "./set-difference";
-import { setIntersection } from "./set-intersection";
+import { changeInstanceId } from "@/server/utils/change-instance-id";
+
 import { updateCapacityUpperBound } from "./update-capacity-upper-bound";
 
 export async function mergeInstanceTransaction(
