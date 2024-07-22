@@ -62,6 +62,7 @@ export function ProjectForm({
     capacityUpperBound: project?.capacityUpperBound ?? 1,
     preAllocatedStudentId: project?.preAllocatedStudentId ?? "",
     isPreAllocated: project?.isPreAllocated ?? false,
+    specialTechnicalRequirements: project?.specialTechnicalRequirements ?? "",
     flagIds: project?.flagIds ?? [],
     tags: project?.tags ?? [],
   };
@@ -79,6 +80,7 @@ export function ProjectForm({
       description: formProject.description,
       capacityUpperBound: formProject.capacityUpperBound,
       preAllocatedStudentId: formProject.preAllocatedStudentId,
+      specialTechnicalRequirements: formProject.specialTechnicalRequirements,
       flagIds: formProject.flagIds,
       tags: formProject.tags,
     },
@@ -138,6 +140,27 @@ export function ProjectForm({
               </FormControl>
               <FormDescription>
                 Please add a description for this project
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="specialTechnicalRequirements"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-2xl">
+                Special Technical Requirements
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Type the project technical requirements here."
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                Please add any special technical requirements for this project
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -360,7 +383,6 @@ export function ProjectForm({
           />
         </div>
 
-        <Separator className="my-14" />
         <div className="flex justify-end gap-8">
           {dismissalButton}
           <Button type="submit" size="lg">
