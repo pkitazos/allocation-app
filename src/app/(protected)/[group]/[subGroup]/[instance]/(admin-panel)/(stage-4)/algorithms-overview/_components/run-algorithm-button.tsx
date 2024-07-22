@@ -35,21 +35,25 @@ export function RunAlgorithmButton({
 
   const Info = custom ? Flags : Description;
 
+  async function handleRun() {
+    void toast.promise(
+      runAlgAsync({ params, algorithm })
+        // .catch((err) => toast.error(err.message))
+        .then(refetch),
+      {
+        loading: "Running...",
+        error: "Something went wrong",
+        success: "Success",
+      },
+    );
+  }
+
   return (
     <div className="flex justify-between gap-5">
       <p className="flex items-center gap-2">
         {algorithm.displayName} - <Info algorithm={algorithm} />
       </p>
-      <Button
-        disabled={isPending}
-        onClick={() =>
-          toast.promise(runAlgAsync({ params, algorithm }).then(refetch), {
-            loading: "Running...",
-            error: "Something went wrong",
-            success: "Success",
-          })
-        }
-      >
+      <Button disabled={isPending} onClick={handleRun}>
         run
       </Button>
     </div>

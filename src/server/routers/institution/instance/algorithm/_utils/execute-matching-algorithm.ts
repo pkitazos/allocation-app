@@ -34,7 +34,12 @@ export async function executeMatchingAlgorithm({
   if (!result.success) return;
 
   const serverResponse = result.data;
-  if (serverResponse.status === 400) return;
+  console.log("---->>", serverResponse);
+  if (serverResponse.status === 400) {
+    // throw new TRPCClientError("Infeasible");
+    return;
+  } // if infeasible will exit here, perhaps we should bubble up the error
+  console.log("====>>", serverResponse.data);
 
   return serverResponse.data;
 }

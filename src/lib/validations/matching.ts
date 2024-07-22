@@ -69,5 +69,5 @@ export type MatchingResult = z.infer<typeof matchingResultSchema>;
 export const serverResponseSchema = z.object({
   status: z.number(),
   message: z.string(),
-  data: matchingResultSchema,
+  data: matchingResultSchema.optional(),
 });
