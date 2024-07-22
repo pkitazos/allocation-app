@@ -373,7 +373,8 @@ export const matchingRouter = createTRPCRouter({
           studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,
-          projectSpecialTechnicalRequirements: project.description, // TODO: change this to the special technical requirements
+          projectSpecialTechnicalRequirements:
+            project.specialTechnicalRequirements,
           studentRanking: e.studentRanking,
         }));
       },
