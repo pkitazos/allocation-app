@@ -23,6 +23,10 @@ export const adminPanelTabs: Record<Stage, { title: string; href: string }[]> =
     ],
     ALLOCATION_PUBLICATION: [
       { title: "Allocation Overview", href: "allocation-overview" },
-      { title: "Export Data", href: "export-data" },
+      { title: "Export Data to Csv", href: "export-to-csv" },
+      {
+        title: "Send Data to External System",
+        href: "export-to-external-system",
+      },
     ],
   } as const;

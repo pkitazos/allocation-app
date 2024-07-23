@@ -498,7 +498,40 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  exportData: adminProcedure
+  exportDataToExternalSystem: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { student: { select: { userId: true } }, project: true },
+        });
+
+        const studentData = allocationData.map((s) => ({
+          matriculation: s.student.userId,
+        }));
+
+        const supervisorData = allocationData.map((s) => ({
+          guid: s.project.supervisorId,
+        }));
+
+        // // TODO: update what is needed from project
+        const projectData = allocationData.map((p) => p.project);
+
+        return { studentData, supervisorData, projectData };
+      },
+    ),
+
+  exportCsvData: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -522,12 +555,12 @@ export const matchingRouter = createTRPCRouter({
 
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
-          projectExternalId: project.externalId,
+          projectExternalId: project.externalId ?? "",
           studentId: student.userId,
           projectTitle: project.title,
           projectDescription: project.description,
           projectSpecialTechnicalRequirements:
-            project.specialTechnicalRequirements,
+            project.specialTechnicalRequirements ?? "",
           studentRanking: e.studentRanking,
         }));
       },

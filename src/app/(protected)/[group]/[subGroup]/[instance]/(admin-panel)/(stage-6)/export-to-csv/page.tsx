@@ -8,7 +8,7 @@ import { AllocationDataTable } from "./_components/allocation-data-table";
 import { ExportDataButton } from "./_components/export-button";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const data = await api.institution.instance.matching.exportData({
+  const data = await api.institution.instance.matching.exportCsvData({
     params,
   });
 
