@@ -52,8 +52,6 @@ export const algorithmRouter = createTRPCRouter({
           matchingData,
         });
 
-        if (!matchingResults) return;
-
         await ctx.db.algorithm.update({
           where: {
             algorithmId: {
@@ -67,6 +65,11 @@ export const algorithmRouter = createTRPCRouter({
             matchingResultData: JSON.stringify(matchingResults),
           },
         });
+
+        return {
+          totalStudents: matchingData.students.length,
+          matchedStudents: matchingResults.size,
+        };
       },
     ),
 

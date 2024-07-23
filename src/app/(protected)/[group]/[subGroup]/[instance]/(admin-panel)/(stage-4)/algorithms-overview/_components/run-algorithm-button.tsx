@@ -24,7 +24,7 @@ export function RunAlgorithmButton({
   const params = useInstanceParams();
   const utils = api.useUtils();
 
-  const refetch = () =>
+  const refetchAlgorithmResult = () =>
     utils.institution.instance.algorithm.singleResult.refetch({
       algName: algorithm.algName,
       params,
@@ -35,15 +35,20 @@ export function RunAlgorithmButton({
 
   const Info = custom ? Flags : Description;
 
-  async function handleRun() {
+  async function runAlgorithm() {
     void toast.promise(
-      runAlgAsync({ params, algorithm })
-        // .catch((err) => toast.error(err.message))
-        .then(refetch),
+      runAlgAsync({ params, algorithm }).then((data) => {
+        refetchAlgorithmResult();
+        return data;
+      }),
       {
         loading: "Running...",
-        error: "Something went wrong",
-        success: "Success",
+        success: (data) =>
+          `Successfully matched ${data.matchedStudents}/${data.totalStudents} students`,
+        error: (err) =>
+          err.message === "Infeasible"
+            ? "Matching is infeasible with current configuration"
+            : `Something went wrong: ${err.message}`,
       },
     );
   }
@@ -53,7 +58,7 @@ export function RunAlgorithmButton({
       <p className="flex items-center gap-2">
         {algorithm.displayName} - <Info algorithm={algorithm} />
       </p>
-      <Button disabled={isPending} onClick={handleRun}>
+      <Button onClick={runAlgorithm} disabled={isPending}>
         run
       </Button>
     </div>
