@@ -44,7 +44,7 @@ export function RunAlgorithmButton({
       {
         loading: "Running...",
         success: (data) =>
-          `Successfully matched ${data.matchedStudents}/${data.totalStudents} students`,
+          `Successfully matched ${data.matchedStudents} of ${data.totalStudents} submitted students`,
         error: (err) =>
           err.message === "Infeasible"
             ? "Matching is infeasible with current configuration"
