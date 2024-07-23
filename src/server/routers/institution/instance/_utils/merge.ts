@@ -1,6 +1,5 @@
 import { PrismaClient, Project, Role } from "@prisma/client";
 
-import { findByUserId } from "@/lib/utils/general/find-by-user-id";
 import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
 import { setDiff } from "@/lib/utils/general/set-difference";
 import { setIntersection } from "@/lib/utils/general/set-intersection";
@@ -33,6 +32,14 @@ export async function mergeInstanceTransaction(
                 allocationInstanceId: instance,
               },
             },
+            studentPreferences: {
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+              include: { project: true },
+            },
           },
         },
         projects: { include: { allocations: true } },
@@ -62,6 +69,14 @@ export async function mergeInstanceTransaction(
                 allocationSubGroupId: subGroup,
                 allocationInstanceId: instance,
               },
+            },
+            studentPreferences: {
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+              include: { project: true },
             },
           },
         },
@@ -109,6 +124,7 @@ export async function mergeInstanceTransaction(
 
     await tx.supervisorInstanceDetails.createMany({
       data: newSupervisorData.map((u) => u.supervisorInstanceDetails[0]),
+      // .map(extractSupervisorInstanceDetails),
     });
 
     const forkedInstanceNewFlags = setDiff(f.flags, p.flags, (a) => a.title);
@@ -260,6 +276,49 @@ export async function mergeInstanceTransaction(
       }),
     });
 
+    // find students that were in the parent instance and are now in the forked instance
+    const forkedInstanceUpdatedStudents = setIntersection(
+      fStudents,
+      pStudents,
+      (a) => a.userId,
+    );
+
+    // delete the preferences of the students that were in the parent instance and are now in the forked instance
+    // if they had preferences in the forked instance (i.e if their studentPreferences.length > 0)
+    await tx.preference.deleteMany({
+      where: {
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+        allocationInstanceId: parentInstanceId,
+        userId: {
+          in: forkedInstanceUpdatedStudents
+            .filter((s) => s.studentPreferences.length > 0)
+            .map((s) => s.userId),
+        },
+      },
+    });
+
+    // create new preferences in the parent instance for the updated students using the preferences from the forked instance
+    await tx.preference.createMany({
+      data: fStudents.flatMap(({ userId, studentPreferences }) =>
+        studentPreferences.map((p) => {
+          const parentEquivalentProject = findItemFromTitle(
+            postMergeParentInstanceProjects,
+            p.project.title,
+          );
+          return {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: parentInstanceId,
+            userId: userId,
+            projectId: parentEquivalentProject.id,
+            rank: p.rank,
+            type: p.type,
+          };
+        }),
+      ),
+    });
+
     const forkedInstanceProjectAllocations =
       await tx.projectAllocation.findMany({
         where: {
@@ -270,15 +329,6 @@ export async function mergeInstanceTransaction(
         include: { project: true, student: true },
       });
 
-    const postMergeParentInstanceStudents = await tx.userInInstance.findMany({
-      where: {
-        allocationGroupId: group,
-        allocationSubGroupId: subGroup,
-        allocationInstanceId: parentInstanceId,
-        role: Role.STUDENT,
-      },
-    });
-
     const forkedInstanceNewProjectAllocations =
       forkedInstanceProjectAllocations.map((projectAllocation) => {
         const parentEquivalentProject = findItemFromTitle(
@@ -286,17 +336,12 @@ export async function mergeInstanceTransaction(
           projectAllocation.project.title,
         );
 
-        const parentEquivalentStudent = findByUserId(
-          postMergeParentInstanceStudents,
-          projectAllocation.student.userId,
-        );
-
         return {
           allocationGroupId: group,
           allocationSubGroupId: subGroup,
           allocationInstanceId: parentInstanceId,
           projectId: parentEquivalentProject.id,
-          userId: parentEquivalentStudent.userId,
+          userId: projectAllocation.student.userId,
           studentRanking: projectAllocation.studentRanking,
         };
       });
