@@ -6,6 +6,7 @@ import {
   getStudentRank,
 } from "@/lib/utils/allocation-adjustment/rank";
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
+import { delay } from "@/lib/utils/general/delay";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -345,9 +346,9 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  exportDataToExternalSystem: instanceAdminProcedure
+  checkStudents: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
+    .mutation(
       async ({
         ctx,
         input: {
@@ -360,21 +361,136 @@ export const matchingRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
           },
-          select: { student: { select: { userId: true } }, project: true },
+          select: { userId: true },
         });
 
         const studentData = allocationData.map((s) => ({
-          matriculation: s.student.userId,
+          matriculation: s.userId,
         }));
 
-        const supervisorData = allocationData.map((s) => ({
-          guid: s.project.supervisorId,
-        }));
+        // const result = await axios
+        //   .post("/sp_checkStudents", studentData)
+        //   .then((res) => studentCheckResponseSchema.safeParse(res.data));
 
-        // // TODO: update what is needed from project
-        const projectData = allocationData.map((p) => p.project);
+        // if (!result.success) {
+        //   throw new TRPCClientError("Result does not match expected type");
+        // }
 
-        return { studentData, supervisorData, projectData };
+        // const checkedStudents = result.data;
+        const checkedStudents = [
+          { matriculation: "123", exists: 1 as const },
+          { matriculation: "456", exists: 1 as const },
+          { matriculation: "789", exists: 0 as const },
+        ];
+
+        await delay(2000);
+
+        return {
+          checkedStudents,
+          total: checkedStudents.length,
+          exist: checkedStudents.reduce((acc, val) => acc + val.exists, 0),
+        };
+      },
+    ),
+
+  checkSupervisors: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { project: { select: { supervisorId: true } } },
+        });
+
+        const supervisorData = [
+          ...new Set(allocationData.map((s) => s.project.supervisorId)),
+        ].map((id) => ({ guid: id }));
+
+        // const result = await axios
+        //   .post("/sp_checkSupervisors", supervisorData)
+        //   .then((res) => supervisorCheckResponseSchema.safeParse(res.data));
+
+        // if (!result.success) {
+        //   throw new TRPCClientError("Result does not match expected type");
+        // }
+
+        // const checkedSupervisors = result.data;
+        const checkedSupervisors = [
+          { guid: "123", exists: 1 as const },
+          { guid: "456", exists: 1 as const },
+          { guid: "789", exists: 0 as const },
+        ];
+
+        await delay(2000);
+
+        return {
+          checkedSupervisors,
+          total: checkedSupervisors.length,
+          exist: checkedSupervisors.reduce((acc, val) => acc + val.exists, 0),
+        };
+      },
+    ),
+
+  createProjectsOnAssessmentSystem: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { student: true, project: true },
+        });
+
+        const projectData = allocationData.map((p) => {
+          return {
+            id: p.project.id,
+            title: p.project.title,
+            description: p.project.description,
+            special_technical_requirements:
+              p.project.specialTechnicalRequirements ?? "",
+            student_matriculation: p.student.userId,
+            credits: 40,
+          };
+        });
+
+        await delay(2000);
+
+        // const result = await axios
+        //   .post("/sp_createProjects", projectData)
+        //   .then((res) => projectCreationResponseSchema.safeParse(res.data));
+
+        // if (!result.success) {
+        //   throw new TRPCClientError("Result does not match expected type");
+        // }
+
+        // const createdProjects = result.data;
+        const createdProjects = [
+          { id: "123", created: 1 as const },
+          { id: "456", created: 1 as const },
+        ];
+
+        return {
+          createdProjects,
+          total: createdProjects.length,
+          created: createdProjects.reduce((acc, val) => acc + val.created, 0),
+        };
       },
     ),
 
