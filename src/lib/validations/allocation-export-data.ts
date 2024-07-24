@@ -1,11 +1,13 @@
 import { z } from "zod";
 
-const studentDataResponseSchema = z.object({
-  matriculation: z.string(),
-  existsResponse: z.number(),
-});
+export const studentCheckResponseSchema = z.array(
+  z.object({
+    matriculation: z.string(),
+    exists: z.literal(0).or(z.literal(1)),
+  }),
+);
 
-export type StudentDataResponse = z.infer<typeof studentDataResponseSchema>;
+export type StudentCheckResponse = z.infer<typeof studentCheckResponseSchema>;
 
 const studentMatriculationDataSchema = z.object({
   matriculation: z.string(),
@@ -15,13 +17,15 @@ export type StudentMatriculationData = z.infer<
   typeof studentMatriculationDataSchema
 >;
 
-const supervisorDataResponseSchema = z.object({
-  guid: z.string(),
-  existsResponse: z.number(),
-});
+export const supervisorCheckResponseSchema = z.array(
+  z.object({
+    guid: z.string(),
+    exists: z.number(),
+  }),
+);
 
-export type SupervisorDataResponse = z.infer<
-  typeof supervisorDataResponseSchema
+export type SupervisorCheckResponse = z.infer<
+  typeof supervisorCheckResponseSchema
 >;
 
 const supervisorGuidDataSchema = z.object({
