@@ -595,57 +595,20 @@ export const matchingRouter = createTRPCRouter({
 
   createProjectsOnAssessmentSystem: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const allocationData = await ctx.db.projectAllocation.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { student: true, project: true },
-        });
+    .mutation(async () => {
+      await delay(2000);
 
-        const projectData = allocationData.map((p) => {
-          return {
-            id: p.project.id,
-            title: p.project.title,
-            description: p.project.description,
-            special_technical_requirements:
-              p.project.specialTechnicalRequirements ?? "",
-            student_matriculation: p.student.userId,
-            credits: 40,
-          };
-        });
+      const createdProjects = [
+        { id: "123", created: 1 as const },
+        { id: "456", created: 1 as const },
+      ];
 
-        await delay(2000);
-
-        // const result = await axios
-        //   .post("/sp_createProjects", projectData)
-        //   .then((res) => projectCreationResponseSchema.safeParse(res.data));
-
-        // if (!result.success) {
-        //   throw new TRPCClientError("Result does not match expected type");
-        // }
-
-        // const createdProjects = result.data;
-        const createdProjects = [
-          { id: "123", created: 1 as const },
-          { id: "456", created: 1 as const },
-        ];
-
-        return {
-          createdProjects,
-          total: createdProjects.length,
-          created: createdProjects.reduce((acc, val) => acc + val.created, 0),
-        };
-      },
-    ),
+      return {
+        createdProjects,
+        total: createdProjects.length,
+        created: createdProjects.reduce((acc, val) => acc + val.created, 0),
+      };
+    }),
 
   exportCsvData: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
