@@ -24,7 +24,7 @@ export default async function Layout({
 
   return (
     <div className="grid w-full grid-cols-6">
-      <div className="col-span-1 mt-28 flex justify-center border-r">
+      <div className="col-span-1 mt-28 flex justify-center border-r pr-2.5">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
           <Button variant="outline" asChild>
             <Link
@@ -43,7 +43,10 @@ export default async function Layout({
           <Separator className="my-1 w-3/4" />
           {tabs.map(({ title, href }, i) => (
             <Button key={i} variant="outline" asChild>
-              <Link href={`${instancePath}/${href}`} className="w-full">
+              <Link
+                href={`${instancePath}/${href}`}
+                className="h-max w-full text-center"
+              >
                 {title}
               </Link>
             </Button>
