@@ -87,17 +87,6 @@ export default async function Project({ params }: { params: pageParams }) {
             <p className="mt-6">{project.specialTechnicalRequirements}</p>
           </div>
         </div>
-        <div
-          className={cn(
-            "",
-            (project.specialTechnicalRequirements === "" ||
-              project.specialTechnicalRequirements === null) &&
-              "hidden",
-          )}
-        >
-          <SubHeading>Special Technical Requirements</SubHeading>
-          <p className="mt-6">{project.specialTechnicalRequirements}</p>
-        </div>
         <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
           <div>
             <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
