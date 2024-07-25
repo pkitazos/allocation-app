@@ -124,7 +124,6 @@ export async function mergeInstanceTransaction(
 
     await tx.supervisorInstanceDetails.createMany({
       data: newSupervisorData.map((u) => u.supervisorInstanceDetails[0]),
-      // .map(extractSupervisorInstanceDetails),
     });
 
     const forkedInstanceNewFlags = setDiff(f.flags, p.flags, (a) => a.title);
@@ -276,15 +275,12 @@ export async function mergeInstanceTransaction(
       }),
     });
 
-    // find students that were in the parent instance and are now in the forked instance
     const forkedInstanceUpdatedStudents = setIntersection(
       fStudents,
       pStudents,
       (a) => a.userId,
     );
 
-    // delete the preferences of the students that were in the parent instance and are now in the forked instance
-    // if they had preferences in the forked instance (i.e if their studentPreferences.length > 0)
     await tx.preference.deleteMany({
       where: {
         allocationGroupId: group,
@@ -298,7 +294,6 @@ export async function mergeInstanceTransaction(
       },
     });
 
-    // create new preferences in the parent instance for the updated students using the preferences from the forked instance
     await tx.preference.createMany({
       data: fStudents.flatMap(({ userId, studentPreferences }) =>
         studentPreferences.map((p) => {
