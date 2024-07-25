@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NoteCard } from "@/components/ui/note-card";
 import {
   Popover,
   PopoverContent,
@@ -37,33 +38,37 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
 import {
+  buildUpdatedProjectSchema,
   CurrentProjectFormDetails,
   FormInternalData,
   UpdatedProject,
-  updatedProjectSchema,
 } from "@/lib/validations/project-form";
 
+import { spacesLabels } from "@/content/spaces";
+
 export function ProjectForm({
-  formInternalData: { flags, tags, students },
+  formInternalData: { takenTitles, flags, tags, students },
   submissionButtonLabel,
   project,
   onSubmit,
+  isForked = false,
   children: dismissalButton,
 }: {
   formInternalData: FormInternalData;
   submissionButtonLabel: string;
   onSubmit: (data: UpdatedProject) => void;
   project?: CurrentProjectFormDetails;
+  isForked?: boolean;
   children: ReactNode;
 }) {
-  const formProject = {
-    title: project?.title ?? "",
-    description: project?.description ?? "",
-    capacityUpperBound: project?.capacityUpperBound ?? 1,
-    preAllocatedStudentId: project?.preAllocatedStudentId ?? "",
-    isPreAllocated: project?.isPreAllocated ?? false,
-    flagIds: project?.flagIds ?? [],
-    tags: project?.tags ?? [],
+  const formProject = project ?? {
+    title: "",
+    description: "",
+    capacityUpperBound: 1,
+    preAllocatedStudentId: "",
+    isPreAllocated: false,
+    flagIds: [],
+    tags: [],
   };
 
   const preAllocatedStudentId = formProject.preAllocatedStudentId;
@@ -73,7 +78,7 @@ export function ProjectForm({
   );
 
   const form = useForm<UpdatedProject>({
-    resolver: zodResolver(updatedProjectSchema),
+    resolver: zodResolver(buildUpdatedProjectSchema(takenTitles)),
     defaultValues: {
       title: formProject.title,
       description: formProject.description,
@@ -144,6 +149,15 @@ export function ProjectForm({
           )}
         />
         <Separator className="mt-4" />
+        {isForked && (
+          <NoteCard>
+            You are in a forked {spacesLabels.instance.short}. Any new flags or
+            tags assigned to a project will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any flags or tags removed will
+            remain on the project in the parent {spacesLabels.instance.short}{" "}
+            when merging.
+          </NoteCard>
+        )}
         <div className="grid grid-cols-2">
           <FormField
             control={form.control}
@@ -153,7 +167,7 @@ export function ProjectForm({
                 <div className="mb-3">
                   <FormLabel className="text-2xl">Flags</FormLabel>
                   <FormDescription>
-                    Select which students this project is suitable
+                    Select which students this project is suitable. <br />
                   </FormDescription>
                 </div>
                 {flags.map((item) => (
@@ -227,6 +241,12 @@ export function ProjectForm({
         </div>
 
         <Separator className="my-4" />
+        {isForked && (
+          <NoteCard>
+            You are in a forked {spacesLabels.instance.short}. Any changes made
+            to project capacity will override previous project capacity.
+          </NoteCard>
+        )}
 
         <FormField
           control={form.control}

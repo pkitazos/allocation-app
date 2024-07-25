@@ -2,6 +2,7 @@ import { AdminLevel } from "@prisma/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
+import { createdInstanceSchema } from "@/lib/validations/instance-form";
 import {
   instanceParamsSchema,
   subGroupParamsSchema,
@@ -117,14 +118,7 @@ export const subGroupRouter = createTRPCRouter({
     .input(
       z.object({
         params: subGroupParamsSchema,
-        name: z.string(),
-        minPreferences: z.number(),
-        maxPreferences: z.number(),
-        maxPreferencesPerSupervisor: z.number(),
-        preferenceSubmissionDeadline: z.date(),
-        projectSubmissionDeadline: z.date(),
-        flags: z.array(z.object({ flag: z.string() })),
-        tags: z.array(z.object({ tag: z.string() })),
+        newInstance: createdInstanceSchema,
       }),
     )
     .mutation(
@@ -132,23 +126,26 @@ export const subGroupRouter = createTRPCRouter({
         ctx,
         input: {
           params: { group, subGroup },
-          name,
-          minPreferences,
-          maxPreferences,
-          maxPreferencesPerSupervisor,
-          preferenceSubmissionDeadline,
-          projectSubmissionDeadline,
-          flags,
-          tags,
+          newInstance: {
+            instanceName,
+            minPreferences,
+            maxPreferences,
+            maxPreferencesPerSupervisor,
+            preferenceSubmissionDeadline,
+            projectSubmissionDeadline,
+            flags,
+            tags,
+          },
         },
       }) => {
-        const instance = slugify(name);
+        const instance = slugify(instanceName);
+
         await ctx.db.allocationInstance.create({
           data: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             id: instance,
-            displayName: name,
+            displayName: instanceName,
             minPreferences,
             maxPreferences,
             maxPreferencesPerSupervisor,
@@ -158,8 +155,8 @@ export const subGroupRouter = createTRPCRouter({
         });
 
         await ctx.db.flag.createMany({
-          data: flags.map(({ flag }) => ({
-            title: flag,
+          data: flags.map(({ title }) => ({
+            title,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
@@ -167,8 +164,8 @@ export const subGroupRouter = createTRPCRouter({
         });
 
         await ctx.db.tag.createMany({
-          data: tags.map(({ tag }) => ({
-            title: tag,
+          data: tags.map(({ title }) => ({
+            title,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,

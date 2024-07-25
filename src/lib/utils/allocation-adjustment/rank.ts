@@ -10,7 +10,7 @@ function getStudentProjectIds(row: StudentRow): string[] {
 }
 
 function getProjectRank(projectIds: string[], projectId: string): number {
-  return projectIds.findIndex((id) => id === projectId);
+  return projectIds.findIndex((id) => id === projectId) + 1;
 }
 
 export function getStudentRank(

@@ -10,14 +10,14 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/trpc";
+import { getUserRole } from "@/server/utils/user-role";
+
 import {
   formatInstanceData,
   getGroupInstances,
   getSubGroupInstances,
   getUserInstances,
-} from "@/server/utils/user-instances";
-import { getUserRole } from "@/server/utils/user-role";
-
+} from "./_utils/user-instances";
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
 

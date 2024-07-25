@@ -1,12 +1,21 @@
 import { Role } from "@prisma/client";
 import { z } from "zod";
 
+import { findByUserId } from "@/lib/utils/general/find-by-user-id";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  forkedInstanceProcedure,
+} from "@/server/trpc";
+import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+
+import { computeSubmissionDetails } from "./_utils/submission-details";
 
 export const projectRouter = createTRPCRouter({
-  submissionInfo: adminProcedure
+  submissionInfo: forkedInstanceProcedure // ! this should also be an admin procedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -15,49 +24,61 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const capacities = await ctx.db.supervisorInstanceDetails.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            userId: true,
-            projectAllocationLowerBound: true,
-            projectAllocationTarget: true,
-            projectAllocationUpperBound: true,
-          },
-          orderBy: { userId: "asc" },
-        });
+        const parentInstanceId = ctx.parentInstanceId;
 
-        const projects = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { supervisorId: true, preAllocatedStudentId: true },
-        });
+        const submissionDetails: SupervisorProjectSubmissionDetails[] = [];
 
-        return capacities.map((e) => {
-          const preAllocatedCount = projects.filter((p) => {
-            return p.supervisorId === e.userId && p.preAllocatedStudentId;
-          }).length;
+        if (parentInstanceId) {
+          const parentInstanceSubmissionDetails =
+            await computeSubmissionDetails(ctx.db, {
+              group,
+              subGroup,
+              instance: parentInstanceId,
+            });
 
-          const alreadySubmitted = projects.filter((p) => {
-            return p.supervisorId === e.userId && !p.preAllocatedStudentId;
-          }).length;
+          const forkedInstanceSubmissionDetails =
+            await computeSubmissionDetails(ctx.db, {
+              group,
+              subGroup,
+              instance,
+            });
 
-          // submissionTarget = 2*(t-p)
-          const submissionTarget =
-            2 * (e.projectAllocationTarget - preAllocatedCount);
+          forkedInstanceSubmissionDetails.forEach(
+            ({ projectAllocationTarget, userId, ...forked }) => {
+              const parent = findByUserId(
+                parentInstanceSubmissionDetails,
+                userId,
+              );
 
-          return {
-            submissionTarget,
-            alreadySubmitted,
-            ...e,
-          };
-        });
+              const newAllocatedCount =
+                forked.allocatedCount + parent.allocatedCount;
+
+              const newSubmissionTarget = computeProjectSubmissionTarget(
+                projectAllocationTarget,
+                newAllocatedCount,
+              );
+
+              submissionDetails.push({
+                userId,
+                projectAllocationTarget,
+                allocatedCount: newAllocatedCount,
+                submittedProjectsCount: forked.submittedProjectsCount,
+                submissionTarget: newSubmissionTarget,
+              });
+            },
+          );
+        } else {
+          const currentInstanceSubmissionDetails =
+            await computeSubmissionDetails(ctx.db, {
+              group,
+              subGroup,
+              instance,
+            });
+
+          submissionDetails.push(...currentInstanceSubmissionDetails);
+        }
+
+        return submissionDetails;
       },
     ),
 

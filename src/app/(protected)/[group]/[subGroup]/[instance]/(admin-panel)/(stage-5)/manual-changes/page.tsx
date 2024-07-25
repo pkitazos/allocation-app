@@ -2,6 +2,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
+import { PanelWrapper } from "@/components/panel-wrapper";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { students, projects, supervisors } =
@@ -10,7 +11,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
     });
 
   return (
-    <div className="mt-10 flex h-full justify-center px-20">
+    <PanelWrapper className="mt-10 flex h-full justify-center">
       <AllocDetailsProvider
         students={students}
         projects={projects}
@@ -20,6 +21,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
       >
         <AdjustmentSpace />
       </AllocDetailsProvider>
-    </div>
+    </PanelWrapper>
   );
 }

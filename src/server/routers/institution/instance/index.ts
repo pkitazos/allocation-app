@@ -2,22 +2,33 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
+import { setDiff } from "@/lib/utils/general/set-difference";
+import {
+  adminPanelTabs,
+  adminPanelTabsByStage,
+} from "@/lib/validations/admin-panel-tabs";
 import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
+import {
+  forkedInstanceSchema,
+  updatedInstanceSchema,
+} from "@/lib/validations/instance-form";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
 import {
   adminProcedure,
   createTRPCRouter,
+  forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { setDiff } from "@/server/utils/set-difference";
-
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { getUserRole } from "@/server/utils/user-role";
+
+import { forkInstanceTransaction } from "./_utils/fork";
+import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
@@ -132,6 +143,29 @@ export const instanceRouter = createTRPCRouter({
             studentsCanAccess,
           },
         });
+      },
+    ),
+
+  selectedAlgName: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const { selectedAlgName } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: { selectedAlgName: true },
+          });
+
+        return selectedAlgName ?? undefined;
       },
     ),
 
@@ -423,56 +457,6 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  toggleSupervisorPlatformAccess: adminProcedure
-    .input(
-      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          platformAccess,
-        },
-      }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-          },
-          data: {
-            supervisorsCanAccess: platformAccess,
-          },
-        });
-      },
-    ),
-
-  removeUser: adminProcedure
-    .input(z.object({ params: instanceParamsSchema, userId: z.string() }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          userId,
-        },
-      }) => {
-        await ctx.db.userInInstance.delete({
-          where: {
-            instanceMembership: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId,
-            },
-          },
-        });
-      },
-    ),
-
   addStudentDetails: adminProcedure
     .input(
       z.object({
@@ -563,46 +547,11 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  toggleStudentPlatformAccess: adminProcedure
-    .input(
-      z.object({ params: instanceParamsSchema, platformAccess: z.boolean() }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          platformAccess,
-        },
-      }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-          },
-          data: {
-            studentsCanAccess: platformAccess,
-          },
-        });
-      },
-    ),
-
   edit: stageAwareProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
-        updatedInstance: z.object({
-          projectSubmissionDeadline: z.date(),
-          minPreferences: z.number().int(),
-          maxPreferences: z.number().int(),
-          maxPreferencesPerSupervisor: z.number().int(),
-          preferenceSubmissionDeadline: z.date(),
-          flags: z.array(z.object({ title: z.string() })),
-          tags: z.array(z.object({ title: z.string() })),
-        }),
+        updatedInstance: updatedInstanceSchema,
       }),
     )
     .mutation(
@@ -632,8 +581,16 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
-        const newInstanceFlags = setDiff(flags, currentInstanceFlags);
-        const staleInstanceFlags = setDiff(currentInstanceFlags, flags);
+        const newInstanceFlags = setDiff(
+          flags,
+          currentInstanceFlags,
+          (a) => a.title,
+        );
+        const staleInstanceFlags = setDiff(
+          currentInstanceFlags,
+          flags,
+          (a) => a.title,
+        );
 
         await ctx.db.flag.deleteMany({
           where: {
@@ -661,8 +618,16 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
-        const newInstanceTags = setDiff(tags, currentInstanceTags);
-        const staleInstanceTags = setDiff(currentInstanceTags, tags);
+        const newInstanceTags = setDiff(
+          tags,
+          currentInstanceTags,
+          (a) => a.title,
+        );
+        const staleInstanceTags = setDiff(
+          currentInstanceTags,
+          tags,
+          (a) => a.title,
+        );
 
         await ctx.db.tag.deleteMany({
           where: {
@@ -699,4 +664,76 @@ export const instanceRouter = createTRPCRouter({
 
       return [instanceTabs.instanceHome, instanceTabs.allProjects];
     }),
+
+  adminPanelTabs: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            id: instance,
+          },
+          select: { stage: true },
+        });
+
+        if (stage === Stage.ALLOCATION_PUBLICATION) {
+          const base = [adminPanelTabs.allocationOverview];
+          return !parentInstanceId
+            ? [...base, adminPanelTabs.forkInstance]
+            : [...base, adminPanelTabs.mergeInstance];
+        }
+
+        return adminPanelTabsByStage[stage];
+      },
+    ),
+
+  fork: stageAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newInstance: forkedInstanceSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newInstance: forked,
+        },
+      }) => {
+        const params = { group, subGroup, instance };
+        if (ctx.stage !== Stage.ALLOCATION_PUBLICATION) return;
+
+        await forkInstanceTransaction(ctx.db, forked, params);
+      },
+    ),
+
+  merge: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        if (!parentInstanceId) return;
+
+        await mergeInstanceTransaction(ctx.db, parentInstanceId, {
+          group,
+          subGroup,
+          instance,
+        });
+      },
+    ),
 });

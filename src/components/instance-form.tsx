@@ -2,16 +2,20 @@
 import { ReactNode } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, setHours, setMinutes } from "date-fns";
+import { addDays, format, setHours, setMinutes } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { z } from "zod";
 
-import { SubHeading } from "@/components/heading";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { updateDateOnly } from "@/lib/utils/date/update-date-only";
+import {
+  buildInstanceFormSchema,
+  ValidatedInstanceDetails,
+} from "@/lib/validations/instance-form";
+
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
 import {
   Form,
   FormControl,
@@ -20,43 +24,48 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
+} from "./ui/form";
+import { Input } from "./ui/input";
+import { NoteCard } from "./ui/note-card";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Separator } from "./ui/separator";
+import { TimePicker } from "./ui/time-picker";
+import { SubHeading } from "./heading";
 
-import { api } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils";
-import { updateDateOnly } from "@/lib/utils/date/update-date-only";
-import { UpdatedInstance } from "@/lib/validations/instance-form";
-import { InstanceParams } from "@/lib/validations/params";
+import { spacesLabels } from "@/content/spaces";
 
-import { editFormDetailsSchema } from "./form-schema";
-import { TimePicker } from "./time-picker";
-
-import { spacesLabels } from "@/content/space-labels";
-
-export function FormSection({
+export function InstanceForm({
+  submissionButtonLabel,
+  takenNames = [],
   currentInstanceDetails,
-  params,
+  isForked = false,
+  onSubmit,
   children: dismissalButton,
 }: {
-  currentInstanceDetails: UpdatedInstance;
-  params: InstanceParams;
+  submissionButtonLabel: string;
+  takenNames?: string[];
+  currentInstanceDetails?: ValidatedInstanceDetails;
+  isForked?: boolean;
+  onSubmit: (data: ValidatedInstanceDetails) => Promise<void>;
   children: ReactNode;
 }) {
-  const { group, subGroup, instance } = params;
-  const router = useRouter();
+  const defaultInstanceDetails = currentInstanceDetails ?? {
+    instanceName: "",
+    flags: [],
+    tags: [],
+    projectSubmissionDeadline: addDays(new Date(), 1),
+    minNumPreferences: 1,
+    maxNumPreferences: 1,
+    maxNumPerSupervisor: 1,
+    preferenceSubmissionDeadline: addDays(new Date(), 2),
+  };
 
-  type FormData = z.infer<typeof editFormDetailsSchema>;
+  const formSchema = buildInstanceFormSchema(takenNames);
+  type FormSchemaType = z.infer<typeof formSchema>;
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(editFormDetailsSchema),
-    defaultValues: currentInstanceDetails,
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    defaultValues: defaultInstanceDetails,
   });
 
   const {
@@ -77,38 +86,60 @@ export function FormSection({
     name: "tags",
   });
 
-  const { mutateAsync: editInstanceAsync } =
-    api.institution.instance.edit.useMutation();
-
-  async function onSubmit(updatedInstance: FormData) {
-    void toast.promise(
-      editInstanceAsync({
-        params,
-        updatedInstance: {
-          ...updatedInstance,
-          minPreferences: updatedInstance.minNumPreferences,
-          maxPreferences: updatedInstance.maxNumPreferences,
-          maxPreferencesPerSupervisor: updatedInstance.maxNumPerSupervisor,
-        },
-      }).then(() => {
-        router.push(`/${group}/${subGroup}/${instance}`);
-        router.refresh();
-      }),
-      {
-        loading: `Updating ${spacesLabels.instance.short} Details...`,
-        error: "Something went wrong",
-        success: `Successfully updated ${spacesLabels.instance.short} Details`,
-      },
-    );
-  }
-
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="mt-10 flex flex-col gap-6"
       >
+        <div
+          className={cn(
+            "flex flex-col items-start gap-3",
+            currentInstanceDetails && "hidden",
+          )}
+        >
+          <FormField
+            control={form.control}
+            name="instanceName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-2xl">
+                  {spacesLabels.instance.full} Name
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={`${spacesLabels.instance.short} Name`}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Please select a unique name within the{" "}
+                  {spacesLabels.group.short} and {spacesLabels.subGroup.short}{" "}
+                  for this {spacesLabels.instance.short}.
+                  <br />
+                  <p className="pt-1 text-black">
+                    Please note: This name{" "}
+                    <span className="font-semibold underline">
+                      cannot be changed
+                    </span>{" "}
+                    later.
+                  </p>
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Separator className="my-14" />
+        </div>
         <SubHeading className="text-2xl">Project Details</SubHeading>
+        {isForked && (
+          <NoteCard>
+            You are in a forked {spacesLabels.instance.short}. Any new flags or
+            tags created will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any deleted flags or tags will
+            remain in the parent {spacesLabels.instance.short} when merging.
+          </NoteCard>
+        )}
         <div className="grid w-full grid-cols-2">
           <div className="flex flex-col gap-2">
             <FormLabel className="text-base">Project Flags</FormLabel>
@@ -275,7 +306,7 @@ export function FormSection({
           <div className="flex flex-col gap-4">
             <FormField
               control={form.control}
-              name="minNumPreferences"
+              name="minPreferences"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
@@ -284,7 +315,7 @@ export function FormSection({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />
@@ -296,7 +327,7 @@ export function FormSection({
             />
             <FormField
               control={form.control}
-              name="maxNumPreferences"
+              name="maxPreferences"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
@@ -305,7 +336,7 @@ export function FormSection({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />
@@ -317,14 +348,14 @@ export function FormSection({
             />
             <FormField
               control={form.control}
-              name="maxNumPerSupervisor"
+              name="maxPreferencesPerSupervisor"
               render={({ field }) => (
                 <FormItem className="w-96">
                   <div className="flex items-center justify-between gap-4">
                     <FormLabel className="text-base">per Supervisor:</FormLabel>
                     <FormControl>
                       <Input
-                        className="w-20 text-center"
+                        className="w-20 text-center placeholder:text-slate-300"
                         placeholder="1"
                         {...field}
                       />
@@ -393,7 +424,6 @@ export function FormSection({
                       const newMinute = parseInt(val, 10);
                       const newDate = setMinutes(field.value, newMinute);
                       const zonedDate = toZonedTime(newDate, "Europe/London");
-                      console.log(zonedDate);
                       field.onChange(zonedDate);
                     }}
                   />
@@ -409,8 +439,8 @@ export function FormSection({
         <Separator className="my-10" />
         <div className="flex justify-end gap-8">
           {dismissalButton}
-          <Button type="submit" size="lg" onClick={() => {}}>
-            Update {spacesLabels.instance.short}
+          <Button type="submit" size="lg">
+            {submissionButtonLabel}
           </Button>
         </div>
       </form>

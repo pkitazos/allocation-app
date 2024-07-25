@@ -13,21 +13,18 @@ import {
 
 import { api } from "@/lib/trpc/client";
 import { Algorithm } from "@/lib/validations/algorithm";
-import { MatchingData } from "@/lib/validations/matching";
 
 export function RunAlgorithmButton({
-  matchingData,
   algorithm,
   custom = false,
 }: {
-  matchingData: MatchingData;
   algorithm: Algorithm;
   custom?: boolean;
 }) {
   const params = useInstanceParams();
   const utils = api.useUtils();
 
-  const refetch = () =>
+  const refetchAlgorithmResult = () =>
     utils.institution.instance.algorithm.singleResult.refetch({
       algName: algorithm.algName,
       params,
@@ -38,24 +35,30 @@ export function RunAlgorithmButton({
 
   const Info = custom ? Flags : Description;
 
+  async function runAlgorithm() {
+    void toast.promise(
+      runAlgAsync({ params, algorithm }).then((data) => {
+        refetchAlgorithmResult();
+        return data;
+      }),
+      {
+        loading: "Running...",
+        success: (data) =>
+          `Successfully matched ${data.matchedStudents} of ${data.totalStudents} submitted students`,
+        error: (err) =>
+          err.message === "Infeasible"
+            ? "Matching is infeasible with current configuration"
+            : `Something went wrong: ${err.message}`,
+      },
+    );
+  }
+
   return (
     <div className="flex justify-between gap-5">
       <p className="flex items-center gap-2">
         {algorithm.displayName} - <Info algorithm={algorithm} />
       </p>
-      <Button
-        disabled={isPending}
-        onClick={() =>
-          toast.promise(
-            runAlgAsync({ params, algorithm, matchingData }).then(refetch),
-            {
-              loading: "Running...",
-              error: "Something went wrong",
-              success: "Success",
-            },
-          )
-        }
-      >
+      <Button onClick={runAlgorithm} disabled={isPending}>
         run
       </Button>
     </div>

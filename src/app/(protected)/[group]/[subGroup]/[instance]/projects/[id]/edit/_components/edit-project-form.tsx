@@ -18,9 +18,11 @@ import { ProjectRemovalButton } from "./project-removal-button";
 export function EditProjectForm({
   formInternalData,
   project,
+  isForked,
 }: {
   formInternalData: FormInternalData;
   project: CurrentProjectFormDetails;
+  isForked: boolean;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -50,6 +52,7 @@ export function EditProjectForm({
     <ProjectForm
       formInternalData={formInternalData}
       project={project}
+      isForked={isForked}
       submissionButtonLabel="Update Project"
       onSubmit={onSubmit}
     >

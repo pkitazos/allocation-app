@@ -6,7 +6,7 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { spacesLabels } from "@/content/space-labels";
+import { spacesLabels } from "@/content/spaces";
 
 import { DangerZone } from "./_components/danger-zone";
 

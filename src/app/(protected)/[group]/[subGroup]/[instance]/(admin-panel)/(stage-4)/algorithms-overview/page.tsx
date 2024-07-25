@@ -16,8 +16,9 @@ import {
 } from "./_components";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { matchingData, selectedAlgName } =
-    await api.institution.instance.matching.data({ params });
+  const selectedAlgName = await api.institution.instance.selectedAlgName({
+    params,
+  });
 
   const takenNames = await api.institution.instance.algorithm.takenNames({
     params,
@@ -34,30 +35,13 @@ export default async function Page({ params }: { params: InstanceParams }) {
           Select Algorithms to run
         </SubHeading>
         <div className="flex w-[45rem] flex-col gap-5">
-          <RunAlgorithmButton
-            matchingData={matchingData}
-            algorithm={GenerousAlgorithm}
-          />
-          <RunAlgorithmButton
-            matchingData={matchingData}
-            algorithm={GreedyAlgorithm}
-          />
-          <RunAlgorithmButton
-            matchingData={matchingData}
-            algorithm={GreedyGenAlgorithm}
-          />
-          <RunAlgorithmButton
-            matchingData={matchingData}
-            algorithm={MinCostAlgorithm}
-          />
+          <RunAlgorithmButton algorithm={GenerousAlgorithm} />
+          <RunAlgorithmButton algorithm={GreedyAlgorithm} />
+          <RunAlgorithmButton algorithm={GreedyGenAlgorithm} />
+          <RunAlgorithmButton algorithm={MinCostAlgorithm} />
           {customAlgs.map((alg, i) => (
             // TODO: add ability to delete custom algorithms
-            <RunAlgorithmButton
-              key={i}
-              matchingData={matchingData}
-              algorithm={alg}
-              custom
-            />
+            <RunAlgorithmButton key={i} algorithm={alg} custom />
           ))}
           <NewAlgorithmButton takenNames={takenNames} />
           <SubHeading className="mb-6 mt-16 text-2xl ">
