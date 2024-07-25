@@ -8,16 +8,6 @@ export const studentCheckResponseSchema = z.array(
   }),
 );
 
-export type StudentCheckResponse = z.infer<typeof studentCheckResponseSchema>;
-
-const studentMatriculationDataSchema = z.object({
-  matriculation: z.string(),
-});
-
-export type StudentMatriculationData = z.infer<
-  typeof studentMatriculationDataSchema
->;
-
 export const supervisorCheckResponseSchema = z.array(
   z.object({
     guid: z.string(),
@@ -25,12 +15,9 @@ export const supervisorCheckResponseSchema = z.array(
   }),
 );
 
-export type SupervisorCheckResponse = z.infer<
-  typeof supervisorCheckResponseSchema
->;
-
-const supervisorGuidDataSchema = z.object({
-  guid: z.string(),
-});
-
-export type SupervisorGuidData = z.infer<typeof supervisorGuidDataSchema>;
+export const projectCreationResponseSchema = z.array(
+  z.object({
+    id: z.string(),
+    created_successfully: z.literal(0).or(z.literal(1)),
+  }),
+);
