@@ -7,9 +7,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { ServerResponse } from "@/lib/validations/matching";
+import { MatchingResult } from "@/lib/validations/matching";
 
-export function DetailsTable({ data }: { data: ServerResponse }) {
+export function DetailsTable({ data }: { data: MatchingResult }) {
   return (
     <Table>
       <TableHeader>

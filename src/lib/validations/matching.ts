@@ -51,7 +51,7 @@ export const matchingDetailsSchema = z.object({
 
 export type MatchingDetails = z.infer<typeof matchingDetailsSchema>;
 
-export const serverResponseSchema = z.object({
+export const matchingResultSchema = z.object({
   profile: z.array(z.number()),
   degree: z.number(),
   size: z.number(),
@@ -64,4 +64,10 @@ export const serverResponseSchema = z.object({
   ranks: z.array(z.number()),
 });
 
-export type ServerResponse = z.infer<typeof serverResponseSchema>;
+export type MatchingResult = z.infer<typeof matchingResultSchema>;
+
+export const serverResponseSchema = z.object({
+  status: z.number(),
+  message: z.string(),
+  data: matchingResultSchema.optional(),
+});

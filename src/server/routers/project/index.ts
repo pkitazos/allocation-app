@@ -8,11 +8,12 @@ import { updatedProjectSchema } from "@/lib/validations/project-form";
 
 import {
   createTRPCRouter,
+  forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createProjectFlags } from "@/server/utils/flag";
-import { updateProjectAllocation } from "@/server/utils/project-allocation";
+import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
+import { updateProjectAllocation } from "@/server/routers/project/_utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
   edit: stageAwareProcedure
@@ -199,6 +200,7 @@ export const projectRouter = createTRPCRouter({
           },
         },
       });
+
       return {
         title: project.title,
         description: project.description,
@@ -211,6 +213,36 @@ export const projectRouter = createTRPCRouter({
         tags: project.tagOnProject.map(({ tag }) => tag),
       };
     }),
+
+  getIsForked: forkedInstanceProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+          projectId,
+        },
+      }) => {
+        const parentInstanceId = ctx.parentInstanceId;
+        const project = await ctx.db.project.findFirstOrThrow({
+          where: { id: projectId },
+        });
+
+        if (!parentInstanceId) return false;
+
+        const parentInstanceProject = await ctx.db.project.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: parentInstanceId,
+            title: project.title,
+          },
+        });
+
+        return !!parentInstanceProject;
+      },
+    ),
 
   delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
@@ -420,7 +452,17 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
+        const projectTitles = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { title: true },
+        });
+
         return {
+          takenTitles: projectTitles.map(({ title }) => title),
           flags,
           tags,
           students: studentData.map(({ userId }) => ({ id: userId })),

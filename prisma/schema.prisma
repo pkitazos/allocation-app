@@ -122,6 +122,7 @@ model AllocationInstance {
     maxPreferencesPerSupervisor  Int                @map("max_preferences_per_supervisor")
     preferenceSubmissionDeadline DateTime           @map("preference_submission_deadline")
     studentsCanAccess            Boolean            @default(false) @map("students_can_access")
+    parentInstanceId             String?            @map("parent_instance_id")
     // belongs to 1
     allocationSubGroup           AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
     allocationGroupId            String             @map("allocation_group_id")
@@ -174,6 +175,8 @@ model Project {
     tagOnProject                 TagOnProject[]
     inStudentPreferences         Preference[]
     allocations                  ProjectAllocation[]
+
+    @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model Preference {

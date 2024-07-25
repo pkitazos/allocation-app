@@ -23,6 +23,16 @@ export const updatedProjectSchema = baseProjectFormSchema.refine(
 
 export type UpdatedProject = z.infer<typeof updatedProjectSchema>;
 
+export function buildUpdatedProjectSchema(takenTitles: string[]) {
+  return updatedProjectSchema.refine(
+    ({ title }) => !takenTitles.includes(title),
+    {
+      message: "This title is already taken",
+      path: ["title"],
+    },
+  );
+}
+
 export const currentProjectFormDetailsSchema = baseProjectFormSchema
   .omit({
     capacityUpperBound: true,
@@ -37,7 +47,9 @@ export const currentProjectFormDetailsSchema = baseProjectFormSchema
 export type CurrentProjectFormDetails = z.infer<
   typeof currentProjectFormDetailsSchema
 >;
-export const formInternalDataSchema = z.object({
+
+const formInternalDataSchema = z.object({
+  takenTitles: z.array(z.string()),
   flags: z.array(z.object({ id: z.string(), title: z.string() })),
   tags: z.array(tagTypeSchema),
   students: z.array(z.object({ id: z.string() })),

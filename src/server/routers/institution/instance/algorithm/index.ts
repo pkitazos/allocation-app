@@ -2,16 +2,17 @@ import { z } from "zod";
 
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
-  matchingDataSchema,
-  ServerResponse,
-  serverResponseSchema,
+  MatchingResult,
+  matchingResultSchema,
 } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { getMatching } from "@/server/utils/get-matching";
 
-export const blankResult: ServerResponse = {
+import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
+import { getMatchingData } from "./_utils/get-matching-data";
+
+export const blankResult: MatchingResult = {
   profile: [],
   degree: NaN,
   size: NaN,
@@ -30,7 +31,6 @@ export const algorithmRouter = createTRPCRouter({
       z.object({
         params: instanceParamsSchema,
         algorithm: algorithmSchema,
-        matchingData: matchingDataSchema,
       }),
     )
     .mutation(
@@ -39,12 +39,18 @@ export const algorithmRouter = createTRPCRouter({
         input: {
           params: { group, subGroup, instance },
           algorithm,
-          matchingData,
         },
       }) => {
-        const serverResult = await getMatching({ algorithm, matchingData });
+        const matchingData = await getMatchingData(ctx.db, {
+          group,
+          subGroup,
+          instance,
+        });
 
-        if (!serverResult) return undefined;
+        const matchingResults = await executeMatchingAlgorithm({
+          algorithm,
+          matchingData,
+        });
 
         await ctx.db.algorithm.update({
           where: {
@@ -56,11 +62,14 @@ export const algorithmRouter = createTRPCRouter({
             },
           },
           data: {
-            matchingResultData: JSON.stringify(serverResult),
+            matchingResultData: JSON.stringify(matchingResults),
           },
         });
 
-        return serverResult;
+        return {
+          totalStudents: matchingData.students.length,
+          matchedStudents: matchingResults.size,
+        };
       },
     ),
 
@@ -178,7 +187,7 @@ export const algorithmRouter = createTRPCRouter({
 
         if (!res) return blankResult;
 
-        const result = serverResponseSchema.safeParse(
+        const result = matchingResultSchema.safeParse(
           JSON.parse(res.matchingResultData as string),
         );
 
@@ -214,7 +223,7 @@ export const algorithmRouter = createTRPCRouter({
         type tableData = {
           algName: string;
           displayName: string;
-          data: ServerResponse;
+          data: MatchingResult;
         };
 
         if (results.length === 0) {
@@ -224,7 +233,7 @@ export const algorithmRouter = createTRPCRouter({
         const nonEmpty: number[] = [];
         const data = results.map(
           ({ algName, displayName, matchingResultData }, i) => {
-            const res = serverResponseSchema.safeParse(
+            const res = matchingResultSchema.safeParse(
               JSON.parse(matchingResultData as string),
             );
             const data = res.success ? res.data : blankResult;
