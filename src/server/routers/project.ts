@@ -205,7 +205,8 @@ export const projectRouter = createTRPCRouter({
         supervisor: project.supervisor.user,
         capacityUpperBound: project.capacityUpperBound,
         preAllocatedStudentId: project.preAllocatedStudentId,
-        specialTechnicalRequirements: project.specialTechnicalRequirements,
+        specialTechnicalRequirements:
+          project.specialTechnicalRequirements ?? "",
         flags: project.flagOnProjects.map(({ flag }) => flag),
         tags: project.tagOnProject.map(({ tag }) => tag),
       };

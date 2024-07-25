@@ -58,20 +58,20 @@ export default async function Project({ params }: { params: pageParams }) {
         </AccessControl>
       </Heading>
       <div className="mt-6 flex gap-6">
-        <div className="w-3/4">
-          <SubHeading>Description</SubHeading>
-          <p className="mt-6">{project.description}</p>
-        </div>
-        <div
-          className={cn(
-            "",
-            (project.specialTechnicalRequirements === "" ||
-              project.specialTechnicalRequirements === null) &&
-              "hidden",
-          )}
-        >
-          <SubHeading>Special Technical Requirements</SubHeading>
-          <p className="mt-6">{project.specialTechnicalRequirements}</p>
+        <div className="flex w-3/4 flex-col gap-16">
+          <div className="flex flex-col">
+            <SubHeading>Description</SubHeading>
+            <p className="mt-6">{project.description}</p>
+          </div>
+          <div
+            className={cn(
+              "flex flex-col",
+              project.specialTechnicalRequirements === "" && "hidden",
+            )}
+          >
+            <SubHeading>Special Technical Requirements</SubHeading>
+            <p className="mt-6">{project.specialTechnicalRequirements}</p>
+          </div>
         </div>
         <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
           <div>
