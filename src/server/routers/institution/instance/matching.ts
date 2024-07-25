@@ -14,8 +14,17 @@ import {
 import { serverResponseSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
+import { mock } from "@/lib/utils/general/delay";
 import { adminProcedure, createTRPCRouter } from "@/server/trpc";
-import { delay } from "@/lib/utils/general/delay";
+
+// TODO: uncomment once endpoint interfaces are confirmed
+// import {
+//   projectCreationResponseSchema,
+//   studentCheckResponseSchema,
+//   supervisorCheckResponseSchema,
+// } from "@/lib/validations/allocation-export-data";
+// import { TRPCClientError } from "@trpc/client";
+// import axios from "axios";
 
 export const matchingRouter = createTRPCRouter({
   data: adminProcedure.input(z.object({ params: instanceParamsSchema })).query(
@@ -521,6 +530,7 @@ export const matchingRouter = createTRPCRouter({
           matriculation: s.userId,
         }));
 
+        // TODO: uncomment once endpoint interface is confirmed
         // const result = await axios
         //   .post("/sp_checkStudents", studentData)
         //   .then((res) => studentCheckResponseSchema.safeParse(res.data));
@@ -530,13 +540,13 @@ export const matchingRouter = createTRPCRouter({
         // }
 
         // const checkedStudents = result.data;
-        const checkedStudents = [
+
+        // TODO: remove this once endpoint interface is confirmed
+        const checkedStudents = await mock([
           { matriculation: "123", exists: 1 as const },
           { matriculation: "456", exists: 1 as const },
           { matriculation: "789", exists: 0 as const },
-        ];
-
-        await delay(2000);
+        ]);
 
         return {
           checkedStudents,
@@ -568,6 +578,7 @@ export const matchingRouter = createTRPCRouter({
           ...new Set(allocationData.map((s) => s.project.supervisorId)),
         ].map((id) => ({ guid: id }));
 
+        // TODO: uncomment once endpoint interface is confirmed
         // const result = await axios
         //   .post("/sp_checkSupervisors", supervisorData)
         //   .then((res) => supervisorCheckResponseSchema.safeParse(res.data));
@@ -577,13 +588,13 @@ export const matchingRouter = createTRPCRouter({
         // }
 
         // const checkedSupervisors = result.data;
-        const checkedSupervisors = [
+
+        // TODO: remove this once endpoint interface is confirmed
+        const checkedSupervisors = await mock([
           { guid: "123", exists: 1 as const },
           { guid: "456", exists: 1 as const },
           { guid: "789", exists: 0 as const },
-        ];
-
-        await delay(2000);
+        ]);
 
         return {
           checkedSupervisors,
@@ -595,20 +606,54 @@ export const matchingRouter = createTRPCRouter({
 
   createProjectsOnAssessmentSystem: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .mutation(async () => {
-      await delay(2000);
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { project: true, student: true },
+        });
 
-      const createdProjects = [
-        { id: "123", created: 1 as const },
-        { id: "456", created: 1 as const },
-      ];
+        const projectData = allocationData.map((e) => ({
+          project_id: e.project.id,
+          student_id: e.student.userId,
+          // TODO: add appropriate fields once endpoint interface is confirmed
+        }));
 
-      return {
-        createdProjects,
-        total: createdProjects.length,
-        created: createdProjects.reduce((acc, val) => acc + val.created, 0),
-      };
-    }),
+        // TODO: uncomment once endpoint interface is confirmed
+        // const result = await axios
+        //   .post("/sp_createProjects", allocationData)
+        //   .then((res) => projectCreationResponseSchema.safeParse(res.data));
+
+        // if (!result.success) {
+        //   throw new TRPCClientError("Result does not match expected type");
+        // }
+        // const createdProjects = result.data.map((e) => ({
+        //   id: e.id,
+        //   created: e.created_successfully,
+        // }));
+
+        // TODO: remove this once endpoint interface is confirmed
+        const createdProjects = await mock([
+          { id: "123", created: 1 as const },
+          { id: "456", created: 1 as const },
+        ]);
+
+        return {
+          createdProjects,
+          total: createdProjects.length,
+          created: createdProjects.reduce((acc, val) => acc + val.created, 0),
+        };
+      },
+    ),
 
   exportCsvData: adminProcedure
     .input(z.object({ params: instanceParamsSchema }))
