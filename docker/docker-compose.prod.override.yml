@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   postgres_is_ready:
     image: postgres:latest
