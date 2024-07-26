@@ -685,7 +685,11 @@ export const instanceRouter = createTRPCRouter({
         });
 
         if (stage === Stage.ALLOCATION_PUBLICATION) {
-          const base = [adminPanelTabs.allocationOverview];
+          const base = [
+            adminPanelTabs.allocationOverview,
+            adminPanelTabs.exportToCSV,
+            adminPanelTabs.exportToExternalSystem,
+          ];
           return !parentInstanceId
             ? [...base, adminPanelTabs.forkInstance]
             : [...base, adminPanelTabs.mergeInstance];

@@ -44,7 +44,7 @@ export default async function Layout({
             <Button key={i} variant={action ? "secondary" : "outline"} asChild>
               <Link
                 href={`${instancePath}/${href}`}
-                className="flex w-full items-center gap-2"
+                className="flex w-full items-center gap-2 py-3 text-center"
               >
                 {action &&
                   (href.startsWith("fork") ? (

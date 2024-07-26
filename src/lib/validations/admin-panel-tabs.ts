@@ -61,6 +61,16 @@ export const adminPanelTabs = {
     href: "merge-instance",
     action: true,
   },
+  exportToCSV: {
+    title: "Export Data to CSV",
+    href: "export-to-csv",
+    action: false,
+  },
+  exportToExternalSystem: {
+    title: "Send Data to External System",
+    href: "export-to-external-system",
+    action: false,
+  },
 } as const;
 
 export const adminPanelTabsByStage: Record<
@@ -80,6 +90,8 @@ export const adminPanelTabsByStage: Record<
   ALLOCATION_ADJUSTMENT: [adminPanelTabs.manualChanges],
   ALLOCATION_PUBLICATION: [
     adminPanelTabs.allocationOverview,
+    adminPanelTabs.exportToCSV,
+    adminPanelTabs.exportToExternalSystem,
     adminPanelTabs.forkInstance,
     adminPanelTabs.mergeInstance,
   ],
