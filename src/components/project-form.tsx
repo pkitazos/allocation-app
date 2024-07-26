@@ -1,9 +1,9 @@
 "use client";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MoreInformation } from "@/components/ui/more-information";
 import { NoteCard } from "@/components/ui/note-card";
 import {
   Popover,
@@ -44,6 +45,7 @@ import {
   UpdatedProject,
 } from "@/lib/validations/project-form";
 
+import { flagToLevel } from "@/content/configs/flag-to-level";
 import { spacesLabels } from "@/content/spaces";
 
 export function ProjectForm({
@@ -166,8 +168,26 @@ export function ProjectForm({
               <FormItem className={cn(flags.length === 0 && "hidden")}>
                 <div className="mb-3">
                   <FormLabel className="text-2xl">Flags</FormLabel>
-                  <FormDescription>
-                    Select which students this project is suitable. <br />
+                  <FormDescription className="flex items-center gap-1">
+                    <p>Select which students this project is suitable</p>
+                    <MoreInformation className="w-96">
+                      <p>
+                        Flags are used to help students identify projects that
+                        are suitable for them.
+                        <ul className="list-disc pl-6">
+                          <li>
+                            Level {flagToLevel.bsc.level} students are only able
+                            to see projects assigned flags starting with{" "}
+                            {flagToLevel.bsc.label}.
+                          </li>
+                          <li>
+                            Level {flagToLevel.msci.level} students are only
+                            able to see projects assigned flags starting with{" "}
+                            {flagToLevel.msci.label}.
+                          </li>
+                        </ul>
+                      </p>
+                    </MoreInformation>
                   </FormDescription>
                 </div>
                 {flags.map((item) => (
