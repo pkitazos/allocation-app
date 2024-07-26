@@ -71,6 +71,16 @@ export const adminPanelTabs = {
     href: "export-to-external-system",
     action: false,
   },
+  exportToCSV: {
+    title: "Export Data to CSV",
+    href: "export-to-csv",
+    action: false,
+  },
+  exportToExternalSystem: {
+    title: "Send Data to External System",
+    href: "export-to-external-system",
+    action: false,
+  },
 } as const;
 
 export const adminPanelTabsByStage: Record<
