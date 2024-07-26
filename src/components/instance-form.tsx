@@ -143,12 +143,7 @@ export function InstanceForm({
         )}
         <div className="grid w-full grid-cols-2">
           <div className="flex flex-col gap-2">
-            <FormLabel
-              onError={() => console.log("hello")}
-              className="text-base"
-            >
-              Project Flags
-            </FormLabel>
+            <FormLabel className="text-base">Project Flags</FormLabel>
             <FormDescription>
               Flags are used to mark a a project as suitable for a particular
               group of students.
