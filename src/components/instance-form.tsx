@@ -169,6 +169,7 @@ export function InstanceForm({
                         <Button
                           variant="ghost"
                           size="icon"
+                          disabled={flagFields.length === 1}
                           onClick={() => removeFlag(idx)}
                         >
                           <X className="h-4 w-4" />
