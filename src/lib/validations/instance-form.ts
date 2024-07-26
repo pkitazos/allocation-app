@@ -1,3 +1,4 @@
+import { flagToLevel } from "@/content/configs/flag-to-level";
 import { isAfter } from "date-fns";
 import { z } from "zod";
 
@@ -14,8 +15,12 @@ const baseSchema = z.object({
         .string()
         .min(3, "Please enter a valid title")
         .refine(
-          (title) => title.startsWith("MSci") || title.startsWith("BSc"),
-          { message: "Valid flag titles start with MSci or BSc" },
+          (title) =>
+            title.startsWith(flagToLevel.msci.label) ||
+            title.startsWith(flagToLevel.bsc.label),
+          {
+            message: `Valid flag titles start with ${flagToLevel.msci.label} or ${flagToLevel.bsc.label}`,
+          },
         ),
     }),
   ),
