@@ -14,7 +14,7 @@ services:
       - db
     build:
       context: ../
-      dockerfile: Dockerfile
+      dockerfile: ./docker/Dockerfile
     ports:
       - "3000:3000"
     networks:
