@@ -14,13 +14,19 @@ import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
-import { NewStudent, newStudentSchema } from "@/lib/validations/csv";
+import { addStudentsCsvHeaders } from "@/lib/validations/add-users/csv";
+import {
+  NewStudent,
+  newStudentSchema,
+} from "@/lib/validations/add-users/new-user";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { columns } from "./_components/new-student-columns";
-import { addStudentsCsvHeaders } from "@/lib/validations/add-students";
+import { PanelWrapper } from "@/components/panel-wrapper";
+import { SubHeading } from "@/components/heading";
+import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-export default async function Page() {
+export default function Page() {
   const router = useRouter();
   const params = useInstanceParams();
 
@@ -30,13 +36,17 @@ export default async function Page() {
     resolver: zodResolver(newStudentSchema),
   });
 
-  const onSubmit = (data: NewStudent) => {
+  function onSubmit(data: NewStudent) {
     setNewStudents((prev) => [data, ...prev]);
     reset();
-  };
+  }
 
   function handleRowRemoval(idx: number) {
     setNewStudents((prev) => prev.toSpliced(idx, 1));
+  }
+
+  function handleClearTable() {
+    setNewStudents([]);
   }
 
   const { mutateAsync } =
@@ -60,11 +70,15 @@ export default async function Page() {
   }
 
   return (
-    <div className="mt-20 flex flex-col px-6">
-      <div className="flex flex-col gap-6">
+    <PanelWrapper className="mt-10">
+      <SubHeading>{adminPanelTabs.addStudents.title}</SubHeading>
+      <div className="mt-6 flex flex-col gap-6">
         <h3 className="text-xl">Upload using CSV</h3>
         <div className="flex items-center gap-6">
-          <CSVUploadButton setNewStudents={setNewStudents} />
+          <CSVUploadButton
+            requiredHeaders={addStudentsCsvHeaders}
+            setNewStudents={setNewStudents}
+          />
           <div className="flex flex-col items-start">
             <p className="text-muted-foreground">must contain header: </p>
             <code className="text-muted-foreground">
@@ -87,8 +101,13 @@ export default async function Page() {
           />
           <Input
             className="w-1/6"
-            placeholder="University ID"
-            {...register("schoolId")}
+            placeholder="Matriculation No."
+            {...register("institutionId")}
+          />
+          <Input
+            className="w-1/6"
+            placeholder="Student Level"
+            {...register("level")}
           />
           <Input className="w-2/5" placeholder="Email" {...register("email")} />
           <Button type="submit" size="icon" variant="secondary">
@@ -99,7 +118,7 @@ export default async function Page() {
       <Separator className="my-14" />
       <DataTable
         searchableColumn={{ id: "full Name", displayName: "Student Names" }}
-        columns={columns(handleRowRemoval, () => setNewStudents([]))}
+        columns={columns(handleRowRemoval, handleClearTable)}
         data={newStudents}
       />
       <div className="flex justify-end">
@@ -110,6 +129,6 @@ export default async function Page() {
           Add Students
         </Button>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

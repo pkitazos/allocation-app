@@ -7,7 +7,10 @@ import {
   adminPanelTabs,
   adminPanelTabsByStage,
 } from "@/lib/validations/admin-panel-tabs";
-import { newStudentSchema, newSupervisorSchema } from "@/lib/validations/csv";
+import {
+  newStudentSchema,
+  newSupervisorSchema,
+} from "@/lib/validations/add-users/new-user";
 import {
   forkedInstanceSchema,
   updatedInstanceSchema,
@@ -381,23 +384,23 @@ export const instanceRouter = createTRPCRouter({
 
         const supervisorIds = currentSupervisors.map(({ user }) => user.id);
         const newSupervisors = addedSupervisors.filter((s) => {
-          return !supervisorIds.includes(s.schoolId);
+          return !supervisorIds.includes(s.institutionId);
         });
 
         await ctx.db.user.createMany({
           data: newSupervisors.map((e) => ({
-            id: e.schoolId,
+            id: e.institutionId,
             name: e.fullName,
             email: e.email,
           })),
         });
 
         await ctx.db.userInInstance.createMany({
-          data: newSupervisors.map(({ schoolId }) => ({
+          data: newSupervisors.map(({ institutionId }) => ({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            userId: schoolId,
+            userId: institutionId,
             role: Role.SUPERVISOR,
           })),
         });
@@ -407,7 +410,7 @@ export const instanceRouter = createTRPCRouter({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            userId: e.schoolId,
+            userId: e.institutionId,
             projectAllocationLowerBound: 0,
             projectAllocationTarget: e.projectTarget,
             projectAllocationUpperBound: e.projectUpperQuota,
@@ -484,23 +487,23 @@ export const instanceRouter = createTRPCRouter({
 
         const studentIds = currentStudents.map(({ user }) => user.id);
         const newStudents = addedStudents.filter((s) => {
-          return !studentIds.includes(s.schoolId);
+          return !studentIds.includes(s.institutionId);
         });
 
         await ctx.db.user.createMany({
           data: newStudents.map((e) => ({
-            id: e.schoolId,
+            id: e.institutionId,
             name: e.fullName,
             email: e.email,
           })),
         });
 
         await ctx.db.userInInstance.createMany({
-          data: newStudents.map(({ schoolId }) => ({
+          data: newStudents.map(({ institutionId }) => ({
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            userId: schoolId,
+            userId: institutionId,
             role: Role.STUDENT,
           })),
         });

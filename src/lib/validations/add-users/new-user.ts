@@ -2,13 +2,14 @@ import { z } from "zod";
 
 export const newStudentSchema = z.object({
   fullName: z.string(),
-  schoolId: z.string(),
+  institutionId: z.string(),
   email: z.string().email(),
+  level: z.coerce.number().int(),
 });
 
 export const newSupervisorSchema = z.object({
   fullName: z.string(),
-  schoolId: z.string(),
+  institutionId: z.string(),
   email: z.string().email(),
   projectTarget: z.coerce.number().int(),
   projectUpperQuota: z.coerce.number().int(),

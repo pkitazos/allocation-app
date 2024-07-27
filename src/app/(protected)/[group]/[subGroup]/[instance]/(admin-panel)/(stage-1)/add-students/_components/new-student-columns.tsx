@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
-import { NewStudent } from "@/lib/validations/csv";
+import { NewStudent } from "@/lib/validations/add-users/new-user";
 
 export function columns(
   removeRow: (idx: number) => void,
@@ -40,12 +40,12 @@ export function columns(
       ),
     },
     {
-      id: "University ID",
-      accessorFn: ({ schoolId }) => schoolId,
+      id: "Matriculation No.",
+      accessorFn: ({ institutionId: matriculation }) => matriculation,
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title="University ID"
+          title="Matriculation No."
           canFilter
         />
       ),
@@ -55,6 +55,13 @@ export function columns(
       accessorFn: ({ email }) => email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
+      ),
+    },
+    {
+      id: "level",
+      accessorFn: ({ level }) => level,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Student Level" />
       ),
     },
     {

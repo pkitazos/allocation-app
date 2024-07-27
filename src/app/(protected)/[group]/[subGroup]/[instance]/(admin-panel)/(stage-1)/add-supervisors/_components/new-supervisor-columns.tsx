@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
-import { NewSupervisor } from "@/lib/validations/csv";
+import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
 export function columns(
   removeRow: (idx: number) => void,
@@ -40,14 +40,10 @@ export function columns(
       ),
     },
     {
-      id: "university ID",
-      accessorFn: ({ schoolId }) => schoolId,
+      id: "GUID",
+      accessorFn: ({ institutionId }) => institutionId,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="University ID"
-          canFilter
-        />
+        <DataTableColumnHeader column={column} title="GUID" canFilter />
       ),
     },
     {

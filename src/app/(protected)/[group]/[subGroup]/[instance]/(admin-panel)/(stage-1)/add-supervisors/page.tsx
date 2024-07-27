@@ -15,11 +15,14 @@ import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
-import { NewSupervisor, newSupervisorSchema } from "@/lib/validations/csv";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { columns } from "./_components/new-supervisor-columns";
-import { addSupervisorsCsvHeaders } from "@/lib/validations/add-supervisors";
+import {
+  addSupervisorsCsvHeaders,
+  addSupervisorsCsvRowSchema,
+} from "@/lib/validations/add-users/csv";
+import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
 export default async function Page() {
   const router = useRouter();
@@ -28,7 +31,7 @@ export default async function Page() {
   const [newSupervisors, setNewSupervisors] = useState<NewSupervisor[]>([]);
 
   const { register, handleSubmit, reset } = useForm<NewSupervisor>({
-    resolver: zodResolver(newSupervisorSchema),
+    resolver: zodResolver(addSupervisorsCsvRowSchema),
   });
 
   const onSubmit = (data: NewSupervisor) => {
@@ -65,7 +68,10 @@ export default async function Page() {
       <div className="flex flex-col gap-6">
         <h3 className="text-xl">Upload using CSV</h3>
         <div className="flex items-center gap-6">
-          <CSVUploadButton setNewSupervisors={setNewSupervisors} />
+          <CSVUploadButton
+            requiredHeaders={addSupervisorsCsvHeaders}
+            setNewSupervisors={setNewSupervisors}
+          />
           <div className="flex flex-col items-start">
             <p className="text-muted-foreground">must contain header: </p>
             <code className="text-muted-foreground">
