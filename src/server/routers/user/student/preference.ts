@@ -247,9 +247,9 @@ export const preferenceRouter = createTRPCRouter({
       }) => {
         if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
 
-        await ctx.db.userInInstance.update({
+        await ctx.db.studentDetails.update({
           where: {
-            instanceMembership: {
+            detailsId: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,

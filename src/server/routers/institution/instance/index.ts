@@ -7,13 +7,13 @@ import {
   setDiff,
 } from "@/lib/utils/general/set-difference";
 import {
-  adminPanelTabs,
-  adminPanelTabsByStage,
-} from "@/lib/validations/admin-panel-tabs";
-import {
   newStudentSchema,
   newSupervisorSchema,
 } from "@/lib/validations/add-users/new-user";
+import {
+  adminPanelTabs,
+  adminPanelTabsByStage,
+} from "@/lib/validations/admin-panel-tabs";
 import {
   forkedInstanceSchema,
   updatedInstanceSchema,
@@ -38,7 +38,6 @@ import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
-import { X } from "lucide-react";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -771,21 +770,23 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const students = await ctx.db.userInInstance.findMany({
+        const students = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
-          select: { user: true },
+          select: {
+            userInInstance: { select: { user: true } },
+            studentLevel: true,
+          },
         });
 
-        return students.map(({ user }) => ({
+        return students.map(({ userInInstance: { user }, studentLevel }) => ({
           institutionId: user.id,
           fullName: user.name!,
           email: user.email!,
-          level: 0,
+          level: studentLevel,
         }));
       },
     ),
@@ -828,9 +829,16 @@ export const instanceRouter = createTRPCRouter({
             },
           });
 
-          // await ctx.db.studentInstanceDetails.create({data:{
-          // studentLevel:level
-          // }});
+          await ctx.db.studentDetails.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: institutionId,
+              studentLevel: level,
+              submittedPreferences: false,
+            },
+          });
         });
         return { institutionId, fullName, email, level };
       },
@@ -884,9 +892,16 @@ export const instanceRouter = createTRPCRouter({
             skipDuplicates: true,
           });
 
-          // await ctx.db.studentInstanceDetails.createMany({
-          // data:newStudents.map(({level})=>{studentLevel:level})
-          // });
+          await ctx.db.studentDetails.createMany({
+            data: newStudents.map(({ level, institutionId }) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: institutionId,
+              studentLevel: level,
+              submittedPreferences: false,
+            })),
+          });
         });
       },
     ),
@@ -913,16 +928,16 @@ export const instanceRouter = createTRPCRouter({
             },
           });
 
-          // await tx.studentInstanceDetails.delete({
-          //   where: {
-          //     detailsId: {
-          //       allocationGroupId: group,
-          //       allocationSubGroupId: subGroup,
-          //       allocationInstanceId: instance,
-          //       userId: studentId,
-          //     }
-          //   }
-          // })
+          await tx.studentDetails.delete({
+            where: {
+              detailsId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: studentId,
+              },
+            },
+          });
         });
       },
     ),
@@ -952,14 +967,14 @@ export const instanceRouter = createTRPCRouter({
             },
           });
 
-          // await tx.studentInstanceDetails.deleteMany({
-          //   where: {
-          //     allocationGroupId: group,
-          //     allocationSubGroupId: subGroup,
-          //     allocationInstanceId: instance,
-          //     userId: { in: studentIds },
-          //   },
-          // });
+          await tx.studentDetails.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: { in: studentIds },
+            },
+          });
         });
       },
     ),

@@ -105,26 +105,25 @@ export const projectRouter = createTRPCRouter({
             },
           });
 
-        const data = await ctx.db.userInInstance.findMany({
+        const data = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
           select: {
             userId: true,
-            studentPreferences: true,
             submittedPreferences: true,
+            userInInstance: { select: { studentPreferences: true } },
           },
         });
 
         const studentData = data.map(
-          ({ userId, studentPreferences, submittedPreferences }) => {
+          ({ userId, userInInstance, submittedPreferences }) => {
             return {
               userId,
-              submissionCount: studentPreferences.length,
-              submittedPreferences,
+              submissionCount: userInInstance.studentPreferences.length,
+              submittedPreferences: submittedPreferences,
             };
           },
         );
