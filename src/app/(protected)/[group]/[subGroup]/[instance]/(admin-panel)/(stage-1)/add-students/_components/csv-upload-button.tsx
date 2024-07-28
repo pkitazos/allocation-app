@@ -1,23 +1,20 @@
 "use client";
 
 import { parse } from "papaparse";
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
 
-import {
-  addStudentsCsvHeaders,
-  addStudentsCsvRowSchema,
-} from "@/lib/validations/add-users/csv";
+import { addStudentsCsvRowSchema } from "@/lib/validations/add-users/csv";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
 
 export function CSVUploadButton({
-  setNewStudents,
+  handleUpload,
   requiredHeaders,
 }: {
-  setNewStudents: Dispatch<SetStateAction<NewStudent[]>>;
+  handleUpload: (data: NewStudent[]) => Promise<void>;
   requiredHeaders: string[];
 }) {
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -42,8 +39,9 @@ export function CSVUploadButton({
             toast.error("CSV data was not formatted correctly");
             return;
           }
+          toast.success("CSV parsed successfully!");
 
-          setNewStudents(
+          handleUpload(
             result.data.map((e) => ({
               fullName: e.full_name,
               institutionId: e.matriculation_number,
@@ -51,7 +49,6 @@ export function CSVUploadButton({
               level: e.student_level,
             })),
           );
-          toast.success("CSV parsed successfully!");
         },
         header: true,
         skipEmptyLines: true,

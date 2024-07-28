@@ -7,6 +7,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { SubHeading } from "@/components/heading";
+import { PanelWrapper } from "@/components/panel-wrapper";
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table/data-table";
@@ -15,16 +17,17 @@ import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
-
-import { CSVUploadButton } from "./_components/csv-upload-button";
-import { columns } from "./_components/new-supervisor-columns";
 import {
   addSupervisorsCsvHeaders,
   addSupervisorsCsvRowSchema,
 } from "@/lib/validations/add-users/csv";
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
+import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-export default async function Page() {
+import { CSVUploadButton } from "./_components/csv-upload-button";
+import { columns } from "./_components/new-supervisor-columns";
+
+export default function Page() {
   const router = useRouter();
   const params = useInstanceParams();
 
@@ -34,10 +37,10 @@ export default async function Page() {
     resolver: zodResolver(addSupervisorsCsvRowSchema),
   });
 
-  const onSubmit = (data: NewSupervisor) => {
+  function onSubmit(data: NewSupervisor) {
     setNewSupervisors((prev) => [data, ...prev]);
     reset();
-  };
+  }
 
   function handleRowRemoval(idx: number) {
     setNewSupervisors((prev) => prev.toSpliced(idx, 1));
@@ -64,8 +67,9 @@ export default async function Page() {
   }
 
   return (
-    <div className="mt-20 flex w-full flex-col px-6">
-      <div className="flex flex-col gap-6">
+    <PanelWrapper className="mt-10">
+      <SubHeading>{adminPanelTabs.addSupervisors.title}</SubHeading>
+      <div className="mt-6 flex flex-col gap-6">
         <h3 className="text-xl">Upload using CSV</h3>
         <div className="flex items-center gap-6">
           <CSVUploadButton
@@ -94,8 +98,8 @@ export default async function Page() {
           />
           <Input
             className="w-1/6"
-            placeholder="University ID"
-            {...register("schoolId")}
+            placeholder="GUID"
+            {...register("institutionId")}
           />
           <Input className="w-1/4" placeholder="Email" {...register("email")} />
           <Input
@@ -130,6 +134,6 @@ export default async function Page() {
           invite
         </Button>
       </div>
-    </div>
+    </PanelWrapper>
   );
 }

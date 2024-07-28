@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader } from "./card";
 
 export function NoteCard({
   className,
+  title = "Please note:",
   children: note,
 }: {
   className?: ClassValue;
+  title?: string;
   children: ReactNode;
 }) {
   return (
@@ -20,7 +22,7 @@ export function NoteCard({
       )}
     >
       <CardHeader className="px-3 pb-1 pt-4 text-base font-semibold text-secondary">
-        Please note:
+        {title}
       </CardHeader>
       <CardContent className="px-3 pb-4">{note}</CardContent>
     </Card>

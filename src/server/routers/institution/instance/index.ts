@@ -2,7 +2,10 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageOrd } from "@/lib/db";
-import { setDiff } from "@/lib/utils/general/set-difference";
+import {
+  relativeComplement,
+  setDiff,
+} from "@/lib/utils/general/set-difference";
 import {
   adminPanelTabs,
   adminPanelTabsByStage,
@@ -35,6 +38,7 @@ import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { X } from "lucide-react";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -506,6 +510,208 @@ export const instanceRouter = createTRPCRouter({
             userId: institutionId,
             role: Role.STUDENT,
           })),
+        });
+      },
+    ),
+
+  getStudents: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const students = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: { user: true },
+        });
+
+        return students.map(({ user }) => ({
+          institutionId: user.id,
+          fullName: user.name!,
+          email: user.email!,
+          level: 0,
+        }));
+      },
+    ),
+
+  addStudent: adminProcedure
+    .input(
+      z.object({ params: instanceParamsSchema, newStudent: newStudentSchema }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newStudent: { institutionId, fullName, email, level },
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          const user = await tx.user.findFirst({
+            where: { id: institutionId },
+          });
+
+          if (!user) {
+            // TODO: Change what gets added to user table after auth is implemented
+            await tx.user.create({
+              data: {
+                id: institutionId,
+                name: fullName,
+                email,
+              },
+            });
+          }
+
+          await tx.userInInstance.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.STUDENT,
+              userId: institutionId,
+            },
+          });
+
+          // await ctx.db.studentInstanceDetails.create({data:{
+          // studentLevel:level
+          // }});
+        });
+        return { institutionId, fullName, email, level };
+      },
+    ),
+
+  addStudents: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newStudents: z.array(newStudentSchema),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newStudents,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          const users = await tx.user.findMany({
+            where: { id: { in: newStudents.map((s) => s.institutionId) } },
+          });
+
+          const newUsers = relativeComplement(
+            newStudents,
+            users,
+            (a, b) => a.institutionId === b.id,
+          );
+
+          if (newUsers.length > 0) {
+            // TODO: Change what gets added to user table after auth is implemented
+            await tx.user.createMany({
+              data: newUsers.map((e) => ({
+                id: e.institutionId,
+                name: e.fullName,
+                email: e.email,
+              })),
+            });
+          }
+
+          await tx.userInInstance.createMany({
+            data: newStudents.map(({ institutionId }) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.STUDENT,
+              userId: institutionId,
+            })),
+            skipDuplicates: true,
+          });
+
+          // await ctx.db.studentInstanceDetails.createMany({
+          // data:newStudents.map(({level})=>{studentLevel:level})
+          // });
+        });
+      },
+    ),
+
+  removeStudent: adminProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.userInInstance.delete({
+            where: {
+              instanceMembership: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: studentId,
+              },
+            },
+          });
+
+          // await tx.studentInstanceDetails.delete({
+          //   where: {
+          //     detailsId: {
+          //       allocationGroupId: group,
+          //       allocationSubGroupId: subGroup,
+          //       allocationInstanceId: instance,
+          //       userId: studentId,
+          //     }
+          //   }
+          // })
+        });
+      },
+    ),
+
+  removeStudents: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentIds: z.array(z.string()),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentIds,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.userInInstance.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: { in: studentIds },
+            },
+          });
+
+          // await tx.studentInstanceDetails.deleteMany({
+          //   where: {
+          //     allocationGroupId: group,
+          //     allocationSubGroupId: subGroup,
+          //     allocationInstanceId: instance,
+          //     userId: { in: studentIds },
+          //   },
+          // });
         });
       },
     ),
