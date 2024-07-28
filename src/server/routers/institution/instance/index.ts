@@ -424,6 +424,254 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
+  getSupervisors: adminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const supervisors = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.SUPERVISOR,
+          },
+          select: {
+            user: true,
+            supervisorInstanceDetails: {
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+            },
+          },
+        });
+
+        return supervisors.map(({ user, supervisorInstanceDetails }) => ({
+          institutionId: user.id,
+          fullName: user.name!,
+          email: user.email!,
+          projectTarget: supervisorInstanceDetails[0].projectAllocationTarget,
+          projectUpperQuota:
+            supervisorInstanceDetails[0].projectAllocationUpperBound,
+        }));
+      },
+    ),
+
+  addSupervisor: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newSupervisor: newSupervisorSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newSupervisor: {
+            institutionId,
+            fullName,
+            email,
+            projectTarget,
+            projectUpperQuota,
+          },
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          const user = await tx.user.findFirst({
+            where: { id: institutionId },
+          });
+
+          if (!user) {
+            // TODO: Change what gets added to user table after auth is implemented
+            await tx.user.create({
+              data: {
+                id: institutionId,
+                name: fullName,
+                email,
+              },
+            });
+          }
+
+          await tx.userInInstance.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.SUPERVISOR,
+              userId: institutionId,
+            },
+          });
+
+          await tx.supervisorInstanceDetails.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: institutionId,
+              projectAllocationLowerBound: 0,
+              projectAllocationTarget: projectTarget,
+              projectAllocationUpperBound: projectUpperQuota,
+            },
+          });
+        });
+
+        return {
+          institutionId,
+          fullName,
+          email,
+          projectTarget,
+          projectUpperQuota,
+        };
+      },
+    ),
+
+  addSupervisors: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        newSupervisors: z.array(newSupervisorSchema),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          newSupervisors,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          const users = await tx.user.findMany({
+            where: { id: { in: newSupervisors.map((s) => s.institutionId) } },
+          });
+
+          const newUsers = relativeComplement(
+            newSupervisors,
+            users,
+            (a, b) => a.institutionId === b.id,
+          );
+
+          if (newUsers.length > 0) {
+            // TODO: Change what gets added to user table after auth is implemented
+            await tx.user.createMany({
+              data: newUsers.map((e) => ({
+                id: e.institutionId,
+                name: e.fullName,
+                email: e.email,
+              })),
+            });
+          }
+
+          await tx.userInInstance.createMany({
+            data: newSupervisors.map(({ institutionId }) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.SUPERVISOR,
+              userId: institutionId,
+            })),
+            skipDuplicates: true,
+          });
+
+          await tx.supervisorInstanceDetails.createMany({
+            data: newSupervisors.map(
+              ({ institutionId, projectTarget, projectUpperQuota }) => ({
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: institutionId,
+                projectAllocationLowerBound: 0,
+                projectAllocationTarget: projectTarget,
+                projectAllocationUpperBound: projectUpperQuota,
+              }),
+            ),
+            skipDuplicates: true,
+          });
+        });
+      },
+    ),
+
+  removeSupervisor: adminProcedure
+    .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorId,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.userInInstance.delete({
+            where: {
+              instanceMembership: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: supervisorId,
+              },
+            },
+          });
+
+          await tx.supervisorInstanceDetails.delete({
+            where: {
+              detailsId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: supervisorId,
+              },
+            },
+          });
+        });
+      },
+    ),
+
+  removeSupervisors: adminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        supervisorIds: z.array(z.string()),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorIds,
+        },
+      }) => {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.userInInstance.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: { in: supervisorIds },
+            },
+          });
+
+          await tx.supervisorInstanceDetails.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: { in: supervisorIds },
+            },
+          });
+        });
+      },
+    ),
+
   invitedSupervisors: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

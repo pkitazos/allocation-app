@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -17,54 +16,110 @@ import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
+import { addSupervisorsCsvHeaders } from "@/lib/validations/add-users/csv";
 import {
-  addSupervisorsCsvHeaders,
-  addSupervisorsCsvRowSchema,
-} from "@/lib/validations/add-users/csv";
-import { NewSupervisor } from "@/lib/validations/add-users/new-user";
+  NewSupervisor,
+  newSupervisorSchema,
+} from "@/lib/validations/add-users/new-user";
 import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
+import { Skeleton } from "@/components/ui/skeleton";
+import { spacesLabels } from "@/content/spaces";
 import { CSVUploadButton } from "./_components/csv-upload-button";
-import { columns } from "./_components/new-supervisor-columns";
+import { constructColumns } from "./_components/new-supervisor-columns";
 
 export default function Page() {
   const router = useRouter();
   const params = useInstanceParams();
+  const utils = api.useUtils();
 
-  const [newSupervisors, setNewSupervisors] = useState<NewSupervisor[]>([]);
-
-  const { register, handleSubmit, reset } = useForm<NewSupervisor>({
-    resolver: zodResolver(addSupervisorsCsvRowSchema),
+  const { data, isLoading } = api.institution.instance.getSupervisors.useQuery({
+    params,
   });
 
-  function onSubmit(data: NewSupervisor) {
-    setNewSupervisors((prev) => [data, ...prev]);
-    reset();
-  }
+  const refetchData = () => utils.institution.instance.getSupervisors.refetch();
 
-  function handleRowRemoval(idx: number) {
-    setNewSupervisors((prev) => prev.toSpliced(idx, 1));
-  }
+  const { register, handleSubmit, reset } = useForm<NewSupervisor>({
+    resolver: zodResolver(newSupervisorSchema),
+  });
 
-  const { mutateAsync } =
-    api.institution.instance.addSupervisorDetails.useMutation();
+  const { mutateAsync: addSupervisorAsync } =
+    api.institution.instance.addSupervisor.useMutation();
 
-  async function handleAddSupervisorDetails() {
+  async function handleAddSupervisor(newSupervisor: NewSupervisor) {
     void toast.promise(
-      mutateAsync({
-        params,
-        newSupervisors,
-      }).then(() => {
-        setNewSupervisors([]);
+      addSupervisorAsync({ params, newSupervisor }).then(() => {
         router.refresh();
+        refetchData();
       }),
       {
-        loading: "Adding Supervisors...",
-        error: "Something went wrong",
-        success: "Success",
+        loading: "Adding supervisor...",
+        success: `Successfully added supervisor ${newSupervisor.institutionId} to ${spacesLabels.instance.short}`,
+        error: `Failed to add supervisor to ${spacesLabels.instance.short}`,
       },
     );
   }
+
+  const { mutateAsync: addSupervisorsAsync } =
+    api.institution.instance.addSupervisors.useMutation();
+
+  async function handleAddSupervisors(newSupervisors: NewSupervisor[]) {
+    void toast.promise(
+      addSupervisorsAsync({ params, newSupervisors }).then(() => {
+        router.refresh();
+        refetchData();
+      }),
+      {
+        loading: "Adding supervisors...",
+        success: `Successfully added ${newSupervisors.length} supervisors to ${spacesLabels.instance.short}`,
+        error: `Failed to add supervisors to ${spacesLabels.instance.short}`,
+      },
+    );
+  }
+
+  const { mutateAsync: removeSupervisorAsync } =
+    api.institution.instance.removeSupervisor.useMutation();
+
+  async function handleSupervisorRemoval(supervisorId: string) {
+    void toast.promise(
+      removeSupervisorAsync({ params, supervisorId }).then(() => {
+        router.refresh();
+        refetchData();
+      }),
+      {
+        loading: "Removing supervisor...",
+        success: `Successfully removed supervisor ${supervisorId} from ${spacesLabels.instance.short}`,
+        error: `Failed to remove supervisor from ${spacesLabels.instance.short}`,
+      },
+    );
+  }
+
+  const { mutateAsync: removeSupervisorsAsync } =
+    api.institution.instance.removeSupervisors.useMutation();
+
+  async function handleSupervisorsRemoval(supervisorIds: string[]) {
+    void toast.promise(
+      removeSupervisorsAsync({ params, supervisorIds }).then(() => {
+        router.refresh();
+        refetchData();
+      }),
+      {
+        loading: "Removing supervisors...",
+        success: `Successfully removed ${supervisorIds.length} supervisors from ${spacesLabels.instance.short}`,
+        error: `Failed to remove supervisors from ${spacesLabels.instance.short}`,
+      },
+    );
+  }
+
+  function onSubmit(data: NewSupervisor) {
+    handleAddSupervisor(data);
+    reset();
+  }
+
+  const columns = constructColumns({
+    removeSupervisor: handleSupervisorRemoval,
+    removeSelectedSupervisors: handleSupervisorsRemoval,
+  });
 
   return (
     <PanelWrapper className="mt-10">
@@ -74,7 +129,7 @@ export default function Page() {
         <div className="flex items-center gap-6">
           <CSVUploadButton
             requiredHeaders={addSupervisorsCsvHeaders}
-            setNewSupervisors={setNewSupervisors}
+            handleUpload={handleAddSupervisors}
           />
           <div className="flex flex-col items-start">
             <p className="text-muted-foreground">must contain header: </p>
@@ -120,20 +175,18 @@ export default function Page() {
       </form>
       <Separator className="my-14" />
 
-      <DataTable
-        searchableColumn={{ id: "full Name", displayName: "Supervisor Names" }}
-        columns={columns(handleRowRemoval, () => setNewSupervisors([]))}
-        data={newSupervisors}
-      />
-
-      <div className="mt-2 flex justify-end">
-        <Button
-          onClick={handleAddSupervisorDetails}
-          disabled={newSupervisors.length === 0}
-        >
-          invite
-        </Button>
-      </div>
+      {isLoading ? (
+        <Skeleton className="h-20 w-full" />
+      ) : (
+        <DataTable
+          searchableColumn={{
+            id: "full Name",
+            displayName: "Supervisor Names",
+          }}
+          columns={columns}
+          data={data ?? []}
+        />
+      )}
     </PanelWrapper>
   );
 }
