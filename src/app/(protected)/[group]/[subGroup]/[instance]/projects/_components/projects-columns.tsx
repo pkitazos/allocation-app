@@ -96,69 +96,67 @@ export function constructColumns({
         </Button>
       ),
     },
+    {
+      id: "flags",
+      accessorFn: (row) => row.flags,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Flags" />
+      ),
+      filterFn: (row, columnId, value) => {
+        const ids = value as string[];
+        const rowFlags = row.getValue(columnId) as TagType[];
+        return rowFlags.some((e) => ids.includes(e.id));
+      },
+      cell: ({
+        row: {
+          original: { flags },
+        },
+      }) => (
+        <div className="flex flex-col gap-2">
+          {flags.length > 2 ? (
+            <Badge className="w-fit font-normal">{flags.length}+</Badge>
+          ) : (
+            flags.map((flag) => (
+              <Badge className="w-fit" key={flag.id}>
+                {flag.title}
+              </Badge>
+            ))
+          )}
+        </div>
+      ),
+    },
+    {
+      id: "tags",
+      accessorFn: (row) => row.tags,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tags" />
+      ),
+      filterFn: (row, columnId, value) => {
+        const ids = value as string[];
+        const rowTags = row.getValue(columnId) as TagType[];
+        return rowTags.some((e) => ids.includes(e.id));
+      },
+      cell: ({
+        row: {
+          original: { tags },
+        },
+      }) => (
+        <div className="flex flex-col gap-2">
+          {tags.length > 2 ? (
+            <Badge variant="outline" className="w-fit font-normal">
+              {tags.length}+
+            </Badge>
+          ) : (
+            tags.map((tag) => (
+              <Badge variant="outline" className="w-fit" key={tag.id}>
+                {tag.title}
+              </Badge>
+            ))
+          )}
+        </div>
+      ),
+    },
   ];
-
-  const flagsCol: ColumnDef<ProjectTableData> = {
-    id: "flags",
-    accessorFn: (row) => row.flags,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Flags" />
-    ),
-    filterFn: (row, columnId, value) => {
-      const ids = value as string[];
-      const rowFlags = row.getValue(columnId) as TagType[];
-      return rowFlags.some((e) => ids.includes(e.id));
-    },
-    cell: ({
-      row: {
-        original: { flags },
-      },
-    }) => (
-      <div className="flex flex-col gap-2">
-        {flags.length > 2 ? (
-          <Badge className="w-fit font-normal">{flags.length}+</Badge>
-        ) : (
-          flags.map((flag) => (
-            <Badge className="w-fit" key={flag.id}>
-              {flag.title}
-            </Badge>
-          ))
-        )}
-      </div>
-    ),
-  };
-
-  const tagsCol: ColumnDef<ProjectTableData> = {
-    id: "tags",
-    accessorFn: (row) => row.tags,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Tags" />
-    ),
-    filterFn: (row, columnId, value) => {
-      const ids = value as string[];
-      const rowTags = row.getValue(columnId) as TagType[];
-      return rowTags.some((e) => ids.includes(e.id));
-    },
-    cell: ({
-      row: {
-        original: { tags },
-      },
-    }) => (
-      <div className="flex flex-col gap-2">
-        {tags.length > 2 ? (
-          <Badge variant="outline" className="w-fit font-normal">
-            {tags.length}+
-          </Badge>
-        ) : (
-          tags.map((tag) => (
-            <Badge variant="outline" className="w-fit" key={tag.id}>
-              {tag.title}
-            </Badge>
-          ))
-        )}
-      </div>
-    ),
-  };
 
   const actionsCol: ColumnDef<ProjectTableData> = {
     accessorKey: "actions",
@@ -260,13 +258,11 @@ export function constructColumns({
     },
   };
 
-  if (role === Role.STUDENT) return [...baseCols, tagsCol];
+  if (role === Role.STUDENT) return baseCols;
 
-  const userCols = [...baseCols, flagsCol, tagsCol];
-
-  if (role === Role.SUPERVISOR) return [...userCols, actionsCol];
+  if (role === Role.SUPERVISOR) return [...baseCols, actionsCol];
 
   return stage === Stage.PROJECT_SUBMISSION
-    ? [selectCol, ...userCols, actionsCol]
-    : [...userCols, actionsCol];
+    ? [selectCol, ...baseCols, actionsCol]
+    : [...baseCols, actionsCol];
 }

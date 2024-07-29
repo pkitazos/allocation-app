@@ -177,13 +177,13 @@ export function ProjectForm({
                         <ul className="list-disc pl-6">
                           <li>
                             Level {flagToLevel.bsc.level} students are only able
-                            to see projects assigned flags starting with{" "}
-                            {flagToLevel.bsc.label}.
+                            to see projects assigned flags starting with "
+                            {flagToLevel.bsc.label}".
                           </li>
                           <li>
                             Level {flagToLevel.msci.level} students are only
-                            able to see projects assigned flags starting with{" "}
-                            {flagToLevel.msci.label}.
+                            able to see projects assigned flags starting with "
+                            {flagToLevel.msci.label}".
                           </li>
                         </ul>
                       </p>
