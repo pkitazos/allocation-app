@@ -3,7 +3,10 @@ import { z } from "zod";
 
 import { nullable } from "@/lib/utils/general/nullable";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
-import { getStudentLevelFromFlag } from "@/lib/utils/permissions/get-student-level";
+import {
+  getFlagLabelFromStudentLevel,
+  getStudentLevelFromFlag,
+} from "@/lib/utils/permissions/get-student-level";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
@@ -284,6 +287,40 @@ export const projectRouter = createTRPCRouter({
         return !!parentInstanceProject;
       },
     ),
+
+  getUserAccess: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(async ({ ctx, input: { params, projectId } }) => {
+      const student = await ctx.db.studentDetails.findFirst({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+          userId: ctx.session.user.id,
+        },
+      });
+
+      if (!student) return { access: true, studentFlagLabel: "" };
+
+      const { flagOnProjects } = await ctx.db.project.findFirstOrThrow({
+        where: {
+          id: projectId,
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+        },
+        select: { flagOnProjects: { select: { flag: true } } },
+      });
+
+      const access = flagOnProjects.some(
+        ({ flag }) => getStudentLevelFromFlag(flag) === student.studentLevel,
+      );
+
+      return {
+        access,
+        studentFlagLabel: getFlagLabelFromStudentLevel(student.studentLevel),
+      };
+    }),
 
   delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
