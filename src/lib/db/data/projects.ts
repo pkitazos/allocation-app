@@ -67,7 +67,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [{ title: "CS Joint Honours" }],
+    flags: [{ title: "MSci Computing Science" }],
   },
   {
     id: `prjkt-006-${ID}`,
@@ -101,7 +101,10 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [{ title: "CS Joint Honours" }, { title: "BSc Computing Science" }],
+    flags: [
+      { title: "MSci Computing Science" },
+      { title: "BSc Computing Science" },
+    ],
   },
   {
     id: `prjkt-009-${ID}`,
@@ -136,7 +139,7 @@ export const projectData = (ID: string) => [
       { title: "DevOps" },
       { title: "Cloud Computing" },
     ],
-    flags: [{ title: "CS Joint Honours" }],
+    flags: [{ title: "MSci Computing Science" }],
   },
   {
     id: `prjkt-012-${ID}`,
@@ -201,7 +204,7 @@ export const projectData = (ID: string) => [
     supervisorId: 3,
     tags: [{ title: "Python" }, { title: "DevOps" }],
     flags: [
-      { title: "CS Joint Honours" },
+      { title: "MSci Computing Science" },
       { title: "BSc Software Engineering" },
     ],
   },
@@ -230,7 +233,7 @@ export const projectData = (ID: string) => [
       { title: "Cybersecurity" },
     ],
     flags: [
-      { title: "MSci Computing Science" },
+      { title: "MSci Software Engineering" },
       { title: "BSc Software Engineering" },
     ],
   },
@@ -241,7 +244,7 @@ export const projectData = (ID: string) => [
       "A platform for securely sending and receiving large files over the internet.",
     supervisorId: 4,
     tags: [{ title: "Java" }, { title: "Cybersecurity" }],
-    flags: [{ title: "CS Joint Honours" }],
+    flags: [{ title: "MSci Computing Science" }],
   },
   {
     id: `prjkt-020-${ID}`,
