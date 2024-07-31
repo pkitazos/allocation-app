@@ -17,7 +17,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
   instanceParamsSchema,
-  spaceParamsSchema,
+  refinedSpaceParamsSchema,
 } from "@/lib/validations/params";
 
 import { checkAdminPermissions } from "./utils/admin-access";
@@ -186,27 +186,11 @@ export const studentProcedure = instanceProcedure.use(userRoleMiddleware).use(
   },
 );
 
-// TODO: handle the case where the user is an admin but is not performing actions in an instance
-/**
- * 
-admin procedure should check that the user is an admin in the particular space they find themselves in
-
-that means:
-
-- if they are in a group admin-panel, they should be at least a 
-  group-admin in that group
-
-- if they are in a sub-group admin-panel, they should be at 
-  least a sub-group-admin in that sub-group
-
-- if they are in an instance admin-panel, they must be at least 
-  a sub-group-admin in the sub-group containing that instance
- */
 export const adminProcedure = protectedProcedure
-  .input(z.object({ params: spaceParamsSchema }))
+  .input(z.object({ params: refinedSpaceParamsSchema }))
   .use(async ({ ctx, input, next }) => {
     const user = ctx.session.user;
-    const { membership, params } = await checkAdminPermissions(
+    const membership = await checkAdminPermissions(
       ctx.db,
       input.params,
       user.id,
@@ -215,14 +199,11 @@ export const adminProcedure = protectedProcedure
     if (!membership) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
-        message: `User is not an Admin`,
+        message: "User is not an Admin",
       });
     }
 
-    return next({
-      input: { params },
-      ctx: { session: { user: { ...user, role: Role.ADMIN } } },
-    });
+    return next({ ctx: { session: { user: { ...user, role: Role.ADMIN } } } });
   });
 
 export const instanceAdminProcedure = adminProcedure
