@@ -4,9 +4,9 @@ import { slugify } from "@/lib/utils/general/slugify";
 import { groupParamsSchema } from "@/lib/validations/params";
 
 import {
-  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
+  superAdminProcedure,
 } from "@/server/trpc";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
@@ -24,20 +24,20 @@ export const institutionRouter = createTRPCRouter({
     return access;
   }),
 
-  groupManagement: adminProcedure.query(async ({ ctx }) => {
+  groupManagement: superAdminProcedure.query(async ({ ctx }) => {
     const groups = await ctx.db.allocationGroup.findMany({});
     const superAdmin = ctx.session.user;
     return { groups, superAdmin };
   }),
 
-  takenNames: adminProcedure.query(async ({ ctx }) => {
+  takenGroupNames: superAdminProcedure.query(async ({ ctx }) => {
     const groups = await ctx.db.allocationGroup.findMany({
       select: { displayName: true },
     });
     return groups.map(({ displayName }) => displayName);
   }),
 
-  createGroup: adminProcedure
+  createGroup: superAdminProcedure
     .input(z.object({ groupName: z.string() }))
     .mutation(async ({ ctx, input: { groupName } }) => {
       await ctx.db.allocationGroup.create({
@@ -48,7 +48,7 @@ export const institutionRouter = createTRPCRouter({
       });
     }),
 
-  deleteGroup: adminProcedure
+  deleteGroup: superAdminProcedure
     .input(z.object({ params: groupParamsSchema }))
     .mutation(
       async ({
