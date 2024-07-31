@@ -6,6 +6,7 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { KanbanBoard } from "./_components/kanban-board";
@@ -29,7 +30,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <>
-      <Heading>My Preferences</Heading>
+      <Heading>{instanceTabs.myPreferences.title}</Heading>
       <PanelWrapper className="mt-10 h-full">
         <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
           <SubmissionButton restrictions={restrictions} />
