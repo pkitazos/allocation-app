@@ -51,7 +51,7 @@ export function InstanceForm({
 }) {
   const defaultInstanceDetails = currentInstanceDetails ?? {
     instanceName: "",
-    flags: [],
+    flags: [{ title: "" }],
     tags: [],
     projectSubmissionDeadline: addDays(new Date(), 1),
     minNumPreferences: 1,
@@ -75,6 +75,7 @@ export function InstanceForm({
   } = useFieldArray({
     control: form.control,
     name: "flags",
+    rules: { minLength: 1 },
   });
 
   const {
@@ -144,7 +145,8 @@ export function InstanceForm({
           <div className="flex flex-col gap-2">
             <FormLabel className="text-base">Project Flags</FormLabel>
             <FormDescription>
-              What kind of student is this project suitable for
+              Flags are used to mark a a project as suitable for a particular
+              group of students.
             </FormDescription>
             {flagFields.map((item, idx) => (
               <FormField
@@ -157,11 +159,12 @@ export function InstanceForm({
                       <div className="flex gap-2">
                         <Input
                           placeholder="Flag"
-                          {...form.register(`flags.${idx}.title`)}
+                          {...form.register(`flags.${idx}.title` as const)}
                         />
                         <Button
                           variant="ghost"
                           size="icon"
+                          disabled={flagFields.length === 1}
                           onClick={() => removeFlag(idx)}
                         >
                           <X className="h-4 w-4" />
@@ -184,6 +187,17 @@ export function InstanceForm({
               <Plus />
               <p>Add new Flag</p>
             </Button>
+            <FormDescription className="text-black">
+              Please note:
+              <ul className="list-disc pl-6">
+                <li>Flag titles must be unique</li>
+                <li>
+                  You must enter{" "}
+                  <span className="font-semibold underline">at least one</span>{" "}
+                  Flag
+                </li>
+              </ul>
+            </FormDescription>
           </div>
 
           <div className="flex flex-col gap-2">
