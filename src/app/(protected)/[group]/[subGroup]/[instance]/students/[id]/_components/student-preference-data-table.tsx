@@ -10,19 +10,14 @@ import { api } from "@/lib/trpc/client";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import {
-  PreferenceData,
-  studentPreferenceColumns,
-} from "./student-preference-columns";
+import { PreferenceData, constructColumns } from "./student-preference-columns";
 
 export function StudentPreferenceDataTable({
   role,
-  stage,
   data,
   studentId,
 }: {
   role: Role;
-  stage: Stage;
   data: PreferenceData[];
   studentId: string;
 }) {
@@ -82,12 +77,11 @@ export function StudentPreferenceDataTable({
     <DataTable
       searchableColumn={primaryColumn}
       className="w-full"
-      columns={studentPreferenceColumns(
+      columns={constructColumns({
         role,
-        stage,
         changePreference,
         changeSelectedPreferences,
-      )}
+      })}
       data={data}
     />
   );
