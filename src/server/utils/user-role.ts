@@ -1,7 +1,9 @@
-import { InstanceParams } from "@/lib/validations/params";
 import { PrismaClient, Role } from "@prisma/client";
 import { User } from "next-auth";
 
+import { InstanceParams } from "@/lib/validations/params";
+
+// TODO: check where this is used, figure out how we currently store and handle admins
 export async function getUserRole(
   db: PrismaClient,
   user: User,

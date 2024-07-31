@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import { api } from "@/lib/trpc/server";
+
 import { spacesLabels } from "@/content/spaces";
 
 export default async function Page() {

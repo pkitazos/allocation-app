@@ -21,7 +21,11 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
 import { slugify } from "@/lib/utils/general/slugify";
 
-export function FormSection({ takenNames }: { takenNames: string[] }) {
+export function FormSection({
+  takenGroupNames,
+}: {
+  takenGroupNames: string[];
+}) {
   const router = useRouter();
 
   const FormSchema = z.object({
@@ -29,7 +33,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
       .string()
       .min(1, "Please enter a name")
       .refine((item) => {
-        const setOfNames = new Set(takenNames);
+        const setOfNames = new Set(takenGroupNames);
         const nameAllowed = !setOfNames.has(item);
         return nameAllowed;
       }, "This name is already taken"),
@@ -90,7 +94,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
         <Separator className="my-14" />
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            create new group
+            Create New Group
           </Button>
         </div>
       </form>
