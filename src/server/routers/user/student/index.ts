@@ -8,8 +8,9 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
   createTRPCRouter,
-  protectedProcedure,
-  stageAwareProcedure,
+  instanceAdminProcedure,
+  instanceProcedure,
+  studentProcedure,
 } from "@/server/trpc";
 
 import { preferenceRouter } from "./preference";
@@ -17,7 +18,7 @@ import { preferenceRouter } from "./preference";
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
 
-  getById: protectedProcedure
+  getById: instanceProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(
       async ({
@@ -43,7 +44,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  overviewData: stageAwareProcedure
+  overviewData: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -76,7 +77,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  preferenceRestrictions: protectedProcedure
+  preferenceRestrictions: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -100,7 +101,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  allocatedProject: protectedProcedure
+  allocatedProject: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -110,7 +111,7 @@ export const studentRouter = createTRPCRouter({
         },
       }) => {
         const user = ctx.session.user;
-        return await ctx.db.projectAllocation.findFirst({
+        const projectAllocation = await ctx.db.projectAllocation.findFirst({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -131,10 +132,21 @@ export const studentRouter = createTRPCRouter({
             },
           },
         });
+
+        return {
+          successfullyAllocated: !!projectAllocation,
+          allocatedProject: {
+            id: projectAllocation!.project.id,
+            title: projectAllocation!.project.title,
+            description: projectAllocation!.project.description,
+            supervisor: projectAllocation!.project.supervisor.user,
+            studentRanking: projectAllocation!.studentRanking,
+          },
+        };
       },
     ),
 
-  delete: stageAwareProcedure
+  delete: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .mutation(
       async ({
@@ -144,7 +156,7 @@ export const studentRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.delete({
           where: {
@@ -159,7 +171,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  deleteSelected: stageAwareProcedure
+  deleteSelected: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -174,7 +186,7 @@ export const studentRouter = createTRPCRouter({
           studentIds,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.deleteMany({
           where: {

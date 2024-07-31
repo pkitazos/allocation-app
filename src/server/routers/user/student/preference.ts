@@ -7,14 +7,13 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
-  adminProcedure,
   createTRPCRouter,
-  protectedProcedure,
-  stageAwareProcedure,
+  instanceAdminProcedure,
+  instanceProcedure,
 } from "@/server/trpc";
 
 export const preferenceRouter = createTRPCRouter({
-  getAll: stageAwareProcedure
+  getAll: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -65,7 +64,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  update: stageAwareProcedure
+  update: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -82,7 +81,7 @@ export const preferenceRouter = createTRPCRouter({
           preferenceType,
         },
       }) => {
-        if (ctx.stage !== Stage.PROJECT_SELECTION) return;
+        if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
 
         const userId = ctx.session.user.id;
 
@@ -167,7 +166,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  reorder: stageAwareProcedure
+  reorder: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -186,7 +185,7 @@ export const preferenceRouter = createTRPCRouter({
           updatedRank,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.preference.update({
           where: {
@@ -206,7 +205,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  getForProject: protectedProcedure
+  getForProject: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -236,7 +235,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  submit: stageAwareProcedure
+  submit: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -245,7 +244,7 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.studentDetails.update({
           where: {
@@ -261,7 +260,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  initialBoardState: protectedProcedure
+  initialBoardState: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -312,7 +311,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  change: adminProcedure
+  change: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -361,7 +360,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  changeSelected: adminProcedure
+  changeSelected: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
