@@ -14,10 +14,10 @@ import {
 import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
 export const matchingRouter = createTRPCRouter({
-  select: adminProcedure
+  select: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -92,7 +92,7 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  preferences: adminProcedure
+  preferences: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -138,7 +138,8 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  rowData: adminProcedure
+  // TODO: refactor to use transaction and extract util functions
+  rowData: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -277,7 +278,8 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  updateAllocation: adminProcedure
+  // TODO: refactor to use transactions
+  updateAllocation: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,

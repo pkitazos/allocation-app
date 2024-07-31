@@ -157,7 +157,7 @@ export const userRouter = createTRPCRouter({
     }
 
     // otherwise your adminSpaces array is made up of some combination of groupIds and subGroupIds
-    // regardless, for eac of those, I must get all its instances
+    // regardless, for each of those, I must get all its instances
 
     const adminInstances: AllocationInstance[] = [];
 

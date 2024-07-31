@@ -1,7 +1,6 @@
 import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
-import { stageOrd } from "@/lib/db";
 import {
   relativeComplement,
   setDiff,
@@ -23,21 +22,22 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 
 import {
-  adminProcedure,
   createTRPCRouter,
-  forkedInstanceProcedure,
+  instanceAdminProcedure,
+  instanceProcedure,
   protectedProcedure,
-  stageAwareProcedure,
+  roleAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { getUserRole } from "@/server/utils/user-role";
 
 import { forkInstanceTransaction } from "./_utils/fork";
 import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+
+// TODO: add stage checks to stage-specific procedures
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
@@ -63,10 +63,12 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  access: stageAwareProcedure
+  // TODO: refactor as it potentially doesn't need the adminAccess function
+  access: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
+      const stage = ctx.instance.stage;
 
       const superAdmin = await isSuperAdmin(ctx.db, user.id);
       if (superAdmin) return true;
@@ -74,50 +76,23 @@ export const instanceRouter = createTRPCRouter({
       const adminInSpace = await adminAccess(ctx.db, user.id, params);
       if (adminInSpace) return true;
 
-      const stage = ctx.stage;
-      const { group, subGroup, instance } = params;
+      if (user.role === Role.SUPERVISOR) {
+        return !supervisorStages.includes(stage);
+      }
 
-      const { role } = await ctx.db.userInInstance.findFirstOrThrow({
-        where: {
-          allocationGroupId: group,
-          allocationSubGroupId: subGroup,
-          allocationInstanceId: instance,
-          userId: user.id,
-        },
-        select: { role: true },
-      });
+      if (user.role === Role.STUDENT) {
+        return !studentStages.includes(stage);
+      }
 
-      if (role === Role.SUPERVISOR) return !supervisorStages.includes(stage);
-
-      if (role === Role.STUDENT) return !studentStages.includes(stage);
-
+      // TODO: throw error instead of returning
       return true;
     }),
 
-  currentStage: protectedProcedure
+  currentStage: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: {
-            stage: true,
-          },
-        });
-        return stage;
-      },
-    ),
+    .query(async ({ ctx }) => ctx.instance.stage),
 
-  setStage: adminProcedure
+  setStage: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -132,9 +107,6 @@ export const instanceRouter = createTRPCRouter({
           stage,
         },
       }) => {
-        const supervisorsCanAccess = stageOrd[stage] >= 2;
-        const studentsCanAccess = stageOrd[stage] >= 3;
-
         await ctx.db.allocationInstance.update({
           where: {
             instanceId: {
@@ -143,39 +115,17 @@ export const instanceRouter = createTRPCRouter({
               id: instance,
             },
           },
-          data: {
-            stage,
-            supervisorsCanAccess,
-            studentsCanAccess,
-          },
+          data: { stage },
         });
       },
     ),
 
-  selectedAlgName: protectedProcedure
+  selectedAlgName: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const { selectedAlgName } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { selectedAlgName: true },
-          });
+    .query(async ({ ctx }) => ctx.instance.selectedAlgName ?? undefined),
 
-        return selectedAlgName ?? undefined;
-      },
-    ),
-
-  projectAllocations: adminProcedure
+  // TODO: refactor
+  projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -274,7 +224,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  getEditFormDetails: stageAwareProcedure
+  getEditFormDetails: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -302,7 +252,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  supervisors: protectedProcedure
+  supervisors: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -331,7 +281,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  students: protectedProcedure
+  students: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -360,7 +310,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  addSupervisorDetails: adminProcedure
+  addSupervisorDetails: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -423,7 +373,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  getSupervisors: adminProcedure
+  getSupervisors: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -462,7 +412,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  addSupervisor: adminProcedure
+  addSupervisor: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -532,7 +482,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  addSupervisors: adminProcedure
+  addSupervisors: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -598,7 +548,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  removeSupervisor: adminProcedure
+  removeSupervisor: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
     .mutation(
       async ({
@@ -634,7 +584,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  removeSupervisors: adminProcedure
+  removeSupervisors: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -671,7 +621,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  invitedSupervisors: stageAwareProcedure
+  invitedSupervisors: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -690,28 +640,18 @@ export const instanceRouter = createTRPCRouter({
           select: { user: true, joined: true },
         });
 
-        const { supervisorsCanAccess: platformAccess } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { supervisorsCanAccess: true },
-          });
-
-        const supervisors = invitedUsers.map(({ user, joined }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
-          joined,
-        }));
-
-        return { supervisors, platformAccess };
+        return {
+          supervisors: invitedUsers.map(({ user, joined }) => ({
+            id: user.id,
+            name: user.name!,
+            email: user.email!,
+            joined,
+          })),
+        };
       },
     ),
 
-  addStudentDetails: adminProcedure
+  addStudentDetails: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -761,7 +701,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  getStudents: adminProcedure
+  getStudents: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -791,9 +731,12 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  addStudent: adminProcedure
+  addStudent: instanceAdminProcedure
     .input(
-      z.object({ params: instanceParamsSchema, newStudent: newStudentSchema }),
+      z.object({
+        params: instanceParamsSchema,
+        newStudent: newStudentSchema,
+      }),
     )
     .mutation(
       async ({
@@ -844,7 +787,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  addStudents: adminProcedure
+  addStudents: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -906,7 +849,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  removeStudent: adminProcedure
+  removeStudent: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .mutation(
       async ({
@@ -942,7 +885,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  removeStudents: adminProcedure
+  removeStudents: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -979,7 +922,7 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  invitedStudents: stageAwareProcedure
+  invitedStudents: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -998,28 +941,18 @@ export const instanceRouter = createTRPCRouter({
           select: { user: true, joined: true },
         });
 
-        const { studentsCanAccess: platformAccess } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { studentsCanAccess: true },
-          });
-
-        const students = invitedUsers.map(({ user, joined }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
-          joined,
-        }));
-
-        return { students, platformAccess };
+        return {
+          students: invitedUsers.map(({ user, joined }) => ({
+            id: user.id,
+            name: user.name!,
+            email: user.email!,
+            joined,
+          })),
+        };
       },
     ),
 
-  edit: stageAwareProcedure
+  edit: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -1121,11 +1054,11 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  headerTabs: stageAwareProcedure
+  headerTabs: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
-      const stage = ctx.stage;
-      const role = await getUserRole(ctx.db, ctx.session.user, params);
+    .query(async ({ ctx }) => {
+      const stage = ctx.instance.stage;
+      const role = ctx.session.user.role;
 
       const adminTabs = [instanceTabs.supervisors, instanceTabs.students];
 
@@ -1137,75 +1070,47 @@ export const instanceRouter = createTRPCRouter({
       return [instanceTabs.instanceHome, instanceTabs.allProjects];
     }),
 
-  adminPanelTabs: forkedInstanceProcedure
+  adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const parentInstanceId = ctx.parentInstanceId;
-        const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: { stage: true },
-        });
+    .query(async ({ ctx, input: { params } }) => {
+      const parentInstanceId = ctx.instance.parentInstanceId;
+      const stage = ctx.instance.stage;
 
-        if (stage === Stage.ALLOCATION_PUBLICATION) {
-          const base = [adminPanelTabs.allocationOverview];
-          return !parentInstanceId
-            ? [...base, adminPanelTabs.forkInstance]
-            : [...base, adminPanelTabs.mergeInstance];
-        }
+      console.log("------->", params);
 
-        return adminPanelTabsByStage[stage];
-      },
-    ),
+      if (stage === Stage.ALLOCATION_PUBLICATION) {
+        const base = [adminPanelTabs.allocationOverview];
+        return !parentInstanceId
+          ? [...base, adminPanelTabs.forkInstance]
+          : [...base, adminPanelTabs.mergeInstance];
+      }
 
-  fork: stageAwareProcedure
+      return adminPanelTabsByStage[stage];
+    }),
+
+  fork: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
         newInstance: forkedInstanceSchema,
       }),
     )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          newInstance: forked,
-        },
-      }) => {
-        const params = { group, subGroup, instance };
-        if (ctx.stage !== Stage.ALLOCATION_PUBLICATION) return;
+    .mutation(async ({ ctx, input: { params, newInstance: forked } }) => {
+      if (ctx.instance.stage !== Stage.ALLOCATION_PUBLICATION) {
+        // TODO: throw error instead of returning
+        return;
+      }
+      await forkInstanceTransaction(ctx.db, forked, params);
+    }),
 
-        await forkInstanceTransaction(ctx.db, forked, params);
-      },
-    ),
-
-  merge: forkedInstanceProcedure
+  merge: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const parentInstanceId = ctx.parentInstanceId;
-        if (!parentInstanceId) return;
-
-        await mergeInstanceTransaction(ctx.db, parentInstanceId, {
-          group,
-          subGroup,
-          instance,
-        });
-      },
-    ),
+    .mutation(async ({ ctx, input: { params } }) => {
+      const parentInstanceId = ctx.instance.parentInstanceId;
+      if (!parentInstanceId) {
+        // TODO: throw error instead of returning
+        return;
+      }
+      await mergeInstanceTransaction(ctx.db, parentInstanceId, params);
+    }),
 });

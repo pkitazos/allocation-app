@@ -14,6 +14,7 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { api } from "@/lib/trpc/client";
 import { addSupervisorsCsvHeaders } from "@/lib/validations/add-users/csv";
@@ -23,8 +24,8 @@ import {
 } from "@/lib/validations/add-users/new-user";
 import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-import { Skeleton } from "@/components/ui/skeleton";
 import { spacesLabels } from "@/content/spaces";
+
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { constructColumns } from "./_components/new-supervisor-columns";
 
