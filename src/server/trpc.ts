@@ -225,7 +225,9 @@ export const adminProcedure = protectedProcedure
     });
   });
 
-export const instanceAdminProcedure = adminProcedure.use(instanceMiddleware);
+export const instanceAdminProcedure = adminProcedure
+  .input(z.object({ params: instanceParamsSchema }))
+  .use(instanceMiddleware);
 
 export const superAdminProcedure = protectedProcedure.use(
   async ({ ctx, next }) => {
