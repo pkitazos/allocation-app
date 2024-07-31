@@ -1,5 +1,6 @@
-import { InstanceParams } from "@/lib/validations/params";
 import { PreferenceType, PrismaClient } from "@prisma/client";
+
+import { InstanceParams } from "@/lib/validations/params";
 
 export async function updatePreferenceTransaction(
   db: PrismaClient,
@@ -26,53 +27,20 @@ export async function updatePreferenceTransaction(
       return;
     }
 
-    const allPreferences = await tx.preference.groupBy({
+    const [{ rank: maxRank }] = await tx.preference.findMany({
       where: {
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
         userId,
+        type: preferenceType,
       },
-      by: "type",
-      _max: { rank: true },
+      select: { rank: true },
+      orderBy: { rank: "desc" },
+      take: 1,
     });
 
-    const maxRankPerType = {
-      [PreferenceType.PREFERENCE]:
-        allPreferences.find(({ type }) => type === PreferenceType.PREFERENCE)
-          ?._max.rank ?? 1,
-
-      [PreferenceType.SHORTLIST]:
-        allPreferences.find(({ type }) => type === PreferenceType.SHORTLIST)
-          ?._max.rank ?? 1,
-    };
-
-    const currentPreference = await tx.preference.findFirst({
-      where: {
-        allocationGroupId: group,
-        allocationSubGroupId: subGroup,
-        allocationInstanceId: instance,
-        projectId,
-        userId,
-      },
-    });
-
-    if (!currentPreference) {
-      await tx.preference.create({
-        data: {
-          allocationGroupId: group,
-          allocationSubGroupId: subGroup,
-          allocationInstanceId: instance,
-          projectId,
-          userId,
-          type: preferenceType,
-          rank: maxRankPerType[preferenceType] + 1,
-        },
-      });
-      return;
-    }
-
-    await tx.preference.update({
+    await tx.preference.upsert({
       where: {
         preferenceId: {
           allocationGroupId: group,
@@ -82,11 +50,19 @@ export async function updatePreferenceTransaction(
           userId,
         },
       },
-      data: {
+      create: {
+        allocationGroupId: group,
+        allocationSubGroupId: subGroup,
+        allocationInstanceId: instance,
+        projectId,
+        userId,
         type: preferenceType,
-        rank: maxRankPerType[preferenceType] + 1,
+        rank: maxRank + 1,
+      },
+      update: {
+        type: preferenceType,
+        rank: maxRank + 1,
       },
     });
-    return;
   });
 }

@@ -8,9 +8,11 @@ import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
   createTRPCRouter,
-  instanceAdminProcedure,
   instanceProcedure,
+  studentProcedure,
 } from "@/server/trpc";
+
+import { updatePreferenceTransaction } from "./_utils/update-preference";
 
 export const preferenceRouter = createTRPCRouter({
   getAll: instanceProcedure
@@ -64,7 +66,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  update: instanceProcedure
+  update: studentProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -85,84 +87,13 @@ export const preferenceRouter = createTRPCRouter({
 
         const userId = ctx.session.user.id;
 
-        if (preferenceType === "None") {
-          await ctx.db.preference.delete({
-            where: {
-              preferenceId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                projectId,
-                userId,
-              },
-            },
-          });
-          return;
-        }
-
-        const allPreferences = await ctx.db.preference.groupBy({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId,
-          },
-          by: "type",
-          _max: { rank: true },
-        });
-
-        const maxRankPerType = {
-          [PreferenceType.PREFERENCE]:
-            allPreferences.find(
-              ({ type }) => type === PreferenceType.PREFERENCE,
-            )?._max.rank ?? 1,
-
-          [PreferenceType.SHORTLIST]:
-            allPreferences.find(({ type }) => type === PreferenceType.SHORTLIST)
-              ?._max.rank ?? 1,
-        };
-
-        const currentPreference = await ctx.db.preference.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            projectId,
-            userId,
-          },
-        });
-
-        if (!currentPreference) {
-          await ctx.db.preference.create({
-            data: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId,
-              type: preferenceType,
-              rank: maxRankPerType[preferenceType] + 1,
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.update({
-          where: {
-            preferenceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId,
-            },
-          },
-          data: {
-            type: preferenceType,
-            rank: maxRankPerType[preferenceType] + 1,
-          },
-        });
-        return;
+        await updatePreferenceTransaction(
+          ctx.db,
+          { group, subGroup, instance },
+          userId,
+          projectId,
+          preferenceType,
+        );
       },
     ),
 
