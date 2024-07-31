@@ -72,16 +72,11 @@ export const groupRouter = createTRPCRouter({
           return { adminLevel, groupAdmins, ...data };
         }
 
-        const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
-          where: { allocationGroupId: group, userId: userId },
-          select: { adminLevel: true },
-        });
-
-        return { adminLevel, groupAdmins, ...data };
+        return { groupAdmins, ...data };
       },
     ),
 
-  takenNames: adminProcedure
+  takenSubGroupNames: adminProcedure
     .input(z.object({ params: groupParamsSchema }))
     .query(
       async ({
@@ -138,6 +133,7 @@ export const groupRouter = createTRPCRouter({
       },
     ),
 
+  // TODO: refactor after auth is implemented
   addAdmin: adminProcedure
     .input(
       z.object({

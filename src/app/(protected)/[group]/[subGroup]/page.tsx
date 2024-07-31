@@ -65,16 +65,17 @@ export default async function Page({
       </Card>
       <SubHeading>Manage {spacesLabels.instance.full}s</SubHeading>
       <div className="flex w-full flex-col gap-6">
-        <Link href={`/${group}/${subGroup}/create-instance`} className="w-fit">
-          <Button
-            size="lg"
-            variant="outline"
-            className="flex h-20 w-full items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
-          >
+        <Button
+          size="lg"
+          variant="outline"
+          className="flex h-20 w-fit items-center justify-center gap-3 rounded-lg bg-accent/60 hover:bg-accent"
+          asChild
+        >
+          <Link href={`/${group}/${subGroup}/create-instance`}>
             <Plus className="h-6 w-6 stroke-[3px]" />
             <p className="text-lg">Create {spacesLabels.instance.short}</p>
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <div className="grid grid-cols-3 gap-6">
           {allocationInstances.map((instance, i) => (
             <Link

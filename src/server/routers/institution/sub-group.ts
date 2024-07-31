@@ -80,24 +80,12 @@ export const subGroupRouter = createTRPCRouter({
         const superAdmin = await isSuperAdmin(ctx.db, userId);
         if (superAdmin) return { adminLevel: AdminLevel.SUPER, ...data };
 
-        // TODO: fix admin access problem
-        const { adminLevel } = await ctx.db.adminInSpace.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            OR: [
-              { allocationSubGroupId: subGroup },
-              { allocationSubGroupId: null },
-            ],
-            userId: userId,
-          },
-          select: { adminLevel: true },
-        });
-
-        return { adminLevel, ...data };
+        // TODO: decouple data from db before sending to client
+        return data;
       },
     ),
 
-  takenNames: adminProcedure
+  takenInstanceNames: adminProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(
       async ({
@@ -195,13 +183,16 @@ export const subGroupRouter = createTRPCRouter({
       },
     ),
 
+  // TODO: refactor after auth is implemented
   addAdmin: adminProcedure
     .input(
       z.object({
         params: subGroupParamsSchema,
-        schoolId: z.string(),
-        name: z.string(),
-        email: z.string(),
+        newAdmin: z.object({
+          schoolId: z.string(),
+          name: z.string(),
+          email: z.string(),
+        }),
       }),
     )
     .mutation(
@@ -209,9 +200,7 @@ export const subGroupRouter = createTRPCRouter({
         ctx,
         input: {
           params: { group, subGroup },
-          schoolId,
-          name,
-          email,
+          newAdmin: { schoolId, name, email },
         },
       }) => {
         /**
