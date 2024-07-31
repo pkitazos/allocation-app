@@ -1,17 +1,40 @@
 import { PreferenceType, PrismaClient } from "@prisma/client";
 
+import {
+  getFlagLabelFromStudentLevel,
+  getStudentLevelFromFlag,
+} from "@/lib/utils/permissions/get-student-level";
 import { InstanceParams } from "@/lib/validations/params";
 
-export async function updatePreferenceTransaction(
-  db: PrismaClient,
-  params: InstanceParams,
-  studentId: string,
-  projectId: string,
-  preferenceType: PreferenceType | "None",
-) {
-  const { group, subGroup, instance } = params;
-  const userId = studentId;
+export async function updatePreferenceTransaction({
+  db,
+  params: { group, subGroup, instance },
+  student,
+  projectId,
+  preferenceType,
+}: {
+  db: PrismaClient;
+  params: InstanceParams;
+  student: { id: string; studentLevel: number };
+  projectId: string;
+  preferenceType: PreferenceType | "None";
+}) {
   await db.$transaction(async (tx) => {
+    const { flagOnProjects } = await tx.project.findFirstOrThrow({
+      where: { id: projectId },
+      select: { flagOnProjects: { select: { flag: true } } },
+    });
+
+    const suitable = flagOnProjects.some(
+      ({ flag }) => getStudentLevelFromFlag(flag) === student.studentLevel,
+    );
+
+    if (!suitable) {
+      throw new Error(
+        `This project is not suitable for ${getFlagLabelFromStudentLevel(student.studentLevel)} students`,
+      );
+    }
+
     if (preferenceType === "None") {
       await tx.preference.delete({
         where: {
@@ -20,7 +43,7 @@ export async function updatePreferenceTransaction(
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             projectId,
-            userId,
+            userId: student.id,
           },
         },
       });
@@ -32,7 +55,7 @@ export async function updatePreferenceTransaction(
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
-        userId,
+        userId: student.id,
         type: preferenceType,
       },
       select: { rank: true },
@@ -47,7 +70,7 @@ export async function updatePreferenceTransaction(
           allocationSubGroupId: subGroup,
           allocationInstanceId: instance,
           projectId,
-          userId,
+          userId: student.id,
         },
       },
       create: {
@@ -55,7 +78,7 @@ export async function updatePreferenceTransaction(
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
         projectId,
-        userId,
+        userId: student.id,
         type: preferenceType,
         rank: maxRank + 1,
       },

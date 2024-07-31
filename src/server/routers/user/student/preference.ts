@@ -74,28 +74,17 @@ export const preferenceRouter = createTRPCRouter({
         preferenceType: studentPreferenceSchema,
       }),
     )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          projectId,
-          preferenceType,
-        },
-      }) => {
-        if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
+    .mutation(async ({ ctx, input: { params, projectId, preferenceType } }) => {
+      if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
 
-        const userId = ctx.session.user.id;
-
-        await updatePreferenceTransaction(
-          ctx.db,
-          { group, subGroup, instance },
-          userId,
-          projectId,
-          preferenceType,
-        );
-      },
-    ),
+      await updatePreferenceTransaction({
+        db: ctx.db,
+        student: ctx.session.user,
+        params,
+        projectId,
+        preferenceType,
+      });
+    }),
 
   reorder: instanceProcedure
     .input(
