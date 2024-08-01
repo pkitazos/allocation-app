@@ -323,3 +323,9 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model NewUser {
+    id    String @id
+    name  String
+    email String @unique
+}
