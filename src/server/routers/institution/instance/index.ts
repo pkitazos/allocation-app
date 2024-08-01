@@ -569,17 +569,6 @@ export const instanceRouter = createTRPCRouter({
               },
             },
           });
-
-          await tx.supervisorInstanceDetails.delete({
-            where: {
-              detailsId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: supervisorId,
-              },
-            },
-          });
         });
       },
     ),
@@ -601,15 +590,6 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.$transaction(async (tx) => {
           await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: supervisorIds },
-            },
-          });
-
-          await tx.supervisorInstanceDetails.deleteMany({
             where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
@@ -772,7 +752,7 @@ export const instanceRouter = createTRPCRouter({
             },
           });
 
-          await ctx.db.studentDetails.create({
+          await tx.studentDetails.create({
             data: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
@@ -835,7 +815,7 @@ export const instanceRouter = createTRPCRouter({
             skipDuplicates: true,
           });
 
-          await ctx.db.studentDetails.createMany({
+          await tx.studentDetails.createMany({
             data: newStudents.map(({ level, institutionId }) => ({
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
@@ -870,17 +850,6 @@ export const instanceRouter = createTRPCRouter({
               },
             },
           });
-
-          await tx.studentDetails.delete({
-            where: {
-              detailsId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: studentId,
-              },
-            },
-          });
         });
       },
     ),
@@ -902,15 +871,6 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.$transaction(async (tx) => {
           await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: studentIds },
-            },
-          });
-
-          await tx.studentDetails.deleteMany({
             where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
@@ -1072,11 +1032,9 @@ export const instanceRouter = createTRPCRouter({
 
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
+    .query(async ({ ctx }) => {
       const parentInstanceId = ctx.instance.parentInstanceId;
       const stage = ctx.instance.stage;
-
-      console.log("------->", params);
 
       if (stage === Stage.ALLOCATION_PUBLICATION) {
         const base = [adminPanelTabs.allocationOverview];
