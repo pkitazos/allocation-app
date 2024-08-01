@@ -2,31 +2,19 @@ import { z } from "zod";
 
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
+  blankResult,
   MatchingResult,
   matchingResultSchema,
 } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { adminProcedure, createTRPCRouter } from "@/server/trpc";
+import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
 import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
 import { getMatchingData } from "./_utils/get-matching-data";
 
-export const blankResult: MatchingResult = {
-  profile: [],
-  degree: NaN,
-  size: NaN,
-  weight: NaN,
-  cost: NaN,
-  costSq: NaN,
-  maxLecAbsDiff: NaN,
-  sumLecAbsDiff: NaN,
-  matching: [],
-  ranks: [],
-};
-
 export const algorithmRouter = createTRPCRouter({
-  run: adminProcedure
+  run: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -73,7 +61,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  takenNames: adminProcedure
+  takenNames: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -94,7 +82,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  create: adminProcedure
+  create: instanceAdminProcedure
     .input(
       algorithmSchema
         .pick({ algName: true, flag1: true, flag2: true, flag3: true })
@@ -128,7 +116,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  customAlgs: adminProcedure
+  customAlgs: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -160,7 +148,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  singleResult: adminProcedure
+  singleResult: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -197,7 +185,8 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  allResults: adminProcedure
+  // TODO: refactor as the way to compute firstNonEmpty is not very intuitive
+  allResults: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({

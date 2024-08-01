@@ -72,7 +72,10 @@ export const adminPanelTabsByStage: Record<
     adminPanelTabs.supervisorInvites,
     adminPanelTabs.projectSubmissions,
   ],
-  PROJECT_SELECTION: [adminPanelTabs.studentInvites],
+  PROJECT_SELECTION: [
+    adminPanelTabs.studentInvites,
+    adminPanelTabs.preferenceSubmissions,
+  ],
   PROJECT_ALLOCATION: [
     adminPanelTabs.algorithmsOverview,
     adminPanelTabs.algorithmDetails,
