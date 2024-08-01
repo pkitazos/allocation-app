@@ -1,5 +1,13 @@
-import { Session } from "next-auth/types";
+import { NewUser } from "@prisma/client";
 
-export declare function slim_auth(): Promise<Session | null>;
+type NewSession = {
+  id: string;
+  sessionToken: string;
+  userId: string;
+  expires: number;
+  user: NewUser;
+};
+
+export declare function slim_auth(): Promise<NewSession | null>;
 // TODO: implement function to get session
 // can potentially get this from JWT or cookies?
