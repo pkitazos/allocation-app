@@ -69,14 +69,14 @@ export function FormSection({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mt-10 flex flex-col gap-6"
+        className="mt-10 flex flex-col items-center justify-center gap-6"
       >
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex w-1/2 flex-col items-start gap-3">
           <FormField
             control={form.control}
             name="groupName"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel className="text-2xl">
                   Allocation Group Name
                 </FormLabel>

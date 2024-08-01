@@ -26,3 +26,11 @@ export type SubGroupParams = z.infer<typeof subGroupParamsSchema>;
 export type InstanceParams = z.infer<typeof instanceParamsSchema>;
 
 export type SpaceParams = z.infer<typeof spaceParamsSchema>;
+
+export const refinedSpaceParamsSchema = z.object({
+  group: z.string(),
+  subGroup: z.string().optional(),
+  instance: z.string().optional(),
+});
+
+export type RefinedSpaceParams = z.infer<typeof refinedSpaceParamsSchema>;

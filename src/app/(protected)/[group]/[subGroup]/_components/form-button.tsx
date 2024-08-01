@@ -49,9 +49,9 @@ export function FormButton({ params }: { params: SubGroupParams }) {
 
   const { mutateAsync } = api.institution.subGroup.addAdmin.useMutation();
 
-  const onSubmit = async (data: NewAdmin) => {
+  const onSubmit = async (newAdmin: NewAdmin) => {
     void toast.promise(
-      mutateAsync({ params, ...data }).then(() => {
+      mutateAsync({ params, newAdmin }).then(() => {
         form.reset();
         setOpen(false);
         router.refresh();
@@ -63,7 +63,7 @@ export function FormButton({ params }: { params: SubGroupParams }) {
       },
     );
 
-    // run mutation
+    // TODO: finish after auth is implemented
     // if user with that id exists set that user as the admin, otherwise create new user and set them to be the admin
   };
 

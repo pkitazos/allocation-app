@@ -132,9 +132,6 @@ export const instanceRouter = createTRPCRouter({
           stage,
         },
       }) => {
-        const supervisorsCanAccess = stageOrd[stage] >= 2;
-        const studentsCanAccess = stageOrd[stage] >= 3;
-
         await ctx.db.allocationInstance.update({
           where: {
             instanceId: {
@@ -143,11 +140,7 @@ export const instanceRouter = createTRPCRouter({
               id: instance,
             },
           },
-          data: {
-            stage,
-            supervisorsCanAccess,
-            studentsCanAccess,
-          },
+          data: { stage },
         });
       },
     ),
@@ -690,16 +683,6 @@ export const instanceRouter = createTRPCRouter({
           select: { user: true, joined: true },
         });
 
-        const { supervisorsCanAccess: platformAccess } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { supervisorsCanAccess: true },
-          });
-
         const supervisors = invitedUsers.map(({ user, joined }) => ({
           id: user.id,
           name: user.name!,
@@ -707,7 +690,7 @@ export const instanceRouter = createTRPCRouter({
           joined,
         }));
 
-        return { supervisors, platformAccess };
+        return { supervisors };
       },
     ),
 
@@ -998,16 +981,6 @@ export const instanceRouter = createTRPCRouter({
           select: { user: true, joined: true },
         });
 
-        const { studentsCanAccess: platformAccess } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { studentsCanAccess: true },
-          });
-
         const students = invitedUsers.map(({ user, joined }) => ({
           id: user.id,
           name: user.name!,
@@ -1015,7 +988,7 @@ export const instanceRouter = createTRPCRouter({
           joined,
         }));
 
-        return { students, platformAccess };
+        return { students };
       },
     ),
 
