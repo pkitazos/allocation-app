@@ -32,7 +32,19 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   session: Session | null;
 }) => {
-  const session = opts.session ?? (await auth());
+  const session = opts.session ?? (await auth()); // TODO: replace with slimmed down auth function
+
+  if (!session) {
+    // TODO: check headers for shibboleth headers
+    // if there's a header indicating that a user exists
+    // (like an Authorization header or something)
+    // -> return a new session with the correct user attached
+    //
+    // otherwise
+    // -> return an empty session / null / throw an error
+    // (not sure what the right call is here)
+  }
+
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
   console.log(">>> tRPC Request from", source, "by", session?.user);
