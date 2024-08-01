@@ -109,25 +109,26 @@ model AllocationSubGroup {
 
 model AllocationInstance {
     id                           String
-    displayName                  String             @map("display_name")
-    stage                        Stage              @default(SETUP)
+    displayName                  String                 @map("display_name")
+    stage                        Stage                  @default(SETUP)
     // has 1
-    selectedAlgName              String?            @map("selected_alg_name")
+    selectedAlgName              String?                @map("selected_alg_name")
     // supervisor details
-    projectSubmissionDeadline    DateTime           @map("project_submission_deadline")
-    supervisorsCanAccess         Boolean            @default(false) @map("supervisors_can_access")
+    projectSubmissionDeadline    DateTime               @map("project_submission_deadline")
+    supervisorsCanAccess         Boolean                @default(false) @map("supervisors_can_access")
     // student details
-    minPreferences               Int                @map("min_preferences")
-    maxPreferences               Int                @map("max_preferences")
-    maxPreferencesPerSupervisor  Int                @map("max_preferences_per_supervisor")
-    preferenceSubmissionDeadline DateTime           @map("preference_submission_deadline")
-    studentsCanAccess            Boolean            @default(false) @map("students_can_access")
-    parentInstanceId             String?            @map("parent_instance_id")
+    minPreferences               Int                    @map("min_preferences")
+    maxPreferences               Int                    @map("max_preferences")
+    maxPreferencesPerSupervisor  Int                    @map("max_preferences_per_supervisor")
+    preferenceSubmissionDeadline DateTime               @map("preference_submission_deadline")
+    studentsCanAccess            Boolean                @default(false) @map("students_can_access")
+    parentInstanceId             String?                @map("parent_instance_id")
     // belongs to 1
-    allocationSubGroup           AllocationSubGroup @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
-    allocationGroupId            String             @map("allocation_group_id")
-    allocationSubGroupId         String             @map("allocation_sub_group_id")
+    allocationSubGroup           AllocationSubGroup     @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
+    allocationGroupId            String                 @map("allocation_group_id")
+    allocationSubGroupId         String                 @map("allocation_sub_group_id")
     // has many
+    adminInstanceDetails         AdminInstanceDetails[]
     users                        UserInInstance[]
     projects                     Project[]
     algorithms                   Algorithm[]
@@ -135,6 +136,19 @@ model AllocationInstance {
     tags                         Tag[]
 
     @@id(name: "instanceId", [allocationGroupId, allocationSubGroupId, id])
+}
+
+model AdminInstanceDetails {
+    exportedToExternalSystem Boolean            @default(false) @map("exported_to_external_system")
+    allStudentsChecked       Boolean            @default(false) @map("all_students_checked")
+    allSupervisorsChecked    Boolean            @default(false) @map("all_supervisors_checked")
+    // ---
+    allocationGroupId        String             @map("allocation_group_id")
+    allocationSubGroupId     String             @map("allocation_sub_group_id")
+    allocationInstanceId     String             @map("allocation_instance_id")
+    allocationInstance       AllocationInstance @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id([allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model SupervisorInstanceDetails {
