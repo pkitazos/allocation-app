@@ -835,7 +835,7 @@ export const instanceRouter = createTRPCRouter({
             skipDuplicates: true,
           });
 
-          await ctx.db.studentDetails.createMany({
+          await tx.studentDetails.createMany({
             data: newStudents.map(({ level, institutionId }) => ({
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
