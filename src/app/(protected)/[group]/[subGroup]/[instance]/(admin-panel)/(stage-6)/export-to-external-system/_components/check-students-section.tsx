@@ -17,7 +17,7 @@ export function CheckStudentsSection() {
     data,
     status,
     mutateAsync: checkStudentsAsync,
-  } = api.institution.instance.matching.checkStudents.useMutation();
+  } = api.institution.instance.external.checkStudents.useMutation();
 
   return (
     <div className="flex flex-col items-start gap-4">

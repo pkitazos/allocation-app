@@ -32,11 +32,13 @@ import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { externalSystemRouter } from "./external";
 
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
   algorithm: algorithmRouter,
   project: projectRouter,
+  external: externalSystemRouter,
 
   get: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))

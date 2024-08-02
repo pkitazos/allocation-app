@@ -21,7 +21,7 @@ export function CreateProjectsSection() {
     data,
     status,
     mutateAsync: createProjectsAsync,
-  } = api.institution.instance.matching.createProjectsOnAssessmentSystem.useMutation();
+  } = api.institution.instance.external.createProjects.useMutation();
 
   return (
     <div className="flex flex-col items-start gap-3">

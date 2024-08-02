@@ -17,7 +17,7 @@ export function CheckSupervisorsSection() {
     data,
     status,
     mutateAsync: checkSupervisorsAsync,
-  } = api.institution.instance.matching.checkSupervisors.useMutation();
+  } = api.institution.instance.external.checkSupervisors.useMutation();
 
   return (
     <div className="flex flex-col items-start gap-4">

@@ -16,8 +16,8 @@ export default async function Page({ params }: { params: InstanceParams }) {
       <SubHeading className="mt-3">
         Check users exist on Assessment System
       </SubHeading>
-      <CheckStudentsSection />
-      <CheckSupervisorsSection />
+      {/* <CheckStudentsSection /> */}
+      {/* <CheckSupervisorsSection /> */}
       <SubHeading className="mt-16">
         Create Projects on Assessment System
       </SubHeading>
