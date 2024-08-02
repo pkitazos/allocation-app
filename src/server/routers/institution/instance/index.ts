@@ -124,7 +124,7 @@ export const instanceRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx }) => ctx.instance.selectedAlgName ?? undefined),
 
-  // TODO: refactor
+  // TODO: decouple data table data from database model & improve filtering in queries
   projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -220,6 +220,7 @@ export const instanceRouter = createTRPCRouter({
           },
         });
 
+        // ! data returned is not formatted on server which means responsibility to format data is passed to client (specifically the data table column constructors)
         return { byStudent, byProject, bySupervisor };
       },
     ),
