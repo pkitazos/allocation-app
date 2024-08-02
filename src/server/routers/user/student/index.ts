@@ -133,14 +133,15 @@ export const studentRouter = createTRPCRouter({
           },
         });
 
+        if (!projectAllocation) return undefined;
+
         return {
-          successfullyAllocated: !!projectAllocation,
-          allocatedProject: {
-            id: projectAllocation!.project.id,
-            title: projectAllocation!.project.title,
-            description: projectAllocation!.project.description,
-            supervisor: projectAllocation!.project.supervisor.user,
-            studentRanking: projectAllocation!.studentRanking,
+          id: projectAllocation.project.id,
+          title: projectAllocation.project.title,
+          description: projectAllocation.project.description,
+          studentRanking: projectAllocation.studentRanking,
+          supervisor: {
+            name: projectAllocation.project.supervisor.user.name!,
           },
         };
       },

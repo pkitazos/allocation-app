@@ -9,17 +9,16 @@ import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { successfullyAllocated, allocatedProject } =
-    await api.user.student.allocatedProject({ params });
+  const allocatedProject = await api.user.student.allocatedProject({ params });
 
   return (
     <>
       <Heading>{instanceTabs.myAllocation.title}</Heading>
       <PanelWrapper className="px-16">
-        {!successfullyAllocated ? (
+        {!allocatedProject ? (
           <div className="mt-9 flex flex-col gap-4">
-            <SubHeading>Allocations</SubHeading>
-            <p>You have not been allocated any projects</p>
+            <SubHeading>Allocation</SubHeading>
+            <p>You have not been allocated a project</p>
           </div>
         ) : (
           <div className="mt-16 flex flex-col gap-8">
