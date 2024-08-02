@@ -6,7 +6,6 @@ import {
   getStudentRank,
 } from "@/lib/utils/allocation-adjustment/rank";
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
-import { delay } from "@/lib/utils/general/delay";
 import { mock } from "@/lib/utils/general/delay";
 import {
   ProjectDetails,

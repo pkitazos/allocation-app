@@ -37,6 +37,7 @@ import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { externalSystemRouter } from "./external";
 
 // TODO: add stage checks to stage-specific procedures
 import { externalSystemRouter } from "./external";
