@@ -50,7 +50,7 @@ export async function updatePreferenceTransaction({
       return;
     }
 
-    const [{ rank: maxRank }] = await tx.preference.findMany({
+    const preferences = await tx.preference.aggregate({
       where: {
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
@@ -58,10 +58,10 @@ export async function updatePreferenceTransaction({
         userId: student.id,
         type: preferenceType,
       },
-      select: { rank: true },
-      orderBy: { rank: "desc" },
-      take: 1,
+      _max: { rank: true },
     });
+
+    const nextRank = (preferences._max?.rank ?? 0) + 1;
 
     await tx.preference.upsert({
       where: {
@@ -80,11 +80,11 @@ export async function updatePreferenceTransaction({
         projectId,
         userId: student.id,
         type: preferenceType,
-        rank: maxRank + 1,
+        rank: nextRank,
       },
       update: {
         type: preferenceType,
-        rank: maxRank + 1,
+        rank: nextRank,
       },
     });
   });
