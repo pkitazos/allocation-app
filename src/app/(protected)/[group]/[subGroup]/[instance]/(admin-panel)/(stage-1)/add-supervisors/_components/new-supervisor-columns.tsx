@@ -140,7 +140,7 @@ export function constructColumns({
       },
       cell: ({
         row: {
-          original: { institutionId },
+          original: { fullName, institutionId },
         },
       }) => {
         function handleRemoveSupervisor() {
@@ -164,7 +164,7 @@ export function constructColumns({
                     onClick={handleRemoveSupervisor}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Remove Selected Supervisors</span>
+                    <span>Remove Supervisor {fullName}</span>
                   </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>

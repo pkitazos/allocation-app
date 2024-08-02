@@ -196,7 +196,7 @@ export function constructColumns({
                     onClick={handleDeleteSelected}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Remove Selected Students</span>
+                    <span>Delete Selected Projects</span>
                   </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -247,7 +247,7 @@ export function constructColumns({
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project</span>
+                    <span>Delete Project {project.id}</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>
