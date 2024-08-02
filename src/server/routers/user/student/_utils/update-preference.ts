@@ -50,7 +50,7 @@ export async function updatePreferenceTransaction({
       return;
     }
 
-    const [{ rank: maxRank }] = await tx.preference.findMany({
+    const allPreferences = await tx.preference.findMany({
       where: {
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
@@ -62,6 +62,8 @@ export async function updatePreferenceTransaction({
       orderBy: { rank: "desc" },
       take: 1,
     });
+
+    const maxRank = allPreferences.at(0)?.rank ?? 0;
 
     await tx.preference.upsert({
       where: {
