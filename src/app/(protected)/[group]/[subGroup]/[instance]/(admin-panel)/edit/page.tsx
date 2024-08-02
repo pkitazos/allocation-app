@@ -3,9 +3,9 @@ import { SubHeading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { EditInstanceForm } from "./_components/edit-instance-form";
-
 import { spacesLabels } from "@/content/spaces";
+
+import { EditInstanceForm } from "./_components/edit-instance-form";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const currentInstance = await api.institution.instance.getEditFormDetails({

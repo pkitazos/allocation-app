@@ -1,53 +1,66 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { MoreHorizontal as MoreIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-import { NewSupervisor } from "@/lib/validations/csv";
+import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
-export function columns(
-  removeRow: (idx: number) => void,
-  clearTable: () => void,
-): ColumnDef<NewSupervisor>[] {
-  return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+export function constructColumns({
+  removeSupervisor,
+  removeSelectedSupervisors,
+}: {
+  removeSupervisor: (id: string) => Promise<void>;
+  removeSelectedSupervisors: (ids: string[]) => Promise<void>;
+}): ColumnDef<NewSupervisor>[] {
+  const selectCol = getSelectColumn<NewSupervisor>();
+
+  const userCols: ColumnDef<NewSupervisor>[] = [
     {
       id: "full Name",
       accessorFn: ({ fullName }) => fullName,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Full Name" />
       ),
+      cell: ({
+        row: {
+          original: { fullName },
+        },
+      }) => (
+        <WithTooltip
+          align="start"
+          tip={<div className="max-w-xs">{fullName}</div>}
+        >
+          <div className="w-40 truncate">{fullName}</div>
+        </WithTooltip>
+      ),
     },
     {
-      id: "university ID",
-      accessorFn: ({ schoolId }) => schoolId,
+      id: "GUID",
+      accessorFn: ({ institutionId }) => institutionId,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="University ID"
-          canFilter
-        />
+        <DataTableColumnHeader column={column} title="GUID" canFilter />
+      ),
+      cell: ({
+        row: {
+          original: { institutionId: guid },
+        },
+      }) => (
+        <WithTooltip align="start" tip={<div className="max-w-xs">{guid}</div>}>
+          <div className="w-32 truncate">{guid}</div>
+        </WithTooltip>
       ),
     },
     {
@@ -63,6 +76,11 @@ export function columns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Target" />
       ),
+      cell: ({
+        row: {
+          original: { projectTarget },
+        },
+      }) => <div className="text-center">{projectTarget}</div>,
     },
     {
       id: "Project Upper Quota",
@@ -70,29 +88,92 @@ export function columns(
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Upper Quota" />
       ),
+      cell: ({
+        row: {
+          original: { projectUpperQuota },
+        },
+      }) => <div className="text-center">{projectUpperQuota}</div>,
     },
     {
       accessorKey: "actions",
       id: "Actions",
       header: ({ table }) => {
-        const allSelected = table.getIsAllRowsSelected();
+        const someSelected =
+          table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
 
-        if (allSelected)
+        const selectedSupervisorIds = table
+          .getSelectedRowModel()
+          .rows.map((e) => e.original.institutionId);
+
+        function handleRemoveSupervisors() {
+          void removeSelectedSupervisors(selectedSupervisorIds);
+        }
+
+        if (someSelected)
           return (
-            <Button variant="ghost" size="icon" onClick={clearTable}>
-              <X className="h-5 w-5" />
-            </Button>
+            <div className="flex w-14 items-center justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <span className="sr-only">Open menu</span>
+                    <MoreIcon className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <button
+                      className="flex items-center gap-2"
+                      onClick={handleRemoveSupervisors}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                      <span>Remove Selected Supervisors</span>
+                    </button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           );
 
-        return <div className="w-fit" />;
+        return <ActionColumnLabel />;
       },
-      cell: ({ row: { index } }) => {
+      cell: ({
+        row: {
+          original: { fullName, institutionId },
+        },
+      }) => {
+        function handleRemoveSupervisor() {
+          void removeSupervisor(institutionId);
+        }
         return (
-          <Button variant="ghost" size="icon" onClick={() => removeRow(index)}>
-            <X className="h-5 w-5" />
-          </Button>
+          <div className="flex w-14 items-center justify-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost">
+                  <span className="sr-only">Open menu</span>
+                  <MoreIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={handleRemoveSupervisor}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>Remove Supervisor {fullName}</span>
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },
   ];
+
+  return [selectCol, ...userCols];
 }

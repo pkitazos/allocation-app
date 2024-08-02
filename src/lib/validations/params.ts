@@ -9,18 +9,28 @@ export const subGroupParamsSchema = z.object({
   subGroup: z.string(),
 });
 
-export const spaceParamsSchema = groupParamsSchema.or(subGroupParamsSchema);
-
-export type SpaceParams = z.infer<typeof spaceParamsSchema>;
-
 export const instanceParamsSchema = z.object({
   group: z.string(),
   subGroup: z.string(),
   instance: z.string(),
 });
 
+export const spaceParamsSchema = groupParamsSchema
+  .or(subGroupParamsSchema)
+  .or(instanceParamsSchema);
+
 export type GroupParams = z.infer<typeof groupParamsSchema>;
 
 export type SubGroupParams = z.infer<typeof subGroupParamsSchema>;
 
 export type InstanceParams = z.infer<typeof instanceParamsSchema>;
+
+export type SpaceParams = z.infer<typeof spaceParamsSchema>;
+
+export const refinedSpaceParamsSchema = z.object({
+  group: z.string(),
+  subGroup: z.string().optional(),
+  instance: z.string().optional(),
+});
+
+export type RefinedSpaceParams = z.infer<typeof refinedSpaceParamsSchema>;

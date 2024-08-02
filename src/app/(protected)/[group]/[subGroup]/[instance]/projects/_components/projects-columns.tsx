@@ -27,42 +27,41 @@ import { ActionColumnLabel } from "@/components/ui/data-table/action-column-labe
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
+import { useInstanceStage } from "@/components/params-context";
 
 export interface ProjectTableData {
-  user: User;
-  description: string;
   id: string;
   title: string;
   supervisor: {
-    user: {
-      id: string;
-      name: string | null;
-    };
+    id: string;
+    name: string;
   };
-  flagOnProjects: {
-    flag: {
-      id: string;
-      title: string;
-    };
+  flags: {
+    id: string;
+    title: string;
   }[];
-  tagOnProject: {
-    tag: {
-      id: string;
-      title: string;
-    };
+  tags: {
+    id: string;
+    title: string;
   }[];
 }
 
-export function projectColumns(
-  user: User,
-  role: Role,
-  stage: Stage,
-  deleteProject: (id: string) => Promise<void>,
-  deleteSelectedProjects: (ids: string[]) => Promise<void>,
-): ColumnDef<ProjectTableData>[] {
+export function constructColumns({
+  user,
+  role,
+  deleteProject,
+  deleteSelectedProjects,
+}: {
+  user: User;
+  role: Role;
+  deleteProject: (id: string) => Promise<void>;
+  deleteSelectedProjects: (ids: string[]) => Promise<void>;
+}): ColumnDef<ProjectTableData>[] {
+  const stage = useInstanceStage();
+
   const selectCol = getSelectColumn<ProjectTableData>();
 
-  const userCols: ColumnDef<ProjectTableData>[] = [
+  const baseCols: ColumnDef<ProjectTableData>[] = [
     {
       id: "title",
       accessorKey: "title",
@@ -81,16 +80,14 @@ export function projectColumns(
     },
     {
       id: "supervisor",
-      accessorFn: (row) => row.supervisor.user.name,
+      accessorFn: (row) => row.supervisor.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
       ),
       cell: ({
         row: {
           original: {
-            supervisor: {
-              user: { id, name },
-            },
+            supervisor: { id, name },
           },
         },
       }) => (
@@ -101,27 +98,25 @@ export function projectColumns(
     },
     {
       id: "flags",
-      accessorFn: (row) => row.flagOnProjects,
+      accessorFn: (row) => row.flags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Flags" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
-        const rowFlags = row.getValue(columnId) as { flag: TagType }[];
-        return rowFlags.some((e) => ids.includes(e.flag.id));
+        const rowFlags = row.getValue(columnId) as TagType[];
+        return rowFlags.some((e) => ids.includes(e.id));
       },
       cell: ({
         row: {
-          original: { flagOnProjects },
+          original: { flags },
         },
       }) => (
         <div className="flex flex-col gap-2">
-          {flagOnProjects.length > 2 ? (
-            <Badge className="w-fit font-normal">
-              {flagOnProjects.length}+
-            </Badge>
+          {flags.length > 2 ? (
+            <Badge className="w-fit font-normal">{flags.length}+</Badge>
           ) : (
-            flagOnProjects.map(({ flag }) => (
+            flags.map((flag) => (
               <Badge className="w-fit" key={flag.id}>
                 {flag.title}
               </Badge>
@@ -132,27 +127,27 @@ export function projectColumns(
     },
     {
       id: "tags",
-      accessorFn: (row) => row.tagOnProject,
+      accessorFn: (row) => row.tags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Tags" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
-        const rowTags = row.getValue(columnId) as { tag: TagType }[];
-        return rowTags.some((e) => ids.includes(e.tag.id));
+        const rowTags = row.getValue(columnId) as TagType[];
+        return rowTags.some((e) => ids.includes(e.id));
       },
       cell: ({
         row: {
-          original: { tagOnProject },
+          original: { tags },
         },
       }) => (
         <div className="flex flex-col gap-2">
-          {tagOnProject.length > 2 ? (
+          {tags.length > 2 ? (
             <Badge variant="outline" className="w-fit font-normal">
-              {tagOnProject.length}+
+              {tags.length}+
             </Badge>
           ) : (
-            tagOnProject.map(({ tag }) => (
+            tags.map((tag) => (
               <Badge variant="outline" className="w-fit" key={tag.id}>
                 {tag.title}
               </Badge>
@@ -174,6 +169,10 @@ export function projectColumns(
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      function handleDeleteSelected() {
+        void deleteSelectedProjects(selectedProjectIds);
+      }
+
       if (
         someSelected &&
         role === Role.ADMIN &&
@@ -181,19 +180,27 @@ export function projectColumns(
       )
         return (
           <div className="flex w-14 items-center justify-center">
-            <WithTooltip
-              tip={<p className="text-gray-700">Delete selected Projects</p>}
-              duration={500}
-            >
-              <Button
-                className="flex items-center gap-2"
-                variant="destructive"
-                size="sm"
-                onClick={() => deleteSelectedProjects(selectedProjectIds)}
-              >
-                <Trash2Icon className="h-4 w-4" />
-              </Button>
-            </WithTooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost">
+                  <span className="sr-only">Open menu</span>
+                  <MoreIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={handleDeleteSelected}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>Delete Selected Projects</span>
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
 
@@ -201,10 +208,10 @@ export function projectColumns(
     },
     cell: ({ row, table }) => {
       const project = row.original;
-      const supervisor = row.original.supervisor.user;
+      const supervisor = row.original.supervisor;
 
       async function handleDelete() {
-        await deleteProject(project.id).then(() => {
+        void deleteProject(project.id).then(() => {
           table.toggleAllRowsSelected(false);
         });
       }
@@ -222,7 +229,7 @@ export function projectColumns(
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                   href={`./projects/${project.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
@@ -240,7 +247,7 @@ export function projectColumns(
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project</span>
+                    <span>Delete Project {project.id}</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>
@@ -251,11 +258,11 @@ export function projectColumns(
     },
   };
 
-  if (role === Role.STUDENT) return userCols;
+  if (role === Role.STUDENT) return baseCols;
 
-  if (role === Role.SUPERVISOR) return [...userCols, actionsCol];
+  if (role === Role.SUPERVISOR) return [...baseCols, actionsCol];
 
   return stage === Stage.PROJECT_SUBMISSION
-    ? [selectCol, ...userCols, actionsCol]
-    : [...userCols, actionsCol];
+    ? [selectCol, ...baseCols, actionsCol]
+    : [...baseCols, actionsCol];
 }

@@ -12,10 +12,16 @@ export default async function Page({ params }: { params: InstanceParams }) {
   const instance = await api.institution.instance.get({ params });
 
   if (instance.parentInstanceId) {
-    return <Unauthorised message="Can't fork an already forked {spacesLabels.instance.short}" />;
+    return (
+      <Unauthorised
+        message={`Can't fork an already forked ${spacesLabels.instance.short}`}
+      />
+    );
   }
 
-  const takenNames = await api.institution.subGroup.takenNames({ params });
+  const takenNames = await api.institution.subGroup.takenInstanceNames({
+    params,
+  });
 
   const currentInstance = { instanceName: instance.displayName, ...instance };
   return (

@@ -1,7 +1,7 @@
 "use client";
-import { Role, Stage } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { Role } from "@prisma/client";
 import { User } from "next-auth";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -10,18 +10,16 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import { projectColumns, ProjectTableData } from "./projects-columns";
+import { constructColumns, ProjectTableData } from "./projects-columns";
 
 export function ProjectsDataTable({
   data,
   user,
   role,
-  stage,
 }: {
   data: ProjectTableData[];
   user: User;
   role: Role;
-  stage: Stage;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -34,9 +32,9 @@ export function ProjectsDataTable({
     void toast.promise(
       deleteAsync({ params, projectId }).then(() => router.refresh()),
       {
-        loading: "Deleting Project...",
+        loading: "Deleting project...",
         error: "Something went wrong",
-        success: `Project ${projectId} deleted successfully`,
+        success: `Successfully deleted project ${projectId}`,
       },
     );
   }
@@ -45,9 +43,9 @@ export function ProjectsDataTable({
     void toast.promise(
       deleteAllAsync({ params, projectIds }).then(() => router.refresh()),
       {
-        loading: "Deleting Selected Projects...",
+        loading: "Deleting selected projects...",
         error: "Something went wrong",
-        success: "Selected Projects deleted successfully",
+        success: `Successfully deleted ${projectIds.length} projects`,
       },
     );
   }
@@ -57,17 +55,18 @@ export function ProjectsDataTable({
     displayName: "Project Titles",
   };
 
+  const columns = constructColumns({
+    user,
+    role,
+    deleteProject: handleDelete,
+    deleteSelectedProjects: handleDeleteSelected,
+  });
+
   return (
     <DataTable
       searchableColumn={primaryColumn}
       className="w-full"
-      columns={projectColumns(
-        user,
-        role,
-        stage,
-        handleDelete,
-        handleDeleteSelected,
-      )}
+      columns={columns}
       data={data}
     />
   );

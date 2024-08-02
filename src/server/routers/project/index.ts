@@ -3,17 +3,21 @@ import { z } from "zod";
 
 import { nullable } from "@/lib/utils/general/nullable";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
+import {
+  getFlagLabelFromStudentLevel,
+  getStudentLevelFromFlag,
+} from "@/lib/utils/permissions/get-student-level";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
+import { updateProjectAllocation } from "@/server/routers/project/_utils/project-allocation";
+import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
 import {
   createTRPCRouter,
   forkedInstanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
-import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
-import { updateProjectAllocation } from "@/server/routers/project/_utils/project-allocation";
 
 export const projectRouter = createTRPCRouter({
   edit: stageAwareProcedure
@@ -137,6 +141,53 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
+  getAllForUser: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const projectData = await ctx.db.project.findMany({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+        },
+        select: {
+          id: true,
+          title: true,
+          supervisor: { select: { user: true } },
+          tagOnProject: { select: { tag: true } },
+          flagOnProjects: { select: { flag: true } },
+        },
+      });
+
+      const allProjects = projectData.map((p) => ({
+        id: p.id,
+        title: p.title,
+        supervisor: { id: p.supervisor.user.id, name: p.supervisor.user.name! },
+        flags: p.flagOnProjects.map(({ flag }) => flag),
+        tags: p.tagOnProject.map(({ tag }) => tag),
+      }));
+
+      const student = await ctx.db.studentDetails.findFirst({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+          userId: ctx.session.user.id,
+        },
+        select: {
+          studentLevel: true,
+          userInInstance: { select: { role: true } },
+        },
+      });
+
+      if (!student) return allProjects;
+
+      return allProjects.filter(({ flags }) =>
+        flags.some((f) => getStudentLevelFromFlag(f) === student.studentLevel),
+      );
+    }),
+
+  // ! deprecated
   getTableData: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -236,6 +287,40 @@ export const projectRouter = createTRPCRouter({
         return !!parentInstanceProject;
       },
     ),
+
+  getUserAccess: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(async ({ ctx, input: { params, projectId } }) => {
+      const student = await ctx.db.studentDetails.findFirst({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+          userId: ctx.session.user.id,
+        },
+      });
+
+      if (!student) return { access: true, studentFlagLabel: "" };
+
+      const { flagOnProjects } = await ctx.db.project.findFirstOrThrow({
+        where: {
+          id: projectId,
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+        },
+        select: { flagOnProjects: { select: { flag: true } } },
+      });
+
+      const access = flagOnProjects.some(
+        ({ flag }) => getStudentLevelFromFlag(flag) === student.studentLevel,
+      );
+
+      return {
+        access,
+        studentFlagLabel: getFlagLabelFromStudentLevel(student.studentLevel),
+      };
+    }),
 
   delete: stageAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))

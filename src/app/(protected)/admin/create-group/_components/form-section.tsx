@@ -21,7 +21,11 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/trpc/client";
 import { slugify } from "@/lib/utils/general/slugify";
 
-export function FormSection({ takenNames }: { takenNames: string[] }) {
+export function FormSection({
+  takenGroupNames,
+}: {
+  takenGroupNames: string[];
+}) {
   const router = useRouter();
 
   const FormSchema = z.object({
@@ -29,7 +33,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
       .string()
       .min(1, "Please enter a name")
       .refine((item) => {
-        const setOfNames = new Set(takenNames);
+        const setOfNames = new Set(takenGroupNames);
         const nameAllowed = !setOfNames.has(item);
         return nameAllowed;
       }, "This name is already taken"),
@@ -65,14 +69,14 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mt-10 flex flex-col gap-6"
+        className="mt-10 flex flex-col items-center justify-center gap-6"
       >
-        <div className="flex flex-col items-start gap-3">
+        <div className="flex w-1/2 flex-col items-start gap-3">
           <FormField
             control={form.control}
             name="groupName"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel className="text-2xl">
                   Allocation Group Name
                 </FormLabel>
@@ -90,7 +94,7 @@ export function FormSection({ takenNames }: { takenNames: string[] }) {
         <Separator className="my-14" />
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            create new group
+            Create New Group
           </Button>
         </div>
       </form>

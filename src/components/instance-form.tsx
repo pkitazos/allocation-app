@@ -1,10 +1,10 @@
 "use client";
-import { ReactNode } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format, setHours, setMinutes } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
+import { ReactNode } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
@@ -14,6 +14,10 @@ import {
   ValidatedInstanceDetails,
 } from "@/lib/validations/instance-form";
 
+import { flagToLevel } from "@/content/configs/flag-to-level";
+import { spacesLabels } from "@/content/spaces";
+
+import { SubHeading } from "./heading";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import {
@@ -26,13 +30,11 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { MoreInformation } from "./ui/more-information";
 import { NoteCard } from "./ui/note-card";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 import { TimePicker } from "./ui/time-picker";
-import { SubHeading } from "./heading";
-
-import { spacesLabels } from "@/content/spaces";
 
 export function InstanceForm({
   submissionButtonLabel,
@@ -146,7 +148,31 @@ export function InstanceForm({
             <FormLabel className="text-base">Project Flags</FormLabel>
             <FormDescription>
               Flags are used to mark a a project as suitable for a particular
-              group of students.
+              group of students{" "}
+              <MoreInformation className="w-96">
+                <div className="flex flex-col gap-2">
+                  <p>
+                    Flags will be used to filter projects based on their
+                    suitability for students of different levels.
+                  </p>
+                  <ul className="list-disc pl-6">
+                    <li>
+                      All flags should start with either "
+                      {flagToLevel.msci.label}" or "{flagToLevel.bsc.label}"
+                    </li>
+                    <li>
+                      Flags starting with "{flagToLevel.bsc.label}" will be
+                      applied to projects that are suitable for level{" "}
+                      {flagToLevel.bsc.level} students
+                    </li>
+                    <li>
+                      Flags starting with "{flagToLevel.msci.label}" will be
+                      applied to projects that are suitable for level{" "}
+                      {flagToLevel.msci.level} students
+                    </li>
+                  </ul>
+                </div>
+              </MoreInformation>
             </FormDescription>
             {flagFields.map((item, idx) => (
               <FormField

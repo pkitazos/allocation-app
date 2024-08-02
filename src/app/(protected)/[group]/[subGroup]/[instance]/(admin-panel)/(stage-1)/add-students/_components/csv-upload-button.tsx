@@ -1,31 +1,27 @@
 "use client";
 
-import Papa from "papaparse";
-import React, { Dispatch, SetStateAction } from "react";
+import { parse } from "papaparse";
+import React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
 
-import { NewStudent } from "@/lib/validations/csv";
-import { addStudentsCsvHeaders } from "@/lib/validations/add-students";
-
-const csvRowSchema = z.object({
-  full_name: z.string(),
-  university_id: z.string(),
-  email: z.string().email(),
-});
+import { addStudentsCsvRowSchema } from "@/lib/validations/add-users/csv";
+import { NewStudent } from "@/lib/validations/add-users/new-user";
 
 export function CSVUploadButton({
-  setNewStudents,
+  handleUpload,
+  requiredHeaders,
 }: {
-  setNewStudents: Dispatch<SetStateAction<NewStudent[]>>;
+  handleUpload: (data: NewStudent[]) => Promise<void>;
+  requiredHeaders: string[];
 }) {
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      Papa.parse(file, {
+    const fileList = event.target.files;
+    if (fileList && fileList.length > 0) {
+      const file = fileList[0];
+      parse(file, {
         complete: (res) => {
           const headers = res.meta.fields;
           if (!headers) {
@@ -33,25 +29,26 @@ export function CSVUploadButton({
             return;
           }
 
-          if (addStudentsCsvHeaders.join() !== headers.join()) {
+          if (requiredHeaders.join() !== headers.join()) {
             toast.error("CSV does not have the required headers");
             return;
           }
 
-          const result = z.array(csvRowSchema).safeParse(res.data);
+          const result = z.array(addStudentsCsvRowSchema).safeParse(res.data);
           if (!result.success) {
             toast.error("CSV data was not formatted correctly");
             return;
           }
+          toast.success("CSV parsed successfully!");
 
-          setNewStudents(
+          handleUpload(
             result.data.map((e) => ({
               fullName: e.full_name,
-              schoolId: e.university_id,
+              institutionId: e.matriculation_number,
               email: e.email,
+              level: e.student_level,
             })),
           );
-          toast.success("CSV parsed successfully!");
         },
         header: true,
         skipEmptyLines: true,

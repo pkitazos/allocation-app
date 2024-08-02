@@ -7,14 +7,15 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
-  adminProcedure,
   createTRPCRouter,
-  protectedProcedure,
-  stageAwareProcedure,
+  instanceProcedure,
+  studentProcedure,
 } from "@/server/trpc";
 
+import { updatePreferenceTransaction } from "./_utils/update-preference";
+
 export const preferenceRouter = createTRPCRouter({
-  getAll: stageAwareProcedure
+  getAll: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -65,7 +66,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  update: stageAwareProcedure
+  update: studentProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -73,101 +74,19 @@ export const preferenceRouter = createTRPCRouter({
         preferenceType: studentPreferenceSchema,
       }),
     )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          projectId,
-          preferenceType,
-        },
-      }) => {
-        if (ctx.stage !== Stage.PROJECT_SELECTION) return;
+    .mutation(async ({ ctx, input: { params, projectId, preferenceType } }) => {
+      if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
 
-        const userId = ctx.session.user.id;
+      await updatePreferenceTransaction({
+        db: ctx.db,
+        student: ctx.session.user,
+        params,
+        projectId,
+        preferenceType,
+      });
+    }),
 
-        if (preferenceType === "None") {
-          await ctx.db.preference.delete({
-            where: {
-              preferenceId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                projectId,
-                userId,
-              },
-            },
-          });
-          return;
-        }
-
-        const allPreferences = await ctx.db.preference.groupBy({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId,
-          },
-          by: "type",
-          _max: { rank: true },
-        });
-
-        const maxRankPerType = {
-          [PreferenceType.PREFERENCE]:
-            allPreferences.find(
-              ({ type }) => type === PreferenceType.PREFERENCE,
-            )?._max.rank ?? 1,
-
-          [PreferenceType.SHORTLIST]:
-            allPreferences.find(({ type }) => type === PreferenceType.SHORTLIST)
-              ?._max.rank ?? 1,
-        };
-
-        const currentPreference = await ctx.db.preference.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            projectId,
-            userId,
-          },
-        });
-
-        if (!currentPreference) {
-          await ctx.db.preference.create({
-            data: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId,
-              type: preferenceType,
-              rank: maxRankPerType[preferenceType] + 1,
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.update({
-          where: {
-            preferenceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId,
-            },
-          },
-          data: {
-            type: preferenceType,
-            rank: maxRankPerType[preferenceType] + 1,
-          },
-        });
-        return;
-      },
-    ),
-
-  reorder: stageAwareProcedure
+  reorder: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -186,7 +105,7 @@ export const preferenceRouter = createTRPCRouter({
           updatedRank,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.preference.update({
           where: {
@@ -206,7 +125,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  getForProject: protectedProcedure
+  getForProject: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -236,7 +155,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  submit: stageAwareProcedure
+  submit: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -245,11 +164,11 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
-        await ctx.db.userInInstance.update({
+        await ctx.db.studentDetails.update({
           where: {
-            instanceMembership: {
+            detailsId: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
@@ -261,7 +180,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  initialBoardState: protectedProcedure
+  initialBoardState: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -312,7 +231,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  change: adminProcedure
+  change: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -361,7 +280,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  changeSelected: adminProcedure
+  changeSelected: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,

@@ -4,14 +4,17 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
 import { ChangePreferenceButton } from "@/components/change-preference-button";
+import { useInstanceStage } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
+
 import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
@@ -27,18 +30,22 @@ export type PreferenceData = {
   rank: number;
 };
 
-export function studentPreferenceColumns(
-  role: Role,
-  stage: Stage,
+export function constructColumns({
+  role,
+  changePreference,
+  changeSelectedPreferences,
+}: {
+  role: Role;
   changePreference: (
     newPreferenceType: StudentPreferenceType,
     projectId: string,
-  ) => Promise<void>,
+  ) => Promise<void>;
   changeSelectedPreferences: (
     newPreferenceType: StudentPreferenceType,
     projectIds: string[],
-  ) => Promise<void>,
-): ColumnDef<PreferenceData>[] {
+  ) => Promise<void>;
+}): ColumnDef<PreferenceData>[] {
+  const stage = useInstanceStage();
   const selectCol = getSelectColumn<PreferenceData>();
 
   const userCols: ColumnDef<PreferenceData>[] = [
