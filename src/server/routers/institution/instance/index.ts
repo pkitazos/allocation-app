@@ -1043,7 +1043,7 @@ export const instanceRouter = createTRPCRouter({
         const base = [
           adminPanelTabs.allocationOverview,
           adminPanelTabs.exportToCSV,
-          adminPanelTabs.exportToExternalSystem,
+          // adminPanelTabs.exportToExternalSystem,
         ];
         return !parentInstanceId
           ? [...base, adminPanelTabs.forkInstance]

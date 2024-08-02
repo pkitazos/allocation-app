@@ -32,30 +32,6 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
-    id: "project External ID",
-    accessorFn: (row) => row.projectExternalId,
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Project External ID"
-        canFilter
-      />
-    ),
-    cell: ({
-      row: {
-        original: { projectExternalId },
-      },
-    }) => (
-      <div className="flex w-32 items-center justify-center">
-        <WithTooltip tip={projectExternalId} duration={500}>
-          <p className={buttonVariants({ variant: "ghost" })}>
-            {projectExternalId}
-          </p>
-        </WithTooltip>
-      </div>
-    ),
-  },
-  {
     id: "student ID",
     accessorFn: (row) => row.studentId,
     header: ({ column }) => (
@@ -70,6 +46,22 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
         <WithTooltip tip={studentId} duration={500}>
           <p className={buttonVariants({ variant: "ghost" })}>{studentId}</p>
         </WithTooltip>
+      </div>
+    ),
+  },
+  {
+    id: "student Level",
+    accessorFn: (row) => row.studentLevel,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Level" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: { studentLevel },
+      },
+    }) => (
+      <div className="flex w-32 items-center justify-center">
+        {studentLevel}
       </div>
     ),
   },

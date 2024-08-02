@@ -14,8 +14,11 @@ import {
 import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { mock } from "@/lib/utils/general/delay";
-import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  instanceAdminProcedure,
+} from "@/server/trpc";
 
 // TODO: uncomment once endpoint interfaces are confirmed
 // import {
@@ -363,7 +366,7 @@ export const matchingRouter = createTRPCRouter({
           },
           select: {
             project: true,
-            student: true,
+            student: { select: { userId: true, studentDetails: true } },
             studentRanking: true,
           },
         });
@@ -372,6 +375,7 @@ export const matchingRouter = createTRPCRouter({
           projectInternalId: project.id,
           projectExternalId: project.externalId ?? "",
           studentId: student.userId,
+          studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,
           projectSpecialTechnicalRequirements:

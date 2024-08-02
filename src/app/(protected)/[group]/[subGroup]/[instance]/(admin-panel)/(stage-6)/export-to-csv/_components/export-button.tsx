@@ -6,14 +6,15 @@ import { unparse } from "papaparse";
 import { Button } from "@/components/ui/button";
 
 import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
+import { NoteCard } from "@/components/ui/note-card";
 
 export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const downloadLinkRef = useRef<HTMLAnchorElement>(null);
 
   const header = [
     "Project Internal ID",
-    "Project External ID",
     "Student ID",
+    "Student Level",
     "Project Title",
     "Project Description",
     "Project Special Technical Requirements",
@@ -22,8 +23,8 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
 
   const rows = data.map((e) => [
     e.projectInternalId,
-    e.projectExternalId,
     e.studentId,
+    e.studentLevel,
     e.projectTitle,
     e.projectDescription,
     e.projectSpecialTechnicalRequirements,
@@ -54,10 +55,9 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
         <p>Export Data to CSV</p>
         <a ref={downloadLinkRef} className="hidden" />
       </Button>
-      {/* // TODO: convert to NoteCard after merging branches */}
-      <p className="pl-1">
-        Will export all columns even if they are not in view
-      </p>
+      <NoteCard>
+        This will export all columns even if they are not in view
+      </NoteCard>
     </div>
   );
 }
