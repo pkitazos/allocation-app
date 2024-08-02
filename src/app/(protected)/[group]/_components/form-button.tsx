@@ -142,13 +142,6 @@ export function FormButton({ params }: { params: GroupParams }) {
                 )}
               />
             </div>
-            <Separator className="my-1" />
-
-            {/* // TODO: add better description */}
-            <DialogDescription>
-              If the University ID and email mismatch the University ID takes
-              precedent
-            </DialogDescription>
             <DialogFooter>
               <Button type="submit">Add user to Group</Button>
             </DialogFooter>
