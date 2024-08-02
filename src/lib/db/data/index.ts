@@ -29,6 +29,7 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
+import { spec } from "node:test/reporters";
 
 export const EVALUATORS = 30;
 
@@ -249,7 +250,6 @@ const flagData: Pick<Flag, "title">[] = [
   { title: "BSc Software Engineering" },
   { title: "MSci Computing Science" },
   { title: "MSci Software Engineering" },
-  { title: "CS Joint Honours" },
 ];
 
 const tagData: Pick<Tag, "title">[] = [
@@ -364,6 +364,8 @@ export const projects = (ID: string): Project[] =>
       description: p.description,
       supervisorId: allSupervisors(ID)[p.supervisorId].id,
       preAllocatedStudentId: null,
+      externalId: null,
+      specialTechnicalRequirements: null,
       capacityLowerBound: 0,
       capacityUpperBound: 1,
     }),
