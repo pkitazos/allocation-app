@@ -63,15 +63,17 @@ export function AdjustmentRow({
 
   return (
     <DndContext onDragStart={() => setDragging(true)} onDragEnd={onDragEnd}>
-      <div className="flex w-max max-w-[65rem] items-start gap-3 overflow-x-scroll py-1.5 scrollbar-thin scrollbar-track-background scrollbar-thumb-rounded-full">
-        <div className="flex items-center gap-2 border-r pr-3">
+      <div className="flex min-h-24 w-max max-w-[65rem] items-start gap-3">
+        <div className="my-1.5 flex items-center gap-2 border-r pr-3">
           <UnmatchButton rowIdx={rowIdx} />
           <RowRemovalButton rowIdx={rowIdx} />
           <StudentCard studentId={studentId} />
         </div>
-        {rowStudent.projects.map((p, i) => (
-          <ProjectCard key={i} project={p} studentId={studentId} />
-        ))}
+        <div className="flex w-full items-start gap-3 overflow-x-scroll scrollbar-thin scrollbar-track-background scrollbar-thumb-rounded-full">
+          {rowStudent.projects.map((p, i) => (
+            <ProjectCard key={i} project={p} studentId={studentId} />
+          ))}
+        </div>
       </div>
       {createPortal(
         <DragOverlay>

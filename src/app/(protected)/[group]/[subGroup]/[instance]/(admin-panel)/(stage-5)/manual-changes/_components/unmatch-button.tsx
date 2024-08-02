@@ -9,6 +9,7 @@ import {
 } from "@/lib/utils/allocation-adjustment/student";
 
 import { useAllocDetails } from "./allocation-store";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function UnmatchButton({ rowIdx }: { rowIdx: number }) {
   const selectedStudentIds = useAllocDetails((s) => s.selectedStudentIds);
@@ -35,13 +36,15 @@ export function UnmatchButton({ rowIdx }: { rowIdx: number }) {
   }
 
   return (
-    <Button
-      onClick={handleClick}
-      size="icon"
-      variant="destructive"
-      className="h-12 w-12"
-    >
-      <TrashIcon className="h-5 w-5" />
-    </Button>
+    <WithTooltip tip="Unmatch student">
+      <Button
+        onClick={handleClick}
+        size="icon"
+        variant="destructive"
+        className="h-12 w-12"
+      >
+        <TrashIcon className="h-5 w-5" />
+      </Button>
+    </WithTooltip>
   );
 }

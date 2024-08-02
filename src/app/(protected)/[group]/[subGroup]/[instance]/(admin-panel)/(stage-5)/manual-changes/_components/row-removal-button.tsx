@@ -12,6 +12,7 @@ import {
 } from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from "./allocation-store";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
   const studentsBackup = useAllocDetails((s) => s.studentsBackup);
@@ -82,13 +83,15 @@ export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="h-12 w-12 text-muted-foreground"
-      onClick={() => handleRowRemoval(rowIdx)}
-    >
-      <MinusCircleIcon className="h-5 w-5" />
-    </Button>
+    <WithTooltip tip="Discard Changes">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-12 w-12 text-muted-foreground"
+        onClick={() => handleRowRemoval(rowIdx)}
+      >
+        <MinusCircleIcon className="h-5 w-5" />
+      </Button>
+    </WithTooltip>
   );
 }
