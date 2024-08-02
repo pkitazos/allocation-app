@@ -167,13 +167,10 @@ export const roleAwareProcedure = instanceProcedure.use(userRoleMiddleware);
 /**
  * Procedure that enforces the user is a student.
  */
-export const studentProcedure = instanceProcedure.use(userRoleMiddleware).use(
-  async ({
-    ctx: {
-      session: { user },
-    },
-    next,
-  }) => {
+export const studentProcedure = instanceProcedure
+  .use(userRoleMiddleware)
+  .use(async ({ ctx, next }) => {
+    const user = ctx.session.user;
     if (user.role !== Role.STUDENT) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
@@ -181,10 +178,16 @@ export const studentProcedure = instanceProcedure.use(userRoleMiddleware).use(
       });
     }
 
-    // TODO: attach student details to user role
-    return next({ ctx: { session: { user: { ...user, role: user.role } } } });
-  },
-);
+    const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
+      where: { userId: user.id },
+    });
+
+    return next({
+      ctx: {
+        session: { user: { ...user, role: user.role, studentLevel } },
+      },
+    });
+  });
 
 export const adminProcedure = protectedProcedure
   .input(z.object({ params: refinedSpaceParamsSchema }))
