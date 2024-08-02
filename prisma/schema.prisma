@@ -62,14 +62,12 @@ model UserInInstance {
     allocationInstanceId      String                      @map("allocation_instance_id")
     allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
-    submittedPreferences      Boolean                     @default(false)
     studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
+    studentDetails            StudentDetails[]            @relation(name: "student_details")
+    studentPreferences        Preference[]
     // ---
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")
     supervisorProjects        Project[]
-    // studentInstanceDetails    StudentInstanceDetails[]
-    // studentFlags              FlagOnStudent[]
-    studentPreferences        Preference[]
 
     @@id(name: "instanceMembership", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -97,10 +95,10 @@ model AllocationGroup {
 model AllocationSubGroup {
     id                  String
     displayName         String               @map("display_name")
-    // belongs to 1
+    // ---
     allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
     allocationGroupId   String               @map("allocation_group_id")
-    // includes many
+    // ---
     allocationInstances AllocationInstance[]
     subGroupAdmins      AdminInSpace[]
 
@@ -111,23 +109,20 @@ model AllocationInstance {
     id                           String
     displayName                  String                 @map("display_name")
     stage                        Stage                  @default(SETUP)
-    // has 1
     selectedAlgName              String?                @map("selected_alg_name")
+    parentInstanceId             String?                @map("parent_instance_id")
     // supervisor details
     projectSubmissionDeadline    DateTime               @map("project_submission_deadline")
-    supervisorsCanAccess         Boolean                @default(false) @map("supervisors_can_access")
     // student details
     minPreferences               Int                    @map("min_preferences")
     maxPreferences               Int                    @map("max_preferences")
     maxPreferencesPerSupervisor  Int                    @map("max_preferences_per_supervisor")
     preferenceSubmissionDeadline DateTime               @map("preference_submission_deadline")
-    studentsCanAccess            Boolean                @default(false) @map("students_can_access")
-    parentInstanceId             String?                @map("parent_instance_id")
-    // belongs to 1
+    // ---
     allocationSubGroup           AllocationSubGroup     @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
     allocationGroupId            String                 @map("allocation_group_id")
     allocationSubGroupId         String                 @map("allocation_sub_group_id")
-    // has many
+    // ---
     adminInstanceDetails         AdminInstanceDetails[]
     users                        UserInInstance[]
     projects                     Project[]
@@ -151,18 +146,31 @@ model AdminInstanceDetails {
     @@id([allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
-model SupervisorInstanceDetails {
-    userId                      String         @map("user_id")
+model StudentDetails {
+    studentLevel         Int            @map("student_level")
+    submittedPreferences Boolean        @default(false) @map("submitted_preferences")
     // ---
+    userId               String         @map("user_id")
+    allocationGroupId    String         @map("allocation_group_id")
+    allocationSubGroupId String         @map("allocation_sub_group_id")
+    allocationInstanceId String         @map("allocation_instance_id")
+    // ---
+    userInInstance       UserInInstance @relation(name: "student_details", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade, onUpdate: Cascade)
+
+    @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
+}
+
+model SupervisorInstanceDetails {
+    projectAllocationLowerBound Int            @map("project_allocation_lower_bound")
+    projectAllocationTarget     Int            @map("project_allocation_target")
+    projectAllocationUpperBound Int            @map("project_allocation_upper_bound")
+    // ---
+    userId                      String         @map("user_id")
     allocationGroupId           String         @map("allocation_group_id")
     allocationSubGroupId        String         @map("allocation_sub_group_id")
     allocationInstanceId        String         @map("allocation_instance_id")
     // ---
     userInInstance              UserInInstance @relation(name: "supervisor_details", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade, onUpdate: Cascade)
-    // actual data
-    projectAllocationLowerBound Int            @map("project_allocation_lower_bound")
-    projectAllocationTarget     Int            @map("project_allocation_target")
-    projectAllocationUpperBound Int            @map("project_allocation_upper_bound")
 
     @@id(name: "detailsId", [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -194,33 +202,32 @@ model Project {
 }
 
 model Preference {
-    project              Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId            String         @map("project_id")
     userId               String         @map("user_id")
+    rank                 Float
+    type                 PreferenceType
     // ---
     allocationGroupId    String         @map("allocation_group_id")
     allocationSubGroupId String         @map("allocation_sub_group_id")
     allocationInstanceId String         @map("allocation_instance_id")
     // ---
+    project              Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
     student              UserInInstance @relation(fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade)
-    // ---
-    rank                 Float
-    type                 PreferenceType
 
     @@id(name: "preferenceId", [projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
 model ProjectAllocation {
-    project              Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId            String         @map("project_id")
     userId               String         @map("user_id")
     studentRanking       Int            @map("student_ranking")
-    student              UserInInstance @relation(name: "project_allocation", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade)
     // ---
     allocationGroupId    String         @map("allocation_group_id")
     allocationSubGroupId String         @map("allocation_sub_group_id")
     allocationInstanceId String         @map("allocation_instance_id")
     // ---
+    project              Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    student              UserInInstance @relation(name: "project_allocation", fields: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [userId, allocationGroupId, allocationSubGroupId, allocationInstanceId], onDelete: Cascade)
 
     @@id(name: "allocationId", [projectId, userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
     @@unique([userId, allocationGroupId, allocationSubGroupId, allocationInstanceId])
@@ -237,7 +244,6 @@ model Flag {
     allocationInstance   AllocationInstance @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
     flagOnProjects       FlagOnProject[]
-    // flagOnStudents       FlagOnStudent[]
 
     @@unique([title, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
@@ -287,7 +293,7 @@ model Algorithm {
     allocationGroupId    String             @map("allocation_group_id")
     allocationSubGroupId String             @map("allocation_sub_group_id")
     allocationInstanceId String             @map("allocation_instance_id")
-    // --- belongs to 1
+    // ---
     allocationInstance   AllocationInstance @relation(fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
 
     @@id(name: "algorithmId", [algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])

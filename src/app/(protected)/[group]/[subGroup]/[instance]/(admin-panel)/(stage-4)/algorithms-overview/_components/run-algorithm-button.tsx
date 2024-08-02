@@ -48,7 +48,7 @@ export function RunAlgorithmButton({
         error: (err) =>
           err.message === "Infeasible"
             ? "Matching is infeasible with current configuration"
-            : `Something went wrong: ${err.message}`,
+            : `Something went wrong`,
       },
     );
   }

@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 import { DataTableProvider } from "@/components/data-table-context";
 import { InstanceParamsProvider } from "@/components/params-context";
 import { Unauthorised } from "@/components/unauthorised";
@@ -9,7 +11,7 @@ export default async function Layout({
   children,
   params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   params: InstanceParams;
 }) {
   const access = await api.institution.instance.access({ params });

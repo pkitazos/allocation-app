@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import { z } from "zod";
 
 import { findByUserId } from "@/lib/utils/general/find-by-user-id";
@@ -6,16 +5,17 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
 import {
-  adminProcedure,
   createTRPCRouter,
-  forkedInstanceProcedure,
+  instanceAdminProcedure,
+  instanceMiddleware,
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 import { computeSubmissionDetails } from "./_utils/submission-details";
 
 export const projectRouter = createTRPCRouter({
-  submissionInfo: forkedInstanceProcedure // ! this should also be an admin procedure
+  submissionInfo: instanceAdminProcedure
+    .use(instanceMiddleware)
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -24,7 +24,7 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const parentInstanceId = ctx.parentInstanceId;
+        const parentInstanceId = ctx.instance.parentInstanceId;
 
         const submissionDetails: SupervisorProjectSubmissionDetails[] = [];
 
@@ -82,7 +82,7 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  preferenceInfo: adminProcedure
+  preferenceInfo: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -105,26 +105,25 @@ export const projectRouter = createTRPCRouter({
             },
           });
 
-        const data = await ctx.db.userInInstance.findMany({
+        const data = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
           select: {
             userId: true,
-            studentPreferences: true,
             submittedPreferences: true,
+            userInInstance: { select: { studentPreferences: true } },
           },
         });
 
         const studentData = data.map(
-          ({ userId, studentPreferences, submittedPreferences }) => {
+          ({ userId, userInInstance, submittedPreferences }) => {
             return {
               userId,
-              submissionCount: studentPreferences.length,
-              submittedPreferences,
+              submissionCount: userInInstance.studentPreferences.length,
+              submittedPreferences: submittedPreferences,
             };
           },
         );

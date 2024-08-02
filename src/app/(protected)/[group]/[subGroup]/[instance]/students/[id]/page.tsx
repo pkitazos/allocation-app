@@ -6,23 +6,23 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceDataTable } from "./_components/student-preference-data-table";
 
-interface pageParams extends InstanceParams {
+interface PageParams extends InstanceParams {
   id: string;
 }
 
-export default async function Student({ params }: { params: pageParams }) {
+export default async function Page({ params }: { params: PageParams }) {
+  const studentId = params.id;
   const { user: student } = await api.user.student.getById({
     params,
-    studentId: params.id,
+    studentId,
   });
 
   const data = await api.user.student.preference.getAll({
     params,
-    studentId: params.id,
+    studentId,
   });
 
   const role = await api.user.role({ params });
-  const stage = await api.institution.instance.currentStage({ params });
 
   return (
     <PageWrapper>
@@ -31,7 +31,7 @@ export default async function Student({ params }: { params: pageParams }) {
       <div className="flex flex-col">
         <div className="flex gap-2">
           <span className="w-16 font-semibold text-slate-500">ID:</span>
-          <p className="col-span-9">{params.id}</p>
+          <p className="col-span-9">{studentId}</p>
         </div>
         <div className="flex gap-2">
           <span className="w-16 font-semibold text-slate-500">Email:</span>
@@ -41,9 +41,8 @@ export default async function Student({ params }: { params: pageParams }) {
       <SubHeading>Preferences</SubHeading>
       <StudentPreferenceDataTable
         role={role}
-        stage={stage}
         data={data}
-        studentId={params.id}
+        studentId={studentId}
       />
     </PageWrapper>
   );

@@ -10,18 +10,12 @@ export default async function Projects({ params }: { params: InstanceParams }) {
   const user = await api.user.get();
   const role = await api.user.role({ params });
 
-  const tableData = await api.project.getTableData({ params });
-  const stage = await api.institution.instance.currentStage({ params });
+  const projects = await api.project.getAllForUser({ params });
 
   return (
     <PageWrapper>
       <Heading>Projects</Heading>
-      <ProjectsDataTable
-        user={user}
-        role={role}
-        stage={stage}
-        data={tableData}
-      />
+      <ProjectsDataTable user={user} role={role} data={projects} />
     </PageWrapper>
   );
 }

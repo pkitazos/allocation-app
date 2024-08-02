@@ -1,3 +1,4 @@
+import { flagToLevel } from "@/content/configs/flag-to-level";
 import { isAfter } from "date-fns";
 import { z } from "zod";
 
@@ -8,7 +9,21 @@ const baseSchema = z.object({
   maxPreferencesPerSupervisor: z.number(),
   preferenceSubmissionDeadline: z.date(),
   projectSubmissionDeadline: z.date(),
-  flags: z.array(z.object({ title: z.string() })),
+  flags: z.array(
+    z.object({
+      title: z
+        .string()
+        .min(3, "Please enter a valid title")
+        .refine(
+          (title) =>
+            title.startsWith(flagToLevel.msci.label) ||
+            title.startsWith(flagToLevel.bsc.label),
+          {
+            message: `Valid flag titles start with ${flagToLevel.msci.label} or ${flagToLevel.bsc.label}`,
+          },
+        ),
+    }),
+  ),
   tags: z.array(z.object({ title: z.string() })),
 });
 
@@ -49,6 +64,10 @@ export function buildInstanceFormSchema(takenNames: string[]) {
         })
         .int({ message: "Number must be an integer" })
         .positive(),
+    })
+    .refine(({ flags }) => flags.length > 0, {
+      message: "Please add at least one flag",
+      path: ["flags.0.title"],
     })
     .refine(({ instanceName }) => !takenNames.includes(instanceName), {
       message: "This name is already taken",

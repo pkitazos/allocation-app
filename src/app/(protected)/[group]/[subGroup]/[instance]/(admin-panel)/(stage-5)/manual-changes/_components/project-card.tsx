@@ -47,7 +47,7 @@ export function ProjectCard({
           <Card
             ref={setNodeRef}
             className={cn(
-              "flex min-h-20 min-w-32 items-center justify-center overflow-hidden p-3 text-center",
+              "my-1.5 flex min-h-20 min-w-32 items-center justify-center overflow-hidden p-3 text-center",
               originallySelected && "bg-primary/50 text-primary-foreground",
               currentlySelected && "bg-primary text-primary-foreground",
               invalid && "bg-destructive text-destructive-foreground",

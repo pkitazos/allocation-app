@@ -1,4 +1,3 @@
-version: "3"
 name: "spa"
 
 services:
@@ -6,6 +5,8 @@ services:
     image: postgres:latest
     ports:
       - "6565:5432"
+    volumes:
+      - spa-db-data:/var/lib/postgres/data/
     environment:
       POSTGRES_USER: "root"
       POSTGRES_PASSWORD: "1234"
@@ -24,3 +25,6 @@ services:
 
 networks:
   spa-network:
+
+volumes:
+  spa-db-data:

@@ -12,6 +12,7 @@ import {
   Project,
   Role,
   Stage,
+  StudentDetails,
   SupervisorInstanceDetails,
   Tag,
   TagOnProject,
@@ -299,9 +300,7 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
   allocationSubGroupId: allocationSubGroup.id,
   displayName: allocationInstance.displayName,
   stage: Stage.SETUP,
-  supervisorsCanAccess: false,
   projectSubmissionDeadline: new Date(2024, 2, 20),
-  studentsCanAccess: false,
   preferenceSubmissionDeadline: new Date(2024, 3, 20),
   minPreferences: 6,
   maxPreferences: 6,
@@ -325,7 +324,6 @@ const supervisors__userInInstance = (ID: string): UserInInstance[] =>
       userId: id,
       role: Role.SUPERVISOR,
       joined: true,
-      submittedPreferences: false,
     }),
   );
 
@@ -335,7 +333,6 @@ const students__userInInstance = (ID: string): UserInInstance[] =>
       userId: id,
       role: Role.STUDENT,
       joined: true,
-      submittedPreferences: true,
     }),
   );
 
@@ -344,13 +341,27 @@ const evaluator__student__userInInstance = (ID: string): UserInInstance =>
     userId: evaluator__student(ID).id,
     role: Role.STUDENT,
     joined: true,
-    submittedPreferences: false,
   });
 
 export const allUsersInInstance = (ID: string): UserInInstance[] => [
   ...supervisors__userInInstance(ID),
   ...students__userInInstance(ID),
   evaluator__student__userInInstance(ID),
+];
+
+export const studentDetails = (ID: string): StudentDetails[] => [
+  ...dummy__students(ID).map(({ id }) =>
+    inInstance(ID, {
+      userId: id,
+      submittedPreferences: true,
+      studentLevel: 4,
+    }),
+  ),
+  inInstance(ID, {
+    userId: evaluator__student(ID).id,
+    submittedPreferences: true,
+    studentLevel: 4,
+  }),
 ];
 
 export const capacities = (ID: string): SupervisorInstanceDetails[] =>

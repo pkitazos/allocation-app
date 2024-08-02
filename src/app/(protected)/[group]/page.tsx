@@ -2,6 +2,7 @@ import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
 import { Heading, SubHeading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,11 +11,11 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 
-import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
+import { spacesLabels } from "@/content/spaces";
+
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DangerZone } from "./_components/danger-zone";
 import { FormButton } from "./_components/form-button";
-import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: { group: string } }) {
   const access = await api.institution.group.access({ params });
@@ -25,7 +26,7 @@ export default async function Page({ params }: { params: { group: string } }) {
     );
   }
 
-  const { allocationSubGroups, displayName, adminLevel, groupAdmins } =
+  const { allocationSubGroups, displayName, groupAdmins } =
     await api.institution.group.subGroupManagement({ params });
 
   return (

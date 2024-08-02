@@ -6,6 +6,7 @@ import { Heading, SubHeading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,19 @@ interface pageParams extends InstanceParams {
 export default async function Project({ params }: { params: pageParams }) {
   const { id: projectId } = params;
   const instancePath = formatParamsAsPath(params);
+
+  const { access, studentFlagLabel } = await api.project.getUserAccess({
+    params,
+    projectId,
+  });
+
+  if (!access) {
+    return (
+      <Unauthorised
+        message={`This project is not suitable for ${studentFlagLabel} students`}
+      />
+    );
+  }
 
   const project = await api.project.getById({ projectId });
   console.log({ techRequirements: project.specialTechnicalRequirements });

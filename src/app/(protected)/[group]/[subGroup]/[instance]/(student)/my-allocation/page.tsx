@@ -5,21 +5,20 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/server";
 import { toPositional } from "@/lib/utils/general/to-positional";
+import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocatedProject = await api.user.student.allocatedProject({
-    params,
-  });
+  const allocatedProject = await api.user.student.allocatedProject({ params });
 
   return (
     <>
-      <Heading>My Allocation</Heading>
+      <Heading>{instanceTabs.myAllocation.title}</Heading>
       <PanelWrapper className="px-16">
         {!allocatedProject ? (
           <div className="mt-9 flex flex-col gap-4">
-            <SubHeading>Allocations</SubHeading>
-            <p>You have not been allocated any projects</p>
+            <SubHeading>Allocation</SubHeading>
+            <p>You have not been allocated a project</p>
           </div>
         ) : (
           <div className="mt-16 flex flex-col gap-8">
@@ -32,18 +31,18 @@ export default async function Page({ params }: { params: InstanceParams }) {
             </SubHeading>
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>{allocatedProject.project.title}</CardTitle>
+                <CardTitle>{allocatedProject.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-start">
                   <div className="flex items-center gap-2 text-lg">
                     <p className="text-muted-foreground">Supervisor:</p>
                     <p className="text-xl font-medium">
-                      {allocatedProject.project.supervisor.user.name}
+                      {allocatedProject.supervisor.name}
                     </p>
                   </div>
                   <Separator className="my-6" />
-                  <p>{allocatedProject.project.description}</p>
+                  <p>{allocatedProject.description}</p>
                 </div>
               </CardContent>
             </Card>

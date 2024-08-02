@@ -7,20 +7,23 @@ export async function getMatchingData(
 ) {
   const { group, subGroup, instance } = params;
   return await db.$transaction(async (tx) => {
-    const studentData = await tx.userInInstance.findMany({
+    const studentData = await tx.studentDetails.findMany({
       where: {
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
-        role: Role.STUDENT,
         submittedPreferences: true,
       },
       select: {
         userId: true,
-        studentPreferences: {
-          where: { type: { equals: PreferenceType.PREFERENCE } },
-          select: { projectId: true, rank: true },
-          orderBy: { rank: "asc" },
+        userInInstance: {
+          select: {
+            studentPreferences: {
+              where: { type: { equals: PreferenceType.PREFERENCE } },
+              select: { projectId: true, rank: true },
+              orderBy: { rank: "asc" },
+            },
+          },
         },
       },
     });
@@ -54,7 +57,7 @@ export async function getMatchingData(
     });
 
     const students = studentData
-      .map(({ userId, studentPreferences }) => ({
+      .map(({ userId, userInInstance: { studentPreferences } }) => ({
         id: userId,
         preferences: studentPreferences.map(({ projectId }) => projectId),
       }))

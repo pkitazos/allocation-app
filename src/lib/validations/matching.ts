@@ -64,6 +64,19 @@ export const matchingResultSchema = z.object({
   ranks: z.array(z.number()),
 });
 
+export const blankResult: MatchingResult = {
+  profile: [],
+  degree: NaN,
+  size: NaN,
+  weight: NaN,
+  cost: NaN,
+  costSq: NaN,
+  maxLecAbsDiff: NaN,
+  sumLecAbsDiff: NaN,
+  matching: [],
+  ranks: [],
+};
+
 export type MatchingResult = z.infer<typeof matchingResultSchema>;
 
 export const serverResponseSchema = z.object({
