@@ -28,6 +28,7 @@ import { spacesLabels } from "@/content/spaces";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { constructColumns } from "./_components/new-supervisor-columns";
+import { FormSection } from "./_components/form-section";
 
 export default function Page() {
   const router = useRouter();
@@ -39,10 +40,6 @@ export default function Page() {
   });
 
   const refetchData = () => utils.institution.instance.getSupervisors.refetch();
-
-  const { register, handleSubmit, reset } = useForm<NewSupervisor>({
-    resolver: zodResolver(newSupervisorSchema),
-  });
 
   const { mutateAsync: addSupervisorAsync } =
     api.institution.instance.addSupervisor.useMutation();
@@ -112,11 +109,6 @@ export default function Page() {
     );
   }
 
-  function onSubmit(data: NewSupervisor) {
-    handleAddSupervisor(data);
-    reset();
-  }
-
   const columns = constructColumns({
     removeSupervisor: handleSupervisorRemoval,
     removeSelectedSupervisors: handleSupervisorsRemoval,
@@ -141,39 +133,7 @@ export default function Page() {
         </div>
       </div>
       <LabelledSeparator label="or" className="my-6" />
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col items-start gap-3"
-      >
-        <h3 className="text-xl">Manually create Supervisor</h3>
-        <div className="flex w-full items-center justify-start gap-5">
-          <Input
-            className="w-1/4"
-            placeholder="Full Name"
-            {...register("fullName")}
-          />
-          <Input
-            className="w-1/6"
-            placeholder="GUID"
-            {...register("institutionId")}
-          />
-          <Input className="w-1/4" placeholder="Email" {...register("email")} />
-          <Input
-            className="w-12"
-            placeholder="1"
-            {...register("projectTarget")}
-          />
-          <Input
-            className="w-12"
-            placeholder="2"
-            {...register("projectUpperQuota")}
-          />
-
-          <Button size="icon" variant="secondary">
-            <Plus className="h-4 w-4 stroke-white stroke-[3]" />
-          </Button>
-        </div>
-      </form>
+      <FormSection handleAddSupervisor={handleAddSupervisor} />
       <Separator className="my-14" />
 
       {isLoading ? (

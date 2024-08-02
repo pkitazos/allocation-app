@@ -27,6 +27,16 @@ import { spacesLabels } from "@/content/spaces";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { constructColumns } from "./_components/new-student-columns";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { FormSection } from "./_components/form-section";
 
 export default function Page() {
   const router = useRouter();
@@ -38,10 +48,6 @@ export default function Page() {
   });
 
   const refetchData = () => utils.institution.instance.getStudents.refetch();
-
-  const { register, handleSubmit, reset } = useForm<NewStudent>({
-    resolver: zodResolver(newStudentSchema),
-  });
 
   const { mutateAsync: addStudentAsync } =
     api.institution.instance.addStudent.useMutation();
@@ -111,11 +117,6 @@ export default function Page() {
     );
   }
 
-  function onSubmit(data: NewStudent) {
-    handleAddStudent(data);
-    reset();
-  }
-
   const columns = constructColumns({
     removeStudent: handleStudentRemoval,
     removeSelectedStudents: handleStudentsRemoval,
@@ -140,33 +141,7 @@ export default function Page() {
         </div>
       </div>
       <LabelledSeparator label="or" className="my-6" />
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col items-start gap-3"
-      >
-        <h3 className="text-xl">Manually create Student</h3>
-        <div className="flex w-full items-center justify-start gap-5">
-          <Input
-            className="w-1/4"
-            placeholder="Full Name"
-            {...register("fullName")}
-          />
-          <Input
-            className="w-1/6"
-            placeholder="Matriculation No."
-            {...register("institutionId")}
-          />
-          <Input className="w-2/5" placeholder="Email" {...register("email")} />
-          <Input
-            className="w-1/6"
-            placeholder="Student Level"
-            {...register("level")}
-          />
-          <Button type="submit" size="icon" variant="secondary">
-            <Plus className="h-4 w-4 stroke-white stroke-[3]" />
-          </Button>
-        </div>
-      </form>
+      <FormSection handleAddStudent={handleAddStudent} />
       <Separator className="my-14" />
       {isLoading ? (
         <Skeleton className="h-20 w-full" />
