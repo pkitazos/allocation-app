@@ -22,13 +22,15 @@ export const newSupervisorSchema = z
         required_error: "Required",
         invalid_type_error: "Invalid integer",
       })
-      .int("Please enter an integer for the project target"),
+      .int("Please enter an integer for the project target")
+      .positive("Project target must be a positive integer"),
     projectUpperQuota: z.coerce
       .number({
         required_error: "Required",
         invalid_type_error: "Invalid integer",
       })
-      .int("Please enter an integer for the project upper quota"),
+      .int("Please enter an integer for the project upper quota")
+      .positive("Project upper quota must be a positive integer"),
   })
   .refine(
     ({ projectTarget, projectUpperQuota }) =>
