@@ -20,6 +20,7 @@ import {
 import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
+import { studentLevelSchema } from "@/lib/validations/student-level";
 
 import {
   createTRPCRouter,
@@ -709,7 +710,7 @@ export const instanceRouter = createTRPCRouter({
           institutionId: user.id,
           fullName: user.name!,
           email: user.email!,
-          level: studentLevel,
+          level: studentLevelSchema.parse(studentLevel),
         }));
       },
     ),
