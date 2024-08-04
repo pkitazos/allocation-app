@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { studentLevelSchema } from "../student-level";
 
 export const addStudentsCsvHeaders = [
   "full_name",
@@ -38,7 +37,7 @@ export const addStudentsCsvRowSchema = z.object({
     })
     .int({ message: "an integer Student Level" })
     .positive({ message: "a positive Student Level" })
-    .refine((level) => studentLevelSchema.parse(level), {
+    .refine((level) => level === 4 || level === 5, {
       message: "a valid Student Level",
     }),
 });
