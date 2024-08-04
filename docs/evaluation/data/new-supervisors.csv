@@ -1,4 +1,4 @@
-full_name,university_id,email,project_target,project_upper_quota
+full_name,guid,email,project_target,project_upper_quota
 Harper Wilson,3456h,3456h@email.com,2,2
 Ethan Kim,3457e,3457e@email.com,2,2
 Mia Wang,3458m,3458m@email.com,2,4
