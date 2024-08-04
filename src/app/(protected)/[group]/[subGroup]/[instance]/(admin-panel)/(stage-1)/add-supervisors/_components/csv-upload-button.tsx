@@ -5,6 +5,7 @@ import React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { ToastErrorCard } from "@/components/toast-error-card";
 import { Input } from "@/components/ui/input";
 
 import { addSupervisorsCsvRowSchema } from "@/lib/validations/add-users/csv";
@@ -37,8 +38,16 @@ export function CSVUploadButton({
           const result = z
             .array(addSupervisorsCsvRowSchema)
             .safeParse(res.data);
+
           if (!result.success) {
-            toast.error("CSV data was not formatted correctly");
+            const allErrors = result.error.errors;
+            const uniqueErrors = [...new Set(allErrors)];
+            toast.error(
+              <ToastErrorCard
+                title="CSV data was not formatted correctly. Ensure all rows contain:"
+                errors={uniqueErrors}
+              />,
+            );
             return;
           }
           toast.success("CSV parsed successfully!");
