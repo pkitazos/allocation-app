@@ -39,6 +39,7 @@ export const projectRouter = createTRPCRouter({
             description,
             capacityUpperBound,
             preAllocatedStudentId,
+            specialTechnicalRequirements,
             tags,
             flagIds,
           },
@@ -105,6 +106,9 @@ export const projectRouter = createTRPCRouter({
             description: description,
             capacityUpperBound: capacityUpperBound,
             preAllocatedStudentId: nullable(newPreAllocatedStudentId),
+            specialTechnicalRequirements: nullable(
+              specialTechnicalRequirements,
+            ),
           },
         });
 
@@ -235,6 +239,7 @@ export const projectRouter = createTRPCRouter({
           description: true,
           capacityUpperBound: true,
           preAllocatedStudentId: true,
+          specialTechnicalRequirements: true,
           supervisor: {
             select: { user: { select: { id: true, name: true } } },
           },
@@ -253,6 +258,8 @@ export const projectRouter = createTRPCRouter({
         supervisor: project.supervisor.user,
         capacityUpperBound: project.capacityUpperBound,
         preAllocatedStudentId: project.preAllocatedStudentId,
+        specialTechnicalRequirements:
+          project.specialTechnicalRequirements ?? "",
         flags: project.flagOnProjects.map(({ flag }) => flag),
         tags: project.tagOnProject.map(({ tag }) => tag),
       };
@@ -440,6 +447,7 @@ export const projectRouter = createTRPCRouter({
             tags,
             capacityUpperBound,
             preAllocatedStudentId,
+            specialTechnicalRequirements,
           },
         },
       }) => {
@@ -454,6 +462,7 @@ export const projectRouter = createTRPCRouter({
             capacityLowerBound: 0,
             capacityUpperBound,
             preAllocatedStudentId,
+            specialTechnicalRequirements,
           },
         });
 

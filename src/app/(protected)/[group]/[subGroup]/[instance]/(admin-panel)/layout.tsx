@@ -23,7 +23,7 @@ export default async function Layout({
 
   return (
     <div className="grid w-full grid-cols-6">
-      <div className="col-span-1 mt-28 flex justify-center border-r">
+      <div className="col-span-1 mt-28 flex justify-center border-r pr-2.5">
         <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
           <Button variant="outline" asChild>
             <Link
@@ -44,7 +44,7 @@ export default async function Layout({
             <Button key={i} variant={action ? "secondary" : "outline"} asChild>
               <Link
                 href={`${instancePath}/${href}`}
-                className="flex w-full items-center gap-2"
+                className="flex w-full items-center gap-2 py-3 text-center"
               >
                 {action &&
                   (href.startsWith("fork") ? (

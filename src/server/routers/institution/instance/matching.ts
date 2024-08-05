@@ -335,4 +335,39 @@ export const matchingRouter = createTRPCRouter({
         });
       },
     ),
+
+  exportCsvData: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const allocationData = await ctx.db.projectAllocation.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            project: true,
+            student: { select: { userId: true, studentDetails: true } },
+            studentRanking: true,
+          },
+        });
+
+        return allocationData.map(({ project, student, ...e }) => ({
+          projectInternalId: project.id,
+          studentId: student.userId,
+          studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
+          projectTitle: project.title,
+          projectDescription: project.description,
+          projectSpecialTechnicalRequirements:
+            project.specialTechnicalRequirements ?? "",
+          studentRanking: e.studentRanking,
+        }));
+      },
+    ),
 });

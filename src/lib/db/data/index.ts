@@ -30,6 +30,7 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
+import { spec } from "node:test/reporters";
 
 export const EVALUATORS = 30;
 
@@ -225,8 +226,8 @@ const allocationInstance = {
 };
 
 const allocationSubGroup = {
-  id: "lvl-4",
-  displayName: "Level 4 Individual Project",
+  id: "lvl-4-and-lvl-5-honours",
+  displayName: "Level 4 & Level 5 Honours",
 };
 
 const allocationGroup = (ID: string) => ({

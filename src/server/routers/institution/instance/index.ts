@@ -35,15 +35,16 @@ import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { forkInstanceTransaction } from "./_utils/fork";
 import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
+import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
 
 // TODO: add stage checks to stage-specific procedures
-
 export const instanceRouter = createTRPCRouter({
   matching: matchingRouter,
   algorithm: algorithmRouter,
   project: projectRouter,
+  external: externalSystemRouter,
 
   get: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
@@ -1039,7 +1040,11 @@ export const instanceRouter = createTRPCRouter({
       const stage = ctx.instance.stage;
 
       if (stage === Stage.ALLOCATION_PUBLICATION) {
-        const base = [adminPanelTabs.allocationOverview];
+        const base = [
+          adminPanelTabs.allocationOverview,
+          adminPanelTabs.exportToCSV,
+          // adminPanelTabs.exportToExternalSystem,
+        ];
         return !parentInstanceId
           ? [...base, adminPanelTabs.forkInstance]
           : [...base, adminPanelTabs.mergeInstance];

@@ -12,6 +12,7 @@ const baseProjectFormSchema = z.object({
   isPreAllocated: z.boolean().optional(),
   capacityUpperBound: z.coerce.number().int().positive(),
   preAllocatedStudentId: z.string().optional(),
+  specialTechnicalRequirements: z.string().optional(),
 });
 
 export const updatedProjectSchema = baseProjectFormSchema.refine(
