@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-// TODO: updated validation schemas according to the agreed API response
+// TODO: update validation schemas according to the agreed API response
+
 export const studentCheckResponseSchema = z.array(
   z.object({
     matriculation: z.string(),
