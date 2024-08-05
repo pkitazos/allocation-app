@@ -55,7 +55,7 @@ export async function forkInstanceTransaction(
 
     const newTags = await copyInstanceTags(tx, params, forkedInstance.id);
 
-    await createStudents(tx, availableStudents, forkedInstance.id);
+    await createStudents(tx, availableStudents, params, forkedInstance.id);
 
     await createSupervisors(
       tx,

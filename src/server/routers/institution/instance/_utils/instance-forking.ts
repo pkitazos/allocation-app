@@ -5,25 +5,33 @@ import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";
 import { InstanceParams } from "@/lib/validations/params";
 
 export async function getAvailableStudents(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   params: InstanceParams,
 ) {
-  return await db.userInInstance.findMany({
+  const studentData = await tx.studentDetails.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: params.instance,
-      role: Role.STUDENT,
-      studentAllocation: { is: null },
+      userInInstance: { studentAllocation: { is: null } },
+    },
+    select: {
+      userId: true,
+      studentLevel: true,
     },
   });
+
+  return studentData.map((s) => ({
+    userId: s.userId,
+    level: s.studentLevel,
+  }));
 }
 
 export async function getAvailableSupervisors(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   params: InstanceParams,
 ): Promise<AvailableSupervisor[]> {
-  const allSupervisors = await db.userInInstance.findMany({
+  const allSupervisors = await tx.userInInstance.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -106,11 +114,11 @@ export async function getAvailableProjects(
 }
 
 export async function copyInstanceFlags(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   params: InstanceParams,
   forkedInstanceId: string,
 ) {
-  const flags = await db.flag.findMany({
+  const flags = await tx.flag.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -118,7 +126,7 @@ export async function copyInstanceFlags(
     },
   });
 
-  await db.flag.createMany({
+  await tx.flag.createMany({
     data: flags.map(({ title }) => ({
       title,
       allocationGroupId: params.group,
@@ -127,7 +135,7 @@ export async function copyInstanceFlags(
     })),
   });
 
-  return await db.flag.findMany({
+  return await tx.flag.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -137,11 +145,11 @@ export async function copyInstanceFlags(
 }
 
 export async function copyInstanceTags(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   params: InstanceParams,
   forkedInstanceId: string,
 ) {
-  const tags = await db.tag.findMany({
+  const tags = await tx.tag.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -149,7 +157,7 @@ export async function copyInstanceTags(
     },
   });
 
-  await db.tag.createMany({
+  await tx.tag.createMany({
     data: tags.map(({ title }) => ({
       title,
       allocationGroupId: params.group,
@@ -158,7 +166,7 @@ export async function copyInstanceTags(
     })),
   });
 
-  return await db.tag.findMany({
+  return await tx.tag.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -168,25 +176,39 @@ export async function copyInstanceTags(
 }
 
 export async function createStudents(
-  db: PrismaTransactionClient,
-  availableStudents: UserInInstance[],
+  tx: PrismaTransactionClient,
+  availableStudents: AvailableStudent[],
+  params: InstanceParams,
   forkedInstanceId: string,
 ) {
-  await db.userInInstance.createMany({
-    data: availableStudents.map((student) => ({
-      ...student,
+  await tx.userInInstance.createMany({
+    data: availableStudents.map(({ userId }) => ({
+      userId,
+      role: Role.STUDENT,
+      allocationGroupId: params.group,
+      allocationSubGroupId: params.subGroup,
       allocationInstanceId: forkedInstanceId,
+    })),
+  });
+
+  await tx.studentDetails.createMany({
+    data: availableStudents.map(({ userId, level }) => ({
+      userId: userId,
+      allocationGroupId: params.group,
+      allocationSubGroupId: params.subGroup,
+      allocationInstanceId: forkedInstanceId,
+      studentLevel: level,
     })),
   });
 }
 
 export async function createSupervisors(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   availableSupervisors: AvailableSupervisor[],
   params: InstanceParams,
   forkedInstanceId: string,
 ) {
-  await db.userInInstance.createMany({
+  await tx.userInInstance.createMany({
     data: availableSupervisors.map((supervisor) => ({
       userId: supervisor.userId,
       allocationGroupId: params.group,
@@ -210,7 +232,7 @@ export async function createSupervisors(
    * if (adjusted_upperBound === 1) // adjusted_upperBound < original_target
    * then the target should be adjusted to 1 // set adjusted_target = adjusted upperBound
    */
-  await db.supervisorInstanceDetails.createMany({
+  await tx.supervisorInstanceDetails.createMany({
     data: availableSupervisors.map((s) => {
       const adjustedUpperBound = s.capacities.remainingCapacity;
       const originalTarget = s.capacities.projectAllocationTarget;
@@ -232,12 +254,12 @@ export async function createSupervisors(
 }
 
 export async function createProjects(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   availableProjects: AvailableProjects[],
   params: InstanceParams,
   forkedInstanceId: string,
 ): Promise<ModifiedProject[]> {
-  await db.project.createMany({
+  await tx.project.createMany({
     data: availableProjects.map((p) => ({
       title: p.title,
       description: p.description,
@@ -250,7 +272,7 @@ export async function createProjects(
     })),
   });
 
-  const newProjects = await db.project.findMany({
+  const newProjects = await tx.project.findMany({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -266,11 +288,11 @@ export async function createProjects(
 }
 
 export async function createFlagOnProjects(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   newProjects: ModifiedProject[],
   newFlags: Flag[],
 ) {
-  await db.flagOnProject.createMany({
+  await tx.flagOnProject.createMany({
     data: newProjects.flatMap((p) =>
       p.flags.map((f) => ({
         projectId: p.id,
@@ -281,11 +303,11 @@ export async function createFlagOnProjects(
 }
 
 export async function createTagOnProjects(
-  db: PrismaTransactionClient,
+  tx: PrismaTransactionClient,
   newProjects: ModifiedProject[],
   newTags: Tag[],
 ) {
-  await db.tagOnProject.createMany({
+  await tx.tagOnProject.createMany({
     data: newProjects.flatMap((p) =>
       p.tags.map((t) => ({
         projectId: p.id,
@@ -294,6 +316,11 @@ export async function createTagOnProjects(
     ),
   });
 }
+
+type AvailableStudent = {
+  userId: string;
+  level: number;
+};
 
 type AvailableSupervisor = {
   userId: string;
