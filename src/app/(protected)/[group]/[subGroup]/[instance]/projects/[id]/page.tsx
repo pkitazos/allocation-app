@@ -38,7 +38,6 @@ export default async function Project({ params }: { params: pageParams }) {
   }
 
   const project = await api.project.getById({ projectId });
-  console.log({ techRequirements: project.specialTechnicalRequirements });
   const user = await api.user.get();
 
   const preferenceStatus = await api.user.student.preference.getForProject({
