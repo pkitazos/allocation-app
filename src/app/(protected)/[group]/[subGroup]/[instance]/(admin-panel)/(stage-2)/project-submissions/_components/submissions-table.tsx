@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
 export function SubmissionsTable({
@@ -37,7 +38,7 @@ export function SubmissionsTable({
               {c.submittedProjectsCount}
             </TableCell>
             <TableCell className="text-center">
-              {c.submissionTarget < 0 && 0}
+              {c.submissionTarget < 0 ? 0 : c.submissionTarget}
             </TableCell>
           </TableRow>
         ))}
