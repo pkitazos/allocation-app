@@ -29,11 +29,7 @@ export const algorithmRouter = createTRPCRouter({
           algorithm,
         },
       }) => {
-        const matchingData = await getMatchingData(ctx.db, {
-          group,
-          subGroup,
-          instance,
-        });
+        const matchingData = await getMatchingData(ctx.db, ctx.instance);
 
         const matchingResults = await executeMatchingAlgorithm({
           algorithm,
