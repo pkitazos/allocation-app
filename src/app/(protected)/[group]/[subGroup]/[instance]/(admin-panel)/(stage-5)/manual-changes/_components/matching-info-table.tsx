@@ -5,14 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   allProjectsValid,
-  getPreferenceRank,
   getUpdatedWeight,
 } from "@/lib/utils/allocation-adjustment";
 import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
-import { zeros } from "@/lib/utils/general/zeros";
 
-import { useAllocDetails } from "./allocation-store";
 import { SubmitButton } from ".";
+import { useAllocDetails } from "./allocation-store";
 
 export function MatchingInfoTable() {
   const allProjects = useAllocDetails((s) => s.projects);
@@ -23,10 +21,22 @@ export function MatchingInfoTable() {
     allProjectsValid(allProjects) &&
     allSupervisorsValid(allProjects, allSupervisors);
 
-  const pref = allStudents.map((row) => getPreferenceRank(allProjects, row));
+  const profileMap = new Map<number, number>();
 
-  const profile = zeros(Math.max(...pref) + 1);
-  pref.forEach((idx) => (profile[idx] += 1));
+  allStudents.map((p) => {
+    const selectedIdx = p.projects.findIndex((p) => p.selected);
+    if (selectedIdx !== -1) {
+      const rank = selectedIdx + 1;
+      const count = profileMap.get(rank);
+      if (!count) {
+        profileMap.set(rank, 1);
+      } else {
+        profileMap.set(rank, count + 1);
+      }
+    }
+  });
+
+  const profile = Array.from(profileMap.values());
 
   const weight = getUpdatedWeight(profile);
   const size = profile.reduce((acc, val) => acc + val, 0);
