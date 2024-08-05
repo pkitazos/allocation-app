@@ -147,7 +147,7 @@ export function InstanceForm({
           <div className="flex flex-col gap-2">
             <FormLabel className="text-base">Project Flags</FormLabel>
             <FormDescription>
-              Flags are used to mark a a project as suitable for a particular
+              Flags are used to mark a project as suitable for a particular
               group of students{" "}
               <MoreInformation className="w-96">
                 <div className="flex flex-col gap-2">
