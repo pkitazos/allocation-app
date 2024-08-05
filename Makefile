@@ -1,5 +1,5 @@
 setup-dev:
-	sudo docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up -d
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up -d
 
 setup-prod:
 	sudo docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d

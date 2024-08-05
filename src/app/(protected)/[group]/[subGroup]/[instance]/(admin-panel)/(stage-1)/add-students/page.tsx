@@ -15,11 +15,11 @@ import { addStudentsCsvHeaders } from "@/lib/validations/add-users/csv";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
 import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { FormSection } from "./_components/form-section";
 import { constructColumns } from "./_components/new-student-columns";
+
+import { spacesLabels } from "@/content/spaces";
 
 export default function Page() {
   const router = useRouter();
@@ -37,7 +37,10 @@ export default function Page() {
 
   async function handleAddStudent(newStudent: NewStudent) {
     void toast.promise(
-      addStudentAsync({ params, newStudent }).then(() => {
+      addStudentAsync({
+        params,
+        newStudent,
+      }).then(() => {
         router.refresh();
         refetchData();
       }),
