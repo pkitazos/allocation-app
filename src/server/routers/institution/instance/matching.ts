@@ -6,7 +6,6 @@ import {
   getStudentRank,
 } from "@/lib/utils/allocation-adjustment/rank";
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
-import { mock } from "@/lib/utils/general/delay";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -16,15 +15,6 @@ import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
-
-// TODO: uncomment once endpoint interfaces are confirmed
-// import {
-//   projectCreationResponseSchema,
-//   studentCheckResponseSchema,
-//   supervisorCheckResponseSchema,
-// } from "@/lib/validations/allocation-export-data";
-// import { TRPCClientError } from "@trpc/client";
-// import axios from "axios";
 
 export const matchingRouter = createTRPCRouter({
   select: instanceAdminProcedure
