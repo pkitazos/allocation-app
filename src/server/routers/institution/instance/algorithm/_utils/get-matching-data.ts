@@ -1,11 +1,21 @@
-import { InstanceParams } from "@/lib/validations/params";
-import { PreferenceType, PrismaClient, Role } from "@prisma/client";
+import {
+  AllocationInstance,
+  PreferenceType,
+  PrismaClient,
+} from "@prisma/client";
 
 export async function getMatchingData(
   db: PrismaClient,
-  params: InstanceParams,
+  allocationInstance: AllocationInstance,
 ) {
-  const { group, subGroup, instance } = params;
+  const {
+    allocationGroupId: group,
+    allocationSubGroupId: subGroup,
+    id: instance,
+    minPreferences,
+    maxPreferences,
+  } = allocationInstance;
+
   return await db.$transaction(async (tx) => {
     const studentData = await tx.studentDetails.findMany({
       where: {
@@ -20,7 +30,10 @@ export async function getMatchingData(
           select: {
             studentPreferences: {
               where: { type: { equals: PreferenceType.PREFERENCE } },
-              select: { projectId: true, rank: true },
+              select: {
+                project: { select: { id: true, supervisorId: true } },
+                rank: true,
+              },
               orderBy: { rank: "asc" },
             },
           },
@@ -57,11 +70,15 @@ export async function getMatchingData(
     });
 
     const students = studentData
+      .filter(
+        ({ userInInstance: { studentPreferences } }) =>
+          studentPreferences.length >= minPreferences &&
+          studentPreferences.length <= maxPreferences,
+      )
       .map(({ userId, userInInstance: { studentPreferences } }) => ({
         id: userId,
-        preferences: studentPreferences.map(({ projectId }) => projectId),
-      }))
-      .filter((s) => s.preferences.length > 0);
+        preferences: studentPreferences.map(({ project }) => project.id),
+      }));
 
     const projects = projectData.map(
       ({ id, supervisorId, capacityLowerBound, capacityUpperBound }) => ({
