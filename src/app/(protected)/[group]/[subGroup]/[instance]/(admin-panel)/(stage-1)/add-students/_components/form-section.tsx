@@ -1,20 +1,28 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+
 import {
   NewStudent,
   newStudentSchema,
 } from "@/lib/validations/add-users/new-user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
+
+const blankStudentForm = {
+  fullName: "",
+  institutionId: "",
+  email: "",
+  level: "" as unknown as 4 | 5,
+};
 
 export function FormSection({
   handleAddStudent,
@@ -23,11 +31,13 @@ export function FormSection({
 }) {
   const form = useForm<NewStudent>({
     resolver: zodResolver(newStudentSchema),
+    defaultValues: blankStudentForm,
   });
 
   async function onSubmit(data: NewStudent) {
-    await handleAddStudent(data);
-    form.reset();
+    await handleAddStudent(data).then(() => {
+      form.reset(blankStudentForm);
+    });
   }
 
   return (
@@ -86,7 +96,7 @@ export function FormSection({
               </FormItem>
             )}
           />
-          <Button type="submit" size="icon" variant="secondary">
+          <Button size="icon" variant="secondary">
             <Plus className="h-4 w-4 stroke-white stroke-[3]" />
           </Button>
         </div>

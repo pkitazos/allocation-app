@@ -1,6 +1,6 @@
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,14 @@ import {
   newSupervisorSchema,
 } from "@/lib/validations/add-users/new-user";
 
+const blankSupervisorForm = {
+  fullName: "",
+  institutionId: "",
+  email: "",
+  projectTarget: "" as unknown as number,
+  projectUpperQuota: "" as unknown as number,
+};
+
 export function FormSection({
   handleAddSupervisor,
 }: {
@@ -24,11 +32,15 @@ export function FormSection({
 }) {
   const form = useForm<NewSupervisor>({
     resolver: zodResolver(newSupervisorSchema),
+    defaultValues: blankSupervisorForm,
   });
+
   async function onSubmit(data: NewSupervisor) {
-    await handleAddSupervisor(data);
-    form.reset();
+    await handleAddSupervisor(data).then(() => {
+      form.reset(blankSupervisorForm);
+    });
   }
+
   return (
     <Form {...form}>
       <form
