@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 
 import { addStudentsCsvRowSchema } from "@/lib/validations/add-users/csv";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
+import { ToastErrorCard } from "@/components/toast-error-card";
 
 export function CSVUploadButton({
   handleUpload,
@@ -36,7 +37,14 @@ export function CSVUploadButton({
 
           const result = z.array(addStudentsCsvRowSchema).safeParse(res.data);
           if (!result.success) {
-            toast.error("CSV data was not formatted correctly");
+            const allErrors = result.error.errors;
+            const uniqueErrors = [...new Set(allErrors)];
+            toast.error(
+              <ToastErrorCard
+                title="CSV data was not formatted correctly. Ensure all rows contain:"
+                errors={uniqueErrors}
+              />,
+            );
             return;
           }
           toast.success("CSV parsed successfully!");

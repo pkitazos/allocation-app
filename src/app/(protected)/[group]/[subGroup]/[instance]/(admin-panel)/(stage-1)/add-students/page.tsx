@@ -1,42 +1,25 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { useInstanceParams } from "@/components/params-context";
-import { Button } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table/data-table";
-import { Input } from "@/components/ui/input";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { api } from "@/lib/trpc/client";
 import { addStudentsCsvHeaders } from "@/lib/validations/add-users/csv";
-import {
-  NewStudent,
-  newStudentSchema,
-} from "@/lib/validations/add-users/new-user";
+import { NewStudent } from "@/lib/validations/add-users/new-user";
 import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { CSVUploadButton } from "./_components/csv-upload-button";
-import { constructColumns } from "./_components/new-student-columns";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { FormSection } from "./_components/form-section";
+import { constructColumns } from "./_components/new-student-columns";
+
+import { spacesLabels } from "@/content/spaces";
 
 export default function Page() {
   const router = useRouter();
@@ -54,7 +37,10 @@ export default function Page() {
 
   async function handleAddStudent(newStudent: NewStudent) {
     void toast.promise(
-      addStudentAsync({ params, newStudent }).then(() => {
+      addStudentAsync({
+        params,
+        newStudent,
+      }).then(() => {
         router.refresh();
         refetchData();
       }),
