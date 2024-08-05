@@ -94,7 +94,7 @@ export const adminPanelTabsByStage: Record<
   ALLOCATION_PUBLICATION: [
     adminPanelTabs.allocationOverview,
     adminPanelTabs.exportToCSV,
-    adminPanelTabs.exportToExternalSystem,
+    // adminPanelTabs.exportToExternalSystem,
     adminPanelTabs.forkInstance,
     adminPanelTabs.mergeInstance,
   ],
