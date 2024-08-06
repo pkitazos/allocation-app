@@ -78,7 +78,7 @@ export function columns(
       ),
     },
     {
-      id: "Allocated Student ID",
+      id: "Allocated Student Matric",
       accessorFn: ({ allocatedStudentId }) => allocatedStudentId,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Allocated Student" />

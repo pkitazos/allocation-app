@@ -32,10 +32,14 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
-    id: "student ID",
+    id: "matriculation No,",
     accessorFn: (row) => row.studentId,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" canFilter />
+      <DataTableColumnHeader
+        column={column}
+        title="Matriculation No."
+        canFilter
+      />
     ),
     cell: ({
       row: {

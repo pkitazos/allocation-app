@@ -95,11 +95,9 @@ export function FormButton({ params }: { params: SubGroupParams }) {
                 name="schoolId"
                 render={({ field }) => (
                   <FormItem className="grid w-full grid-cols-3 items-center gap-3">
-                    <FormLabel className="col-span-1 text-lg">
-                      University ID
-                    </FormLabel>
+                    <FormLabel className="col-span-1 text-lg">GUID</FormLabel>
                     <FormControl className="col-span-2 flex items-center">
-                      <Input placeholder="University ID" {...field} />
+                      <Input placeholder="GUID" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,13 +131,6 @@ export function FormButton({ params }: { params: SubGroupParams }) {
               />
             </div>
             <Separator className="my-1" />
-
-            {/* // TODO: add better description */}
-
-            <DialogDescription>
-              If the University ID and email mismatch the University ID takes
-              precedent
-            </DialogDescription>
             <DialogFooter>
               <Button type="submit">Add user to Sub-Group</Button>
             </DialogFooter>

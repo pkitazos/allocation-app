@@ -192,10 +192,10 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
     ),
   },
   {
-    id: "student ID",
+    id: "matriculation No,",
     accessorFn: ({ userId }) => userId,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
+      <DataTableColumnHeader column={column} title="Matriculation No." />
     ),
     cell: ({
       row: {

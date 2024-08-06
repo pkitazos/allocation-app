@@ -13,7 +13,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
 
   const header = [
     "Project Internal ID",
-    "Student ID",
+    "Matriculation No,",
     "Student Level",
     "Project Title",
     "Project Description",
