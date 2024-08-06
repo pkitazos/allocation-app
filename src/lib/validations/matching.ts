@@ -84,3 +84,11 @@ export const serverResponseSchema = z.object({
   message: z.string(),
   data: matchingResultSchema.optional(),
 });
+
+export interface MatchingDetailsDto {
+  studentId: string;
+  studentName: string;
+  projectId: string;
+  projectTitle: string;
+  studentRank: number;
+}

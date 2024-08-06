@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { DetailsTable } from "./_components/details-table";
+import { DetailsDataTable } from "./_components/details-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { results, firstNonEmpty } =
@@ -25,7 +25,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
                 className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
                 value={result.algName}
                 key={i}
-                disabled={result.data.matching.length === 0}
+                disabled={result.data.length === 0}
               >
                 {result.displayName}
               </TabsTrigger>
@@ -34,7 +34,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
           <Separator className="my-4" />
           {results.map((result, i) => (
             <TabsContent key={i} value={result.algName}>
-              <DetailsTable data={result.data} />
+              <DetailsDataTable data={result.data} />
             </TabsContent>
           ))}
         </Tabs>
