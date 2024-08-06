@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getUserAction } from "./lib/auth/new";
-import { db } from "./lib/db";
 
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
@@ -21,7 +20,7 @@ export async function middleware(req: NextRequest) {
   const email = "";
   const groups = [] as string[];
 
-  const user = await getUserAction(db, {
+  const user = await getUserAction({
     guid: id,
     displayName,
     email,

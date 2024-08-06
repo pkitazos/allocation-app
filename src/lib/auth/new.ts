@@ -9,7 +9,9 @@ type ShibUser = {
   groups: string[]; // TODO: check what the actual type of this is
 };
 
-export async function getUserAction(db: PrismaClient, user: ShibUser) {
+export async function getUserAction(user: ShibUser) {
+  const db = new PrismaClient();
+
   const dbUser = await db.newUser.findFirst({ where: { id: user.guid } });
   if (dbUser) return dbUser;
 
