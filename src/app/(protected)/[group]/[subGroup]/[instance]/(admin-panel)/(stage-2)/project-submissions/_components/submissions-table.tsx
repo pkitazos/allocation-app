@@ -25,7 +25,8 @@ export function SubmissionsTable({
     <Table>
       <TableHeader>
         <TableRow className="bg-accent/50">
-          <TableHead className="font-semibold">GUID</TableHead>
+          <TableHead className="text-center">Name</TableHead>
+          <TableHead className="text-center">Email Address</TableHead>
           <TableHead className="text-center">Already Submitted</TableHead>
           <TableHead className="text-center">Submission Target</TableHead>
         </TableRow>
@@ -33,7 +34,8 @@ export function SubmissionsTable({
       <TableBody>
         {capacities.map((c, i) => (
           <TableRow key={i}>
-            <TableCell className="font-medium">{c.userId}</TableCell>
+            <TableCell className="font-medium">{c.name}</TableCell>
+            <TableCell className="text-center">{c.email}</TableCell>
             <TableCell className="text-center">
               {c.submittedProjectsCount}
             </TableCell>
@@ -45,7 +47,7 @@ export function SubmissionsTable({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={2}>Reached Target</TableCell>
+          <TableCell colSpan={3}>Reached Target</TableCell>
           <TableCell colSpan={1} className="text-center">
             {totalReached}
           </TableCell>
