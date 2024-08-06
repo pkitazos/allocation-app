@@ -20,16 +20,19 @@ export async function middleware(req: NextRequest) {
   // const email = "";
   // const groups = [] as string[];
 
-  const res = await fetch("/api/create-user", {
-    headers: { "Content-Type": "application/json" },
-    method: "POST",
-    body: JSON.stringify({
-      guid: shib_guid,
-      displayName: shib_displayName,
-      email: "",
-      groups: "",
-    }),
-  });
+  const res = await fetch(
+    "https://guss.dcs.gla.ac.uk/projects/api/create-user",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guid: shib_guid,
+        displayName: shib_displayName,
+        email: "",
+        groups: "",
+      }),
+    },
+  );
 
   const result = await res.json();
   console.log("---->", result.session);
@@ -43,7 +46,7 @@ export async function middleware(req: NextRequest) {
 
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
-  const response = NextResponse.next();
+
   cookies().set({
     name: "session",
     value: JSON.stringify(result.session),
@@ -55,4 +58,4 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-export const config = { matcher: "/:path*" };
+export const config = { matcher: "/:path*", exclude: ["/api/create-user"] };
