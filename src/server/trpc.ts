@@ -14,6 +14,8 @@ import { z, ZodError } from "zod";
 import { NewSession, slim_auth } from "@/lib/auth/new-auth";
 import { db } from "@/lib/db";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { Session } from "next-auth";
+import { auth } from "@/lib/auth";
 
 /**
  * 1. CONTEXT

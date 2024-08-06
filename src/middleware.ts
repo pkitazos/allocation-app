@@ -1,7 +1,7 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
-import { getUserAction } from "./lib/auth/new";
+import { newSessionSchema } from "./lib/auth/new-auth";
 
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
@@ -15,28 +15,47 @@ export async function middleware(req: NextRequest) {
   console.log("Groups:", shib_groups);
 
   // Parse the headers into their expected types
-  const id = z.string().parse(shib_guid);
-  const displayName = z.string().parse(shib_displayName);
-  const email = "";
-  const groups = [] as string[];
+  // const id = z.string().parse(shib_guid);
+  // const displayName = z.string().parse(shib_displayName);
+  // const email = "";
+  // const groups = [] as string[];
 
-  const user = await getUserAction({
-    guid: id,
-    displayName,
-    email,
-    groups,
-  });
+  const res = await fetch(
+    "https://guss.dcs.gla.ac.uk/projects/api/create-user",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        guid: shib_guid,
+        displayName: shib_displayName,
+        email: "",
+        groups: "",
+      }),
+    },
+  );
+
+  const result = await res.json();
+  console.log("---->", result.session);
+
+  // const user = await getUserAction({
+  //   guid: id,
+  //   displayName,
+  //   email,
+  //   groups,
+  // });
 
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
-  const response = NextResponse.next();
-  response.cookies.set("user", JSON.stringify(user), {
+
+  cookies().set({
+    name: "session",
+    value: JSON.stringify(result.session),
     httpOnly: true,
     path: "/",
   });
 
   // Continue to the next middleware or the request handler
-  return response;
+  return NextResponse.next();
 }
 
-export const config = { matcher: "/:path*" };
+export const config = { matcher: "/:path*", exclude: ["/api/create-user"] };

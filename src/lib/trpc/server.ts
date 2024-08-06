@@ -5,6 +5,7 @@ import { slim_auth } from "@/lib/auth/new-auth";
 
 import { createCaller } from "@/server/root";
 import { createTRPCContext } from "@/server/trpc";
+import { auth } from "../auth";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when

@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 
-type ShibUser = {
-  guid: string;
-  displayName: string;
-  email: string;
-  groups: string[]; // TODO: check what the actual type of this is
-};
+export const shibUserSchema = z.object({
+  guid: z.string(),
+  displayName: z.string(),
+  email: z.string(),
+  groups: z.string(),
+});
+
+type ShibUser = z.infer<typeof shibUserSchema>;
 
 export async function getUserAction(user: ShibUser) {
   "use server";
