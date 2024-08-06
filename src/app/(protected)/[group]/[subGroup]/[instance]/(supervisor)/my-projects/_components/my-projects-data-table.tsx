@@ -10,9 +10,9 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import { columns, SupervisorProjectData } from "./project-columns";
+import { constructColumns, SupervisorProjectData } from "./my-projects-columns";
 
-export function ProjectsDataTable({
+export function MyProjectsDataTable({
   stage,
   projects,
 }: {
@@ -23,7 +23,8 @@ export function ProjectsDataTable({
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.project.delete.useMutation();
-  const { mutateAsync: deleteAllAsync } = api.project.deleteAll.useMutation();
+  const { mutateAsync: deleteSelectedAsync } =
+    api.project.deleteSelected.useMutation();
 
   async function handleDelete(projectId: string) {
     void toast.promise(
@@ -36,9 +37,9 @@ export function ProjectsDataTable({
     );
   }
 
-  async function handleDeleteAll() {
+  async function handleDeleteSelected(projectIds: string[]) {
     void toast.promise(
-      deleteAllAsync({ params }).then(() => router.refresh()),
+      deleteSelectedAsync({ params, projectIds }).then(() => router.refresh()),
       {
         loading: "Deleting Project...",
         error: "Something went wrong",
@@ -54,7 +55,10 @@ export function ProjectsDataTable({
   return (
     <DataTable
       searchableColumn={primaryColumn}
-      columns={columns(stage, handleDelete, handleDeleteAll)}
+      columns={constructColumns({
+        deleteProject: handleDelete,
+        deleteSelectedProjects: handleDeleteSelected,
+      })}
       data={projects}
     />
   );
