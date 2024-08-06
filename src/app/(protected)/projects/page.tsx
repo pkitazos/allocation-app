@@ -14,7 +14,7 @@ export default function Page() {
           <p>{data.user.id}</p>
           <p>{data.user.name}</p>
           <p>{data.user.email}</p>
-          <p>{data.user.role}</p>
+          {/* <p>{data.user.role}</p> */}
         </div>
       ) : (
         <p>no user</p>

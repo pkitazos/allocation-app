@@ -5,6 +5,7 @@ import { slim_auth } from "@/lib/auth/new-auth";
 
 import { createCaller } from "@/server/root";
 import { createTRPCContext } from "@/server/trpc";
+import { auth } from "../auth";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -15,7 +16,7 @@ const createContext = cache(async () => {
   heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
-    session: await slim_auth(), // TODO: replace with slimmed down auth function
+    session: await auth(), // TODO: replace with slimmed down auth function
     headers: heads,
   });
 });
