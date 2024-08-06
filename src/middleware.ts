@@ -20,19 +20,16 @@ export async function middleware(req: NextRequest) {
   // const email = "";
   // const groups = [] as string[];
 
-  const res = await fetch(
-    "http://guss.dcs.gla.ac.uk/projects/api/create-user",
-    {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({
-        guid: shib_guid,
-        displayName: shib_displayName,
-        email: "",
-        groups: "",
-      }),
-    },
-  );
+  const res = await fetch("/api/create-user", {
+    headers: { "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify({
+      guid: shib_guid,
+      displayName: shib_displayName,
+      email: "",
+      groups: "",
+    }),
+  });
 
   const result = await res.json();
   console.log("---->", result.session);
