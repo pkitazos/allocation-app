@@ -53,7 +53,9 @@ export function CreateProjectForm({
       onSubmit={onSubmit}
     >
       <Button variant="outline" size="lg" type="button" asChild>
-        <Link href={`${instancePath}/my-projects`}>Cancel</Link>
+        <Link className="w-32" href={`${instancePath}/my-projects`}>
+          Cancel
+        </Link>
       </Button>
     </ProjectForm>
   );

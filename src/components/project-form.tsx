@@ -1,7 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Tag } from "@prisma/client";
+import { Role, Stage, Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
+import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -47,6 +48,9 @@ import {
 
 import { spacesLabels } from "@/content/spaces";
 
+import { AccessControl } from "./access-control";
+import { useInstancePath } from "./params-context";
+
 export function ProjectForm({
   formInternalData: { takenTitles, flags, tags, students },
   submissionButtonLabel,
@@ -62,6 +66,7 @@ export function ProjectForm({
   isForked?: boolean;
   children: ReactNode;
 }) {
+  const instancePath = useInstancePath();
   const formProject = {
     title: project?.title ?? "",
     description: project?.description ?? "",
@@ -282,6 +287,15 @@ export function ProjectForm({
             to project capacity will override previous project capacity.
           </NoteCard>
         )}
+        <AccessControl
+          allowedStages={[Stage.PROJECT_SUBMISSION]}
+          allowedRoles={[Role.SUPERVISOR]}
+        >
+          <NoteCard>
+            Only toggle the below switch if the project has been self-defined by
+            a student. Otherwise, you can submit the project.
+          </NoteCard>
+        </AccessControl>
 
         <FormField
           control={form.control}
@@ -289,7 +303,7 @@ export function ProjectForm({
           render={() => (
             <FormItem className="mb-3 flex items-center space-x-2">
               <FormControl>
-                <>
+                <div className="flex items-center justify-start gap-2">
                   <Switch
                     id="pre-allocated-student-id"
                     checked={preAllocatedSwitchControl}
@@ -298,44 +312,48 @@ export function ProjectForm({
                   <Label htmlFor="pre-allocated-student-id">
                     Student defined project
                   </Label>
-                </>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-2">
-          <FormField
-            control={form.control}
-            name="capacityUpperBound"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  className={cn(
-                    "text-xl",
-                    preAllocatedSwitchControl && "text-slate-400",
-                  )}
-                >
-                  Capacity Upper Bound
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={preAllocatedSwitchControl}
-                    className="w-16"
-                    placeholder="1"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription
-                  className={cn(preAllocatedSwitchControl && "text-slate-400")}
-                >
-                  The maximum number this project is suitable for
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="flex justify-between">
+          <AccessControl allowedRoles={[Role.ADMIN]}>
+            <FormField
+              control={form.control}
+              name="capacityUpperBound"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel
+                    className={cn(
+                      "text-xl",
+                      preAllocatedSwitchControl && "text-slate-400",
+                    )}
+                  >
+                    Capacity Upper Bound
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={preAllocatedSwitchControl}
+                      className="w-16"
+                      placeholder="1"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription
+                    className={cn(
+                      preAllocatedSwitchControl && "text-slate-400",
+                    )}
+                  >
+                    The maximum number this project is suitable for
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </AccessControl>
 
           <FormField
             control={form.control}
@@ -415,7 +433,17 @@ export function ProjectForm({
           />
         </div>
 
-        <div className="flex justify-end gap-8">
+        <div className="mt-16 flex justify-end gap-8">
+          {project && (
+            <Button type="button" size="lg" variant="outline" asChild>
+              <Link
+                className="w-32"
+                href={`${instancePath}/projects/${project.id}`}
+              >
+                Cancel
+              </Link>
+            </Button>
+          )}
           {dismissalButton}
           <Button type="submit" size="lg">
             {submissionButtonLabel}

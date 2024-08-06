@@ -13,7 +13,7 @@ const baseProjectFormSchema = z.object({
     }),
   tags: z.array(z.object({ id: z.string(), title: z.string() })),
   isPreAllocated: z.boolean().optional(),
-  capacityUpperBound: z.coerce.number().int().positive(),
+  capacityUpperBound: z.coerce.number().int().positive().default(1),
   preAllocatedStudentId: z.string().optional(),
   specialTechnicalRequirements: z.string().optional(),
 });
