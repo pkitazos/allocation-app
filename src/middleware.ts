@@ -20,17 +20,24 @@ export async function middleware(req: NextRequest) {
   const email = "";
   const groups = [] as string[];
 
-  const user = await getUserAction({
-    guid: id,
-    displayName,
-    email,
-    groups,
-  });
+  const res = await fetch(
+    "https://guss.dcs.gla.ac.uk/projects/api/create-user",
+    {
+      method: "POST",
+    },
+  );
+  console.log("---->", res);
+  // const user = await getUserAction({
+  //   guid: id,
+  //   displayName,
+  //   email,
+  //   groups,
+  // });
 
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
   const response = NextResponse.next();
-  response.cookies.set("user", JSON.stringify(user), {
+  response.cookies.set("user", JSON.stringify({}), {
     httpOnly: true,
     path: "/",
   });
