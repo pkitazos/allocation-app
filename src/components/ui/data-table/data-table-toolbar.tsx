@@ -1,7 +1,7 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { XCircle } from "lucide-react";
+import { XCircleIcon } from "lucide-react";
 
 import {
   useDataTableFlags,
@@ -60,7 +60,7 @@ export function DataTableToolbar<TData>({
         {table.getColumn("tags") && (
           <DataTableFacetedFilter
             column={table.getColumn("tags")}
-            title="Tags"
+            title="Keywords"
             options={tableTags}
           />
         )}
@@ -71,7 +71,7 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             className="flex h-8 items-center gap-2 text-muted-foreground"
           >
-            <XCircle className="h-4 w-4" />
+            <XCircleIcon className="h-4 w-4" />
             <p>Reset</p>
           </Button>
         )}

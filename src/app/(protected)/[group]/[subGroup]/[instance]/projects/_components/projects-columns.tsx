@@ -129,7 +129,7 @@ export function constructColumns({
       id: "tags",
       accessorFn: (row) => row.tags,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tags" />
+        <DataTableColumnHeader column={column} title="Keywords" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
