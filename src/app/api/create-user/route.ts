@@ -1,17 +1,25 @@
+import { shibUserSchema } from "@/lib/auth/new";
 import { NewSession } from "@/lib/auth/new-auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function POST() {
+export default async function POST(req: NextRequest) {
+  const result = shibUserSchema.safeParse(req.body);
+
+  if (!result.success) {
+    console.log("===>> Failed to parse body", req.body);
+    throw new Error("Panic");
+  }
+
   const newSession: NewSession = {
     id: "hello",
     expires: 123,
     sessionToken: "123",
     userId: "123",
     user: {
-      email: "123",
-      id: "123",
-      name: "123",
-      role: "123",
+      email: result.data.email,
+      id: result.data.guid,
+      name: result.data.displayName,
+      role: result.data.groups,
     },
   };
 

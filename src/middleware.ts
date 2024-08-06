@@ -15,15 +15,21 @@ export async function middleware(req: NextRequest) {
   console.log("Groups:", shib_groups);
 
   // Parse the headers into their expected types
-  const id = z.string().parse(shib_guid);
-  const displayName = z.string().parse(shib_displayName);
-  const email = "";
-  const groups = [] as string[];
+  // const id = z.string().parse(shib_guid);
+  // const displayName = z.string().parse(shib_displayName);
+  // const email = "";
+  // const groups = [] as string[];
 
   const res = await fetch(
     "https://guss.dcs.gla.ac.uk/projects/api/create-user",
     {
       method: "POST",
+      body: JSON.stringify({
+        guid: shib_guid,
+        displayName: shib_displayName,
+        email: "",
+        groups: "",
+      }),
     },
   );
 
