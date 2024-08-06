@@ -8,7 +8,7 @@ export const shibUserSchema = z.object({
   groups: z.string(),
 });
 
-type ShibUser = z.infer<typeof shibUserSchema>;
+export type ShibUser = z.infer<typeof shibUserSchema>;
 
 export async function getUserAction(user: ShibUser) {
   "use server";

@@ -1,12 +1,12 @@
-import { shibUserSchema } from "@/lib/auth/new";
+import { ShibUser, shibUserSchema } from "@/lib/auth/new";
 import { NewSession } from "@/lib/auth/new-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export default async function POST(req: NextRequest) {
-  const result = shibUserSchema.safeParse(req.body);
+export async function POST(request: Request) {
+  const result = await request.json().then(shibUserSchema.safeParse);
 
   if (!result.success) {
-    console.log("===>> Failed to parse body", req.body);
+    console.log("===>> Failed to parse body");
     throw new Error("Panic");
   }
 
@@ -23,7 +23,5 @@ export default async function POST(req: NextRequest) {
     },
   };
 
-  return NextResponse.json({
-    session: newSession,
-  });
+  return NextResponse.json({ status: 200, data: newSession });
 }

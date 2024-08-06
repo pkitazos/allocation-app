@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
+import { slim_auth } from "@/lib/auth/new-auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const session = await slim_auth();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -31,7 +34,7 @@ export default async function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <SessionProvider>
+          <SessionProvider session={session}>
             <TRPCReactProvider>
               <Header />
               <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">

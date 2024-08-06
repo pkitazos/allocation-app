@@ -1,19 +1,17 @@
 "use client";
-import { LogIn, LogOut, User2 } from "lucide-react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { User2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export function UserButton() {
-  const { data: session } = useSession();
+  const session: any = null;
 
   return (
     <DropdownMenu>
@@ -40,23 +38,6 @@ export function UserButton() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
           </>
-        )}
-        {session ? (
-          <DropdownMenuItem
-            className="flex items-center gap-2 text-base "
-            onClick={async () => await signOut()}
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sign out</span>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem
-            className="flex items-center gap-2 text-base "
-            onClick={async () => await signIn()}
-          >
-            <LogIn className="h-4 w-4" />
-            <span>Sign in</span>
-          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

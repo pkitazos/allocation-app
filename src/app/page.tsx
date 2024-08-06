@@ -1,12 +1,11 @@
-import { SignInButton } from "@/components/sign-in-button";
 import { Separator } from "@/components/ui/separator";
 import { UserInstances } from "@/components/user-instances";
 
-import { auth } from "@/lib/auth";
+import { slim_auth } from "@/lib/auth/new-auth";
 
 // TODO: remove auth check, can assume that a user exists since the application is protected by shibboleth
 export default async function Home() {
-  const session = await auth();
+  const session = await slim_auth();
   const user = session?.user;
 
   return (
@@ -22,8 +21,7 @@ export default async function Home() {
         <>
           <Separator className="mt-4 w-1/2" />
           <div className="flex items-center gap-3 text-lg">
-            <SignInButton />
-            to access the rest of the application
+            Sign In to access the rest of the application
           </div>
         </>
       ) : (
