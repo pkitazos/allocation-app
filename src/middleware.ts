@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { newSessionSchema } from "./lib/auth/new-auth";
 
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
@@ -24,7 +26,9 @@ export async function middleware(req: NextRequest) {
       method: "POST",
     },
   );
-  console.log("---->", res);
+  console.log("---->", res.body);
+  const result = await res.json();
+  const session = newSessionSchema.parse(result);
   // const user = await getUserAction({
   //   guid: id,
   //   displayName,
@@ -34,11 +38,13 @@ export async function middleware(req: NextRequest) {
 
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
-  // const response = NextResponse.next();
-  // response.cookies.set("user", JSON.stringify({}), {
-  //   httpOnly: true,
-  //   path: "/",
-  // });
+  const response = NextResponse.next();
+  cookies().set({
+    name: "session",
+    value: JSON.stringify(session),
+    httpOnly: true,
+    path: "/",
+  });
 
   // Continue to the next middleware or the request handler
   return NextResponse.next();

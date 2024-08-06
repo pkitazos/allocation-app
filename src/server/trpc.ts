@@ -31,9 +31,9 @@ import { auth } from "@/lib/auth";
  */
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  session: Session | null;
+  session: NewSession | null;
 }) => {
-  const session = opts.session ?? (await auth()); // TODO: replace with slimmed down auth function
+  const session = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
 
   if (!session) {
     // TODO: check headers for shibboleth headers

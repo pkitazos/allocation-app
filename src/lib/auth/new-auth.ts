@@ -1,13 +1,14 @@
+import { cookies } from "next/headers";
 import { z } from "zod";
 
-const newUserSchema = z.object({
+export const newUserSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
   role: z.string(),
 });
 
-const newSessionSchema = z.object({
+export const newSessionSchema = z.object({
   id: z.string(),
   sessionToken: z.string(),
   userId: z.string(),
@@ -25,13 +26,20 @@ function getCookie(name: string): string | null {
   return null;
 }
 
+function getSessionCookies() {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("session");
+  console.log(userCookie);
+  return userCookie;
+}
+
 // TODO: maybe not the best way todo this?
 export async function slim_auth(): Promise<NewSession | null> {
   // Retrieve the user cookie
-  const userCookie = getCookie("user");
+  const userCookie = getSessionCookies();
   if (!userCookie) return null;
 
-  // Parse the cookie JSON into a NewSession object
+  // // Parse the cookie JSON into a NewSession object
   const result = newSessionSchema.safeParse(userCookie);
 
   if (!result.success) {

@@ -16,7 +16,7 @@ const createContext = cache(async () => {
   heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
-    session: await auth(), // TODO: replace with slimmed down auth function
+    session: await slim_auth(), // TODO: replace with slimmed down auth function
     headers: heads,
   });
 });
