@@ -1,7 +1,7 @@
-import { cache } from "react";
 import { headers } from "next/headers";
+import { cache } from "react";
 
-import { auth } from "@/lib/auth";
+import { slim_auth } from "@/lib/auth/new-auth";
 
 import { createCaller } from "@/server/root";
 import { createTRPCContext } from "@/server/trpc";
@@ -15,7 +15,7 @@ const createContext = cache(async () => {
   heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
-    session: await auth(), // TODO: replace with slimmed down auth function
+    session: await slim_auth(), // TODO: replace with slimmed down auth function
     headers: heads,
   });
 });

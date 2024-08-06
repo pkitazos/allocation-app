@@ -31,11 +31,13 @@ export async function middleware(req: NextRequest) {
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
   const response = NextResponse.next();
-  response.cookies.set('user', JSON.stringify(user), { httpOnly: true, path: '/' });
+  response.cookies.set("user", JSON.stringify(user), {
+    httpOnly: true,
+    path: "/",
+  });
 
   // Continue to the next middleware or the request handler
   return response;
-
 }
 
 export const config = { matcher: "/:path*" };

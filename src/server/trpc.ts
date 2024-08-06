@@ -8,11 +8,10 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { Session } from "next-auth";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
-import { auth } from "@/lib/auth";
+import { NewSession, slim_auth } from "@/lib/auth/new-auth";
 import { db } from "@/lib/db";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
@@ -30,9 +29,9 @@ import { instanceParamsSchema } from "@/lib/validations/params";
  */
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  session: Session | null;
+  session: NewSession | null;
 }) => {
-  const session = opts.session ?? (await auth()); // TODO: replace with slimmed down auth function
+  const session = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
 
   if (!session) {
     // TODO: check headers for shibboleth headers
