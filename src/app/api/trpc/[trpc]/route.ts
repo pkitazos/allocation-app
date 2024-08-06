@@ -27,14 +27,14 @@ export function OPTIONS() {
 
 // TODO: replace with slimmed down auth function
 const handler = async (req: NextRequest) => {
-  const session = await slim_auth();
+  // const session = await slim_auth();
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
     req,
     createContext: () =>
       createTRPCContext({
-        session, // ! req might not return auth
+        session: null, // ! req might not return auth
         headers: req.headers,
       }),
     onError({ error, path }) {
