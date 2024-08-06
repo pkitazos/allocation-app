@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getProjectSupervisor } from "@/lib/utils/allocation-adjustment/supervisor";
 import { ProjectInfo } from "@/lib/validations/allocation-adjustment";
 
-import { useAllocDetails } from ".";
+import { useAllocDetails } from "./allocation-store";
 
 export function ProjectCardTooltip({
   projectInfo,
@@ -19,21 +19,25 @@ export function ProjectCardTooltip({
   const allSupervisors = useAllocDetails((s) => s.supervisors);
   const { supervisorId } = getProjectSupervisor(projectInfo, allSupervisors);
 
-  const projectLowerBound = projectInfo.capacityLowerBound;
-  const projectUpperBound = projectInfo.capacityUpperBound;
-
-  const supervisorLowerBound = projectInfo.projectAllocationLowerBound;
-  const supervisorTarget = projectInfo.projectAllocationTarget;
-  const supervisorUpperBound = projectInfo.projectAllocationUpperBound;
+  const {
+    capacityLowerBound: projectLowerBound,
+    capacityUpperBound: projectUpperBound,
+    projectAllocationLowerBound: supervisorLowerBound,
+    projectAllocationTarget: supervisorTarget,
+    projectAllocationUpperBound: supervisorUpperBound,
+  } = projectInfo;
 
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
-        <p className="-mb-1 text-muted-foreground">Project ID</p>
-        <p className="text-lg font-semibold">{projectInfo.id}</p>
+        <p className="-mb-1 text-muted-foreground">Title</p>
+        <p className="text-lg font-semibold">{projectInfo.title}</p>
       </CardHeader>
-
       <CardContent className="-mt-1 flex flex-col gap-5">
+        <div>
+          <p className="text-muted-foreground">Project ID</p>
+          <p className="font-semibold">{projectInfo.id}</p>
+        </div>
         <div>
           <p className="text-muted-foreground">Supervisor ID</p>
           <p className="font-semibold">{supervisorId}</p>

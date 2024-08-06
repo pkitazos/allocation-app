@@ -1,14 +1,8 @@
 "use client";
-
 import { useDroppable } from "@dnd-kit/core";
 
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { cn } from "@/lib/utils";
 import { getProjectInfo } from "@/lib/utils/allocation-adjustment";
@@ -41,27 +35,23 @@ export function ProjectCard({
   const overworked = !withinCapacity(allProjects, supervisor);
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Card
-            ref={setNodeRef}
-            className={cn(
-              "my-1.5 flex min-h-20 min-w-32 items-center justify-center overflow-hidden p-3 text-center",
-              originallySelected && "bg-primary/50 text-primary-foreground",
-              currentlySelected && "bg-primary text-primary-foreground",
-              invalid && "bg-destructive text-destructive-foreground",
-              isOver && "outline outline-[3px] outline-sky-500",
-              currentlySelected && overworked && "bg-orange-500",
-            )}
-          >
-            <p>{projectInfo.id}</p>
-          </Card>
-        </TooltipTrigger>
-        <TooltipContent>
-          <ProjectCardTooltip projectInfo={projectInfo} />
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <WithTooltip
+      duration={300}
+      tip={<ProjectCardTooltip projectInfo={projectInfo} />}
+    >
+      <Card
+        ref={setNodeRef}
+        className={cn(
+          "my-1.5 flex min-h-20 min-w-32 items-center justify-center overflow-hidden p-3 text-center",
+          originallySelected && "bg-primary/50 text-primary-foreground",
+          currentlySelected && "bg-primary text-primary-foreground",
+          invalid && "bg-destructive text-destructive-foreground",
+          isOver && "outline outline-[3px] outline-sky-500",
+          currentlySelected && overworked && "bg-orange-500",
+        )}
+      >
+        <p>{projectInfo.id}</p>
+      </Card>
+    </WithTooltip>
   );
 }
