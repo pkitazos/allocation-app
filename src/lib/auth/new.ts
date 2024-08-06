@@ -1,5 +1,3 @@
-"use server";
-
 import { PrismaClient } from "@prisma/client";
 
 type ShibUser = {
@@ -10,6 +8,7 @@ type ShibUser = {
 };
 
 export async function getUserAction(user: ShibUser) {
+  "use server";
   const db = new PrismaClient();
 
   const dbUser = await db.newUser.findFirst({ where: { id: user.guid } });
@@ -20,6 +19,7 @@ export async function getUserAction(user: ShibUser) {
 }
 
 async function createUserAction(db: PrismaClient, user: ShibUser) {
+  "use server";
   return await db.newUser.create({
     data: {
       id: user.guid,
