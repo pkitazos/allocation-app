@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getUserAction } from "./lib/auth/new";
-
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
   const shib_guid = req.headers.get("DH75HDYT76");
@@ -36,14 +34,14 @@ export async function middleware(req: NextRequest) {
 
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
-  const response = NextResponse.next();
-  response.cookies.set("user", JSON.stringify({}), {
-    httpOnly: true,
-    path: "/",
-  });
+  // const response = NextResponse.next();
+  // response.cookies.set("user", JSON.stringify({}), {
+  //   httpOnly: true,
+  //   path: "/",
+  // });
 
   // Continue to the next middleware or the request handler
-  return response;
+  return NextResponse.next();
 }
 
 export const config = { matcher: "/:path*" };
