@@ -21,8 +21,9 @@ export async function middleware(req: NextRequest) {
   // const groups = [] as string[];
 
   const res = await fetch(
-    "https://guss.dcs.gla.ac.uk/projects/api/create-user",
+    "http://guss.dcs.gla.ac.uk/projects/api/create-user",
     {
+      headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
         guid: shib_guid,
