@@ -45,7 +45,6 @@ import {
   UpdatedProject,
 } from "@/lib/validations/project-form";
 
-import { flagToLevel } from "@/content/configs/flag-to-level";
 import { spacesLabels } from "@/content/spaces";
 
 export function ProjectForm({
@@ -70,7 +69,7 @@ export function ProjectForm({
     preAllocatedStudentId: project?.preAllocatedStudentId ?? "",
     isPreAllocated: project?.isPreAllocated ?? false,
     specialTechnicalRequirements: project?.specialTechnicalRequirements ?? "",
-    flagIds: project?.flagIds ?? [],
+    flagTitles: project?.flagTitles ?? [],
     tags: project?.tags ?? [],
   };
 
@@ -88,7 +87,7 @@ export function ProjectForm({
       capacityUpperBound: formProject.capacityUpperBound,
       preAllocatedStudentId: formProject.preAllocatedStudentId,
       specialTechnicalRequirements: formProject.specialTechnicalRequirements,
-      flagIds: formProject.flagIds,
+      flagTitles: formProject.flagTitles,
       tags: formProject.tags,
     },
   });
@@ -177,47 +176,40 @@ export function ProjectForm({
         {isForked && (
           <NoteCard>
             You are in a forked {spacesLabels.instance.short}. Any new flags or
-            tags assigned to a project will be carried over to the parent{" "}
-            {spacesLabels.instance.short}, and any flags or tags removed will
-            remain on the project in the parent {spacesLabels.instance.short}{" "}
-            when merging.
+            keywords assigned to a project will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any flags or keywords removed
+            will remain on the project in the parent{" "}
+            {spacesLabels.instance.short} when merging.
           </NoteCard>
         )}
         <div className="grid grid-cols-2">
           <FormField
             control={form.control}
-            name="flagIds"
+            name="flagTitles"
             render={() => (
               <FormItem className={cn(flags.length === 0 && "hidden")}>
                 <div className="mb-3">
-                  <FormLabel className="text-2xl">Flags</FormLabel>
-                  <FormDescription className="flex items-center gap-1">
-                    <p>Select which students this project is suitable</p>
-                    <MoreInformation className="w-96">
-                      <p>
-                        Flags are used to help students identify projects that
-                        are suitable for them.
-                        <ul className="list-disc pl-6">
-                          <li>
-                            Level {flagToLevel.bsc.level} students are only able
-                            to see projects assigned flags starting with "
-                            {flagToLevel.bsc.label}".
-                          </li>
-                          <li>
-                            Level {flagToLevel.msci.level} students are only
-                            able to see projects assigned flags starting with "
-                            {flagToLevel.msci.label}".
-                          </li>
-                        </ul>
-                      </p>
+                  <FormLabel className="inline-flex items-center gap-2 text-2xl">
+                    Flags
+                    <MoreInformation>
+                      <ul>
+                        <li>You must select at least one flag with a level.</li>
+                        <li>You can select more than one flag.</li>
+                      </ul>
                     </MoreInformation>
+                  </FormLabel>
+                  <FormDescription className="flex items-center gap-1">
+                    <p>
+                      Select which students this project is suitable. You can
+                      select more than one flag.
+                    </p>
                   </FormDescription>
                 </div>
                 {flags.map((item) => (
                   <FormField
                     key={item.id}
                     control={form.control}
-                    name="flagIds"
+                    name="flagTitles"
                     render={({ field }) => {
                       return (
                         <FormItem
@@ -226,13 +218,13 @@ export function ProjectForm({
                         >
                           <FormControl>
                             <Checkbox
-                              checked={field.value?.includes(item.id)}
+                              checked={field.value?.includes(item.title)}
                               onCheckedChange={(checked) => {
                                 return checked
-                                  ? field.onChange([...field.value, item.id])
+                                  ? field.onChange([...field.value, item.title])
                                   : field.onChange(
                                       field.value?.filter(
-                                        (value) => value !== item.id,
+                                        (value) => value !== item.title,
                                       ),
                                     );
                               }}
@@ -258,14 +250,14 @@ export function ProjectForm({
             render={({ field }) => (
               <FormItem className="flex flex-col items-start">
                 <div className="mb-1">
-                  <FormLabel className="text-2xl">Tags</FormLabel>
+                  <FormLabel className="text-2xl">Keywords</FormLabel>
                   <FormDescription>
-                    Select the tags that describe this project
+                    Select the keywords that describe this project
                   </FormDescription>
                 </div>
                 <FormControl className="w-full">
                   <TagInput
-                    placeholder="Enter a tag"
+                    placeholder="Enter a keyword"
                     autocompleteOptions={tags}
                     tags={selectedTags}
                     inputFieldPosition="top"

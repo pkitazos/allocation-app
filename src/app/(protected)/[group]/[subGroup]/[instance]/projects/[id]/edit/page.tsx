@@ -40,7 +40,7 @@ export default async function Page({ params }: { params: PageParams }) {
   const projectDetails = {
     id: projectId,
     ...project,
-    flagIds: project.flags.map((f) => f.id),
+    flagTitles: project.flags.map((f) => f.title),
     capacityUpperBound: project.capacityUpperBound,
     preAllocatedStudentId: project.preAllocatedStudentId ?? "",
     isPreAllocated: project.preAllocatedStudentId !== "",

@@ -247,10 +247,9 @@ const inInstance = <T>(ID: string, data: T) => ({
 });
 
 const flagData: Pick<Flag, "title">[] = [
-  { title: "BSc Computing Science" },
-  { title: "BSc Software Engineering" },
-  { title: "MSci Computing Science" },
-  { title: "MSci Software Engineering" },
+  { title: "Level 4" },
+  { title: "Level 5" },
+  { title: "Software Engineering" },
 ];
 
 const tagData: Pick<Tag, "title">[] = [

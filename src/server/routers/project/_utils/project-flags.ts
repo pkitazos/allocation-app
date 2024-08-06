@@ -1,12 +1,24 @@
+import { InstanceParams } from "@/lib/validations/params";
 import { PrismaClient } from "@prisma/client";
 
 export async function createProjectFlags(
   db: PrismaClient,
+  params: InstanceParams,
   projectId: string,
-  flagIds: string[],
+  flagTitles: string[],
 ) {
+  const existingFlags = await db.flag.findMany({
+    where: {
+      allocationGroupId: params.group,
+      allocationSubGroupId: params.subGroup,
+      allocationInstanceId: params.instance,
+      title: { in: flagTitles },
+    },
+    select: { id: true, title: true },
+  });
+
   await db.flagOnProject.createMany({
-    data: flagIds.map((id) => ({
+    data: existingFlags.map(({ id }) => ({
       projectId,
       flagId: id,
     })),

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { nullable } from "@/lib/utils/general/nullable";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import {
-  getFlagLabelFromStudentLevel,
+  getFlagFromStudentLevel,
   getStudentLevelFromFlag,
 } from "@/lib/utils/permissions/get-student-level";
 import { instanceParamsSchema } from "@/lib/validations/params";
@@ -15,12 +15,13 @@ import { createProjectFlags } from "@/server/routers/project/_utils/project-flag
 import {
   createTRPCRouter,
   forkedInstanceProcedure,
+  instanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
-  edit: stageAwareProcedure
+  edit: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -41,11 +42,11 @@ export const projectRouter = createTRPCRouter({
             preAllocatedStudentId,
             specialTechnicalRequirements,
             tags,
-            flagIds,
+            flagTitles,
           },
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         const newPreAllocatedStudentId = preAllocatedStudentId || undefined;
 
@@ -115,11 +116,16 @@ export const projectRouter = createTRPCRouter({
         await ctx.db.flagOnProject.deleteMany({
           where: {
             projectId,
-            AND: { flagId: { notIn: flagIds } },
+            AND: { flag: { title: { notIn: flagTitles } } },
           },
         });
 
-        await createProjectFlags(ctx.db, projectId, flagIds);
+        await createProjectFlags(
+          ctx.db,
+          ctx.instance.params,
+          projectId,
+          flagTitles,
+        );
 
         await ctx.db.tag.createMany({
           data: tags.map((tag) => ({
@@ -325,7 +331,7 @@ export const projectRouter = createTRPCRouter({
 
       return {
         access,
-        studentFlagLabel: getFlagLabelFromStudentLevel(student.studentLevel),
+        studentFlagLabel: getFlagFromStudentLevel(student.studentLevel),
       };
     }),
 
@@ -426,7 +432,7 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  create: protectedProcedure
+  create: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -443,7 +449,7 @@ export const projectRouter = createTRPCRouter({
           newProject: {
             title,
             description,
-            flagIds,
+            flagTitles,
             tags,
             capacityUpperBound,
             preAllocatedStudentId,
@@ -476,7 +482,12 @@ export const projectRouter = createTRPCRouter({
           });
         }
 
-        await createProjectFlags(ctx.db, project.id, flagIds);
+        await createProjectFlags(
+          ctx.db,
+          ctx.instance.params,
+          project.id,
+          flagTitles,
+        );
 
         const currentInstanceTags = await ctx.db.tag.findMany({
           where: {
