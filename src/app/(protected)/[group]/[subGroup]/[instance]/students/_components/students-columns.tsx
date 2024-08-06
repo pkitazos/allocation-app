@@ -47,7 +47,11 @@ export function studentsColumns(
       id: "ID",
       accessorFn: ({ id }) => id,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="ID" canFilter />
+        <DataTableColumnHeader
+          column={column}
+          title="Matriculation Number"
+          canFilter
+        />
       ),
       cell: ({ row: { original: student } }) => (
         <div className="text-left">
@@ -148,7 +152,7 @@ export function studentsColumns(
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                   href={`./students/${student.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />

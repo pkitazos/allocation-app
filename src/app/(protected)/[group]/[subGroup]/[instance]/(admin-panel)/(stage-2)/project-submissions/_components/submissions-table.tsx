@@ -25,7 +25,7 @@ export function SubmissionsTable({
     <Table>
       <TableHeader>
         <TableRow className="bg-accent/50">
-          <TableHead className="font-semibold">Supervisor ID</TableHead>
+          <TableHead className="font-semibold">GUID</TableHead>
           <TableHead className="text-center">Already Submitted</TableHead>
           <TableHead className="text-center">Submission Target</TableHead>
         </TableRow>

@@ -38,7 +38,7 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
     id: "supervisor ID",
     accessorFn: ({ project }) => project.supervisor.user.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supervisor ID" />
+      <DataTableColumnHeader column={column} title="Supervisor GUID" />
     ),
     cell: ({
       row: {
