@@ -26,9 +26,10 @@ export async function middleware(req: NextRequest) {
       method: "POST",
     },
   );
-  console.log("---->", res.body);
+
   const result = await res.json();
-  const session = newSessionSchema.parse(result);
+  console.log("---->", result.session);
+
   // const user = await getUserAction({
   //   guid: id,
   //   displayName,
@@ -41,7 +42,7 @@ export async function middleware(req: NextRequest) {
   const response = NextResponse.next();
   cookies().set({
     name: "session",
-    value: JSON.stringify(session),
+    value: JSON.stringify(result.session),
     httpOnly: true,
     path: "/",
   });
