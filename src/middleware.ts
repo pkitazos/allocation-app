@@ -1,7 +1,6 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { newSessionSchema } from "./lib/auth/new-auth";
+import { ShibUser } from "./lib/auth/new";
+import { NewSession, newSessionSchema } from "./lib/auth/new-auth";
 
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
@@ -20,22 +19,25 @@ export async function middleware(req: NextRequest) {
   // const email = "";
   // const groups = [] as string[];
 
-  const res = await fetch(
-    "https://guss.dcs.gla.ac.uk/projects/api/create-user",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        guid: shib_guid,
-        displayName: shib_displayName,
-        email: "",
-        groups: "",
-      }),
-    },
-  );
+  const testShibUser: ShibUser = {
+    guid: "456",
+    displayName: "Petros from Shib",
+    email: "",
+    groups: "shib-user",
+  };
 
-  const result = await res.json();
-  console.log("---->", result.session);
+  const result = await fetch("http://localhost:3000/api/create-user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(testShibUser),
+  })
+    .then(async (res) => res.json())
+    .then((res) => newSessionSchema.safeParse(res.data));
+
+  console.log("this is the result", result);
+
+  const UP = new Error("UP");
+  if (!result.success) throw UP;
 
   // const user = await getUserAction({
   //   guid: id,
@@ -47,15 +49,28 @@ export async function middleware(req: NextRequest) {
   // TODO: add the user / session to the cookies
   // TODO: figure out if this is the best / optimal way todo this.
 
-  cookies().set({
+  const testSession: NewSession = {
+    id: "hello",
+    expires: 123123123,
+    sessionToken: "123",
+    userId: "123",
+    user: {
+      id: "hello",
+      email: "",
+      name: "Petros from Middleware",
+      role: "middleware-user",
+    },
+  };
+
+  const response = NextResponse.next();
+  response.cookies.set({
     name: "session",
-    value: JSON.stringify(result.session),
+    value: JSON.stringify(result.data),
     httpOnly: true,
-    path: "/",
   });
 
   // Continue to the next middleware or the request handler
-  return NextResponse.next();
+  return response;
 }
 
 export const config = { matcher: "/:path*", exclude: ["/api/create-user"] };

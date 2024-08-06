@@ -7,6 +7,7 @@ export const appRouter = createTRPCRouter({
   project: projectRouter,
   user: userRouter,
   institution: institutionRouter,
+
   test: publicProcedure.mutation(async ({ ctx }) => {
     if (!ctx.session) {
       return { user: undefined };
