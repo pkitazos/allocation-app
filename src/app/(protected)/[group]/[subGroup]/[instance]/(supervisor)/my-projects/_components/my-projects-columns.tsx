@@ -31,7 +31,7 @@ import {
 
 export type SupervisorProjectData = Pick<
   Project,
-  "id" | "title" | "capacityLowerBound" | "capacityUpperBound"
+  "id" | "title" | "capacityUpperBound"
 > & { allocatedStudentName?: string; allocatedStudentId?: string };
 
 export function constructColumns({
