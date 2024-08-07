@@ -119,7 +119,7 @@ export default async function Project({ params }: { params: pageParams }) {
                 project.tags.length === 0 && "hidden",
               )}
             >
-              Tags:
+              Keywords:
             </h2>
             {project.tags.map((tag, i) => (
               <Badge key={i} variant="outline">

@@ -1,7 +1,7 @@
 import { PreferenceType, PrismaClient } from "@prisma/client";
 
 import {
-  getFlagLabelFromStudentLevel,
+  getFlagFromStudentLevel,
   getStudentLevelFromFlag,
 } from "@/lib/utils/permissions/get-student-level";
 import { InstanceParams } from "@/lib/validations/params";
@@ -31,7 +31,7 @@ export async function updatePreferenceTransaction({
 
     if (!suitable) {
       throw new Error(
-        `This project is not suitable for ${getFlagLabelFromStudentLevel(student.studentLevel)} students`,
+        `This project is not suitable for ${getFlagFromStudentLevel(student.studentLevel)} students`,
       );
     }
 

@@ -28,7 +28,7 @@ export function SubmissionsTable({
     <Table>
       <TableHeader>
         <TableRow className="bg-accent/50">
-          <TableHead className="font-semibold">Student ID</TableHead>
+          <TableHead className="font-semibold">Matriculation No.</TableHead>
           <TableHead className="text-center">Submitted</TableHead>
           <TableHead className="text-center">Count</TableHead>
         </TableRow>

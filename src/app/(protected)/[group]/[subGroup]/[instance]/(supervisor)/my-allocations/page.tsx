@@ -16,7 +16,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
         {allocations.length === 0 ? (
           <div className="mt-9 flex flex-col gap-4">
             <SubHeading>Allocations</SubHeading>
-            <p>You have not been allocated any projects</p>
+            <p>You have not been allocated any students</p>
           </div>
         ) : (
           <div className="ml-10 mt-16 flex flex-col gap-6">
@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
                 </CardHeader>
                 <CardContent className="grid grid-cols-4 items-center justify-start gap-x-4 gap-y-2">
                   <p className="col-span-1 text-lg font-medium text-muted-foreground">
-                    ID
+                    Matriculation No.
                   </p>
                   <Badge
                     variant="secondary"

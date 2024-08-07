@@ -125,7 +125,7 @@ export function supervisorProjectsColumns(
       id: "tags",
       accessorFn: (row) => row.tagOnProject,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tags" />
+        <DataTableColumnHeader column={column} title="Keywords" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
@@ -214,7 +214,7 @@ export function supervisorProjectsColumns(
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 hover:underline group-hover/item:underline"
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                   href={`../projects/${project.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />

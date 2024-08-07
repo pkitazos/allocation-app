@@ -180,6 +180,7 @@ export const matchingRouter = createTRPCRouter({
           },
           select: {
             id: true,
+            title: true,
             capacityLowerBound: true,
             capacityUpperBound: true,
             supervisor: {
@@ -265,6 +266,7 @@ export const matchingRouter = createTRPCRouter({
           const supervisor = p.supervisor.supervisorInstanceDetails[0];
           return {
             id: p.id,
+            title: p.title,
             capacityLowerBound: p.capacityLowerBound,
             capacityUpperBound: p.capacityUpperBound,
             allocatedTo: allocationRecord[p.id] ?? [],

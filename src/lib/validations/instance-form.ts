@@ -1,4 +1,4 @@
-import { flagToLevel } from "@/content/configs/flag-to-level";
+import { projectFlags } from "@/content/config/flags";
 import { isAfter } from "date-fns";
 import { z } from "zod";
 
@@ -10,19 +10,7 @@ const baseSchema = z.object({
   preferenceSubmissionDeadline: z.date(),
   projectSubmissionDeadline: z.date(),
   flags: z.array(
-    z.object({
-      title: z
-        .string()
-        .min(3, "Please enter a valid title")
-        .refine(
-          (title) =>
-            title.startsWith(flagToLevel.msci.label) ||
-            title.startsWith(flagToLevel.bsc.label),
-          {
-            message: `Valid flag titles start with ${flagToLevel.msci.label} or ${flagToLevel.bsc.label}`,
-          },
-        ),
-    }),
+    z.object({ title: z.string().min(3, "Please enter a valid title") }),
   ),
   tags: z.array(z.object({ title: z.string() })),
 });

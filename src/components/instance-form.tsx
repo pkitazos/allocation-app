@@ -14,7 +14,6 @@ import {
   ValidatedInstanceDetails,
 } from "@/lib/validations/instance-form";
 
-import { flagToLevel } from "@/content/configs/flag-to-level";
 import { spacesLabels } from "@/content/spaces";
 
 import { SubHeading } from "./heading";
@@ -138,9 +137,10 @@ export function InstanceForm({
         {isForked && (
           <NoteCard>
             You are in a forked {spacesLabels.instance.short}. Any new flags or
-            tags created will be carried over to the parent{" "}
-            {spacesLabels.instance.short}, and any deleted flags or tags will
-            remain in the parent {spacesLabels.instance.short} when merging.
+            keywords created will be carried over to the parent{" "}
+            {spacesLabels.instance.short}, and any deleted flags or keywords
+            will remain in the parent {spacesLabels.instance.short} when
+            merging.
           </NoteCard>
         )}
         <div className="grid w-full grid-cols-2">
@@ -149,30 +149,6 @@ export function InstanceForm({
             <FormDescription>
               Flags are used to mark a project as suitable for a particular
               group of students{" "}
-              <MoreInformation className="w-96">
-                <div className="flex flex-col gap-2">
-                  <p>
-                    Flags will be used to filter projects based on their
-                    suitability for students of different levels.
-                  </p>
-                  <ul className="list-disc pl-6">
-                    <li>
-                      All flags should start with either "
-                      {flagToLevel.msci.label}" or "{flagToLevel.bsc.label}"
-                    </li>
-                    <li>
-                      Flags starting with "{flagToLevel.bsc.label}" will be
-                      applied to projects that are suitable for level{" "}
-                      {flagToLevel.bsc.level} students
-                    </li>
-                    <li>
-                      Flags starting with "{flagToLevel.msci.label}" will be
-                      applied to projects that are suitable for level{" "}
-                      {flagToLevel.msci.level} students
-                    </li>
-                  </ul>
-                </div>
-              </MoreInformation>
             </FormDescription>
             {flagFields.map((item, idx) => (
               <FormField
@@ -227,10 +203,10 @@ export function InstanceForm({
           </div>
 
           <div className="flex flex-col gap-2">
-            <FormLabel className="text-base">Project Tags</FormLabel>
+            <FormLabel className="text-base">Project Keywords</FormLabel>
             <FormDescription>
-              A starting selection of tags Supervisors can use to label their
-              projects
+              A starting selection of keywords Supervisors can use to label
+              their projects
             </FormDescription>
             {tagFields.map((item, idx) => (
               <FormField
@@ -242,7 +218,7 @@ export function InstanceForm({
                     <FormControl>
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Tag"
+                          placeholder="Keyword"
                           {...form.register(`tags.${idx}.title`)}
                         />
                         <Button

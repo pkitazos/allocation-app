@@ -247,10 +247,9 @@ const inInstance = <T>(ID: string, data: T) => ({
 });
 
 const flagData: Pick<Flag, "title">[] = [
-  { title: "BSc Computing Science" },
-  { title: "BSc Software Engineering" },
-  { title: "MSci Computing Science" },
-  { title: "MSci Software Engineering" },
+  { title: "Level 4" },
+  { title: "Level 5" },
+  { title: "Software Engineering" },
 ];
 
 const tagData: Pick<Tag, "title">[] = [
@@ -375,8 +374,7 @@ export const projects = (ID: string): Project[] =>
       description: p.description,
       supervisorId: allSupervisors(ID)[p.supervisorId].id,
       preAllocatedStudentId: null,
-      // externalId: null,
-      // specialTechnicalRequirements: null,
+      specialTechnicalRequirements: null,
       capacityLowerBound: 0,
       capacityUpperBound: 1,
     }),

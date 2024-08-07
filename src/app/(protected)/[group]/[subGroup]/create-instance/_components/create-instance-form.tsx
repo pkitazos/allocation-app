@@ -45,7 +45,7 @@ export function CreateInstanceForm({
         router.refresh();
       }),
       {
-        loading: "Creating Instance...",
+        loading: `Creating new ${spacesLabels.instance.full}...`,
         error: "Something went wrong",
         success: "Success",
       },

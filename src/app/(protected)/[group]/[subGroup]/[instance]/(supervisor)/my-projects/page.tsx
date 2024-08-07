@@ -9,7 +9,7 @@ import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { ProjectsDataTable } from "./_components/data-table";
+import { MyProjectsDataTable } from "./_components/my-projects-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const role = await api.user.role({ params });
@@ -53,7 +53,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
             </p>
           )}
         </Card>
-        <ProjectsDataTable stage={stage} projects={rowProjects} />
+        <MyProjectsDataTable stage={stage} projects={rowProjects} />
       </PanelWrapper>
     </>
   );

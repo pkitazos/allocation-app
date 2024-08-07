@@ -9,6 +9,7 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import {
   createTRPCRouter,
   forkedInstanceProcedure,
+  instanceProcedure,
   protectedProcedure,
   stageAwareProcedure,
 } from "@/server/trpc";
@@ -92,12 +93,8 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  projects: forkedInstanceProcedure
-    .input(
-      z.object({
-        params: instanceParamsSchema,
-      }),
-    )
+  projects: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
         ctx,
@@ -106,7 +103,7 @@ export const supervisorRouter = createTRPCRouter({
         },
       }) => {
         const userId = ctx.session.user.id;
-        const parentInstanceId = ctx.parentInstanceId;
+        const parentInstanceId = ctx.instance.parentInstanceId;
 
         const allProjects = await ctx.db.project.findMany({
           where: {
@@ -122,7 +119,13 @@ export const supervisorRouter = createTRPCRouter({
             capacityLowerBound: true,
             capacityUpperBound: true,
             preAllocatedStudentId: true,
-            allocations: { select: { userId: true } },
+            allocations: {
+              select: {
+                student: {
+                  select: { user: { select: { id: true, name: true } } },
+                },
+              },
+            },
           },
         });
 

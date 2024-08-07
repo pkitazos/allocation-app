@@ -110,7 +110,7 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     id: "supervisorId",
     accessorFn: ({ project }) => project.supervisor.user.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supervisor ID" />
+      <DataTableColumnHeader column={column} title="Supervisor GUID" />
     ),
     cell: ({
       row: {
@@ -160,10 +160,10 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     ),
   },
   {
-    id: "studentId",
+    id: "matriculation No.",
     accessorFn: ({ userId }) => userId,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student ID" />
+      <DataTableColumnHeader column={column} title="Matriculation No." />
     ),
     cell: ({
       row: {

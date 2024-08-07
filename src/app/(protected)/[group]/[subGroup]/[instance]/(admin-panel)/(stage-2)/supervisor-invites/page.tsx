@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">
       <SubHeading className="text-2xl">Supervisor Invites</SubHeading>
-      <InviteTable users={supervisors} />
+      <InviteTable userIdLabel="GUID" users={supervisors} />
     </PanelWrapper>
   );
 }

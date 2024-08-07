@@ -6,7 +6,7 @@ export const GenerousAlgorithm = {
   algName: "generous",
   displayName: "Generous",
   description:
-    "Produces a matching that has maximum cardinality, and subject to this, maximises the number of first choices, and subject to this, maximises the number of second choices, etc.",
+    "Produces a matching that has maximum cardinality, and subject to this, minimises the number of Rth choices, and subject to this, minimises the number of (R-1)th choices, etc., where R is the maximum length of a preference list.",
   flag1: AlgorithmFlag.MAXSIZE,
   flag2: AlgorithmFlag.GEN,
   flag3: AlgorithmFlag.LSB,
@@ -16,7 +16,7 @@ export const GreedyAlgorithm = {
   algName: "greedy",
   displayName: "Greedy",
   description:
-    "Produces a matching that has maximum cardinality, and subject to this, minimises the number of Rth choices, and subject to this, minimises the number of (R-1)th choices, etc., where R is the maximum length of a preference list.",
+    "Produces a matching that has maximum cardinality, and subject to this, maximises the number of first choices, and subject to this, maximises the number of second choices, etc.",
   flag1: AlgorithmFlag.MAXSIZE,
   flag2: AlgorithmFlag.GRE,
   flag3: AlgorithmFlag.LSB,

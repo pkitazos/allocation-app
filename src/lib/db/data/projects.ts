@@ -10,10 +10,7 @@ export const projectData = (ID: string) => [
       { title: "Artificial Intelligence" },
       { title: "Natural Language Processing" },
     ],
-    flags: [
-      { title: "BSc Computing Science" },
-      { title: "MSci Software Engineering" },
-    ],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-002-${ID}`,
@@ -22,10 +19,7 @@ export const projectData = (ID: string) => [
       "A calendar app for managing events and reminders on mobile devices",
     supervisorId: 0,
     tags: [{ title: "Java" }, { title: "Mobile App Development" }],
-    flags: [
-      { title: "BSc Computing Science" },
-      { title: "BSc Software Engineering" },
-    ],
+    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
   },
   {
     id: `prjkt-003-${ID}`,
@@ -38,7 +32,7 @@ export const projectData = (ID: string) => [
       { title: "Data Science" },
       { title: "Web Development" },
     ],
-    flags: [{ title: "MSci Computing Science" }],
+    flags: [{ title: "Level 5" }],
   },
   {
     id: `prjkt-004-${ID}`,
@@ -51,10 +45,7 @@ export const projectData = (ID: string) => [
       { title: "Mobile App Development" },
       { title: "Cloud Computing" },
     ],
-    flags: [
-      { title: "MSci Software Engineering" },
-      { title: "BSc Software Engineering" },
-    ],
+    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
   },
   {
     id: `prjkt-005-${ID}`,
@@ -67,7 +58,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [{ title: "MSci Computing Science" }],
+    flags: [{ title: "Level 5" }],
   },
   {
     id: `prjkt-006-${ID}`,
@@ -76,7 +67,7 @@ export const projectData = (ID: string) => [
       "A browser extension to track time spent on websites and manage tabs",
     supervisorId: 1,
     tags: [{ title: "JavaScript" }, { title: "Web Development" }],
-    flags: [{ title: "BSc Computing Science" }],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-007-${ID}`,
@@ -85,10 +76,7 @@ export const projectData = (ID: string) => [
       "Real-time weather forecasts and predictive weather alerts for any location",
     supervisorId: 1,
     tags: [{ title: "Python" }, { title: "Data Science" }],
-    flags: [
-      { title: "BSc Software Engineering" },
-      { title: "MSci Computing Science" },
-    ],
+    flags: [{ title: "Software Engineering" }, { title: "Level 5" }],
   },
   {
     id: `prjkt-008-${ID}`,
@@ -101,10 +89,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [
-      { title: "MSci Computing Science" },
-      { title: "BSc Computing Science" },
-    ],
+    flags: [{ title: "Level 4" }, { title: "Level 5" }],
   },
   {
     id: `prjkt-009-${ID}`,
@@ -113,7 +98,7 @@ export const projectData = (ID: string) => [
       "An interactive app providing personalised workout plans and real-time guidance.",
     supervisorId: 2,
     tags: [{ title: "Python" }, { title: "Mobile App Development" }],
-    flags: [{ title: "MSci Software Engineering" }],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-010-${ID}`,
@@ -123,9 +108,9 @@ export const projectData = (ID: string) => [
     supervisorId: 2,
     tags: [{ title: "Ruby" }, { title: "Web Development" }],
     flags: [
-      { title: "BSc Computing Science" },
-      { title: "BSc Software Engineering" },
-      { title: "MSci Computing Science" },
+      { title: "Software Engineering" },
+      { title: "Level 4" },
+      { title: "Level 5" },
     ],
   },
   {
@@ -139,7 +124,7 @@ export const projectData = (ID: string) => [
       { title: "DevOps" },
       { title: "Cloud Computing" },
     ],
-    flags: [{ title: "MSci Computing Science" }],
+    flags: [{ title: "Level 5" }],
   },
   {
     id: `prjkt-012-${ID}`,
@@ -152,7 +137,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Cloud Computing" },
     ],
-    flags: [{ title: "MSci Software Engineering" }],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-013-${ID}`,
@@ -165,7 +150,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [{ title: "BSc Software Engineering" }],
+    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
   },
   {
     id: `prjkt-014-${ID}`,
@@ -178,10 +163,7 @@ export const projectData = (ID: string) => [
       { title: "HTML/CSS" },
       { title: "Web Development" },
     ],
-    flags: [
-      { title: "BSc Computing Science" },
-      { title: "MSci Computing Science" },
-    ],
+    flags: [{ title: "Level 4" }, { title: "Level 5" }],
   },
   {
     id: `prjkt-015-${ID}`,
@@ -194,7 +176,7 @@ export const projectData = (ID: string) => [
       { title: "Game Development" },
       { title: "Computer Vision" },
     ],
-    flags: [{ title: "MSci Software Engineering" }],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-016-${ID}`,
@@ -203,10 +185,7 @@ export const projectData = (ID: string) => [
       "A system to automate repetitive tasks using custom scripts and integrations.",
     supervisorId: 3,
     tags: [{ title: "Python" }, { title: "DevOps" }],
-    flags: [
-      { title: "MSci Computing Science" },
-      { title: "BSc Software Engineering" },
-    ],
+    flags: [{ title: "Level 5" }, { title: "Software Engineering" }],
   },
   {
     id: `prjkt-017-${ID}`,
@@ -219,7 +198,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Databases" },
     ],
-    flags: [{ title: "BSc Computing Science" }],
+    flags: [{ title: "Level 4" }],
   },
   {
     id: `prjkt-018-${ID}`,
@@ -232,10 +211,7 @@ export const projectData = (ID: string) => [
       { title: "Web Development" },
       { title: "Cybersecurity" },
     ],
-    flags: [
-      { title: "MSci Software Engineering" },
-      { title: "BSc Software Engineering" },
-    ],
+    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
   },
   {
     id: `prjkt-019-${ID}`,
@@ -244,7 +220,7 @@ export const projectData = (ID: string) => [
       "A platform for securely sending and receiving large files over the internet.",
     supervisorId: 4,
     tags: [{ title: "Java" }, { title: "Cybersecurity" }],
-    flags: [{ title: "MSci Computing Science" }],
+    flags: [{ title: "Level 5" }],
   },
   {
     id: `prjkt-020-${ID}`,
@@ -253,9 +229,6 @@ export const projectData = (ID: string) => [
       "A tool for monitoring and managing energy consumption with a focus on sustainability.",
     supervisorId: 4,
     tags: [{ title: "Data Science" }, { title: "Web Development" }],
-    flags: [
-      { title: "BSc Computing Science" },
-      { title: "MSci Software Engineering" },
-    ],
+    flags: [{ title: "Level 4" }],
   },
 ];

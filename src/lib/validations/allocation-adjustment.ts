@@ -37,6 +37,7 @@ export type StudentRow = z.infer<typeof studentRowSchema>;
 
 export const projectInfoSchema = z.object({
   id: z.string(),
+  title: z.string(),
   capacityLowerBound: z.number(),
   capacityUpperBound: z.number(),
   allocatedTo: z.array(z.string()),

@@ -1,9 +1,7 @@
 type SupervisorProject = {
   description: string;
   id: string;
-  allocations: {
-    userId: string;
-  }[];
+  allocations: { student: { user: { id: string; name: string | null } } }[];
   title: string;
   capacityLowerBound: number;
   capacityUpperBound: number;
@@ -17,16 +15,28 @@ export function formatSupervisorRowProjects(
     const { allocations, preAllocatedStudentId, ...rest } = project;
 
     if (preAllocatedStudentId) {
-      return { ...rest, allocatedStudentId: preAllocatedStudentId };
+      const idx = allocations.findIndex(
+        (a) => a.student.user.id === preAllocatedStudentId,
+      );
+      return {
+        ...rest,
+        allocatedStudentId: preAllocatedStudentId,
+        allocatedStudentName: allocations[idx].student.user.name!,
+      };
     }
 
     if (allocations.length === 0) {
-      return { ...rest, allocatedStudentId: undefined };
+      return {
+        ...rest,
+        allocatedStudentId: undefined,
+        allocatedStudentName: undefined,
+      };
     }
 
     return allocations.map((allocation) => ({
       ...rest,
-      allocatedStudentId: allocation.userId,
+      allocatedStudentId: allocation.student.user.id,
+      allocatedStudentName: allocation.student.user.name!,
     }));
   });
 }

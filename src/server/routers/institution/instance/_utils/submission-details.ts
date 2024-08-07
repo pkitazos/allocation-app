@@ -19,9 +19,9 @@ export async function computeSubmissionDetails(
       projectAllocationLowerBound: true,
       projectAllocationTarget: true,
       projectAllocationUpperBound: true,
-      userId: true,
       userInInstance: {
         select: {
+          user: { select: { id: true, name: true, email: true } },
           supervisorProjects: { select: { allocations: true } },
         },
       },
@@ -37,7 +37,9 @@ export async function computeSubmissionDetails(
     const submittedProjectsCount = s.userInInstance.supervisorProjects.length;
 
     return {
-      userId: s.userId,
+      userId: s.userInInstance.user.id,
+      name: s.userInInstance.user.name!,
+      email: s.userInInstance.user.email!,
       projectAllocationTarget,
       allocatedCount,
       submittedProjectsCount,

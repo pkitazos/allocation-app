@@ -3,6 +3,8 @@ import { z } from "zod";
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   blankResult,
+  MatchingDetails,
+  MatchingDetailsDto,
   MatchingResult,
   matchingResultSchema,
 } from "@/lib/validations/matching";
@@ -12,6 +14,8 @@ import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
 import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
 import { getMatchingData } from "./_utils/get-matching-data";
+import { Role } from "@prisma/client";
+import { extractMatchingDetails } from "./_utils/extract-matching-details";
 
 export const algorithmRouter = createTRPCRouter({
   run: instanceAdminProcedure
@@ -205,14 +209,33 @@ export const algorithmRouter = createTRPCRouter({
           orderBy: { algName: "asc" },
         });
 
-        type tableData = {
+        const allProjects = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: { id: true, title: true },
+        });
+
+        const allStudents = await ctx.db.userInInstance.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            role: Role.STUDENT,
+          },
+          select: { user: { select: { id: true, name: true } } },
+        });
+
+        type TableData = {
           algName: string;
           displayName: string;
-          data: MatchingResult;
+          data: MatchingDetailsDto[];
         };
 
         if (results.length === 0) {
-          return { results: [] as tableData[], firstNonEmpty: 0 };
+          return { results: [] as TableData[], firstNonEmpty: 0 };
         }
 
         const nonEmpty: number[] = [];
@@ -226,7 +249,16 @@ export const algorithmRouter = createTRPCRouter({
             return {
               algName,
               displayName,
-              data,
+              data: data.matching.map(
+                ({ student_id, project_id, preference_rank }) =>
+                  extractMatchingDetails(
+                    allStudents.map((s) => s.user),
+                    allProjects,
+                    student_id,
+                    project_id,
+                    preference_rank,
+                  ),
+              ),
             };
           },
         );

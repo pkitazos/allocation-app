@@ -96,15 +96,10 @@ export function FormButton({ params }: { params: GroupParams }) {
                 name="schoolId"
                 render={({ field }) => (
                   <FormItem className="grid w-full grid-cols-3 items-center gap-3">
-                    <FormLabel className="col-span-1 text-lg">
-                      University ID
-                    </FormLabel>
+                    <FormLabel className="col-span-1 text-lg">GUID</FormLabel>
                     <FormControl className="col-span-2 flex items-center">
-                      <Input placeholder="University ID" {...field} />
+                      <Input placeholder="GUID" {...field} />
                     </FormControl>
-                    {/* <FormDescription>
-                        if the user exists we'll add them as an admin
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}

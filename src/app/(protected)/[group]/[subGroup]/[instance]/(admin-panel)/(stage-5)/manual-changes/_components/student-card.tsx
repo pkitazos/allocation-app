@@ -13,6 +13,7 @@ import {
 import { getStudent } from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from ".";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function StudentCard({ studentId }: { studentId: string }) {
   const allStudents = useAllocDetails((s) => s.students);
@@ -38,24 +39,23 @@ export function StudentCard({ studentId }: { studentId: string }) {
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Card
-            ref={setNodeRef}
-            className="h-20 w-32 bg-secondary px-5 py-3 text-secondary-foreground"
-            style={style}
-            {...attributes}
-            {...listeners}
-          >
-            <p className="max-w-[124px] overflow-hidden">{studentId}</p>
-          </Card>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{studentId}</p>
-          <p className="text-lg font-medium tracking-tight">{student.name}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <WithTooltip
+      tip={
+        <div className="p-2">
+          <p className="text-base font-medium tracking-tight">{studentId}</p>
+          <p className="text-muted-foreground">{student.name}</p>
+        </div>
+      }
+    >
+      <Card
+        ref={setNodeRef}
+        className="h-20 w-32 bg-secondary px-5 py-3 text-secondary-foreground"
+        style={style}
+        {...attributes}
+        {...listeners}
+      >
+        <p className="max-w-[124px] overflow-hidden">{studentId}</p>
+      </Card>
+    </WithTooltip>
   );
 }
