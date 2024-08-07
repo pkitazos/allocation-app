@@ -1,11 +1,10 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
-import { auth } from "@/lib/auth";
-
 import { appRouter } from "@/server/root";
 import { createTRPCContext } from "@/server/trpc";
-import { NextRequest, NextResponse } from "next/server";
-import { slim_auth } from "@/lib/auth/new-auth";
+import { NextRequest } from "next/server";
+import { slim_auth } from "@/lib/auth";
+
 /**
  * Configure basic CORS headers
  * You should extend this to match your needs
@@ -25,16 +24,16 @@ export function OPTIONS() {
   return response;
 }
 
-// TODO: replace with slimmed down auth function
 const handler = async (req: NextRequest) => {
-  const session = await slim_auth();
+  const user = await slim_auth();
+
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
     router: appRouter,
     req,
     createContext: () =>
       createTRPCContext({
-        session, // ! req might not return auth
+        session: { user },
         headers: req.headers,
       }),
     onError({ error, path }) {

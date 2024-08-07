@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ShibUser } from "./lib/auth/new";
-import { NewSession, newSessionSchema } from "./lib/auth/new-auth";
+
+import { authenticateUser } from "@/lib/auth/procedures";
+import { z } from "zod";
 
 export async function middleware(req: NextRequest) {
   // Extract the headers from the request
@@ -9,67 +10,33 @@ export async function middleware(req: NextRequest) {
   const shib_groups = req.headers.get("DH75HDYT78");
 
   // Log the headers to the console
-  console.log("GUID:", shib_guid);
-  console.log("Display Name:", shib_displayName);
-  console.log("Groups:", shib_groups);
+  console.log(">>> from shibboleth", {
+    GUID: shib_guid,
+    "Display Name": shib_displayName,
+    Groups: shib_groups?.split(";"),
+  });
 
   // Parse the headers into their expected types
-  // const id = z.string().parse(shib_guid);
-  // const displayName = z.string().parse(shib_displayName);
-  // const email = "";
-  // const groups = [] as string[];
+  const guid = z.string().parse(shib_guid);
+  const displayName = z.string().parse(shib_displayName);
+  const email = "";
+  const groups = z.string().parse(shib_groups).split(";");
 
-  const testShibUser: ShibUser = {
-    guid: "456",
-    displayName: "Petros from Shib",
-    email: "",
-    groups: "shib-user",
-  };
+  //  Call auth endpoint to create or get user
+  const result = await authenticateUser({ guid, displayName, email });
 
-  const result = await fetch("http://localhost:3000/api/create-user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(testShibUser),
-  })
-    .then(async (res) => res.json())
-    .then((res) => newSessionSchema.safeParse(res.data));
+  if (!result.success) {
+    throw new Error("Something went wrong while authenticating this user");
+  }
 
-  console.log("this is the result", result);
-
-  const UP = new Error("UP");
-  if (!result.success) throw UP;
-
-  // const user = await getUserAction({
-  //   guid: id,
-  //   displayName,
-  //   email,
-  //   groups,
-  // });
-
-  // TODO: add the user / session to the cookies
-  // TODO: figure out if this is the best / optimal way todo this.
-
-  const testSession: NewSession = {
-    id: "hello",
-    expires: 123123123,
-    sessionToken: "123",
-    userId: "123",
-    user: {
-      id: "hello",
-      email: "",
-      name: "Petros from Middleware",
-      role: "middleware-user",
-    },
-  };
-
-  const response = NextResponse.next();
+  // Add the user to the cookies
+  let response = NextResponse.next();
   response.cookies.set({
-    name: "session",
+    name: "user",
     value: JSON.stringify(result.data),
     httpOnly: true,
   });
 
-  // Continue to the next middleware or the request handler
   return response;
 }
 
