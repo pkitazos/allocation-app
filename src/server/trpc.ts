@@ -11,8 +11,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
-import { NewSession, slim_auth } from "@/lib/auth/new-auth";
+import { slim_auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { NewSession } from "@/lib/validations/auth";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 /**
@@ -29,11 +30,11 @@ import { instanceParamsSchema } from "@/lib/validations/params";
  */
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  session: NewSession | null;
+  session: NewSession;
 }) => {
-  const session = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
+  const user = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
 
-  if (!session) {
+  if (!user) {
     // TODO: check headers for shibboleth headers
     // if there's a header indicating that a user exists
     // (like an Authorization header or something)
@@ -46,10 +47,10 @@ export const createTRPCContext = async (opts: {
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
-  console.log(">>> tRPC Request from", source, "by", session?.user);
+  console.log(">>> tRPC Request from", source, "by", user);
 
   return {
-    session,
+    session: { user },
     db,
   };
 };

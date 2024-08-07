@@ -9,11 +9,11 @@ import { InstanceLink } from "./instance-link";
 import { UserButton } from "./user-button";
 
 import whiteLogo from "@/assets/uofg-white.png";
-import { slim_auth } from "@/lib/auth/new-auth";
+import { slim_auth } from "@/lib/auth";
 
 export async function Header() {
   // TODO: refactor once new auth is implemented, can assume that user will be signed in
-  const session = await slim_auth();
+  const user = await slim_auth();
   const adminPanel = await api.user.adminPanelRoute();
 
   return (
@@ -27,7 +27,7 @@ export async function Header() {
           alt=""
         />
       </Link>
-      {session && (
+      {user && (
         <div className="flex w-full flex-grow justify-between">
           <InstanceHeader />
         </div>

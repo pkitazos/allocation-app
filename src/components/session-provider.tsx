@@ -1,7 +1,6 @@
 "use client";
+import { NewSession } from "@/lib/validations/auth";
 import { createContext, ReactNode } from "react";
-
-import { NewSession } from "@/lib/auth/new-auth";
 
 const SessionContext = createContext<NewSession | null>(null);
 
