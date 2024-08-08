@@ -31,7 +31,7 @@ export function DataTableViewOptions<TData>({
           View
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px] backdrop-blur-lg">
+      <DropdownMenuContent align="end" className="w-[250px] backdrop-blur-lg">
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
