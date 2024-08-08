@@ -1,3 +1,5 @@
+import { test__flagTitles, test__tagTitles } from ".";
+
 export const projectData = (ID: string) => [
   {
     id: `prjkt-001-${ID}`,
@@ -5,12 +7,8 @@ export const projectData = (ID: string) => [
     description:
       "An AI-powered chatbot to provide helpful information to users",
     supervisorId: 0,
-    tags: [
-      { title: "Python" },
-      { title: "Artificial Intelligence" },
-      { title: "Natural Language Processing" },
-    ],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[0], test__tagTitles[7], test__tagTitles[16]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-002-${ID}`,
@@ -18,8 +16,8 @@ export const projectData = (ID: string) => [
     description:
       "A calendar app for managing events and reminders on mobile devices",
     supervisorId: 0,
-    tags: [{ title: "Java" }, { title: "Mobile App Development" }],
-    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
+    tags: [test__tagTitles[1], test__tagTitles[11]],
+    flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
     id: `prjkt-003-${ID}`,
@@ -27,12 +25,8 @@ export const projectData = (ID: string) => [
     description:
       "An analytics dashboard to track key social media metrics and engagement",
     supervisorId: 0,
-    tags: [
-      { title: "JavaScript" },
-      { title: "Data Science" },
-      { title: "Web Development" },
-    ],
-    flags: [{ title: "Level 5" }],
+    tags: [test__tagTitles[3], test__tagTitles[9], test__tagTitles[10]],
+    flags: [test__flagTitles[1]],
   },
   {
     id: `prjkt-004-${ID}`,
@@ -40,12 +34,8 @@ export const projectData = (ID: string) => [
     description:
       "An app to recommend attractions, restaurants, and accommodations based on the user's location",
     supervisorId: 0,
-    tags: [
-      { title: "JavaScript" },
-      { title: "Mobile App Development" },
-      { title: "Cloud Computing" },
-    ],
-    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
+    tags: [test__tagTitles[3], test__tagTitles[11], test__tagTitles[14]],
+    flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
     id: `prjkt-005-${ID}`,
@@ -53,12 +43,8 @@ export const projectData = (ID: string) => [
     description:
       "A content management system that allows easy customization and extensibility",
     supervisorId: 1,
-    tags: [
-      { title: "PHP" },
-      { title: "Web Development" },
-      { title: "Databases" },
-    ],
-    flags: [{ title: "Level 5" }],
+    tags: [test__tagTitles[5], test__tagTitles[10], test__tagTitles[13]],
+    flags: [test__flagTitles[1]],
   },
   {
     id: `prjkt-006-${ID}`,
@@ -66,8 +52,8 @@ export const projectData = (ID: string) => [
     description:
       "A browser extension to track time spent on websites and manage tabs",
     supervisorId: 1,
-    tags: [{ title: "JavaScript" }, { title: "Web Development" }],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[3], test__tagTitles[10]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-007-${ID}`,
@@ -75,8 +61,8 @@ export const projectData = (ID: string) => [
     description:
       "Real-time weather forecasts and predictive weather alerts for any location",
     supervisorId: 1,
-    tags: [{ title: "Python" }, { title: "Data Science" }],
-    flags: [{ title: "Software Engineering" }, { title: "Level 5" }],
+    tags: [test__tagTitles[0], test__tagTitles[9]],
+    flags: [test__flagTitles[2], test__flagTitles[1]],
   },
   {
     id: `prjkt-008-${ID}`,
@@ -84,12 +70,8 @@ export const projectData = (ID: string) => [
     description:
       "A web application for tracking personal expenses, incomes, and investments.",
     supervisorId: 1,
-    tags: [
-      { title: "JavaScript" },
-      { title: "Web Development" },
-      { title: "Databases" },
-    ],
-    flags: [{ title: "Level 4" }, { title: "Level 5" }],
+    tags: [test__tagTitles[3], test__tagTitles[10], test__tagTitles[13]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-009-${ID}`,
@@ -97,8 +79,8 @@ export const projectData = (ID: string) => [
     description:
       "An interactive app providing personalised workout plans and real-time guidance.",
     supervisorId: 2,
-    tags: [{ title: "Python" }, { title: "Mobile App Development" }],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[0], test__tagTitles[11]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-010-${ID}`,
@@ -106,12 +88,8 @@ export const projectData = (ID: string) => [
     description:
       "A platform for users to discover, save, and share their favourite recipes.",
     supervisorId: 2,
-    tags: [{ title: "Ruby" }, { title: "Web Development" }],
-    flags: [
-      { title: "Software Engineering" },
-      { title: "Level 4" },
-      { title: "Level 5" },
-    ],
+    tags: [test__tagTitles[4], test__tagTitles[10]],
+    flags: [test__flagTitles[2], test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-011-${ID}`,
@@ -119,12 +97,8 @@ export const projectData = (ID: string) => [
     description:
       "A suite of online tools designed to enhance productivity and communication for remote teams.",
     supervisorId: 2,
-    tags: [
-      { title: "JavaScript" },
-      { title: "DevOps" },
-      { title: "Cloud Computing" },
-    ],
-    flags: [{ title: "Level 5" }],
+    tags: [test__tagTitles[3], test__tagTitles[15], test__tagTitles[14]],
+    flags: [test__flagTitles[1]],
   },
   {
     id: `prjkt-012-${ID}`,
@@ -132,12 +106,8 @@ export const projectData = (ID: string) => [
     description:
       "An educational platform offering courses and resources for various subjects.",
     supervisorId: 2,
-    tags: [
-      { title: "Python" },
-      { title: "Web Development" },
-      { title: "Cloud Computing" },
-    ],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[0], test__tagTitles[10], test__tagTitles[14]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-013-${ID}`,
@@ -145,12 +115,8 @@ export const projectData = (ID: string) => [
     description:
       "A comprehensive tool for organising, managing, and promoting events.",
     supervisorId: 3,
-    tags: [
-      { title: "JavaScript" },
-      { title: "Web Development" },
-      { title: "Databases" },
-    ],
-    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
+    tags: [test__tagTitles[3], test__tagTitles[10], test__tagTitles[13]],
+    flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
     id: `prjkt-014-${ID}`,
@@ -158,12 +124,8 @@ export const projectData = (ID: string) => [
     description:
       "An online portfolio platform for digital artists to showcase their work.",
     supervisorId: 3,
-    tags: [
-      { title: "JavaScript" },
-      { title: "HTML/CSS" },
-      { title: "Web Development" },
-    ],
-    flags: [{ title: "Level 4" }, { title: "Level 5" }],
+    tags: [test__tagTitles[3], test__tagTitles[6], test__tagTitles[10]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-015-${ID}`,
@@ -171,12 +133,8 @@ export const projectData = (ID: string) => [
     description:
       "A VR platform offering virtual tours of real estate properties.",
     supervisorId: 3,
-    tags: [
-      { title: "C++" },
-      { title: "Game Development" },
-      { title: "Computer Vision" },
-    ],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[2], test__tagTitles[18], test__tagTitles[17]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-016-${ID}`,
@@ -184,8 +142,8 @@ export const projectData = (ID: string) => [
     description:
       "A system to automate repetitive tasks using custom scripts and integrations.",
     supervisorId: 3,
-    tags: [{ title: "Python" }, { title: "DevOps" }],
-    flags: [{ title: "Level 5" }, { title: "Software Engineering" }],
+    tags: [test__tagTitles[0], test__tagTitles[15]],
+    flags: [test__flagTitles[1], test__flagTitles[2]],
   },
   {
     id: `prjkt-017-${ID}`,
@@ -193,12 +151,8 @@ export const projectData = (ID: string) => [
     description:
       "An online service connecting potential pet owners with animals in need of a home.",
     supervisorId: 4,
-    tags: [
-      { title: "Ruby" },
-      { title: "Web Development" },
-      { title: "Databases" },
-    ],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[4], test__tagTitles[10], test__tagTitles[13]],
+    flags: [test__flagTitles[0]],
   },
   {
     id: `prjkt-018-${ID}`,
@@ -206,12 +160,8 @@ export const projectData = (ID: string) => [
     description:
       "A marketplace for freelancers to offer their services and for clients to find them.",
     supervisorId: 4,
-    tags: [
-      { title: "PHP" },
-      { title: "Web Development" },
-      { title: "Cybersecurity" },
-    ],
-    flags: [{ title: "Level 4" }, { title: "Software Engineering" }],
+    tags: [test__tagTitles[5], test__tagTitles[10], test__tagTitles[12]],
+    flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
     id: `prjkt-019-${ID}`,
@@ -219,8 +169,8 @@ export const projectData = (ID: string) => [
     description:
       "A platform for securely sending and receiving large files over the internet.",
     supervisorId: 4,
-    tags: [{ title: "Java" }, { title: "Cybersecurity" }],
-    flags: [{ title: "Level 5" }],
+    tags: [test__tagTitles[1], test__tagTitles[12]],
+    flags: [test__flagTitles[1]],
   },
   {
     id: `prjkt-020-${ID}`,
@@ -228,7 +178,7 @@ export const projectData = (ID: string) => [
     description:
       "A tool for monitoring and managing energy consumption with a focus on sustainability.",
     supervisorId: 4,
-    tags: [{ title: "Data Science" }, { title: "Web Development" }],
-    flags: [{ title: "Level 4" }],
+    tags: [test__tagTitles[9], test__tagTitles[10]],
+    flags: [test__flagTitles[0]],
   },
 ];

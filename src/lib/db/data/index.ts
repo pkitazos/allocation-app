@@ -30,13 +30,10 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
-import { spec } from "node:test/reporters";
 
 export const EVALUATORS = 30;
 
-type StableUser = Omit<User, "id"> & {
-  id: string;
-};
+type StableUser = Omit<User, "id"> & { id: string };
 type New<T> = Omit<T, "id" | "systemId">;
 
 export const superAdmin: StableUser = {
@@ -246,33 +243,33 @@ const inInstance = <T>(ID: string, data: T) => ({
   ...data,
 });
 
-const flagData: Pick<Flag, "title">[] = [
+export const test__flagTitles: Pick<Flag, "title">[] = [
   { title: "Level 4" },
   { title: "Level 5" },
   { title: "Software Engineering" },
-];
+] as const;
 
-const tagData: Pick<Tag, "title">[] = [
-  { title: "Python" },
-  { title: "Java" },
-  { title: "C++" },
-  { title: "JavaScript" },
-  { title: "Ruby" },
-  { title: "PHP" },
-  { title: "HTML/CSS" },
-  { title: "Artificial Intelligence" },
-  { title: "Machine Learning" },
-  { title: "Data Science" },
-  { title: "Web Development" },
-  { title: "Mobile App Development" },
-  { title: "Cybersecurity" },
-  { title: "Databases" },
-  { title: "Cloud Computing" },
-  { title: "DevOps" },
-  { title: "Natural Language Processing" },
-  { title: "Computer Vision" },
-  { title: "Game Development" },
-];
+export const test__tagTitles: Pick<Tag, "title">[] = [
+  { title: "Python" }, // 0
+  { title: "Java" }, // 1
+  { title: "C++" }, // 2
+  { title: "JavaScript" }, // 3
+  { title: "Ruby" }, // 4
+  { title: "PHP" }, // 5
+  { title: "HTML/CSS" }, // 6
+  { title: "Artificial Intelligence" }, // 7
+  { title: "Machine Learning" }, // 8
+  { title: "Data Science" }, // 9
+  { title: "Web Development" }, // 10
+  { title: "Mobile App Development" }, // 11
+  { title: "Cybersecurity" }, // 12
+  { title: "Databases" }, // 13
+  { title: "Cloud Computing" }, // 14
+  { title: "DevOps" }, // 15
+  { title: "Natural Language Processing" }, // 16
+  { title: "Computer Vision" }, // 17
+  { title: "Game Development" }, // 18
+] as const;
 
 // dependant
 
@@ -391,7 +388,7 @@ export const preferences = (ID: string): Preference[] =>
   );
 
 export const flags = (ID: string): Flag[] =>
-  flagData.map(({ title }) =>
+  test__flagTitles.map(({ title }) =>
     inInstance(ID, { id: slugify(ID + title), title }),
   );
 
@@ -404,7 +401,7 @@ export const flagsOnProjects = (ID: string): FlagOnProject[] =>
   );
 
 export const tags = (ID: string): Tag[] =>
-  tagData.map(({ title }) =>
+  test__tagTitles.map(({ title }) =>
     inInstance(ID, { id: slugify(ID + title), title }),
   );
 
