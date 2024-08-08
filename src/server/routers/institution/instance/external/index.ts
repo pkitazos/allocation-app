@@ -24,7 +24,7 @@ export const externalSystemRouter = createTRPCRouter({
         });
 
         const studentData = allocationData.map((s) => ({
-          matriculation: s.userId,
+          guid: s.userId,
         }));
 
         // TODO: uncomment once endpoint interface is confirmed
@@ -40,9 +40,9 @@ export const externalSystemRouter = createTRPCRouter({
 
         // TODO: remove this once endpoint interface is confirmed
         const checkedStudents = await mock([
-          { matriculation: "123", exists: 1 as const },
-          { matriculation: "456", exists: 1 as const },
-          { matriculation: "789", exists: 0 as const },
+          { guid: "123", exists: 1 as const },
+          { guid: "456", exists: 1 as const },
+          { guid: "789", exists: 0 as const },
         ]);
 
         return {

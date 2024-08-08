@@ -380,7 +380,7 @@ export function ProjectForm({
                         )}
                       >
                         {field.value === "" || !field.value
-                          ? "Enter Student Matric"
+                          ? "Enter Student GUID"
                           : field.value}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>

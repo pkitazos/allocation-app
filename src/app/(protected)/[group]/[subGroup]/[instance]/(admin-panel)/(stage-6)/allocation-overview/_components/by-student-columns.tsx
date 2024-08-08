@@ -33,10 +33,10 @@ export interface StudentData {
 
 export const byStudentColumns: ColumnDef<StudentData>[] = [
   {
-    id: "matriculation No,",
+    id: "guid",
     accessorFn: ({ student: { user } }) => user.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Matriculation No." />
+      <DataTableColumnHeader column={column} title="GUID" />
     ),
     cell: ({
       row: {

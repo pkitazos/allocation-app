@@ -50,25 +50,18 @@ export function constructColumns({
       ),
     },
     {
-      id: "Matriculation No.",
-      accessorFn: ({ institutionId: matriculation }) => matriculation,
+      id: "guid",
+      accessorFn: ({ institutionId: guid }) => guid,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Matriculation No."
-          canFilter
-        />
+        <DataTableColumnHeader column={column} title="GUID" canFilter />
       ),
       cell: ({
         row: {
-          original: { institutionId: matriculation },
+          original: { institutionId: guid },
         },
       }) => (
-        <WithTooltip
-          align="start"
-          tip={<div className="max-w-xs">{matriculation}</div>}
-        >
-          <div className="w-32 truncate">{matriculation}</div>
+        <WithTooltip align="start" tip={<div className="max-w-xs">{guid}</div>}>
+          <div className="w-32 truncate">{guid}</div>
         </WithTooltip>
       ),
     },

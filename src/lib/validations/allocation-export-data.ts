@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const studentCheckResponseSchema = z.array(
   z.object({
-    matriculation: z.string(),
+    guid: z.string(),
     exists: z.literal(0).or(z.literal(1)),
   }),
 );

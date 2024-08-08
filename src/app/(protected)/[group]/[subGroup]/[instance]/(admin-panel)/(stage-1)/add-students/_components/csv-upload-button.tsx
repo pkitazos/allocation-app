@@ -52,7 +52,7 @@ export function CSVUploadButton({
           handleUpload(
             result.data.map((e) => ({
               fullName: e.full_name,
-              institutionId: e.matriculation_number,
+              institutionId: e.guid,
               email: e.email,
               level: e.student_level,
             })),

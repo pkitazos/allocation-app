@@ -8,10 +8,10 @@ import { MatchingDetailsDto } from "@/lib/validations/matching";
 
 export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
   {
-    id: "matriculation No.",
+    id: "guid",
     accessorFn: ({ studentId }) => studentId,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Matric" canFilter />
+      <DataTableColumnHeader column={column} title="GUID" canFilter />
     ),
     cell: ({
       row: {

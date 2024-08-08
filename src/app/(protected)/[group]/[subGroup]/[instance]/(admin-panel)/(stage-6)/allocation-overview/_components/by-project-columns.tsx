@@ -160,10 +160,10 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     ),
   },
   {
-    id: "matriculation No.",
+    id: "guid",
     accessorFn: ({ userId }) => userId,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Matriculation No." />
+      <DataTableColumnHeader column={column} title="GUID" />
     ),
     cell: ({
       row: {

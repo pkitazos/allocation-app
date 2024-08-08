@@ -362,7 +362,7 @@ export const matchingRouter = createTRPCRouter({
 
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
-          studentId: student.userId,
+          studentMatric: student.userId.slice(0, -1), // TODO: make function more robust ?
           studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,
