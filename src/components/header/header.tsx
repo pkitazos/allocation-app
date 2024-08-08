@@ -12,6 +12,7 @@ import { UserButton } from "./user-button";
 import whiteLogo from "@/assets/uofg-white.png";
 
 export async function Header() {
+  // TODO: refactor once new auth is implemented, can assume that user will be signed in
   const session = await auth();
   const adminPanel = await api.user.adminPanelRoute();
 

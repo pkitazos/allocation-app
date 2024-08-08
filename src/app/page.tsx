@@ -4,6 +4,7 @@ import { UserInstances } from "@/components/user-instances";
 
 import { auth } from "@/lib/auth";
 
+// TODO: remove auth check, can assume that a user exists since the application is protected by shibboleth
 export default async function Home() {
   const session = await auth();
   const user = session?.user;

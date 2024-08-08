@@ -23,6 +23,7 @@ export function OPTIONS() {
   return response;
 }
 
+// TODO: replace with slimmed down auth function
 const handler = auth(async (req) => {
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
@@ -30,7 +31,7 @@ const handler = auth(async (req) => {
     req,
     createContext: () =>
       createTRPCContext({
-        session: req.auth,
+        session: req.auth, // ! req might not return auth
         headers: req.headers,
       }),
     onError({ error, path }) {
