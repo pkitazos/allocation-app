@@ -1,27 +1,22 @@
 "use client";
-import { Role, Stage } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
-import { SearchableColumn } from "@/lib/validations/table";
 
-import { supervisorColumns, SupervisorData } from "./supervisors-columns";
 import { spacesLabels } from "@/content/spaces";
 
+import { constructColumns, SupervisorData } from "./all-supervisors-columns";
+
 export function SupervisorsDataTable({
-  user,
   role,
-  stage,
   data,
 }: {
-  user: User;
   role: Role;
-  stage: Stage;
   data: SupervisorData[];
 }) {
   const params = useInstanceParams();
@@ -55,22 +50,17 @@ export function SupervisorsDataTable({
     );
   }
 
-  const primaryColumn: SearchableColumn = {
-    id: "name",
-    displayName: "Supervisor Names",
-  };
+  const columns = constructColumns({
+    role: role,
+    deleteSupervisor: handleDelete,
+    deleteSelectedSupervisors: handleDeleteSelected,
+  });
 
   return (
     <DataTable
-      searchableColumn={primaryColumn}
+      searchableColumn={{ id: "Name", displayName: "Supervisor Names" }}
       className="w-full"
-      columns={supervisorColumns(
-        user,
-        role,
-        stage,
-        handleDelete,
-        handleDeleteSelected,
-      )}
+      columns={columns}
       data={data}
     />
   );
