@@ -15,6 +15,7 @@ import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
+import { guidToMatric } from "@/lib/utils/external/matriculation";
 
 export const matchingRouter = createTRPCRouter({
   select: instanceAdminProcedure
@@ -362,7 +363,7 @@ export const matchingRouter = createTRPCRouter({
 
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
-          studentMatric: student.userId.slice(0, -1), // TODO: make function more robust ?
+          studentMatric: guidToMatric(student.userId),
           studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,
