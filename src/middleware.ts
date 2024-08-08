@@ -36,15 +36,7 @@ export async function middleware(req: NextRequest) {
     throw new Error("Something went wrong while authenticating this user");
   }
 
-  // Add the user to the cookies
-  let response = NextResponse.next();
-  response.cookies.set({
-    name: "user",
-    value: JSON.stringify(result.data),
-    httpOnly: true,
-  });
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = { matcher: "/:path*", exclude: ["/api/create-user"] };
