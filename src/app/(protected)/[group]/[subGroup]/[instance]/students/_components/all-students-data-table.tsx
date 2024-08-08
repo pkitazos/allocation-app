@@ -1,5 +1,5 @@
 "use client";
-import { Role, Stage } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -7,18 +7,15 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
-import { SearchableColumn } from "@/lib/validations/table";
 
-import { StudentData, studentsColumns } from "./students-columns";
 import { spacesLabels } from "@/content/spaces";
+import { StudentData, constructColumns } from "./all-students-columns";
 
 export function StudentsDataTable({
   role,
-  stage,
   data,
 }: {
   role: Role;
-  stage: Stage;
   data: StudentData[];
 }) {
   const params = useInstanceParams();
@@ -50,16 +47,17 @@ export function StudentsDataTable({
     );
   }
 
-  const primaryColumn: SearchableColumn = {
-    id: "Name",
-    displayName: "Student Names",
-  };
+  const columns = constructColumns({
+    role,
+    deleteStudent: handleDelete,
+    deleteSelectedStudents: handleDeleteSelected,
+  });
 
   return (
     <DataTable
-      searchableColumn={primaryColumn}
+      searchableColumn={{ id: "Name", displayName: "Student Names" }}
       className="w-full"
-      columns={studentsColumns(role, stage, handleDelete, handleDeleteSelected)}
+      columns={columns}
       data={data}
     />
   );
