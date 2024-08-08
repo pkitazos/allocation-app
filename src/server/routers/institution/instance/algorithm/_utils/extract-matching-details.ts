@@ -10,14 +10,27 @@ export function extractMatchingDetails(
   );
   if (studentIdx === -1) throw new Error("Student not found");
 
+  const student = allStudents[studentIdx];
+
+  if (projectId === "0") {
+    return {
+      studentId,
+      studentName: student.name!,
+      projectId: "-",
+      projectTitle: "-",
+      studentRank: "-",
+    };
+  }
+
   const projectIdx = allProjects.findIndex(
     (project) => project.id === projectId,
   );
-  if (projectIdx === -1) throw new Error("Project not found");
+
+  if (projectIdx === -1) throw new Error(`Project not found: ${projectId}`);
 
   return {
     studentId,
-    studentName: allStudents[studentIdx].name!,
+    studentName: student.name!,
     projectId,
     projectTitle: allProjects[projectIdx].title,
     studentRank,
