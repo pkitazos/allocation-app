@@ -40,6 +40,8 @@ export const algorithmRouter = createTRPCRouter({
           matchingData,
         });
 
+        // TODO: validate results before saving
+
         await ctx.db.algorithm.update({
           where: {
             algorithmId: {
@@ -246,11 +248,20 @@ export const algorithmRouter = createTRPCRouter({
             );
             const data = res.success ? res.data : blankResult;
             if (data.matching.length !== 0) nonEmpty.push(i);
+
+            console.log(
+              "matching results:",
+              data.matching.map(
+                (m) => `${m.student_id} ${m.project_id} ${m.preference_rank}`,
+              ),
+            );
+
             return {
               algName,
               displayName,
-              data: data.matching.map(
-                ({ student_id, project_id, preference_rank }) =>
+              data: data.matching
+                .filter(({ project_id }) => project_id !== "0")
+                .map(({ student_id, project_id, preference_rank }) =>
                   extractMatchingDetails(
                     allStudents.map((s) => s.user),
                     allProjects,
@@ -258,7 +269,7 @@ export const algorithmRouter = createTRPCRouter({
                     project_id,
                     preference_rank,
                   ),
-              ),
+                ),
             };
           },
         );
