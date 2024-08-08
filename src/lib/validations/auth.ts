@@ -16,4 +16,4 @@ export const newUserSchema = z.object({
 
 export type User = z.infer<typeof newUserSchema>;
 
-export type NewSession = { user: User | null } | null;
+export type Session = { user: User | null };

@@ -277,19 +277,10 @@ model Algorithm {
     @@id(name: "algorithmId", [algName, allocationGroupId, allocationSubGroupId, allocationInstanceId])
 }
 
-// TODO: remove old user model
 model User {
-    id              String           @id @default(cuid())
-    name            String?
-    email           String?          @unique
-    emailVerified   DateTime?
-    image           String?
-    userInInstances UserInInstance[]
-    adminSpaces     AdminInSpace[]
-}
-
-model NewUser {
-    id    String @id
-    name  String
-    email String @unique
+    id             String           @id
+    name           String
+    email          String           @unique
+    UserInInstance UserInInstance[]
+    AdminInSpace   AdminInSpace[]
 }
