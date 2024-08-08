@@ -5,12 +5,6 @@ import {
 
 import { getAsProjects } from "./project";
 
-export function getUpdatedWeight(profile: number[]) {
-  return profile.reduce((acc, val, i) => {
-    return acc + val * (i + 1);
-  }, 0);
-}
-
 function getStudentProjects(allProjects: ProjectInfo[], row: StudentRow) {
   return getAsProjects(allProjects, row.projects);
 }

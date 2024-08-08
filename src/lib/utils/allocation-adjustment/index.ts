@@ -1,4 +1,4 @@
-export { getPreferenceRank, getUpdatedWeight } from "./matching-info";
+export { getPreferenceRank } from "./matching-info";
 export {
   allProjectsValid,
   getAsProjects,
