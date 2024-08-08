@@ -1,54 +1,93 @@
 "use client";
-import { Slash } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+
+import { api } from "@/lib/trpc/client";
 
 export function Breadcrumbs() {
   const pathname = usePathname();
+  const segments = pathname.split("/").filter((segment) => segment !== "");
 
-  if (pathname.length === 1)
+  const { status, data: access } = api.user.canAccessAllSegments.useQuery({
+    segments,
+  });
+
+  if (segments.length === 0) return <></>;
+
+  if (status !== "success") {
     return (
-      <ol className="ml-20 mt-7 flex items-center" aria-label="Breadcrumb">
-        <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-          Home
-          <Slash className="mx-2 h-4 w-4" />
-        </li>
-      </ol>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link
+                href="/"
+                prefetch={false}
+                className="hover:text-secondary hover:underline"
+              >
+                Home
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          {segments.map((segment) => (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem key={segment}>
+                <BreadcrumbPage>{segment}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </>
+          ))}
+        </BreadcrumbList>
+      </Breadcrumb>
     );
-
-  const leafPath = pathname.split("/").slice(1).pop();
-
-  const paths = pathname.split("/").slice(1, -1);
+  }
 
   return (
-    <ol className="ml-20 mt-7 flex items-center" aria-label="Breadcrumb">
-      <li className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-        <a className="hover:text-secondary" href="/">
-          Home
-        </a>
-        <Slash className="mx-2 h-4 w-4" />
-      </li>
-
-      {paths.length !== 0 &&
-        paths.map((path, i) => (
-          <li
-            key={path}
-            className="flex items-center text-sm text-gray-600 dark:text-gray-400"
-          >
-            <a
-              className="hover:text-secondary"
-              href={`/${paths.slice(0, i + 1).join("/")}`}
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link
+              href="/"
+              prefetch={false}
+              className="hover:text-secondary hover:underline"
             >
-              {path}
-            </a>
-            <Slash className="mx-2 h-4 w-4" />
-          </li>
+              Home
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {segments.map((segment, index) => (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem key={segment}>
+              {index < segments.length - 1 && access ? (
+                <BreadcrumbLink asChild>
+                  <Link
+                    href={`/${segments.slice(0, index + 1).join("/")}`}
+                    className="hover:text-secondary hover:underline"
+                    prefetch={false}
+                  >
+                    {segment}
+                  </Link>
+                </BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage className={"text-muted-foreground"}>
+                  {segment}
+                </BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
+          </>
         ))}
-      <li
-        className="truncate text-sm font-semibold text-gray-800 dark:text-gray-200"
-        aria-current="page"
-      >
-        {leafPath}
-      </li>
-    </ol>
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }

@@ -1,17 +1,18 @@
-import { AdminLevel, AllocationInstance } from "@prisma/client";
+import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
-import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
+  roleAwareProcedure,
 } from "@/server/trpc";
 import { getUserRole } from "@/server/utils/user-role";
 
+import { isInstancePath } from "./_utils/is-instance-path";
 import {
   formatInstanceData,
   getGroupInstances,
@@ -27,12 +28,7 @@ export const userRouter = createTRPCRouter({
 
   get: protectedProcedure.query(async ({ ctx }) => ctx.session.user),
 
-  role: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
-      const role = await getUserRole(ctx.db, ctx.session.user, params);
-      return role;
-    }),
+  role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
 
   adminLevel: adminProcedure.query(async ({ ctx }) => {
     const user = ctx.session.user;
@@ -114,6 +110,25 @@ export const userRouter = createTRPCRouter({
 
     return;
   }),
+
+  canAccessAllSegments: publicProcedure
+    .input(z.object({ segments: z.array(z.string()) }))
+    .query(async ({ ctx, input: { segments } }) => {
+      const inInstance = isInstancePath(segments);
+
+      if (!inInstance) return false;
+      if (!ctx.session || !ctx.session.user) return false;
+
+      const instanceParams = {
+        group: segments[0],
+        subGroup: segments[1],
+        instance: segments[2],
+      };
+
+      const role = await getUserRole(ctx.db, ctx.session.user, instanceParams);
+
+      return role === Role.ADMIN;
+    }),
 
   instances: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session) return [];
