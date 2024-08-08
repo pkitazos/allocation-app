@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 import { getUserAction } from "@/lib/auth/procedures";
@@ -15,6 +16,13 @@ export async function POST(req: NextRequest) {
   }
 
   const newUser = await getUserAction(result.data);
+
+  // Add the user to the cookies
+  cookies().set({
+    name: "user",
+    value: JSON.stringify(newUser),
+    httpOnly: true,
+  });
 
   return NextResponse.json({
     status: 200,
