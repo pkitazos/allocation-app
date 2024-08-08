@@ -1,15 +1,15 @@
 "use client";
-import { NewSession } from "@/lib/validations/auth";
+import { Session } from "@/lib/validations/auth";
 import { createContext, ReactNode } from "react";
 
-const SessionContext = createContext<NewSession | null>(null);
+const SessionContext = createContext<Session | null>(null);
 
 export function SessionProvider({
   children,
   session,
 }: {
   children: ReactNode;
-  session: NewSession | null;
+  session: Session | null;
 }) {
   return (
     <SessionContext.Provider value={session}>

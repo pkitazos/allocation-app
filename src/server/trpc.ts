@@ -13,7 +13,7 @@ import { z, ZodError } from "zod";
 
 import { slim_auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { NewSession } from "@/lib/validations/auth";
+import { Session } from "@/lib/validations/auth";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 /**
@@ -30,7 +30,7 @@ import { instanceParamsSchema } from "@/lib/validations/params";
  */
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  session: NewSession;
+  session: Session | null;
 }) => {
   const user = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
 
