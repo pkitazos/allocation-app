@@ -111,12 +111,13 @@ export const userRouter = createTRPCRouter({
     return;
   }),
 
-  canAccessAllSegments: protectedProcedure
+  canAccessAllSegments: publicProcedure
     .input(z.object({ segments: z.array(z.string()) }))
     .query(async ({ ctx, input: { segments } }) => {
       const inInstance = isInstancePath(segments);
 
       if (!inInstance) return false;
+      if (!ctx.session || !ctx.session.user) return false;
 
       const instanceParams = {
         group: segments[0],
