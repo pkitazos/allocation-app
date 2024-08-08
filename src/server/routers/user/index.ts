@@ -81,7 +81,7 @@ export const userRouter = createTRPCRouter({
     }),
 
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.session) return;
+    if (!ctx.session || !ctx.session.user) return;
 
     const user = ctx.session.user;
 
