@@ -87,4 +87,6 @@ export const preferenceData = (ID: string) => [
   { projectId: `prjkt-008-${ID}`, studentIdx: 14, studentRanking: 2 },
   { projectId: `prjkt-020-${ID}`, studentIdx: 14, studentRanking: 3 },
   { projectId: `prjkt-005-${ID}`, studentIdx: 14, studentRanking: 4 },
+  { projectId: `prjkt-010-${ID}`, studentIdx: 14, studentRanking: 5 },
+  { projectId: `prjkt-013-${ID}`, studentIdx: 14, studentRanking: 6 },
 ];
