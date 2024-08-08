@@ -8,8 +8,8 @@ import { bySupervisorColumns, SupervisorData } from "./by-supervisor-columns";
 
 export function BySupervisorDataTable({ data }: { data: SupervisorData[] }) {
   const primaryColumn: SearchableColumn = {
-    id: "supervisor ID",
-    displayName: "Supervisor IDs",
+    id: "guid",
+    displayName: "GUIDs",
   };
 
   return (

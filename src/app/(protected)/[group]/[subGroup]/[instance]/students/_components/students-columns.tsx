@@ -44,14 +44,10 @@ export function studentsColumns(
 
   const userCols: ColumnDef<StudentData>[] = [
     {
-      id: "ID",
+      id: "guid",
       accessorFn: ({ id }) => id,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Matriculation Number"
-          canFilter
-        />
+        <DataTableColumnHeader column={column} title="GUID" canFilter />
       ),
       cell: ({ row: { original: student } }) => (
         <div className="text-left">

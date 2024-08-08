@@ -6,6 +6,7 @@ import {
   getStudentRank,
 } from "@/lib/utils/allocation-adjustment/rank";
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
+import { guidToMatric } from "@/lib/utils/external/matriculation";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -363,6 +364,7 @@ export const matchingRouter = createTRPCRouter({
         return allocationData.map(({ project, student, ...e }) => ({
           projectInternalId: project.id,
           studentId: student.userId,
+          studentMatric: guidToMatric(student.userId),
           studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
           projectTitle: project.title,
           projectDescription: project.description,

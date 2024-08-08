@@ -105,13 +105,10 @@ export function constructColumns({
       ),
     },
     {
-      id: "Allocated Student Matric",
+      id: "Allocated Student GUID",
       accessorFn: ({ allocatedStudentId }) => allocatedStudentId,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title="Allocated Student Matric"
-        />
+        <DataTableColumnHeader column={column} title="Allocated Student GUID" />
       ),
     },
     {

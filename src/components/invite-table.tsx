@@ -16,13 +16,7 @@ type InvitedUser = {
   joined: boolean;
 };
 
-export function InviteTable({
-  userIdLabel,
-  users,
-}: {
-  userIdLabel: string;
-  users: InvitedUser[];
-}) {
+export function InviteTable({ users }: { users: InvitedUser[] }) {
   const totalJoined = users.reduce(
     (acc, { joined }) => acc + Number(joined),
     0,
@@ -32,7 +26,7 @@ export function InviteTable({
       <TableHeader>
         <TableRow className="bg-accent/50">
           <TableHead>Full Name</TableHead>
-          <TableHead>{userIdLabel}</TableHead>
+          <TableHead>GUID</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Status</TableHead>
         </TableRow>

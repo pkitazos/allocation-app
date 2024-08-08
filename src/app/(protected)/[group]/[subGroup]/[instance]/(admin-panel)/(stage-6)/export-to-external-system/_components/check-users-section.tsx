@@ -72,14 +72,8 @@ export function CheckUsersSection() {
           userRole="student"
           data={studentData}
           csvContent={unparse({
-            fields: [
-              "Student Matriculation Number",
-              "Exists in Assessment System",
-            ],
-            data: studentData.checkedStudents.map((e) => [
-              e.matriculation,
-              e.exists,
-            ]),
+            fields: ["Student GUID", "Exists in Assessment System"],
+            data: studentData.checkedStudents.map((e) => [e.guid, e.exists]),
           })}
         />
       )}

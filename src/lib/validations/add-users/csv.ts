@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const addStudentsCsvHeaders = [
   "full_name",
-  "matriculation_number",
+  "guid",
   "email",
   "student_level",
 ];
@@ -20,9 +20,9 @@ export const addStudentsCsvRowSchema = z.object({
     required_error: "a valid Full Name",
     invalid_type_error: "a valid Full Name",
   }),
-  matriculation_number: z.string({
-    required_error: "a valid Matriculation Number",
-    invalid_type_error: "a valid Matriculation Number",
+  guid: z.string({
+    required_error: "a valid GUID",
+    invalid_type_error: "a valid GUID",
   }),
   email: z
     .string({

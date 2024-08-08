@@ -4,16 +4,17 @@ import { DownloadIcon } from "lucide-react";
 import { unparse } from "papaparse";
 
 import { Button } from "@/components/ui/button";
+import { NoteCard } from "@/components/ui/note-card";
 
 import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
-import { NoteCard } from "@/components/ui/note-card";
 
 export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const downloadLinkRef = useRef<HTMLAnchorElement>(null);
 
   const header = [
     "Project Internal ID",
-    "Matriculation No,",
+    "Student GUID",
+    "Student Matric.",
     "Student Level",
     "Project Title",
     "Project Description",
@@ -24,6 +25,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const rows = data.map((e) => [
     e.projectInternalId,
     e.studentId,
+    e.studentMatric,
     e.studentLevel,
     e.projectTitle,
     e.projectDescription,

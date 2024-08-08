@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
                 </CardHeader>
                 <CardContent className="grid grid-cols-4 items-center justify-start gap-x-4 gap-y-2">
                   <p className="col-span-1 text-lg font-medium text-muted-foreground">
-                    Matriculation No.
+                    GUID
                   </p>
                   <Badge
                     variant="secondary"

@@ -37,11 +37,8 @@ export function CheckStudentsSection() {
         <ResultsCard
           userRole="student"
           csvContent={unparse({
-            fields: [
-              "Student Matriculation Number",
-              "Exists in Assessment System",
-            ],
-            data: data.checkedStudents.map((e) => [e.matriculation, e.exists]),
+            fields: ["Student GUID", "Exists in Assessment System"],
+            data: data.checkedStudents.map((e) => [e.guid, e.exists]),
           })}
           data={data}
         />

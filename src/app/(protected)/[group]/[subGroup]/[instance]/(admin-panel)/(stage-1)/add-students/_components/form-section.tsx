@@ -66,7 +66,7 @@ export function FormSection({
             render={({ field }) => (
               <FormItem className="w-1/6">
                 <FormControl>
-                  <Input placeholder="Matriculation No." {...field} />
+                  <Input placeholder="GUID" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
