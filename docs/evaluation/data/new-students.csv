@@ -1,4 +1,4 @@
-full_name,matriculation_number,email,student_level
+full_name,guid,email,student_level
 Ava Patel,2345p,2345p@email.com,4
 Liam Chen,2346c,2346c@email.com,4
 Olivia Rodriguez,2347r,2347r@email.com,4
