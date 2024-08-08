@@ -1,44 +1,48 @@
 "use client";
+import { useMemo } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
 import {
   allProjectsValid,
-  getUpdatedWeight,
+  getStudent,
 } from "@/lib/utils/allocation-adjustment";
 import { allSupervisorsValid } from "@/lib/utils/allocation-adjustment/supervisor";
+import { zeros } from "@/lib/utils/general/zeros";
 
-import { SubmitButton } from ".";
 import { useAllocDetails } from "./allocation-store";
+import { SubmitButton } from "./submit-button";
 
 export function MatchingInfoTable() {
   const allProjects = useAllocDetails((s) => s.projects);
   const allStudents = useAllocDetails((s) => s.students);
   const allSupervisors = useAllocDetails((s) => s.supervisors);
 
+  const profile = useMemo(() => {
+    const ranks = allProjects.flatMap((p) =>
+      p.allocatedTo
+        .map((s) => getStudent(allStudents, s))
+        .map((s) => s.projects.findIndex((a) => a.id === p.id)),
+    );
+
+    const maxRank = Math.max(...ranks);
+    const counts = zeros(maxRank + 1);
+
+    for (const r of ranks) {
+      if (r === -1) continue;
+      counts[r] += 1;
+    }
+
+    return counts;
+  }, [allProjects, allStudents]);
+
   const isValid =
     allProjectsValid(allProjects) &&
     allSupervisorsValid(allProjects, allSupervisors);
 
-  const profileMap = new Map<number, number>();
-
-  allStudents.map((p) => {
-    const selectedIdx = p.projects.findIndex((p) => p.selected);
-    if (selectedIdx !== -1) {
-      const rank = selectedIdx + 1;
-      const count = profileMap.get(rank);
-      if (!count) {
-        profileMap.set(rank, 1);
-      } else {
-        profileMap.set(rank, count + 1);
-      }
-    }
-  });
-
-  const profile = Array.from(profileMap.values());
-
-  const weight = getUpdatedWeight(profile);
+  const weight = profile.reduce((acc, val, i) => acc + val * (i + 1), 0);
   const size = profile.reduce((acc, val) => acc + val, 0);
 
   return (
