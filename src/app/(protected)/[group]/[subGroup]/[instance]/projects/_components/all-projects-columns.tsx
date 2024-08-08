@@ -9,10 +9,14 @@ import {
 import { User } from "next-auth";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
+import { useInstanceStage } from "@/components/params-context";
 import { TagType } from "@/components/tag/tag-input";
-import { Badge } from "@/components/ui/badge";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,15 +25,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { AccessControl } from "@/components/access-control";
-import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
-import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
-import { useInstanceStage } from "@/components/params-context";
 
-export interface ProjectTableData {
+import { cn } from "@/lib/utils";
+import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
+
+export interface ProjectTableDataDto {
   id: string;
   title: string;
   supervisor: {
@@ -56,15 +57,15 @@ export function constructColumns({
   role: Role;
   deleteProject: (id: string) => Promise<void>;
   deleteSelectedProjects: (ids: string[]) => Promise<void>;
-}): ColumnDef<ProjectTableData>[] {
+}): ColumnDef<ProjectTableDataDto>[] {
   const stage = useInstanceStage();
 
-  const selectCol = getSelectColumn<ProjectTableData>();
+  const selectCol = getSelectColumn<ProjectTableDataDto>();
 
-  const baseCols: ColumnDef<ProjectTableData>[] = [
+  const baseCols: ColumnDef<ProjectTableDataDto>[] = [
     {
-      id: "title",
-      accessorKey: "title",
+      id: "Title",
+      accessorFn: ({ title }) => title,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title" />
       ),
@@ -79,7 +80,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "supervisor",
+      id: "Supervisor",
       accessorFn: (row) => row.supervisor.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
@@ -97,7 +98,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "flags",
+      id: "Flags",
       accessorFn: (row) => row.flags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Flags" />
@@ -114,7 +115,27 @@ export function constructColumns({
       }) => (
         <div className="flex flex-col gap-2">
           {flags.length > 2 ? (
-            <Badge className="w-fit font-normal">{flags.length}+</Badge>
+            <>
+              <Badge className="w-fit" key={flags[0].id}>
+                {flags[0].title}
+              </Badge>
+              <WithTooltip
+                side="right"
+                tip={
+                  <ul className="flex list-disc flex-col gap-1 p-2 pl-1">
+                    {flags.slice(1).map((flag) => (
+                      <Badge className="w-fit" key={flag.id}>
+                        {flag.title}
+                      </Badge>
+                    ))}
+                  </ul>
+                }
+              >
+                <div className={cn(badgeVariants(), "w-fit font-normal")}>
+                  {flags.length - 1}+
+                </div>
+              </WithTooltip>
+            </>
           ) : (
             flags.map((flag) => (
               <Badge className="w-fit" key={flag.id}>
@@ -126,7 +147,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "tags",
+      id: "Keywords",
       accessorFn: (row) => row.tags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Keywords" />
@@ -143,9 +164,32 @@ export function constructColumns({
       }) => (
         <div className="flex flex-col gap-2">
           {tags.length > 2 ? (
-            <Badge variant="outline" className="w-fit font-normal">
-              {tags.length}+
-            </Badge>
+            <>
+              <Badge variant="outline" className="w-fit" key={tags[0].id}>
+                {tags[0].title}
+              </Badge>
+              <WithTooltip
+                side="right"
+                tip={
+                  <ul className="flex list-disc flex-col gap-1 p-2 pl-1">
+                    {tags.slice(1).map((tag) => (
+                      <Badge variant="outline" className="w-fit" key={tag.id}>
+                        {tag.title}
+                      </Badge>
+                    ))}
+                  </ul>
+                }
+              >
+                <div
+                  className={cn(
+                    badgeVariants({ variant: "outline" }),
+                    "w-fit font-normal",
+                  )}
+                >
+                  {tags.length - 1}+
+                </div>
+              </WithTooltip>
+            </>
           ) : (
             tags.map((tag) => (
               <Badge variant="outline" className="w-fit" key={tag.id}>
@@ -158,7 +202,7 @@ export function constructColumns({
     },
   ];
 
-  const actionsCol: ColumnDef<ProjectTableData> = {
+  const actionsCol: ColumnDef<ProjectTableDataDto> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
@@ -168,10 +212,6 @@ export function constructColumns({
       const selectedProjectIds = table
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
-
-      function handleDeleteSelected() {
-        void deleteSelectedProjects(selectedProjectIds);
-      }
 
       if (
         someSelected &&
@@ -193,7 +233,9 @@ export function constructColumns({
                 <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
                   <button
                     className="flex items-center gap-2"
-                    onClick={handleDeleteSelected}
+                    onClick={async () =>
+                      void deleteSelectedProjects(selectedProjectIds)
+                    }
                   >
                     <Trash2Icon className="h-4 w-4" />
                     <span>Delete Selected Projects</span>
@@ -224,7 +266,7 @@ export function constructColumns({
                 <MoreIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" side="bottom">
+            <DropdownMenuContent side="bottom">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
@@ -247,7 +289,7 @@ export function constructColumns({
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project {project.id}</span>
+                    <span>Delete Project {project.title}</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>
