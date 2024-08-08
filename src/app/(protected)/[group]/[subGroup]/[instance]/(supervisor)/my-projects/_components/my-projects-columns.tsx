@@ -4,7 +4,7 @@ import { MoreHorizontal as MoreIcon, PenIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 
 import { useInstancePath, useInstanceStage } from "@/components/params-context";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -16,23 +16,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
-import {
-  stageGt,
-  stageGte,
-  stageLt,
-} from "@/lib/utils/permissions/stage-check";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import { cn } from "@/lib/utils";
+import { stageGt } from "@/lib/utils/permissions/stage-check";
 
-export type SupervisorProjectData = Pick<
-  Project,
-  "id" | "title" | "capacityUpperBound"
-> & { allocatedStudentName?: string; allocatedStudentId?: string };
+export type SupervisorProjectDataDto = {
+  id: string;
+  title: string;
+  capacityUpperBound: number;
+  allocatedStudentName?: string;
+  allocatedStudentId?: string;
+};
 
 export function constructColumns({
   deleteProject,
@@ -40,83 +35,94 @@ export function constructColumns({
 }: {
   deleteProject: (id: string) => Promise<void>;
   deleteSelectedProjects: (ids: string[]) => Promise<void>;
-}): ColumnDef<SupervisorProjectData>[] {
+}): ColumnDef<SupervisorProjectDataDto>[] {
   const stage = useInstanceStage();
   const instancePath = useInstancePath();
 
-  const selectCol = getSelectColumn<SupervisorProjectData>();
+  const selectCol = getSelectColumn<SupervisorProjectDataDto>();
 
-  const userCols: ColumnDef<SupervisorProjectData>[] = [
+  const userCols: ColumnDef<SupervisorProjectDataDto>[] = [
     {
-      id: "id",
+      id: "ID",
       accessorFn: ({ id }) => id,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          className="w-16"
-          column={column}
-          title="ID"
-          canFilter
-        />
+        <DataTableColumnHeader column={column} title="ID" canFilter />
       ),
       cell: ({
         row: {
           original: { id },
         },
       }) => (
-        <>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" className="cursor-default">
-                  <div className="w-16 truncate">{id}</div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{id}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </>
+        <div className="flex w-28 items-center justify-center">
+          <WithTooltip tip={id} duration={500}>
+            <p
+              className={cn(" truncate", buttonVariants({ variant: "ghost" }))}
+            >
+              {id}
+            </p>
+          </WithTooltip>
+        </div>
       ),
     },
     {
-      id: "title",
+      id: "Project Title",
       accessorFn: ({ title }) => title,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Title" />
-      ),
+      header: () => <div className="min-w-60 py-1 pl-4">Project Title</div>,
       cell: ({
         row: {
           original: { id, title },
         },
       }) => (
-        <Button variant="link" asChild>
-          <Link className="text-left" href={`projects/${id}`}>
+        <div className="flex min-w-60 items-center justify-start">
+          <Link
+            className={buttonVariants({ variant: "link" })}
+            href={`projects/${id}`}
+          >
             {title}
           </Link>
-        </Button>
+        </div>
       ),
     },
     {
       id: "Allocated Student Name",
       accessorFn: ({ allocatedStudentName }) => allocatedStudentName,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Allocated Student Name" />
+        <div className="w-40 py-1">
+          <DataTableColumnHeader
+            column={column}
+            title="Allocated Student Name"
+          />
+        </div>
       ),
+      cell: ({
+        row: {
+          original: { allocatedStudentName },
+        },
+      }) => <div className="w-40 py-1 pl-2">{allocatedStudentName}</div>,
     },
     {
       id: "Allocated Student GUID",
       accessorFn: ({ allocatedStudentId }) => allocatedStudentId,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Allocated Student GUID" />
+        <div className="w-28 py-1">
+          <DataTableColumnHeader
+            column={column}
+            title="Allocated Student GUID"
+          />
+        </div>
       ),
+      cell: ({
+        row: {
+          original: { allocatedStudentId },
+        },
+      }) => <div className="w-28 py-1 pl-4">{allocatedStudentId}</div>,
     },
     {
       id: "Capacity Upper Bound",
       accessorFn: ({ capacityUpperBound }) => capacityUpperBound,
       header: ({ column }) => (
         <DataTableColumnHeader
-          className="w-12"
+          className="w-16"
           column={column}
           title="Upper Bound"
         />
@@ -125,54 +131,22 @@ export function constructColumns({
         row: {
           original: { capacityUpperBound },
         },
-      }) => <div className="w-12 text-center">{capacityUpperBound}</div>,
+      }) => <div className="w-16 text-center">{capacityUpperBound}</div>,
     },
-    {
-      accessorKey: "actions",
-      id: "Actions",
-      header: ({ table }) => {
-        const someSelected =
-          table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+  ];
 
-        const selectedProjectIds = table
-          .getSelectedRowModel()
-          .rows.map((e) => e.original.id);
+  const actionCol: ColumnDef<SupervisorProjectDataDto> = {
+    accessorKey: "actions",
+    id: "Actions",
+    header: ({ table }) => {
+      const someSelected =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
 
-        if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
-          return (
-            <div className="flex w-24 items-center justify-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon" variant="ghost">
-                    <span className="sr-only">Open menu</span>
-                    <MoreIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={() => deleteSelectedProjects(selectedProjectIds)}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Delete Selected Projects</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        }
-        return <ActionColumnLabel className="w-24" />;
-      },
-      cell: ({
-        row: {
-          original: { id },
-        },
-      }) => {
-        if (stageGte(stage, Stage.PROJECT_ALLOCATION)) return;
+      const selectedProjectIds = table
+        .getSelectedRowModel()
+        .rows.map((e) => e.original.id);
+
+      if (someSelected) {
         return (
           <div className="flex w-24 items-center justify-center">
             <DropdownMenu>
@@ -185,32 +159,62 @@ export function constructColumns({
               <DropdownMenuContent align="center" side="bottom">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link
-                    className="flex items-center gap-2"
-                    href={`${instancePath}/projects/${id}/edit`}
-                  >
-                    <PenIcon className="h-4 w-4" />
-                    <span>Edit Project {id}</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
                   <button
                     className="flex items-center gap-2"
-                    onClick={() => deleteProject(id)}
+                    onClick={() => deleteSelectedProjects(selectedProjectIds)}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project {id}</span>
+                    <span>Delete Selected Projects</span>
                   </button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );
-      },
+      }
+      return <ActionColumnLabel className="w-24" />;
     },
-  ];
+    cell: ({
+      row: {
+        original: { id },
+      },
+    }) => (
+      <div className="flex w-24 items-center justify-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost">
+              <span className="sr-only">Open menu</span>
+              <MoreIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" side="bottom">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link
+                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                href={`${instancePath}/projects/${id}/edit`}
+              >
+                <PenIcon className="h-4 w-4" />
+                <span>Edit Project {id}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+              <button
+                className="flex items-center gap-2"
+                onClick={() => deleteProject(id)}
+              >
+                <Trash2Icon className="h-4 w-4" />
+                <span>Delete Project {id}</span>
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ),
+  };
 
   if (stageGt(stage, Stage.PROJECT_SUBMISSION)) return userCols;
-  return [selectCol, ...userCols];
+  return [selectCol, ...userCols, actionCol];
 }
