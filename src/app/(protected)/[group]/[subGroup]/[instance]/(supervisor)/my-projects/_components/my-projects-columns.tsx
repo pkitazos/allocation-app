@@ -48,20 +48,13 @@ export function constructColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" canFilter />
       ),
-      cell: ({
-        row: {
-          original: { id },
-        },
-      }) => (
-        <div className="flex w-28 items-center justify-center">
-          <WithTooltip tip={id} duration={500}>
-            <p
-              className={cn(" truncate", buttonVariants({ variant: "ghost" }))}
-            >
-              {id}
-            </p>
-          </WithTooltip>
-        </div>
+      cell: ({ row: { original: project } }) => (
+        <WithTooltip
+          align="start"
+          tip={<div className="max-w-xs">{project.id}</div>}
+        >
+          <p className="w-28 truncate">{project.id}</p>
+        </WithTooltip>
       ),
     },
     {
@@ -87,18 +80,17 @@ export function constructColumns({
       id: "Allocated Student Name",
       accessorFn: ({ allocatedStudentName }) => allocatedStudentName,
       header: ({ column }) => (
-        <div className="w-40 py-1">
-          <DataTableColumnHeader
-            column={column}
-            title="Allocated Student Name"
-          />
-        </div>
+        <DataTableColumnHeader
+          className="w-36"
+          column={column}
+          title="Allocated Student Name"
+        />
       ),
       cell: ({
         row: {
           original: { allocatedStudentName },
         },
-      }) => <div className="w-40 py-1 pl-2">{allocatedStudentName}</div>,
+      }) => <div className="w-36 py-1 pl-2">{allocatedStudentName}</div>,
     },
     {
       id: "Allocated Student GUID",

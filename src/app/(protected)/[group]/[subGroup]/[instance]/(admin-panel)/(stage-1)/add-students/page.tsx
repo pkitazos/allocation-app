@@ -133,7 +133,7 @@ export default function Page() {
         <Skeleton className="h-20 w-full" />
       ) : (
         <DataTable
-          searchableColumn={{ id: "full Name", displayName: "Student Names" }}
+          searchableColumn={{ id: "Full Name", displayName: "Student Names" }}
           columns={columns}
           data={data ?? []}
         />

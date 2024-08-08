@@ -114,7 +114,7 @@ export function constructColumns({
                       }
                     >
                       <Trash2Icon className="h-4 w-4" />
-                      <span>Remove Selected Students</span>
+                      <span>Remove selected Students</span>
                     </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
