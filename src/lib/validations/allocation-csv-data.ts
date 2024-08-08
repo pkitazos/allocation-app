@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const allocationCsvDataSchema = z.object({
   projectInternalId: z.string(),
+  studentId: z.string(),
   studentMatric: z.string(),
   studentLevel: z.number().int(),
   projectTitle: z.string(),
