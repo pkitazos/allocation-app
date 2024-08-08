@@ -92,7 +92,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[2], test__flagTitles[0], test__flagTitles[1]],
   },
   {
-    id: "prjkt-011-${ID}",
+    id: `prjkt-011-${ID}`,
     title: "Remote Team Collaboration Tool",
     description:
       "A suite of online tools designed to enhance productivity and communication for remote teams.",
@@ -103,7 +103,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[1]],
   },
   {
-    id: "prjkt-012-${ID}",
+    id: `prjkt-012-${ID}`,
     title: "E-Learning Platform",
     description:
       "An educational platform offering courses and resources for various subjects.",
@@ -114,7 +114,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0]],
   },
   {
-    id: "prjkt-013-${ID}",
+    id: `prjkt-013-${ID}`,
     title: "Event Planning Portal",
     description:
       "A comprehensive tool for organising, managing, and promoting events.",
@@ -125,7 +125,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
-    id: "prjkt-014-${ID}",
+    id: `prjkt-014-${ID}`,
     title: "Digital Art Portfolio",
     description:
       "An online portfolio platform for digital artists to showcase their work.",
@@ -136,7 +136,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
-    id: "prjkt-015-${ID}",
+    id: `prjkt-015-${ID}`,
     title: "Virtual Reality Estate Tours",
     description:
       "A VR platform offering virtual tours of real estate properties.",
@@ -147,7 +147,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0]],
   },
   {
-    id: "prjkt-016-${ID}",
+    id: `prjkt-016-${ID}`,
     title: "Task Automation System",
     description:
       "A system to automate repetitive tasks using custom scripts and integrations.",
@@ -158,7 +158,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[1], test__flagTitles[2]],
   },
   {
-    id: "prjkt-017-${ID}",
+    id: `prjkt-017-${ID}`,
     title: "Pet Adoption Platform",
     description:
       "An online service connecting potential pet owners with animals in need of a home.",
@@ -169,7 +169,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0]],
   },
   {
-    id: "prjkt-018-${ID}",
+    id: `prjkt-018-${ID}`,
     title: "Freelancer Marketplace",
     description:
       "A marketplace for freelancers to offer their services and for clients to find them.",
@@ -180,7 +180,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[0], test__flagTitles[2]],
   },
   {
-    id: "prjkt-019-${ID}",
+    id: `prjkt-019-${ID}`,
     title: "Secure File Transfer Service",
     description:
       "A platform for securely sending and receiving large files over the internet.",
@@ -191,7 +191,7 @@ export const projectData = (ID: string) => [
     flags: [test__flagTitles[1]],
   },
   {
-    id: "prjkt-020-${ID}",
+    id: `prjkt-020-${ID}`,
     title: "Green Energy Monitoring System",
     description:
       "A tool for monitoring and managing energy consumption with a focus on sustainability.",
