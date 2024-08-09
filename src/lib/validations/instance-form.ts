@@ -88,7 +88,7 @@ export function buildInstanceFormSchema(takenNames: string[]) {
     )
     .refine(
       ({ flags }) => {
-        const flagSet = new Set(flags);
+        const flagSet = new Set(flags.map(({ title }) => title));
         return flags.length === flagSet.size;
       },
       {
