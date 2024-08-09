@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:latest
     ports:
-      - "6565:5432"
+      - "127.0.0.1:6565:5432"
     volumes:
       - spa-db-data:/var/lib/postgres/data/
     environment:
