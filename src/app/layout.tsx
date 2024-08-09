@@ -7,11 +7,10 @@ import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-import { fake_middleware } from "@/lib/auth/auth2";
+import { fake_middleware } from "@/lib/auth/fake-middleware";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
-import { auth3 } from "@/lib/auth/auth3";
 
 const inter = Inter({ subsets: ["latin"] });
 
