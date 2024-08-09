@@ -23,10 +23,14 @@ export async function getUserAction(user: ShibUser) {
 export async function authenticateUser(userPayload: ShibUser) {
   console.log("==================== FETCH STARTED");
 
-  const hello = await fetch(`${env.SITE_URL}/api/auth`, {
+  const payload = JSON.stringify(userPayload);
+
+  console.log("==================== PAYLOAD");
+
+  const hello = await fetch(`https://spa-staging.gla.ac.uk/api/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userPayload),
+    body: payload,
   }).then(async (res) => await res.json());
   // .then((res) => newUserSchema.safeParse(res.data));
 

@@ -6,6 +6,7 @@ import { shibUserSchema } from "@/lib/validations/auth";
 
 // TODO: restrict access to endpoint to only the middleware
 export async function POST(req: NextRequest) {
+  console.log("==================== INSIDE POST");
   const result = await req.json().then(shibUserSchema.safeParse);
 
   if (!result.success) {
