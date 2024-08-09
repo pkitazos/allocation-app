@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import {
@@ -438,8 +439,16 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.$transaction(async (tx) => {
           const user = await tx.user.findFirst({
-            where: { id: institutionId },
+            where: { OR: [{ id: institutionId }, { email }] },
           });
+
+          if (user && user.email !== email) {
+            throw new TRPCClientError("Email does not match the user id");
+          }
+
+          if (user && user.id !== institutionId) {
+            throw new TRPCClientError("User ID does not match the email");
+          }
 
           if (!user) {
             // TODO: Change what gets added to user table after auth is implemented
@@ -501,6 +510,8 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
+          // TODO: check that users are all valid
+
           const users = await tx.user.findMany({
             where: { id: { in: newSupervisors.map((s) => s.institutionId) } },
           });
@@ -731,8 +742,16 @@ export const instanceRouter = createTRPCRouter({
       }) => {
         await ctx.db.$transaction(async (tx) => {
           const user = await tx.user.findFirst({
-            where: { id: institutionId },
+            where: { OR: [{ id: institutionId }, { email }] },
           });
+
+          if (user && user.email !== email) {
+            throw new TRPCClientError("Email does not match the user id");
+          }
+
+          if (user && user.id !== institutionId) {
+            throw new TRPCClientError("User ID does not match the email");
+          }
 
           if (!user) {
             // TODO: Change what gets added to user table after auth is implemented
@@ -786,6 +805,8 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
+          // TODO: check that users are all valid
+
           const users = await tx.user.findMany({
             where: { id: { in: newStudents.map((s) => s.institutionId) } },
           });
