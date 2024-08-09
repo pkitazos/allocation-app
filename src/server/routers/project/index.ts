@@ -14,10 +14,8 @@ import { updateProjectAllocation } from "@/server/routers/project/_utils/project
 import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
 import {
   createTRPCRouter,
-  forkedInstanceProcedure,
   instanceProcedure,
   protectedProcedure,
-  stageAwareProcedure,
 } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
@@ -271,7 +269,7 @@ export const projectRouter = createTRPCRouter({
       };
     }),
 
-  getIsForked: forkedInstanceProcedure
+  getIsForked: instanceProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .query(
       async ({
@@ -281,7 +279,7 @@ export const projectRouter = createTRPCRouter({
           projectId,
         },
       }) => {
-        const parentInstanceId = ctx.parentInstanceId;
+        const parentInstanceId = ctx.instance.parentInstanceId;
         const project = await ctx.db.project.findFirstOrThrow({
           where: { id: projectId },
         });
@@ -335,7 +333,7 @@ export const projectRouter = createTRPCRouter({
       };
     }),
 
-  delete: stageAwareProcedure
+  delete: instanceProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .mutation(
       async ({
@@ -345,7 +343,7 @@ export const projectRouter = createTRPCRouter({
           projectId,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.delete({
           where: {
@@ -358,7 +356,7 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  deleteSelected: stageAwareProcedure
+  deleteSelected: instanceProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -373,7 +371,7 @@ export const projectRouter = createTRPCRouter({
           projectIds,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.project.deleteMany({
           where: {
@@ -457,6 +455,8 @@ export const projectRouter = createTRPCRouter({
           },
         },
       }) => {
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
+
         const project = await ctx.db.project.create({
           data: {
             allocationGroupId: group,

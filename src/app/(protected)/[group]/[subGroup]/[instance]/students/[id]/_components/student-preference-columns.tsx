@@ -1,18 +1,19 @@
 "use client";
-import { PreferenceType, Role, Stage } from "@prisma/client";
+import { PreferenceType, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
+import { CornerDownRightIcon } from "lucide-react";
 import Link from "next/link";
 
-import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { useInstanceStage } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
 import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
@@ -31,18 +32,16 @@ export type PreferenceData = {
 };
 
 export function constructColumns({
-  role,
   changePreference,
   changeSelectedPreferences,
 }: {
-  role: Role;
   changePreference: (
-    newPreferenceType: StudentPreferenceType,
-    projectId: string,
+    newType: StudentPreferenceType,
+    id: string,
   ) => Promise<void>;
   changeSelectedPreferences: (
-    newPreferenceType: StudentPreferenceType,
-    projectIds: string[],
+    newType: StudentPreferenceType,
+    ids: string[],
   ) => Promise<void>;
 }): ColumnDef<PreferenceData>[] {
   const stage = useInstanceStage();
@@ -50,7 +49,7 @@ export function constructColumns({
 
   const userCols: ColumnDef<PreferenceData>[] = [
     {
-      id: "Project ID",
+      id: "ID",
       accessorFn: ({ project }) => project.id,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" canFilter />
@@ -70,7 +69,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "Project Title",
+      id: "Title",
       accessorFn: ({ project }) => project.title,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title" />
@@ -80,13 +79,16 @@ export function constructColumns({
           original: { project },
         },
       }) => (
-        <Button variant="link" className="cursor-default" asChild>
-          <Link href={`../projects/${project.id}`}>{project.title}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../projects/${project.id}`}
+        >
+          {project.title}
+        </Link>
       ),
     },
     {
-      id: "Supervisor Name",
+      id: "Supervisor",
       accessorFn: ({ supervisor }) => supervisor.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
@@ -104,7 +106,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "type",
+      id: "Type",
       accessorFn: ({ type }) => type,
       header: ({ column }) => (
         <DataTableColumnHeader title="Type" column={column} />
@@ -126,7 +128,7 @@ export function constructColumns({
       },
     },
     {
-      id: "rank",
+      id: "Rank",
       accessorFn: ({ rank }) => rank,
       header: ({ column }) => (
         <DataTableColumnHeader title="Rank" column={column} />
@@ -150,20 +152,25 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.project.id);
 
-      if (
-        someSelected &&
-        role === Role.ADMIN &&
-        !stageGte(stage, Stage.PROJECT_ALLOCATION)
-      ) {
+      const rowTypes = table.getRowModel().rows.map((r) => r.original.type);
+      const defaultType = rowTypes.reduce(
+        (acc, val) => (acc === val ? acc : undefined),
+        rowTypes.at(0),
+      );
+
+      if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
         return (
-          <ChangePreferenceButton
-            className="w-24 text-xs"
-            dropdownLabel="Change Type to:"
-            defaultStatus="None"
-            changeFunction={async (newPreference) => {
-              changeSelectedPreferences(newPreference, selectedProjectIds);
-            }}
-          />
+          <div className="flex w-full items-center justify-center">
+            <StudentPreferenceActionMenu
+              defaultType={defaultType}
+              changePreference={async (newPreferenceType) =>
+                void changeSelectedPreferences(
+                  newPreferenceType,
+                  selectedProjectIds,
+                )
+              }
+            />
+          </div>
         );
       }
       return <ActionColumnLabel className="w-24" />;
@@ -172,23 +179,26 @@ export function constructColumns({
       row: {
         original: { project, type },
       },
-    }) => {
-      async function handleChangePreference(
-        newPreferenceType: StudentPreferenceType,
-      ) {
-        changePreference(newPreferenceType, project.id);
-      }
-
-      return (
-        <div className="flex w-full items-center justify-center">
-          <StudentPreferenceActionMenu
-            defaultType={type}
-            projectId={project.id}
-            changePreference={handleChangePreference}
-          />
-        </div>
-      );
-    },
+    }) => (
+      <div className="flex w-full items-center justify-center">
+        <StudentPreferenceActionMenu
+          defaultType={type}
+          changePreference={async (newPreferenceType) =>
+            void changePreference(newPreferenceType, project.id)
+          }
+        >
+          <DropdownMenuItem className="group/item">
+            <Link
+              className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+              href={`../projects/${project.id}`}
+            >
+              <CornerDownRightIcon className="h-4 w-4" />
+              <span>View Project details</span>
+            </Link>
+          </DropdownMenuItem>
+        </StudentPreferenceActionMenu>
+      </div>
+    ),
   };
 
   return [selectCol, ...userCols, actionsCol];

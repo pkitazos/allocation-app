@@ -6,34 +6,30 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { SupervisorProjectsDataTable } from "./_components/supervisor-projects-data-table";
 
-interface pageParams extends InstanceParams {
-  id: string;
-}
+type PageParams = InstanceParams & { id: string };
 
-export default async function Page({ params }: { params: pageParams }) {
-  const role = await api.user.role({ params });
-  const { supervisorProjects, user: supervisor } =
-    await api.user.supervisor.instanceData({
-      params,
-      supervisorId: params.id,
-    });
-
-  const stage = await api.institution.instance.currentStage({ params });
+export default async function Page({ params }: { params: PageParams }) {
+  const { supervisor, projects } = await api.user.supervisor.instanceData({
+    params,
+    supervisorId: params.id,
+  });
 
   return (
     <PageWrapper>
       <Heading>{supervisor.name}</Heading>
+      <SubHeading>Details</SubHeading>
+      <div className="flex flex-col">
+        <div className="flex gap-2">
+          <span className="w-16 font-semibold text-slate-500">ID:</span>
+          <p className="col-span-9">{supervisor.id}</p>
+        </div>
+        <div className="flex gap-2">
+          <span className="w-16 font-semibold text-slate-500">Email:</span>
+          <p className="col-span-9">{supervisor.email}</p>
+        </div>
+      </div>
       <SubHeading className="mt-6">All Projects</SubHeading>
-      <SupervisorProjectsDataTable
-        user={supervisor}
-        role={role}
-        stage={stage}
-        supervisorId={supervisor.id}
-        data={supervisorProjects.map((e) => ({
-          supervisorId: supervisor.id,
-          ...e,
-        }))}
-      />
+      <SupervisorProjectsDataTable data={projects} />
     </PageWrapper>
   );
 }

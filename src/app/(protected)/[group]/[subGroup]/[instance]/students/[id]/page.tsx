@@ -6,9 +6,7 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceDataTable } from "./_components/student-preference-data-table";
 
-interface PageParams extends InstanceParams {
-  id: string;
-}
+type PageParams = InstanceParams & { id: string };
 
 export default async function Page({ params }: { params: PageParams }) {
   const studentId = params.id;
@@ -21,8 +19,6 @@ export default async function Page({ params }: { params: PageParams }) {
     params,
     studentId,
   });
-
-  const role = await api.user.role({ params });
 
   return (
     <PageWrapper>
@@ -39,11 +35,7 @@ export default async function Page({ params }: { params: PageParams }) {
         </div>
       </div>
       <SubHeading>Preferences</SubHeading>
-      <StudentPreferenceDataTable
-        role={role}
-        data={data}
-        studentId={studentId}
-      />
+      <StudentPreferenceDataTable data={data} studentId={studentId} />
     </PageWrapper>
   );
 }

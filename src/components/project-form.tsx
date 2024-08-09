@@ -47,6 +47,7 @@ import {
 } from "@/lib/validations/project-form";
 
 import { AccessControl } from "./access-control";
+import { MarkdownEditor } from "./markdown-editor";
 import { useInstancePath } from "./params-context";
 
 import { spacesLabels } from "@/content/spaces";
@@ -148,8 +149,11 @@ export function ProjectForm({
             <FormItem>
               <FormLabel className="text-2xl">Description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Type the project description here."
+                <MarkdownEditor
+                  {...field}
+                  textareaProps={{
+                    placeholder: "Type the project description here.",
+                  }}
                   {...field}
                 />
               </FormControl>
@@ -300,31 +304,38 @@ export function ProjectForm({
             a student. Otherwise, you can submit the project.
           </NoteCard>
         </AccessControl>
-
-        <FormField
-          control={form.control}
-          name="isPreAllocated"
-          render={() => (
-            <FormItem className="mb-3 flex items-center space-x-2">
-              <FormControl>
-                <div className="flex items-center justify-start gap-2">
-                  <Switch
-                    id="pre-allocated-student-id"
-                    checked={preAllocatedSwitchControl}
-                    onCheckedChange={handleSwitch}
-                  />
-                  <Label htmlFor="pre-allocated-student-id">
-                    Student defined project
-                  </Label>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <AccessControl
+          allowedStages={[Stage.PROJECT_SUBMISSION]}
+          allowedRoles={[Role.ADMIN, Role.SUPERVISOR]}
+        >
+          <FormField
+            control={form.control}
+            name="isPreAllocated"
+            render={() => (
+              <FormItem className="mb-3 flex items-center space-x-2">
+                <FormControl>
+                  <div className="flex items-center justify-start gap-2">
+                    <Switch
+                      id="pre-allocated-student-id"
+                      checked={preAllocatedSwitchControl}
+                      onCheckedChange={handleSwitch}
+                    />
+                    <Label htmlFor="pre-allocated-student-id">
+                      Student defined project
+                    </Label>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </AccessControl>
 
         <div className="flex justify-between">
-          <AccessControl allowedRoles={[Role.ADMIN]}>
+          <AccessControl
+            allowedRoles={[Role.ADMIN]}
+            allowedStages={[Stage.PROJECT_SUBMISSION, Stage.PROJECT_SELECTION]}
+          >
             <FormField
               control={form.control}
               name="capacityUpperBound"
@@ -358,83 +369,89 @@ export function ProjectForm({
               )}
             />
           </AccessControl>
-
-          <FormField
-            control={form.control}
-            name="preAllocatedStudentId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel
-                  className={cn(
-                    "text-xl",
-                    !preAllocatedSwitchControl && "text-slate-400",
-                  )}
-                >
-                  Student
-                </FormLabel>
-                <Popover>
-                  <PopoverTrigger disabled={!preAllocatedSwitchControl} asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-[200px] justify-between overflow-hidden",
-                          !field.value && "text-slate-400",
-                        )}
-                      >
-                        {field.value === "" || !field.value
-                          ? "Enter Student GUID"
-                          : field.value}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search student..."
-                        disabled={!preAllocatedSwitchControl}
-                      />
-                      <CommandEmpty>No Student found.</CommandEmpty>
-                      <CommandGroup>
-                        {availableStudents.map((student) => (
-                          <CommandItem
-                            className="overflow-hidden"
-                            value={student.id}
-                            key={student.id}
-                            onSelect={() => {
-                              setPreAllocatedSwitchControl(true);
-                              form.setValue(
-                                "preAllocatedStudentId",
-                                student.id,
-                              );
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                student.id === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0",
-                              )}
-                            />
-                            {student.id}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormDescription
-                  className={cn(!preAllocatedSwitchControl && "text-slate-400")}
-                >
-                  This is the student which self-defined this project.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
+            <FormField
+              control={form.control}
+              name="preAllocatedStudentId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel
+                    className={cn(
+                      "text-xl",
+                      !preAllocatedSwitchControl && "text-slate-400",
+                    )}
+                  >
+                    Student
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger
+                      disabled={!preAllocatedSwitchControl}
+                      asChild
+                    >
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between overflow-hidden",
+                            !field.value && "text-slate-400",
+                          )}
+                        >
+                          {field.value === "" || !field.value
+                            ? "Enter Student GUID"
+                            : field.value}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search student..."
+                          disabled={!preAllocatedSwitchControl}
+                        />
+                        <CommandEmpty>No Student found.</CommandEmpty>
+                        <CommandGroup>
+                          {availableStudents.map((student) => (
+                            <CommandItem
+                              className="overflow-hidden"
+                              value={student.id}
+                              key={student.id}
+                              onSelect={() => {
+                                setPreAllocatedSwitchControl(true);
+                                form.setValue(
+                                  "preAllocatedStudentId",
+                                  student.id,
+                                );
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  student.id === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              {student.id}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription
+                    className={cn(
+                      !preAllocatedSwitchControl && "text-slate-400",
+                    )}
+                  >
+                    This is the student which self-defined this project.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </AccessControl>
         </div>
 
         <div className="mt-16 flex justify-end gap-8">

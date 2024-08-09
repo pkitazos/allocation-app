@@ -1,11 +1,25 @@
 import { z } from "zod";
 
 import { tagTypeSchema } from "@/components/tag/tag-input";
+
 import { projectFlags } from "@/content/config/flags";
 
+function isAscii(str: string) {
+  // eslint-disable-next-line no-control-regex
+  const ascii = /^[\x00-\x7F]+$/;
+  return ascii.test(str);
+}
+
 const baseProjectFormSchema = z.object({
-  title: z.string().min(4, "Please enter a longer title"),
-  description: z.string().min(10, "Please enter a longer description"),
+  title: z
+    .string()
+    .min(4, "Please enter a longer title")
+    .max(512, "Title must be 512 characters or less"),
+  description: z
+    .string()
+    .min(10, "Please enter a longer description")
+    .max(2048, "Description must be 2048 characters or less")
+    .refine(isAscii, "Project description must be ASCII"),
   flagTitles: z
     .array(z.string())
     .refine((value) => value.some((item) => item), {

@@ -2,20 +2,21 @@
 
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { SearchableColumn } from "@/lib/validations/table";
+import { byProjectColumns } from "./by-project-columns";
+import { AllocationByProjectDto } from "@/lib/validations/allocation/data-table-dto";
 
-import { byProjectColumns, ProjectData } from "./by-project-columns";
-
-export function ByProjectDataTable({ data }: { data: ProjectData[] }) {
-  const primaryColumn: SearchableColumn = {
-    id: "project Title",
-    displayName: "Project Titles",
-  };
-
+export function ByProjectDataTable({
+  data,
+}: {
+  data: AllocationByProjectDto[];
+}) {
   return (
     <div className="w-full">
       <DataTable
-        searchableColumn={primaryColumn}
+        searchableColumn={{
+          id: "Project Title",
+          displayName: "Project Titles",
+        }}
         columns={byProjectColumns}
         data={data}
       />

@@ -133,7 +133,7 @@ export default function Page() {
       ) : (
         <DataTable
           searchableColumn={{
-            id: "full Name",
+            id: "Full Name",
             displayName: "Supervisor Names",
           }}
           columns={columns}

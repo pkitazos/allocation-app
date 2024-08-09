@@ -14,6 +14,11 @@ import {
   adminPanelTabsByStage,
 } from "@/lib/validations/admin-panel-tabs";
 import {
+  allocationByProjectDtoSchema,
+  allocationByStudentDtoSchema,
+  allocationBySupervisorDtoSchema,
+} from "@/lib/validations/allocation/data-table-dto";
+import {
   forkedInstanceSchema,
   updatedInstanceSchema,
 } from "@/lib/validations/instance-form";
@@ -32,6 +37,7 @@ import {
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
+import { getAllocationData } from "./_utils/allocation-data";
 import { forkInstanceTransaction } from "./_utils/fork";
 import { mergeInstanceTransaction } from "./_utils/merge";
 import { algorithmRouter } from "./algorithm";
@@ -129,103 +135,76 @@ export const instanceRouter = createTRPCRouter({
   // TODO: decouple data table data from database model & improve filtering in queries
   projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
+    .output(
+      z.object({
+        byStudent: z.array(allocationByStudentDtoSchema),
+        byProject: z.array(allocationByProjectDtoSchema),
+        bySupervisor: z.array(allocationBySupervisorDtoSchema),
+      }),
+    )
+    .query(async ({ ctx, input: { params } }) => {
+      const allocationData = await getAllocationData(ctx.db, params);
+
+      const byStudent = allocationData.map((allocation) => ({
+        student: {
+          id: allocation.student.user.id,
+          name: allocation.student.user.name!,
+          email: allocation.student.user.email!,
+          ranking: allocation.studentRanking,
         },
-      }) => {
-        const byStudent = await ctx.db.projectAllocation.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          // ! currently selects all users not just students
-          select: {
-            student: {
-              select: {
-                user: {
-                  select: { id: true, name: true, email: true },
-                },
-              },
-            },
-            project: {
-              select: {
-                id: true,
-                supervisor: {
-                  select: { user: { select: { id: true, name: true } } },
-                },
-              },
-            },
-            studentRanking: true,
-          },
-        });
+        project: {
+          id: allocation.project.id,
+        },
+        supervisor: {
+          id: allocation.project.supervisor.user.id,
+          name: allocation.project.supervisor.user.name!,
+        },
+      }));
 
-        const byProject = await ctx.db.projectAllocation.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            project: {
-              select: {
-                id: true,
-                title: true,
-                capacityLowerBound: true,
-                capacityUpperBound: true,
-                supervisor: {
-                  select: { user: { select: { id: true, name: true } } },
-                },
-              },
-            },
-            userId: true,
-            studentRanking: true,
-          },
-        });
+      const byProject = allocationData.map((allocation) => ({
+        project: {
+          id: allocation.project.id,
+          title: allocation.project.title,
+          capacityLowerBound: allocation.project.capacityLowerBound,
+          capacityUpperBound: allocation.project.capacityUpperBound,
+        },
+        supervisor: {
+          id: allocation.project.supervisor.user.id,
+          name: allocation.project.supervisor.user.name!,
+        },
+        student: {
+          id: allocation.student.user.id,
+          ranking: allocation.studentRanking,
+        },
+      }));
 
-        const bySupervisor = await ctx.db.projectAllocation.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            project: {
-              select: {
-                id: true,
-                title: true,
-                supervisor: {
-                  select: {
-                    user: { select: { id: true, name: true, email: true } },
-                    supervisorInstanceDetails: {
-                      where: {
-                        allocationGroupId: group,
-                        allocationSubGroupId: subGroup,
-                        allocationInstanceId: instance,
-                      },
-                      select: {
-                        projectAllocationLowerBound: true,
-                        projectAllocationTarget: true,
-                        projectAllocationUpperBound: true,
-                      },
-                      take: 1, // * does not do anything
-                    },
-                  },
-                },
-              },
-            },
-            userId: true,
-            studentRanking: true,
-          },
-        });
+      const bySupervisor = allocationData.map((allocation) => ({
+        project: {
+          id: allocation.project.id,
+          title: allocation.project.title,
+        },
+        supervisor: {
+          id: allocation.project.supervisor.user.id,
+          name: allocation.project.supervisor.user.name!,
+          email: allocation.project.supervisor.user.email!,
+          allocationLowerBound:
+            allocation.project.supervisor.supervisorInstanceDetails[0]
+              .projectAllocationLowerBound,
+          allocationTarget:
+            allocation.project.supervisor.supervisorInstanceDetails[0]
+              .projectAllocationTarget,
+          allocationUpperBound:
+            allocation.project.supervisor.supervisorInstanceDetails[0]
+              .projectAllocationUpperBound,
+        },
+        student: {
+          id: allocation.student.user.id,
+          ranking: allocation.studentRanking,
+        },
+      }));
 
-        // ! data returned is not formatted on server which means responsibility to format data is passed to client (specifically the data table column constructors)
-        return { byStudent, byProject, bySupervisor };
-      },
-    ),
+      return { byStudent, byProject, bySupervisor };
+    }),
 
   getEditFormDetails: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
