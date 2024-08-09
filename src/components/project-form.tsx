@@ -47,6 +47,7 @@ import {
 } from "@/lib/validations/project-form";
 
 import { AccessControl } from "./access-control";
+import { MarkdownEditor } from "./markdown-editor";
 import { useInstancePath } from "./params-context";
 
 import { spacesLabels } from "@/content/spaces";
@@ -144,8 +145,11 @@ export function ProjectForm({
             <FormItem>
               <FormLabel className="text-2xl">Description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Type the project description here."
+                <MarkdownEditor
+                  {...field}
+                  textareaProps={{
+                    placeholder: "Type the project description here.",
+                  }}
                   {...field}
                 />
               </FormControl>
