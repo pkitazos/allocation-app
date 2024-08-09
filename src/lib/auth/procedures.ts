@@ -21,6 +21,8 @@ export async function getUserAction(user: ShibUser) {
 }
 
 export async function authenticateUser(userPayload: ShibUser) {
+  console.log("==================== FETCH STARTED");
+
   const hello = await fetch(`${env.SITE_URL}/api/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

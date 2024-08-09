@@ -23,6 +23,7 @@ export async function middleware(req: NextRequest) {
   const displayName = z.string().parse(shib_displayName);
   const email = "";
   // const groups = z.string().parse(shib_groups).split(";");
+  console.log("==================== SUCCESSFULLY PARSED HEADERS");
 
   // TODO: Replace dummy values with the parsed values from above when running behind shibboleth server
   // test values for testing while running locally
