@@ -199,44 +199,6 @@ export const projectRouter = createTRPCRouter({
       );
     }),
 
-  // ! deprecated
-  getTableData: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-
-        const projects = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            flagOnProjects: {
-              select: { flag: { select: { id: true, title: true } } },
-            },
-            tagOnProject: {
-              select: { tag: { select: { id: true, title: true } } },
-            },
-            supervisor: {
-              select: { user: { select: { name: true, id: true } } },
-            },
-          },
-        });
-
-        return projects.map((project) => ({ ...project, user }));
-      },
-    ),
-
   getById: protectedProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ ctx, input: { projectId } }) => {
