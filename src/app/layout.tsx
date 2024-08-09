@@ -25,7 +25,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await auth3();
+  const user = await auth2();
 
   return (
     <html lang="en" suppressHydrationWarning>

@@ -1,6 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { z } from "zod";
 import { getUserAction } from "./procedures";
+import { User } from "../validations/auth";
 
 export async function auth2() {
   // Extract the headers from the request
@@ -30,12 +31,17 @@ export async function auth2() {
 
   const newUser = await getUserAction({ guid, displayName, email });
 
+  await setCookies(newUser);
+
+  return newUser;
+}
+
+async function setCookies(newUser: User) {
+  "use server";
   // Add the user to the cookies
   cookies().set({
     name: "user",
     value: JSON.stringify(newUser),
     httpOnly: true,
   });
-
-  return newUser;
 }
