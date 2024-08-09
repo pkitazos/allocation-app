@@ -6,7 +6,7 @@ import {
   LucideMoreHorizontal as MoreIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,17 +28,20 @@ import {
   StudentPreferenceType,
   studentPreferenceSchema,
 } from "@/lib/validations/student-preference";
+import { Slot } from "@radix-ui/react-slot";
 
 export function StudentPreferenceActionMenu({
   defaultType,
-  projectId,
   changePreference,
+  ...rest
 }: {
-  defaultType: StudentPreferenceType;
-  projectId: string;
+  defaultType: StudentPreferenceType | undefined;
   changePreference: (newPreference: StudentPreferenceType) => Promise<void>;
+  children?: ReactNode;
 }) {
-  const [preferenceType, setPreferenceType] = useState(defaultType);
+  const [preferenceType, setPreferenceType] = useState<
+    StudentPreferenceType | undefined
+  >(defaultType);
 
   async function handleChange(value: string) {
     const preferenceChange = studentPreferenceSchema.parse(value);
@@ -57,15 +60,7 @@ export function StudentPreferenceActionMenu({
       <DropdownMenuContent className="w-68" align="center" side="bottom">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="group/item">
-          <Link
-            className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-            href={`../projects/${projectId}`}
-          >
-            <CornerDownRightIcon className="h-4 w-4" />
-            <span>View Project details</span>
-          </Link>
-        </DropdownMenuItem>
+        <Slot {...rest} />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="flex items-center gap-2 text-primary">
             <BookmarkIcon className="h-4 w-4" />

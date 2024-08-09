@@ -8,6 +8,7 @@ import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
 import {
   createTRPCRouter,
+  instanceAdminProcedure,
   instanceProcedure,
   studentProcedure,
 } from "@/server/trpc";
@@ -15,7 +16,7 @@ import {
 import { updatePreferenceTransaction } from "./_utils/update-preference";
 
 export const preferenceRouter = createTRPCRouter({
-  getAll: instanceProcedure
+  getAll: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -86,7 +87,7 @@ export const preferenceRouter = createTRPCRouter({
       });
     }),
 
-  reorder: instanceProcedure
+  reorder: studentProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -155,7 +156,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  submit: instanceProcedure
+  submit: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(
       async ({
@@ -180,7 +181,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  initialBoardState: instanceProcedure
+  initialBoardState: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -231,7 +232,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  change: instanceProcedure
+  change: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -280,7 +281,7 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  changeSelected: instanceProcedure
+  changeSelected: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
