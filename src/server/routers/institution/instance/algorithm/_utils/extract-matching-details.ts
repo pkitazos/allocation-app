@@ -1,3 +1,6 @@
+import { blankResult, matchingResultSchema } from "@/lib/validations/matching";
+import { JsonValue } from "@prisma/client/runtime/library";
+
 export function extractMatchingDetails(
   allStudents: { id: string; name: string | null }[],
   allProjects: { id: string; title: string }[],
@@ -18,7 +21,7 @@ export function extractMatchingDetails(
       studentName: student.name!,
       projectId: "-",
       projectTitle: "-",
-      studentRank: "-",
+      studentRank: NaN,
     };
   }
 
@@ -35,4 +38,9 @@ export function extractMatchingDetails(
     projectTitle: allProjects[projectIdx].title,
     studentRank,
   };
+}
+
+export function parseMatchingResult(data: JsonValue) {
+  const res = matchingResultSchema.safeParse(JSON.parse(data as string));
+  return res.success ? res.data : blankResult;
 }
