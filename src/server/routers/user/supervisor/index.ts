@@ -8,17 +8,16 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
   createTRPCRouter,
-  forkedInstanceProcedure,
+  instanceAdminProcedure,
   instanceProcedure,
-  protectedProcedure,
-  stageAwareProcedure,
+  roleAwareProcedure,
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
 
 import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
 
 export const supervisorRouter = createTRPCRouter({
-  instancePage: protectedProcedure
+  instancePage: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -51,7 +50,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  instanceData: protectedProcedure
+  instanceData: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -66,30 +65,49 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        return await ctx.db.userInInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: supervisorId,
-          },
-          select: {
-            user: { select: { id: true, name: true, email: true } },
-            supervisorProjects: {
-              select: {
-                id: true,
-                title: true,
-                supervisor: { select: { userId: true } },
-                flagOnProjects: {
-                  select: { flag: { select: { id: true, title: true } } },
-                },
-                tagOnProject: {
-                  select: { tag: { select: { id: true, title: true } } },
+        const supervisorData =
+          await ctx.db.supervisorInstanceDetails.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: supervisorId,
+            },
+            select: {
+              userInInstance: {
+                select: {
+                  user: { select: { id: true, name: true, email: true } },
+                  supervisorProjects: {
+                    select: {
+                      id: true,
+                      title: true,
+                      supervisorId: true,
+                      tagOnProject: { select: { tag: true } },
+                      flagOnProjects: { select: { flag: true } },
+                    },
+                  },
                 },
               },
             },
-          },
-        });
+          });
+
+        const supervisor = {
+          id: supervisorData.userInInstance.user.id,
+          name: supervisorData.userInInstance.user.name!,
+          email: supervisorData.userInInstance.user.email!,
+        };
+
+        const projects = supervisorData.userInInstance.supervisorProjects.map(
+          (p) => ({
+            id: p.id,
+            title: p.title,
+            supervisorId: p.supervisorId,
+            tags: p.tagOnProject.map((t) => t.tag),
+            flags: p.flagOnProjects.map((f) => f.flag),
+          }),
+        );
+
+        return { supervisor, projects };
       },
     ),
 
@@ -181,7 +199,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  delete: stageAwareProcedure
+  delete: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
     .mutation(
       async ({
@@ -191,7 +209,7 @@ export const supervisorRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.delete({
           where: {
@@ -206,7 +224,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  deleteSelected: stageAwareProcedure
+  deleteSelected: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -221,7 +239,7 @@ export const supervisorRouter = createTRPCRouter({
           supervisorIds,
         },
       }) => {
-        if (stageGte(ctx.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
         await ctx.db.userInInstance.deleteMany({
           where: {
@@ -234,7 +252,7 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
-  allocations: protectedProcedure
+  allocations: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({

@@ -10,14 +10,14 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { SearchableColumn } from "@/lib/validations/table";
 
-import { constructColumns, ProjectTableData } from "./projects-columns";
+import { constructColumns, ProjectTableDataDto } from "./all-projects-columns";
 
 export function ProjectsDataTable({
   data,
   user,
   role,
 }: {
-  data: ProjectTableData[];
+  data: ProjectTableDataDto[];
   user: User;
   role: Role;
 }) {
@@ -50,11 +50,6 @@ export function ProjectsDataTable({
     );
   }
 
-  const primaryColumn: SearchableColumn = {
-    id: "title",
-    displayName: "Project Titles",
-  };
-
   const columns = constructColumns({
     user,
     role,
@@ -64,7 +59,7 @@ export function ProjectsDataTable({
 
   return (
     <DataTable
-      searchableColumn={primaryColumn}
+      searchableColumn={{ id: "title", displayName: "Project Titles" }}
       className="w-full"
       columns={columns}
       data={data}

@@ -2,172 +2,106 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-export interface SupervisorData {
-  project: {
-    id: string;
-    title: string;
-    supervisor: {
-      user: {
-        id: string;
-        name: string | null;
-        email: string | null;
-      };
-      supervisorInstanceDetails: {
-        projectAllocationLowerBound: number;
-        projectAllocationTarget: number;
-        projectAllocationUpperBound: number;
-      }[];
-    };
-  };
-  userId: string;
-  studentRanking: number;
-}
-[];
+import { cn } from "@/lib/utils";
+import { AllocationBySupervisorDto } from "@/lib/validations/allocation/data-table-dto";
 
-export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
+export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
   {
-    id: "supervisor ID",
-    accessorFn: ({ project }) => project.supervisor.user.id,
+    id: "Supervisor GUID",
+    accessorFn: ({ supervisor }) => supervisor.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor GUID" />
     ),
     cell: ({
       row: {
-        original: {
-          project: {
-            supervisor: {
-              user: { id },
-            },
-          },
-        },
+        original: { supervisor },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-16 truncate"> {id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={supervisor.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-16 truncate">{supervisor.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "supervisor Name",
-    accessorFn: ({ project }) => project.supervisor.user.name,
+    id: "Supervisor Name",
+    accessorFn: ({ supervisor }) => supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: {
-              user: { id, name },
-            },
-          },
+          supervisor: { id, name },
         },
       },
     }) => (
-      <Button variant="link">
-        <Link href={`./supervisors/${id}`}>{name}</Link>
-      </Button>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        href={`./supervisors/${id}`}
+      >
+        {name}
+      </Link>
     ),
   },
   {
-    id: "supervisor Email",
-    accessorFn: ({ project }) => project.supervisor.user.email,
+    id: "Supervisor Email",
+    accessorFn: ({ supervisor }) => supervisor.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Email" />
     ),
   },
   {
-    id: "supervisor Lower Bound",
-    accessorFn: ({
-      project: {
-        supervisor: { supervisorInstanceDetails: details },
-      },
-    }) => details[0].projectAllocationLowerBound,
+    id: "Supervisor Lower Bound",
+    accessorFn: ({ supervisor }) => supervisor.allocationLowerBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Lower Bound" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: { supervisorInstanceDetails: details },
-          },
+          supervisor: { allocationLowerBound },
         },
       },
-    }) => (
-      <div className="flex justify-center">
-        {details[0].projectAllocationLowerBound}
-      </div>
-    ),
+    }) => <div className="flex justify-center">{allocationLowerBound}</div>,
   },
   {
     id: "supervisor Target",
-    accessorFn: ({
-      project: {
-        supervisor: { supervisorInstanceDetails: details },
-      },
-    }) => details[0].projectAllocationTarget,
+    accessorFn: ({ supervisor }) => supervisor.allocationTarget,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Target" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: { supervisorInstanceDetails: details },
-          },
+          supervisor: { allocationTarget },
         },
       },
-    }) => (
-      <div className="flex justify-center">
-        {details[0].projectAllocationTarget}
-      </div>
-    ),
+    }) => <div className="flex justify-center">{allocationTarget}</div>,
   },
   {
-    id: "supervisor Upper Bound",
-    accessorFn: ({
-      project: {
-        supervisor: { supervisorInstanceDetails: details },
-      },
-    }) => details[0].projectAllocationUpperBound,
+    id: "Supervisor Upper bound",
+    accessorFn: ({ supervisor }) => supervisor.allocationUpperBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Upper bound" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: { supervisorInstanceDetails: details },
-          },
+          supervisor: { allocationUpperBound },
         },
       },
-    }) => (
-      <div className="flex justify-center">
-        {details[0].projectAllocationUpperBound}
-      </div>
-    ),
+    }) => <div className="flex justify-center">{allocationUpperBound}</div>,
   },
   {
-    id: "project ID",
+    id: "Project ID",
     accessorFn: ({ project }) => project.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project ID" />
@@ -177,55 +111,45 @@ export const bySupervisorColumns: ColumnDef<SupervisorData>[] = [
         original: { project },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-16 truncate"> {project.id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {project.id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={project.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-16 truncate">{project.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "guid",
-    accessorFn: ({ userId }) => userId,
+    id: "Student GUID",
+    accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" />
     ),
     cell: ({
       row: {
-        original: { userId },
+        original: { student },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-20 truncate"> {userId}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {userId}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={student.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-20 truncate">{student.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "student Ranking",
-    accessorFn: ({ studentRanking }) => studentRanking,
+    id: "Student Ranking",
+    accessorFn: ({ student }) => student.ranking,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student Rank" />
+      <DataTableColumnHeader column={column} title="Student Ranking" />
     ),
     cell: ({
       row: {
-        original: { studentRanking },
+        original: { student },
       },
-    }) => <div className="flex justify-center">{studentRanking}</div>,
+    }) => <div className="flex justify-center">{student.ranking}</div>,
   },
 ];

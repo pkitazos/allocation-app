@@ -8,7 +8,7 @@ import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
 
 export const columns: ColumnDef<AllocationCsvData>[] = [
   {
-    id: "project Internal ID",
+    id: "Project Internal ID",
     accessorFn: (row) => row.projectInternalId,
     header: ({ column }) => (
       <DataTableColumnHeader
@@ -32,7 +32,7 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
-    id: "guid",
+    id: "Student GUID",
     accessorFn: (row) => row.studentId,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student GUID" canFilter />
@@ -50,7 +50,7 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
-    id: "matric",
+    id: "Student Matric.",
     accessorFn: (row) => row.studentMatric,
     header: ({ column }) => (
       <DataTableColumnHeader
@@ -74,43 +74,32 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
-    id: "student Level",
+    id: "Student Level",
     accessorFn: (row) => row.studentLevel,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student Level" canFilter />
+      <DataTableColumnHeader column={column} title="Student Level" />
     ),
     cell: ({
       row: {
         original: { studentLevel },
       },
-    }) => (
-      <div className="flex w-32 items-center justify-center">
-        {studentLevel}
-      </div>
-    ),
+    }) => <div className="text-center">{studentLevel}</div>,
   },
   {
-    id: "project Title",
+    id: "Project Title",
     accessorFn: (row) => row.projectTitle,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Project Title" />
-    ),
+    header: () => <div className="w-32 py-1">Project Title</div>,
   },
   {
-    id: "project Description",
+    id: "Project Description",
     accessorFn: (row) => row.projectDescription,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Project Description" />
-    ),
+    header: () => <div className="w-60 py-1">Project Description</div>,
   },
   {
-    id: "project Special Technical Requirements",
+    id: "Project Special Technical Requirements",
     accessorFn: (row) => row.projectSpecialTechnicalRequirements,
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Project Special Technical Requirements"
-      />
+    header: () => (
+      <div className="w-40 py-1">Project Special Technical Requirements</div>
     ),
   },
   {
