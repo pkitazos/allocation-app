@@ -4,7 +4,7 @@ import { env } from "@/env";
 import { newUserSchema, ShibUser } from "@/lib/validations/auth";
 
 export async function getUserAction(user: ShibUser) {
-  "use server";
+  // "use server";
   const db = new PrismaClient();
 
   const dbUser = await db.user.findFirst({ where: { id: user.guid } });

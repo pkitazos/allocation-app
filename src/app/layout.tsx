@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-import { slim_auth } from "@/lib/auth";
+import { auth2 } from "@/lib/auth/auth2";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
@@ -24,7 +24,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await slim_auth();
+  const user = await auth2();
 
   return (
     <html lang="en" suppressHydrationWarning>
