@@ -1,10 +1,10 @@
 "use client";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Role, Stage, Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -46,10 +46,11 @@ import {
   UpdatedProject,
 } from "@/lib/validations/project-form";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { AccessControl } from "./access-control";
+import { Editor } from "./md-editor";
 import { useInstancePath } from "./params-context";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function ProjectForm({
   formInternalData: { takenTitles, flags, tags, students },
@@ -144,8 +145,11 @@ export function ProjectForm({
             <FormItem>
               <FormLabel className="text-2xl">Description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Type the project description here."
+                <Editor
+                  {...field}
+                  textareaProps={{
+                    placeholder: "Type the project description here.",
+                  }}
                   {...field}
                 />
               </FormControl>
