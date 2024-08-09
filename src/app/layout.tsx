@@ -35,18 +35,17 @@ export default async function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <SessionProvider session={{ user }}>
-            <TRPCReactProvider>
-              <Header />
-              <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
-                <Breadcrumbs />
-                <section className="mx-auto flex h-full w-full max-w-7xl justify-center pb-32 pt-6 3xl:max-w-9xl">
-                  {children}
-                </section>
-              </main>
-              <Toaster position="bottom-right" />
-            </TRPCReactProvider>
-          </SessionProvider>
+          <TRPCReactProvider>
+            <Header />
+            <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
+              <Breadcrumbs />
+              <p className="text-5xl text-fuchsia-500">{user?.name}</p>
+              <section className="mx-auto flex h-full w-full max-w-7xl justify-center pb-32 pt-6 3xl:max-w-9xl">
+                {children}
+              </section>
+            </main>
+            <Toaster position="bottom-right" />
+          </TRPCReactProvider>
         </ThemeProvider>
       </body>
     </html>

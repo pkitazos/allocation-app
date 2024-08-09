@@ -5,16 +5,14 @@ import { slim_auth } from "@/lib/auth";
 
 // TODO: remove auth check, can assume that a user exists since the application is protected by shibboleth
 export default async function Home() {
-  const user = await slim_auth();
+  // const user = await slim_auth();
+  const user = undefined;
 
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center gap-6">
       <h1 className="text-4xl font-medium">
         Welcome{" "}
-        {user && (
-          <span className="font-semibold text-secondary">{user.name}</span>
-        )}
-        !
+        {user && <span className="font-semibold text-secondary">{}</span>}!
       </h1>
       {!user ? (
         <>
