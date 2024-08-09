@@ -44,7 +44,9 @@ export default async function Layout({
               {instanceTabs.myProjects.title}
             </Link>
           </Button>
-          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
+          <AccessControl
+            allowedStages={[Stage.PROJECT_SUBMISSION, Stage.PROJECT_SELECTION]}
+          >
             <Button variant="secondary" className="w-full" asChild>
               <Link
                 className="flex items-center gap-2"
