@@ -1,4 +1,4 @@
-import { Role, Stage } from "@prisma/client";
+import { Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
@@ -6,13 +6,12 @@ import {
   PenIcon,
   Trash2Icon,
 } from "lucide-react";
-import { User } from "next-auth";
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -26,13 +25,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import { useInstancePath, useInstanceStage } from "@/components/params-context";
+import { cn } from "@/lib/utils";
 import {
   previousStages,
   stageGte,
   stageLt,
 } from "@/lib/utils/permissions/stage-check";
-import { useInstancePath, useInstanceStage } from "@/components/params-context";
-import { cn } from "@/lib/utils";
 
 export type SupervisorProjectDto = {
   id: string;
@@ -82,9 +81,12 @@ export function constructColumns({
           original: { id, title },
         },
       }) => (
-        <Button variant="link">
-          <Link href={`../projects/${id}`}>{title}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../projects/${id}`}
+        >
+          {title}
+        </Link>
       ),
     },
     {

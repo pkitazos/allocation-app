@@ -13,7 +13,7 @@ import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -74,9 +74,12 @@ export function constructColumns({
           original: { id, title },
         },
       }) => (
-        <Button variant="link">
-          <Link href={`./projects/${id}`}>{title}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`./projects/${id}`}
+        >
+          {title}
+        </Link>
       ),
     },
     {
@@ -92,9 +95,12 @@ export function constructColumns({
           },
         },
       }) => (
-        <Button variant="link">
-          <Link href={`./supervisors/${id}`}>{name}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`./supervisors/${id}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {

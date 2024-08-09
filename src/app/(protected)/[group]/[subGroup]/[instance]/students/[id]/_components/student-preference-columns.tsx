@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { useInstanceStage } from "@/components/params-context";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -79,9 +79,12 @@ export function constructColumns({
           original: { project },
         },
       }) => (
-        <Button variant="link" className="cursor-default" asChild>
-          <Link href={`../projects/${project.id}`}>{project.title}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../projects/${project.id}`}
+        >
+          {project.title}
+        </Link>
       ),
     },
     {

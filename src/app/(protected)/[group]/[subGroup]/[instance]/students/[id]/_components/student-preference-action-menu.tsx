@@ -1,18 +1,13 @@
 "use client";
 import { PreferenceType } from "@prisma/client";
-import {
-  BookmarkIcon,
-  CornerDownRightIcon,
-  LucideMoreHorizontal as MoreIcon,
-} from "lucide-react";
-import Link from "next/link";
+import { Slot } from "@radix-ui/react-slot";
+import { BookmarkIcon, LucideMoreHorizontal as MoreIcon } from "lucide-react";
 import { ReactNode, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRadioGroup,
@@ -28,7 +23,6 @@ import {
   StudentPreferenceType,
   studentPreferenceSchema,
 } from "@/lib/validations/student-preference";
-import { Slot } from "@radix-ui/react-slot";
 
 export function StudentPreferenceActionMenu({
   defaultType,
