@@ -16,6 +16,8 @@ export async function middleware(req: NextRequest) {
     Groups: shib_groups?.split(";"),
   });
 
+  console.log("==================== PARSING HEADERS");
+
   // Parse the headers into their expected types
   const guid = z.string().parse(shib_guid);
   const displayName = z.string().parse(shib_displayName);
