@@ -31,12 +31,10 @@ export async function auth2() {
 
   const newUser = await getUserAction({ guid, displayName, email });
 
-  // await setCookies(newUser);
-
   return newUser;
 }
 
-async function setCookies(newUser: User) {
+export async function setCookies(newUser: User) {
   "use server";
   // Add the user to the cookies
   cookies().set({
