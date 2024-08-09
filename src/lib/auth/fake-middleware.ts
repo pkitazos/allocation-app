@@ -11,7 +11,7 @@ export async function fake_middleware() {
   // Log the headers to the console
   console.log(">>> from shibboleth", {
     GUID: shib_guid,
-    "Display Name": shib_displayName,
+    DisplayName: shib_displayName,
     Groups: shib_groups?.split(";"),
   });
 
