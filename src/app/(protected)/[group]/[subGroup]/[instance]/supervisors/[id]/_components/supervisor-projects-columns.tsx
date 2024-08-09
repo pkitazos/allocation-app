@@ -3,15 +3,19 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
+  PenIcon,
   Trash2Icon,
 } from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { TagType } from "@/components/tag/tag-input";
-import { Badge } from "@/components/ui/badge";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
+import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,46 +24,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { AccessControl } from "@/components/access-control";
-import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
-import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-import { previousStages, stageGte } from "@/lib/utils/permissions/stage-check";
 
-export interface SupervisorProjectData {
-  title: string;
+import {
+  previousStages,
+  stageGte,
+  stageLt,
+} from "@/lib/utils/permissions/stage-check";
+import { useInstancePath, useInstanceStage } from "@/components/params-context";
+import { cn } from "@/lib/utils";
+
+export type SupervisorProjectDto = {
   id: string;
-  supervisor: {
-    userId: string;
-  };
-  flagOnProjects: {
-    flag: {
-      title: string;
-      id: string;
-    };
-  }[];
-  tagOnProject: {
-    tag: {
-      title: string;
-      id: string;
-    };
-  }[];
-}
+  title: string;
+  supervisorId: string;
+  flags: TagType[];
+  tags: TagType[];
+};
 
-export function supervisorProjectsColumns(
-  user: User,
-  role: Role,
-  stage: Stage,
-  supervisorId: string,
-  deleteSupervisorProject: (id: string) => Promise<void>,
-  deleteSelectedSupervisorProjects: (ids: string[]) => Promise<void>,
-): ColumnDef<SupervisorProjectData>[] {
-  const selectCol = getSelectColumn<SupervisorProjectData>();
+export function constructColumns({
+  deleteProject,
+  deleteSelectedProjects,
+}: {
+  deleteProject: (id: string) => Promise<void>;
+  deleteSelectedProjects: (ids: string[]) => Promise<void>;
+}): ColumnDef<SupervisorProjectDto>[] {
+  const stage = useInstanceStage();
+  const instancePath = useInstancePath();
 
-  const userCols: ColumnDef<SupervisorProjectData>[] = [
+  const selectCol = getSelectColumn<SupervisorProjectDto>();
+
+  const userCols: ColumnDef<SupervisorProjectDto>[] = [
     {
-      id: "id",
+      id: "ID",
       accessorFn: ({ id }) => id,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" canFilter />
@@ -75,7 +72,7 @@ export function supervisorProjectsColumns(
       ),
     },
     {
-      id: "title",
+      id: "Title",
       accessorFn: ({ title }) => title,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title" />
@@ -91,28 +88,46 @@ export function supervisorProjectsColumns(
       ),
     },
     {
-      id: "flags",
-      accessorFn: (row) => row.flagOnProjects,
+      id: "Flags",
+      accessorFn: (row) => row.flags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Flags" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
-        const rowFlags = row.getValue(columnId) as { flag: TagType }[];
-        return rowFlags.some((e) => ids.includes(e.flag.id));
+        const rowFlags = row.getValue(columnId) as TagType[];
+        return rowFlags.some((f) => ids.includes(f.id));
       },
       cell: ({
         row: {
-          original: { flagOnProjects },
+          original: { flags },
         },
       }) => (
         <div className="flex flex-col gap-2">
-          {flagOnProjects.length > 2 ? (
-            <Badge className="rounded-sm px-1 font-normal">
-              {flagOnProjects.length} selected
-            </Badge>
+          {flags.length > 2 ? (
+            <>
+              <Badge className="w-fit" key={flags[0].id}>
+                {flags[0].title}
+              </Badge>
+              <WithTooltip
+                side="right"
+                tip={
+                  <ul className="flex list-disc flex-col gap-1 p-2 pl-1">
+                    {flags.slice(1).map((flag) => (
+                      <Badge className="w-fit" key={flag.id}>
+                        {flag.title}
+                      </Badge>
+                    ))}
+                  </ul>
+                }
+              >
+                <div className={cn(badgeVariants(), "w-fit font-normal")}>
+                  {flags.length - 1}+
+                </div>
+              </WithTooltip>
+            </>
           ) : (
-            flagOnProjects.map(({ flag }) => (
+            flags.map((flag) => (
               <Badge className="w-fit" key={flag.id}>
                 {flag.title}
               </Badge>
@@ -122,28 +137,51 @@ export function supervisorProjectsColumns(
       ),
     },
     {
-      id: "tags",
-      accessorFn: (row) => row.tagOnProject,
+      id: "Keywords",
+      accessorFn: (row) => row.tags,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Keywords" />
       ),
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
-        const rowTags = row.getValue(columnId) as { tag: TagType }[];
-        return rowTags.some((e) => ids.includes(e.tag.id));
+        const rowTags = row.getValue(columnId) as TagType[];
+        return rowTags.some((t) => ids.includes(t.id));
       },
       cell: ({
         row: {
-          original: { tagOnProject },
+          original: { tags },
         },
       }) => (
         <div className="flex flex-col gap-2">
-          {tagOnProject.length > 2 ? (
-            <Badge variant="outline" className="rounded-sm px-1 font-normal">
-              {tagOnProject.length} selected
-            </Badge>
+          {tags.length > 2 ? (
+            <>
+              <Badge variant="outline" className="w-fit" key={tags[0].id}>
+                {tags[0].title}
+              </Badge>
+              <WithTooltip
+                side="right"
+                tip={
+                  <ul className="flex list-disc flex-col gap-1 p-2 pl-1">
+                    {tags.slice(1).map((tag) => (
+                      <Badge variant="outline" className="w-fit" key={tag.id}>
+                        {tag.title}
+                      </Badge>
+                    ))}
+                  </ul>
+                }
+              >
+                <div
+                  className={cn(
+                    badgeVariants({ variant: "outline" }),
+                    "w-fit font-normal",
+                  )}
+                >
+                  {tags.length - 1}+
+                </div>
+              </WithTooltip>
+            </>
           ) : (
-            tagOnProject.map(({ tag }) => (
+            tags.map((tag) => (
               <Badge variant="outline" className="w-fit" key={tag.id}>
                 {tag.title}
               </Badge>
@@ -154,9 +192,8 @@ export function supervisorProjectsColumns(
     },
   ];
 
-  const actionsCol: ColumnDef<SupervisorProjectData> = {
+  const actionsCol: ColumnDef<SupervisorProjectDto> = {
     id: "actions",
-    accessorKey: "actions",
     header: ({ table }) => {
       const someSelected =
         table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
@@ -165,30 +202,32 @@ export function supervisorProjectsColumns(
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
-      if (
-        someSelected &&
-        (role === Role.ADMIN || user.id === supervisorId) &&
-        !stageGte(stage, Stage.PROJECT_ALLOCATION)
-      ) {
+      if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
         return (
           <div className="flex w-14 items-center justify-center">
-            <WithTooltip
-              tip={<p className="text-gray-700">Delete selected Projects</p>}
-              duration={500}
-            >
-              <Button
-                className="flex items-center gap-2"
-                variant="destructive"
-                size="sm"
-                onClick={async () =>
-                  await deleteSelectedSupervisorProjects(
-                    selectedProjectIds,
-                  ).then(() => table.toggleAllRowsSelected(false))
-                }
-              >
-                <Trash2Icon className="h-4 w-4" />
-              </Button>
-            </WithTooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost">
+                  <span className="sr-only">Open menu</span>
+                  <MoreIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <button
+                    className="flex items-center gap-2"
+                    onClick={async () =>
+                      void deleteSelectedProjects(selectedProjectIds)
+                    }
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span>Delete selected Projects</span>
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
       }
@@ -196,7 +235,7 @@ export function supervisorProjectsColumns(
     },
     cell: ({ row: { original: project }, table }) => {
       async function handleDelete() {
-        await deleteSupervisorProject(project.id).then(() => {
+        await deleteProject(project.id).then(() => {
           table.toggleAllRowsSelected(false);
         });
       }
@@ -209,7 +248,7 @@ export function supervisorProjectsColumns(
                 <MoreIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" side="bottom">
+            <DropdownMenuContent side="bottom">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
@@ -222,17 +261,24 @@ export function supervisorProjectsColumns(
                 </Link>
               </DropdownMenuItem>
               <AccessControl
-                allowedRoles={[Role.ADMIN]}
                 allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-                extraConditions={{ RBAC: { OR: supervisorId === user.id } }}
               >
+                <DropdownMenuItem>
+                  <Link
+                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                    href={`${instancePath}/projects/${project.id}/edit`}
+                  >
+                    <PenIcon className="h-4 w-4" />
+                    <span>Edit Project {project.title}</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
                   <button
                     className="flex items-center gap-2"
                     onClick={handleDelete}
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project</span>
+                    <span>Delete Project {project.title}</span>
                   </button>
                 </DropdownMenuItem>
               </AccessControl>
@@ -242,8 +288,6 @@ export function supervisorProjectsColumns(
       );
     },
   };
-
-  if (role !== Role.ADMIN && user.id !== supervisorId) return userCols;
 
   return stageGte(stage, Stage.PROJECT_ALLOCATION)
     ? [...userCols, actionsCol]
