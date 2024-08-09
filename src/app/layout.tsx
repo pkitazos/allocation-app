@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-import { auth2 } from "@/lib/auth/auth2";
+import { fake_middleware } from "@/lib/auth/auth2";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
@@ -25,7 +25,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await auth2();
+  const user = await fake_middleware();
 
   return (
     <html lang="en" suppressHydrationWarning>

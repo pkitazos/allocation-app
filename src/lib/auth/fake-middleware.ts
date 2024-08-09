@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { getUserAction } from "./procedures";
 
-export async function auth2() {
+export async function fake_middleware() {
   // Extract the headers from the request
   const shib_guid = headers().get("DH75HDYT76");
   const shib_displayName = headers().get("DH75HDYT77");
