@@ -2,77 +2,50 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-export interface StudentData {
-  student: {
-    user: {
-      name: string | null;
-      id: string;
-      email: string | null;
-    };
-  };
-  project: {
-    id: string;
-    supervisor: {
-      user: {
-        id: string;
-        name: string | null;
-      };
-    };
-  };
-  studentRanking: number;
-}
+import { cn } from "@/lib/utils";
+import { AllocationByStudentDto } from "@/lib/validations/allocation/data-table-dto";
 
-export const byStudentColumns: ColumnDef<StudentData>[] = [
+export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
   {
-    id: "guid",
-    accessorFn: ({ student: { user } }) => user.id,
+    id: "Student GUID",
+    accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" />
     ),
     cell: ({
       row: {
         original: { student },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-20 truncate"> {student.user.id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {student.user.id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={student.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-20 truncate">{student.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "student Name",
-    accessorFn: ({ student: { user } }) => user.name,
+    id: "Student Name",
+    accessorFn: ({ student }) => student.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" />
     ),
   },
   {
-    id: "student Email",
-    accessorFn: ({ student: { user } }) => user.email,
+    id: "Student Email",
+    accessorFn: ({ student }) => student.email,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Email" />
     ),
   },
   {
-    id: "project ID",
+    id: "Project ID",
     accessorFn: ({ project }) => project.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project ID" />
@@ -82,52 +55,46 @@ export const byStudentColumns: ColumnDef<StudentData>[] = [
         original: { project },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-16 truncate"> {project.id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {project.id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={project.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-16 truncate">{project.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "student Ranking",
-    accessorFn: ({ studentRanking }) => studentRanking,
+    id: "Student Ranking",
+    accessorFn: ({ student }) => student.ranking,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student Rank" />
+      <DataTableColumnHeader column={column} title="Student Ranking" />
     ),
     cell: ({
       row: {
-        original: { studentRanking },
+        original: { student },
       },
-    }) => <div className="flex justify-center">{studentRanking}</div>,
+    }) => <div className="flex justify-center">{student.ranking}</div>,
   },
   {
-    id: "supervisor Name",
-    accessorFn: ({ project }) => project.supervisor.user.name,
+    id: "Supervisor Name",
+    accessorFn: ({ supervisor }) => supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: {
-              user: { id, name },
-            },
-          },
+          supervisor: { id, name },
         },
       },
     }) => (
-      <Button variant="link">
-        <Link href={`./supervisors/${id}`}>{name}</Link>
-      </Button>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        href={`./supervisors/${id}`}
+      >
+        {name}
+      </Link>
     ),
   },
 ];

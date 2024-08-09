@@ -1,21 +1,22 @@
 "use client";
-
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { SearchableColumn } from "@/lib/validations/table";
+import { AllocationBySupervisorDto } from "@/lib/validations/allocation/data-table-dto";
 
-import { bySupervisorColumns, SupervisorData } from "./by-supervisor-columns";
+import { bySupervisorColumns } from "./by-supervisor-columns";
 
-export function BySupervisorDataTable({ data }: { data: SupervisorData[] }) {
-  const primaryColumn: SearchableColumn = {
-    id: "guid",
-    displayName: "GUIDs",
-  };
-
+export function BySupervisorDataTable({
+  data,
+}: {
+  data: AllocationBySupervisorDto[];
+}) {
   return (
     <div className="w-full">
       <DataTable
-        searchableColumn={primaryColumn}
+        searchableColumn={{
+          id: "Supervisor GUID",
+          displayName: "Supervisor GUIDs",
+        }}
         columns={bySupervisorColumns}
         data={data}
       />

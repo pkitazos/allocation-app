@@ -1,21 +1,19 @@
 "use client";
-
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { SearchableColumn } from "@/lib/validations/table";
+import { AllocationByStudentDto } from "@/lib/validations/allocation/data-table-dto";
 
-import { byStudentColumns, StudentData } from "./by-student-columns";
+import { byStudentColumns } from "./by-student-columns";
 
-export function ByStudentDataTable({ data }: { data: StudentData[] }) {
-  const primaryColumn: SearchableColumn = {
-    id: "guid",
-    displayName: "GUIDs",
-  };
-
+export function ByStudentDataTable({
+  data,
+}: {
+  data: AllocationByStudentDto[];
+}) {
   return (
     <div className="w-full">
       <DataTable
-        searchableColumn={primaryColumn}
+        searchableColumn={{ id: "Student GUID", displayName: "Student GUIDs" }}
         columns={byStudentColumns}
         data={data}
       />

@@ -2,39 +2,16 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-export interface ProjectData {
-  project: {
-    id: string;
-    title: string;
-    capacityLowerBound: number;
-    capacityUpperBound: number;
-    supervisor: {
-      user: {
-        id: string;
-        name: string | null;
-      };
-    };
-  };
-  studentRanking: number;
-  userId: string;
-}
+import { cn } from "@/lib/utils";
+import { AllocationByProjectDto } from "@/lib/validations/allocation/data-table-dto";
 
-// TODO: fix procedure so that data model and UI are not tightly coupled
-// TODO: fix data table view menu so that it renders the project IDs properly
-// do this for all three data tables
-
-export const byProjectColumns: ColumnDef<ProjectData>[] = [
+export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
   {
-    id: "project ID",
+    id: "Project ID",
     accessorFn: ({ project }) => project.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project ID" canFilter />
@@ -44,22 +21,17 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
         original: { project },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-16 truncate"> {project.id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {project.id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={project.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-20 truncate">{project.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "project Title",
+    id: "Project Title",
     accessorFn: ({ project }) => project.title,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project Title" />
@@ -71,15 +43,16 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
         },
       },
     }) => (
-      <div className="w-fit min-w-60">
-        <Link href={`./projects/${id}`}>
-          <Button variant="link">{title}</Button>
-        </Link>
-      </div>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        href={`./projects/${id}`}
+      >
+        {title}
+      </Link>
     ),
   },
   {
-    id: "projectLowerBound",
+    id: "Project Lower Bound",
     accessorFn: ({ project }) => project.capacityLowerBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project Lower Bound" />
@@ -93,7 +66,7 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     }) => <div className="flex justify-center">{capacityLowerBound}</div>,
   },
   {
-    id: "projectUpperBound",
+    id: "Project Upper Bound",
     accessorFn: ({ project }) => project.capacityUpperBound,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project Upper Bound" />
@@ -107,95 +80,76 @@ export const byProjectColumns: ColumnDef<ProjectData>[] = [
     }) => <div className="flex justify-center">{capacityUpperBound}</div>,
   },
   {
-    id: "supervisorId",
-    accessorFn: ({ project }) => project.supervisor.user.id,
+    id: "Supervisor GUID",
+    accessorFn: ({ supervisor }) => supervisor.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor GUID" />
     ),
     cell: ({
       row: {
-        original: {
-          project: {
-            supervisor: {
-              user: { id },
-            },
-          },
-        },
+        original: { supervisor },
       },
     }) => (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" className="cursor-default">
-              <div className="w-16 truncate"> {id}</div>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p> {id}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="text-left">
+        <WithTooltip tip={supervisor.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-16 truncate">{supervisor.id}</div>
+          </Button>
+        </WithTooltip>
+      </div>
     ),
   },
   {
-    id: "supervisorName",
-    accessorFn: ({ project }) => project.supervisor.user.name,
+    id: "Supervisor Name",
+    accessorFn: ({ supervisor }) => supervisor.name,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Supervisor Name" />
     ),
     cell: ({
       row: {
         original: {
-          project: {
-            supervisor: {
-              user: { id, name },
-            },
-          },
+          supervisor: { id, name },
         },
       },
     }) => (
-      <Button variant="link">
-        <Link href={`./supervisors/${id}`}>{name}</Link>
-      </Button>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        href={`./supervisors/${id}`}
+      >
+        {name}
+      </Link>
     ),
   },
   {
-    id: "guid",
-    accessorFn: ({ userId }) => userId,
+    id: "Student GUID",
+    accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" />
     ),
     cell: ({
       row: {
-        original: { userId },
+        original: { student },
       },
     }) => (
       <div className="text-left">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" className="cursor-default">
-                <div className="w-20 truncate"> {userId}</div>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p> {userId}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <WithTooltip tip={student.id}>
+          <Button variant="ghost" className="cursor-default">
+            <div className="w-20 truncate">{student.id}</div>
+          </Button>
+        </WithTooltip>
       </div>
     ),
   },
   {
-    id: "studentRank",
-    accessorFn: ({ studentRanking }) => studentRanking,
+    id: "Student Rank",
+    accessorFn: ({ student }) => student.ranking,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Rank" />
     ),
     cell: ({
       row: {
-        original: { studentRanking },
+        original: { student },
       },
-    }) => <div className="flex justify-center">{studentRanking}</div>,
+    }) => <div className="flex justify-center">{student.ranking}</div>,
   },
 ];
