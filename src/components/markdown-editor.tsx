@@ -1,11 +1,11 @@
 "use client";
-import { JSX } from "react";
 import MDEditor, { MDEditorProps } from "@uiw/react-md-editor";
+import { JSX } from "react";
 import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
 import remarkMath from "remark-math";
 
-export function Editor(props: JSX.IntrinsicAttributes & MDEditorProps) {
+export function MarkdownEditor(props: JSX.IntrinsicAttributes & MDEditorProps) {
   return (
     <>
       <link
@@ -24,8 +24,7 @@ export function Editor(props: JSX.IntrinsicAttributes & MDEditorProps) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function Renderer({ source }: { source: string }) {
+export function MarkdownRenderer({ source }: { source: string }) {
   return (
     <>
       <link

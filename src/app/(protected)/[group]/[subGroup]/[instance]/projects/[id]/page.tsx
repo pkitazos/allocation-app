@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
 import { Heading, SubHeading } from "@/components/heading";
-import { Renderer } from "@/components/md-editor";
+import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export default async function Project({ params }: { params: pageParams }) {
           <div className="flex flex-col">
             <SubHeading>Description</SubHeading>
             <div className="mt-6">
-              <Renderer source={project.description} />
+              <MarkdownRenderer source={project.description} />
             </div>
           </div>
           <div
