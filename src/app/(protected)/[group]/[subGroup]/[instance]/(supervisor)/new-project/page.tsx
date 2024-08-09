@@ -16,7 +16,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   if (stageGt(stage, Stage.PROJECT_SELECTION)) {
     return (
-      // TODO: handle late submissions
       <Unauthorised message="You really should not be submitting projects at this stage" />
     );
   }
