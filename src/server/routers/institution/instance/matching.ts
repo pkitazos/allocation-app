@@ -320,21 +320,23 @@ export const matchingRouter = createTRPCRouter({
           };
         });
 
-        await ctx.db.projectAllocation.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+        await ctx.db.$transaction(async (tx) => {
+          await tx.projectAllocation.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+          });
 
-        await ctx.db.projectAllocation.createMany({
-          data: updatedAllocations.map((e) => ({
-            ...e,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          })),
+          await tx.projectAllocation.createMany({
+            data: updatedAllocations.map((e) => ({
+              ...e,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            })),
+          });
         });
       },
     ),

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaTransactionClient } from "@/lib/db";
 
 type StudentProjectAllocationData = {
   group: string;
@@ -9,7 +9,7 @@ type StudentProjectAllocationData = {
 };
 
 export async function updateProjectAllocation(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   data: StudentProjectAllocationData,
 ) {
   const { group, subGroup, instance, preAllocatedStudentId, projectId } = data;

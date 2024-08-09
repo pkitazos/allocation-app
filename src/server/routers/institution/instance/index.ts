@@ -132,7 +132,6 @@ export const instanceRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx }) => ctx.instance.selectedAlgName ?? undefined),
 
-  // TODO: decouple data table data from database model & improve filtering in queries
   projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .output(
@@ -540,17 +539,15 @@ export const instanceRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.delete({
-            where: {
-              instanceMembership: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: supervisorId,
-              },
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: supervisorId,
             },
-          });
+          },
         });
       },
     ),
@@ -570,15 +567,13 @@ export const instanceRouter = createTRPCRouter({
           supervisorIds,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: supervisorIds },
-            },
-          });
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: { in: supervisorIds },
+          },
         });
       },
     ),
@@ -821,17 +816,15 @@ export const instanceRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.delete({
-            where: {
-              instanceMembership: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: studentId,
-              },
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
             },
-          });
+          },
         });
       },
     ),
@@ -851,15 +844,13 @@ export const instanceRouter = createTRPCRouter({
           studentIds,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: studentIds },
-            },
-          });
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: { in: studentIds },
+          },
         });
       },
     ),
@@ -909,89 +900,91 @@ export const instanceRouter = createTRPCRouter({
           updatedInstance: { flags, tags, ...updatedData },
         },
       }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.allocationInstance.update({
+            where: {
+              instanceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                id: instance,
+              },
+            },
+            data: updatedData,
+          });
+
+          const currentInstanceFlags = await tx.flag.findMany({
+            where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              id: instance,
+              allocationInstanceId: instance,
             },
-          },
-          data: updatedData,
-        });
+          });
 
-        const currentInstanceFlags = await ctx.db.flag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+          const newInstanceFlags = setDiff(
+            flags,
+            currentInstanceFlags,
+            (a) => a.title,
+          );
+          const staleInstanceFlags = setDiff(
+            currentInstanceFlags,
+            flags,
+            (a) => a.title,
+          );
 
-        const newInstanceFlags = setDiff(
-          flags,
-          currentInstanceFlags,
-          (a) => a.title,
-        );
-        const staleInstanceFlags = setDiff(
-          currentInstanceFlags,
-          flags,
-          (a) => a.title,
-        );
+          await tx.flag.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: { in: staleInstanceFlags.map((f) => f.title) },
+            },
+          });
 
-        await ctx.db.flag.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: { in: staleInstanceFlags.map((f) => f.title) },
-          },
-        });
+          await tx.flag.createMany({
+            data: newInstanceFlags.map((f) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: f.title,
+            })),
+          });
 
-        await ctx.db.flag.createMany({
-          data: newInstanceFlags.map((f) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: f.title,
-          })),
-        });
+          const currentInstanceTags = await tx.tag.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+          });
 
-        const currentInstanceTags = await ctx.db.tag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+          const newInstanceTags = setDiff(
+            tags,
+            currentInstanceTags,
+            (a) => a.title,
+          );
+          const staleInstanceTags = setDiff(
+            currentInstanceTags,
+            tags,
+            (a) => a.title,
+          );
 
-        const newInstanceTags = setDiff(
-          tags,
-          currentInstanceTags,
-          (a) => a.title,
-        );
-        const staleInstanceTags = setDiff(
-          currentInstanceTags,
-          tags,
-          (a) => a.title,
-        );
+          await tx.tag.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: { in: staleInstanceTags.map((t) => t.title) },
+            },
+          });
 
-        await ctx.db.tag.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: { in: staleInstanceTags.map((t) => t.title) },
-          },
-        });
-
-        await ctx.db.tag.createMany({
-          data: newInstanceTags.map((t) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: t.title,
-          })),
+          await tx.tag.createMany({
+            data: newInstanceTags.map((t) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: t.title,
+            })),
+          });
         });
       },
     ),
