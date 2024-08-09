@@ -1,10 +1,10 @@
 "use client";
+import { ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Role, Stage, Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 
 import { TagInput, TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
@@ -46,10 +46,10 @@ import {
   UpdatedProject,
 } from "@/lib/validations/project-form";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { AccessControl } from "./access-control";
 import { useInstancePath } from "./params-context";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function ProjectForm({
   formInternalData: { takenTitles, flags, tags, students },
@@ -57,6 +57,7 @@ export function ProjectForm({
   project,
   onSubmit,
   isForked = false,
+  requiredFlags,
   children: dismissalButton,
 }: {
   formInternalData: FormInternalData;
@@ -64,6 +65,7 @@ export function ProjectForm({
   onSubmit: (data: UpdatedProject) => void;
   project?: CurrentProjectFormDetails;
   isForked?: boolean;
+  requiredFlags: string[];
   children: ReactNode;
 }) {
   const instancePath = useInstancePath();
@@ -85,7 +87,9 @@ export function ProjectForm({
   );
 
   const form = useForm<UpdatedProject>({
-    resolver: zodResolver(buildUpdatedProjectSchema(takenTitles)),
+    resolver: zodResolver(
+      buildUpdatedProjectSchema(takenTitles, requiredFlags),
+    ),
     defaultValues: {
       title: formProject.title,
       description: formProject.description,
