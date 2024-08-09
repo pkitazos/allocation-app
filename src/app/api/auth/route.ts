@@ -17,12 +17,16 @@ export async function POST(req: NextRequest) {
 
   const newUser = await getUserAction(result.data);
 
+  console.log("==================== NEW USER CREATED");
+
   // Add the user to the cookies
   cookies().set({
     name: "user",
     value: JSON.stringify(newUser),
     httpOnly: true,
   });
+
+  console.log("==================== USER ADDED TO COOKIES");
 
   return NextResponse.json({
     status: 200,
