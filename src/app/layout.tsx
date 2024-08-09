@@ -11,6 +11,7 @@ import { auth2 } from "@/lib/auth/auth2";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
+import { auth3 } from "@/lib/auth/auth3";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await auth2();
+  const user = await auth3();
 
   return (
     <html lang="en" suppressHydrationWarning>

@@ -4,7 +4,7 @@ import { env } from "@/env";
 import { newUserSchema, ShibUser } from "@/lib/validations/auth";
 
 export async function getUserAction(user: ShibUser) {
-  // "use server";
+  "use server";
   const db = new PrismaClient();
 
   const dbUser = await db.user.findFirst({ where: { id: user.guid } });
@@ -21,7 +21,7 @@ export async function getUserAction(user: ShibUser) {
 }
 
 export async function authenticateUser(userPayload: ShibUser) {
-  return await fetch(`${env.SITE_URL}/api/auth`, {
+  return await fetch("/api/auth", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userPayload),
