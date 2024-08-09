@@ -295,7 +295,11 @@ export function ProjectForm({
             Only toggle the below switch if the project has been self-defined by
             a student. Otherwise, you can submit the project.
           </NoteCard>
-
+        </AccessControl>
+        <AccessControl
+          allowedStages={[Stage.PROJECT_SUBMISSION]}
+          allowedRoles={[Role.ADMIN, Role.SUPERVISOR]}
+        >
           <FormField
             control={form.control}
             name="isPreAllocated"
@@ -320,7 +324,10 @@ export function ProjectForm({
         </AccessControl>
 
         <div className="flex justify-between">
-          <AccessControl allowedRoles={[Role.ADMIN]}>
+          <AccessControl
+            allowedRoles={[Role.ADMIN]}
+            allowedStages={[Stage.PROJECT_SUBMISSION, Stage.PROJECT_SELECTION]}
+          >
             <FormField
               control={form.control}
               name="capacityUpperBound"
