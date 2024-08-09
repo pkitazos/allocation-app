@@ -30,6 +30,9 @@ export function RunAlgorithmButton({
       params,
     });
 
+  const refetchAllResults = () =>
+    utils.institution.instance.algorithm.allResults.refetch({ params });
+
   const { isPending, mutateAsync: runAlgAsync } =
     api.institution.instance.algorithm.run.useMutation();
 
@@ -39,6 +42,7 @@ export function RunAlgorithmButton({
     void toast.promise(
       runAlgAsync({ params, algorithm }).then((data) => {
         refetchAlgorithmResult();
+        refetchAllResults();
         return data;
       }),
       {
