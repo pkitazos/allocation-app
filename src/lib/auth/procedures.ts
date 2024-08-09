@@ -21,11 +21,15 @@ export async function getUserAction(user: ShibUser) {
 }
 
 export async function authenticateUser(userPayload: ShibUser) {
-  return await fetch(`${env.SITE_URL}/api/auth`, {
+  const hello = await fetch(`${env.SITE_URL}/api/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userPayload),
-  })
-    .then(async (res) => res.json())
-    .then((res) => newUserSchema.safeParse(res.data));
+  }).then(async (res) => res.json());
+  // .then((res) => newUserSchema.safeParse(res.data));
+
+  console.log("server response ---------------------");
+  console.log(hello);
+
+  return newUserSchema.safeParse(hello);
 }
