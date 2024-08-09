@@ -1057,4 +1057,19 @@ export const instanceRouter = createTRPCRouter({
       }
       await mergeInstanceTransaction(ctx.db, parentInstanceId, params);
     }),
+
+  getFlags: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const flags = await ctx.db.flag.findMany({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+        },
+        select: { title: true },
+      });
+
+      return flags.map(({ title }) => title);
+    }),
 });

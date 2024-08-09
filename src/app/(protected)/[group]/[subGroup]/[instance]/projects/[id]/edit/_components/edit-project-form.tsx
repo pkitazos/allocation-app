@@ -19,10 +19,12 @@ export function EditProjectForm({
   formInternalData,
   project,
   isForked,
+  requiredFlags,
 }: {
   formInternalData: FormInternalData;
   project: CurrentProjectFormDetails;
   isForked: boolean;
+  requiredFlags: string[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -55,6 +57,7 @@ export function EditProjectForm({
       isForked={isForked}
       submissionButtonLabel="Update Project"
       onSubmit={onSubmit}
+      requiredFlags={requiredFlags}
     >
       <ProjectRemovalButton projectId={project.id} />
     </ProjectForm>

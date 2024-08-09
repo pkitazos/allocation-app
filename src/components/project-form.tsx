@@ -58,6 +58,7 @@ export function ProjectForm({
   project,
   onSubmit,
   isForked = false,
+  requiredFlags,
   children: dismissalButton,
 }: {
   formInternalData: FormInternalData;
@@ -65,6 +66,7 @@ export function ProjectForm({
   onSubmit: (data: UpdatedProject) => void;
   project?: CurrentProjectFormDetails;
   isForked?: boolean;
+  requiredFlags: string[];
   children: ReactNode;
 }) {
   const instancePath = useInstancePath();
@@ -86,7 +88,9 @@ export function ProjectForm({
   );
 
   const form = useForm<UpdatedProject>({
-    resolver: zodResolver(buildUpdatedProjectSchema(takenTitles)),
+    resolver: zodResolver(
+      buildUpdatedProjectSchema(takenTitles, requiredFlags),
+    ),
     defaultValues: {
       title: formProject.title,
       description: formProject.description,

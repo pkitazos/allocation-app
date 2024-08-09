@@ -42,7 +42,10 @@ export const updatedProjectSchema = baseProjectFormSchema.refine(
 
 export type UpdatedProject = z.infer<typeof updatedProjectSchema>;
 
-export function buildUpdatedProjectSchema(takenTitles: string[]) {
+export function buildUpdatedProjectSchema(
+  takenTitles: string[],
+  requiredFlags: string[] = [],
+) {
   return updatedProjectSchema
     .refine(({ title }) => !takenTitles.includes(title), {
       message: "This title is already taken",
@@ -50,10 +53,7 @@ export function buildUpdatedProjectSchema(takenTitles: string[]) {
     })
     .refine(
       ({ flagTitles }) => {
-        const requiredFlags: string[] = [
-          projectFlags.level4,
-          projectFlags.level5,
-        ];
+        if (requiredFlags.length === 0) return true;
         return flagTitles.some((title) => requiredFlags.includes(title));
       },
       {

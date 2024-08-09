@@ -1,4 +1,3 @@
-import { projectFlags } from "@/content/config/flags";
 import { isAfter } from "date-fns";
 import { z } from "zod";
 
@@ -89,7 +88,7 @@ export function buildInstanceFormSchema(takenNames: string[]) {
     )
     .refine(
       ({ flags }) => {
-        const flagSet = new Set(flags);
+        const flagSet = new Set(flags.map(({ title }) => title));
         return flags.length === flagSet.size;
       },
       {
