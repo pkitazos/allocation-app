@@ -41,7 +41,7 @@ export function CreateProjectForm({
       {
         loading: "Creating Project...",
         error: "Something went wrong",
-        success: "Success",
+        success: "Successfully created new project",
       },
     );
   };
