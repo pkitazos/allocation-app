@@ -25,11 +25,10 @@ export async function authenticateUser(userPayload: ShibUser) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userPayload),
-  }).then(async (res) => res.json());
+  }).then(async (res) => await res.json());
   // .then((res) => newUserSchema.safeParse(res.data));
 
-  console.log("server response ---------------------");
-  console.log(hello);
+  console.log("==================== FETCH COMPLETE", hello);
 
   return newUserSchema.safeParse(hello);
 }
