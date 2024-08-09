@@ -1,6 +1,6 @@
 "use client";
 import { Session } from "@/lib/validations/auth";
-import { setCookies } from "@/lib/auth/auth2";
+import { setCookies } from "@/lib/auth/user-cookie";
 import { createContext, ReactNode } from "react";
 
 const SessionContext = createContext<Session | null>(null);
