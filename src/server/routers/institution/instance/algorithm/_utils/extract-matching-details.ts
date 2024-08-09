@@ -18,7 +18,7 @@ export function extractMatchingDetails(
       studentName: student.name!,
       projectId: "-",
       projectTitle: "-",
-      studentRank: "-",
+      studentRank: NaN,
     };
   }
 
