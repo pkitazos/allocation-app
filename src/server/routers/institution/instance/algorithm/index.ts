@@ -3,19 +3,27 @@ import { z } from "zod";
 import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
   blankResult,
-  MatchingDetails,
   MatchingDetailsDto,
-  MatchingResult,
   matchingResultSchema,
 } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
-import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
-import { getMatchingData } from "./_utils/get-matching-data";
+import {
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  GreedyGenAlgorithm,
+  MinCostAlgorithm,
+} from "@/lib/algorithms";
+import { relativeComplement } from "@/lib/utils/general/set-difference";
 import { Role } from "@prisma/client";
-import { extractMatchingDetails } from "./_utils/extract-matching-details";
+import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
+import {
+  extractMatchingDetails,
+  parseMatchingResult,
+} from "./_utils/extract-matching-details";
+import { getMatchingData } from "./_utils/get-matching-data";
 
 export const algorithmRouter = createTRPCRouter({
   run: instanceAdminProcedure
@@ -187,7 +195,6 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  // TODO: refactor as the way to compute firstNonEmpty is not very intuitive
   allResults: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -197,7 +204,7 @@ export const algorithmRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const results = await ctx.db.algorithm.findMany({
+        const algorithmData = await ctx.db.algorithm.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -211,70 +218,72 @@ export const algorithmRouter = createTRPCRouter({
           orderBy: { algName: "asc" },
         });
 
-        const allProjects = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { id: true, title: true },
-        });
+        const { projects, users } =
+          await ctx.db.allocationInstance.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+            },
+            select: {
+              projects: true,
+              users: {
+                where: { role: Role.STUDENT },
+                select: { user: { select: { id: true, name: true } } },
+              },
+            },
+          });
 
-        const allStudents = await ctx.db.userInInstance.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            role: Role.STUDENT,
-          },
-          select: { user: { select: { id: true, name: true } } },
-        });
+        const students = users.map((u) => ({
+          name: u.user.name!,
+          id: u.user.id,
+        }));
 
-        type TableData = {
-          algName: string;
-          displayName: string;
-          data: MatchingDetailsDto[];
-        };
+        const resultsByAlgName = new Map<string, MatchingDetailsDto[]>();
 
-        if (results.length === 0) {
-          return { results: [] as TableData[], firstNonEmpty: 0 };
+        for (const { algName, matchingResultData: data } of algorithmData) {
+          const matching = parseMatchingResult(data).matching;
+
+          const details = matching.map((m) =>
+            extractMatchingDetails(
+              students,
+              projects,
+              m.student_id,
+              m.project_id,
+              m.preference_rank,
+            ),
+          );
+
+          resultsByAlgName.set(algName, details);
         }
 
-        const nonEmpty: number[] = [];
-        const data = results.map(
-          ({ algName, displayName, matchingResultData }, i) => {
-            const res = matchingResultSchema.safeParse(
-              JSON.parse(matchingResultData as string),
-            );
-            const data = res.success ? res.data : blankResult;
-            if (data.matching.length !== 0) nonEmpty.push(i);
+        const builtInAlgs = [
+          GenerousAlgorithm,
+          GreedyAlgorithm,
+          GreedyGenAlgorithm,
+          MinCostAlgorithm,
+        ];
 
-            console.log(
-              "matching results:",
-              data.matching.map(
-                (m) => `${m.student_id} ${m.project_id} ${m.preference_rank}`,
-              ),
-            );
-
-            return {
-              algName,
-              displayName,
-              data: data.matching
-                .filter(({ project_id }) => project_id !== "0")
-                .map(({ student_id, project_id, preference_rank }) =>
-                  extractMatchingDetails(
-                    allStudents.map((s) => s.user),
-                    allProjects,
-                    student_id,
-                    project_id,
-                    preference_rank,
-                  ),
-                ),
-            };
-          },
+        const customAlgs = relativeComplement(
+          algorithmData,
+          builtInAlgs,
+          (a, b) => a.algName === b.algName,
         );
 
-        return { results: data, firstNonEmpty: nonEmpty[0] };
+        const allAlgorithms = [...builtInAlgs, ...customAlgs];
+
+        const results = allAlgorithms.map(({ algName, displayName }) => ({
+          algName,
+          displayName,
+          data: resultsByAlgName.get(algName) ?? [],
+        }));
+
+        const firstNonEmptyIdx = results.findIndex((r) => r.data.length > 0);
+
+        return {
+          results,
+          firstNonEmpty: results.at(firstNonEmptyIdx)?.algName,
+        };
       },
     ),
 });
