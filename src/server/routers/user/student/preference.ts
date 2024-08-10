@@ -54,18 +54,18 @@ export const preferenceRouter = createTRPCRouter({
                 },
               },
             },
+            orderBy: { rank: "asc" },
           });
-        return studentProjectPreferenceDetails.map(
-          ({ project, type, rank }) => ({
-            project: { id: project.id, title: project.title },
-            supervisor: {
-              name: project.supervisor.user.name,
-              id: project.supervisor.user.id,
-            },
-            type: type,
-            rank: rank,
-          }),
-        );
+
+        return studentProjectPreferenceDetails.map(({ project, type }, i) => ({
+          project: { id: project.id, title: project.title },
+          supervisor: {
+            name: project.supervisor.user.name,
+            id: project.supervisor.user.id,
+          },
+          type: type,
+          rank: i + 1,
+        }));
       },
     ),
 
