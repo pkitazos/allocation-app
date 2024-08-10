@@ -1,4 +1,4 @@
-import { PreferenceType, Stage } from "@prisma/client";
+import { PreferenceType, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageGte } from "@/lib/utils/permissions/stage-check";
@@ -10,10 +10,12 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  roleAwareProcedure,
   studentProcedure,
 } from "@/server/trpc";
 
 import { updatePreferenceTransaction } from "./_utils/update-preference";
+import { updateManyPreferenceTransaction } from "./_utils/update-many-preferences";
 
 export const preferenceRouter = createTRPCRouter({
   getAll: instanceAdminProcedure
@@ -52,18 +54,65 @@ export const preferenceRouter = createTRPCRouter({
                 },
               },
             },
+            orderBy: { rank: "asc" },
           });
-        return studentProjectPreferenceDetails.map(
-          ({ project, type, rank }) => ({
+
+        return studentProjectPreferenceDetails
+          .sort((a, b) => {
+            const aPref = a.type === PreferenceType.PREFERENCE ? 0 : 1;
+            const bPref = b.type === PreferenceType.PREFERENCE ? 0 : 1;
+            return aPref - bPref;
+          })
+          .map(({ project, type }, i) => ({
             project: { id: project.id, title: project.title },
             supervisor: {
               name: project.supervisor.user.name,
               id: project.supervisor.user.id,
             },
             type: type,
-            rank: rank,
-          }),
+            rank: type === PreferenceType.PREFERENCE ? i + 1 : NaN,
+          }));
+      },
+    ),
+
+  getByProject: roleAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const role = ctx.session.user.role;
+
+        if (role !== Role.STUDENT) return new Map<string, PreferenceType>();
+
+        const student = await ctx.db.studentDetails.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: ctx.session.user.id,
+          },
+          select: {
+            userInInstance: {
+              select: {
+                studentPreferences: { select: { projectId: true, type: true } },
+              },
+            },
+          },
+        });
+
+        const preferenceByProject = new Map<string, PreferenceType>();
+
+        student.userInInstance.studentPreferences.forEach(
+          ({ projectId, type }) => {
+            preferenceByProject.set(projectId, type);
+          },
         );
+
+        return preferenceByProject;
       },
     ),
 
@@ -86,6 +135,28 @@ export const preferenceRouter = createTRPCRouter({
         preferenceType,
       });
     }),
+
+  updateSelected: studentProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        projectIds: z.array(z.string()),
+        preferenceType: studentPreferenceSchema,
+      }),
+    )
+    .mutation(
+      async ({ ctx, input: { params, projectIds, preferenceType } }) => {
+        if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
+
+        await updateManyPreferenceTransaction({
+          db: ctx.db,
+          student: ctx.session.user,
+          params,
+          projectIds,
+          preferenceType,
+        });
+      },
+    ),
 
   reorder: studentProcedure
     .input(
@@ -165,7 +236,11 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) {
+          throw new Error("Cannot submit at this stage");
+        }
+
+        const newSubmissionDateTime = new Date();
 
         await ctx.db.studentDetails.update({
           where: {
@@ -176,8 +251,13 @@ export const preferenceRouter = createTRPCRouter({
               userId: ctx.session.user.id,
             },
           },
-          data: { submittedPreferences: true },
+          data: {
+            submittedPreferences: true,
+            latestSubmissionDateTime: newSubmissionDateTime,
+          },
         });
+
+        return newSubmissionDateTime;
       },
     ),
 
@@ -251,32 +331,22 @@ export const preferenceRouter = createTRPCRouter({
           newPreferenceType,
         },
       }) => {
-        if (newPreferenceType === "None") {
-          await ctx.db.preference.delete({
-            where: {
-              preferenceId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                projectId,
-                userId: studentId,
-              },
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.update({
+        const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
-            preferenceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId: studentId,
-            },
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
           },
-          data: { type: newPreferenceType },
+          select: { studentLevel: true },
+        });
+
+        await updatePreferenceTransaction({
+          db: ctx.db,
+          student: { id: studentId, studentLevel },
+          params: { group, subGroup, instance },
+          projectId,
+          preferenceType: newPreferenceType,
         });
       },
     ),
@@ -300,28 +370,22 @@ export const preferenceRouter = createTRPCRouter({
           projectIds,
         },
       }) => {
-        if (newPreferenceType === "None") {
-          await ctx.db.preference.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: studentId,
-              projectId: { in: projectIds },
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.updateMany({
+        const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             userId: studentId,
-            projectId: { in: projectIds },
           },
-          data: { type: newPreferenceType },
+          select: { studentLevel: true },
+        });
+
+        await updateManyPreferenceTransaction({
+          db: ctx.db,
+          student: { id: studentId, studentLevel },
+          params: { group, subGroup, instance },
+          projectIds,
+          preferenceType: newPreferenceType,
         });
       },
     ),

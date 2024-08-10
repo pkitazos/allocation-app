@@ -350,12 +350,14 @@ export const studentDetails = (ID: string): StudentDetails[] => [
     inInstance(ID, {
       userId: id,
       submittedPreferences: true,
+      latestSubmissionDateTime: new Date(),
       studentLevel: 4,
     }),
   ),
   inInstance(ID, {
     userId: evaluator__student(ID).id,
     submittedPreferences: true,
+    latestSubmissionDateTime: new Date(),
     studentLevel: 4,
   }),
 ];

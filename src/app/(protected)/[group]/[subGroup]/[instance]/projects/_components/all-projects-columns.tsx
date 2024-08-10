@@ -1,9 +1,10 @@
 "use client";
-import { Role, Stage } from "@prisma/client";
+import { PreferenceType, Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
+  PenIcon,
   Trash2Icon,
 } from "lucide-react";
 import { User } from "next-auth";
@@ -27,36 +28,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { cn } from "@/lib/utils";
-import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
-
-export interface ProjectTableDataDto {
-  id: string;
-  title: string;
-  supervisor: {
-    id: string;
-    name: string;
-  };
-  flags: {
-    id: string;
-    title: string;
-  }[];
-  tags: {
-    id: string;
-    title: string;
-  }[];
-}
+import { ProjectTableDataDto } from "@/lib/validations/dto/project";
+import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
 export function constructColumns({
   user,
   role,
+  projectPreferences,
   deleteProject,
   deleteSelectedProjects,
+  changePreference,
+  changeSelectedPreferences,
 }: {
   user: User;
   role: Role;
+  projectPreferences: Map<string, PreferenceType>;
   deleteProject: (id: string) => Promise<void>;
   deleteSelectedProjects: (ids: string[]) => Promise<void>;
+  changePreference: (
+    newType: StudentPreferenceType,
+    projectId: string,
+  ) => Promise<void>;
+  changeSelectedPreferences: (
+    newType: StudentPreferenceType,
+    projectIds: string[],
+  ) => Promise<void>;
 }): ColumnDef<ProjectTableDataDto>[] {
   const stage = useInstanceStage();
 
@@ -206,24 +204,75 @@ export function constructColumns({
         </div>
       ),
     },
-  ];
+    {
+      accessorKey: "actions",
+      id: "Actions",
+      header: ({ table }) => {
+        const someSelected =
+          table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
 
-  const actionsCol: ColumnDef<ProjectTableDataDto> = {
-    accessorKey: "actions",
-    id: "Actions",
-    header: ({ table }) => {
-      const someSelected =
-        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected();
+        const selectedProjectIds = table
+          .getSelectedRowModel()
+          .rows.map((e) => e.original.id);
 
-      const selectedProjectIds = table
-        .getSelectedRowModel()
-        .rows.map((e) => e.original.id);
+        if (someSelected)
+          return (
+            <div className="flex w-14 items-center justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost">
+                    <span className="sr-only">Open menu</span>
+                    <MoreIcon className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <AccessControl
+                    allowedRoles={[Role.STUDENT]}
+                    allowedStages={[Stage.PROJECT_SELECTION]}
+                  >
+                    <StudentPreferenceActionSubMenu
+                      changePreference={async (t) =>
+                        void changeSelectedPreferences(t, selectedProjectIds)
+                      }
+                    />
+                  </AccessControl>
+                  <AccessControl
+                    allowedRoles={[Role.ADMIN]}
+                    allowedStages={[
+                      Stage.PROJECT_SUBMISSION,
+                      Stage.PROJECT_SELECTION,
+                    ]}
+                  >
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <button
+                        className="flex items-center gap-2"
+                        onClick={async () =>
+                          void deleteSelectedProjects(selectedProjectIds)
+                        }
+                      >
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Delete Selected Projects</span>
+                      </button>
+                    </DropdownMenuItem>
+                  </AccessControl>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
 
-      if (
-        someSelected &&
-        role === Role.ADMIN &&
-        stageLt(stage, Stage.PROJECT_ALLOCATION)
-      )
+        return <ActionColumnLabel />;
+      },
+      cell: ({ row, table }) => {
+        const project = row.original;
+        const supervisor = row.original.supervisor;
+
+        async function handleDelete() {
+          void deleteProject(project.id).then(() => {
+            table.toggleAllRowsSelected(false);
+          });
+        }
         return (
           <div className="flex w-14 items-center justify-center">
             <DropdownMenu>
@@ -233,84 +282,74 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="bottom">
+              <DropdownMenuContent side="bottom">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={async () =>
-                      void deleteSelectedProjects(selectedProjectIds)
-                    }
+                <DropdownMenuItem className="group/item">
+                  <Link
+                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                    href={`./projects/${project.id}`}
                   >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Selected Projects</span>
-                  </button>
+                    <CornerDownRightIcon className="h-4 w-4" />
+                    <span>View &quot;{project.title}&quot; details</span>
+                  </Link>
                 </DropdownMenuItem>
+                <AccessControl
+                  allowedRoles={[Role.STUDENT]}
+                  allowedStages={[Stage.PROJECT_SELECTION]}
+                >
+                  <StudentPreferenceActionSubMenu
+                    defaultType={projectPreferences.get(project.id) ?? "None"}
+                    changePreference={async (t) =>
+                      void changePreference(t, project.id)
+                    }
+                  />
+                </AccessControl>
+                <AccessControl
+                  allowedRoles={[Role.ADMIN]}
+                  allowedStages={[
+                    Stage.PROJECT_SUBMISSION,
+                    Stage.PROJECT_SELECTION,
+                  ]}
+                  extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
+                >
+                  <DropdownMenuItem>
+                    <Link
+                      className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                      href={`./projects/${project.id}/edit`}
+                    >
+                      <PenIcon className="h-4 w-4" />
+                      <span>Edit Project {project.title}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <button
+                      className="flex items-center gap-2"
+                      onClick={handleDelete}
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                      <span>Delete Project {project.title}</span>
+                    </button>
+                  </DropdownMenuItem>
+                </AccessControl>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         );
-
-      return <ActionColumnLabel />;
+      },
     },
-    cell: ({ row, table }) => {
-      const project = row.original;
-      const supervisor = row.original.supervisor;
+  ];
 
-      async function handleDelete() {
-        void deleteProject(project.id).then(() => {
-          table.toggleAllRowsSelected(false);
-        });
-      }
-      return (
-        <div className="flex w-14 items-center justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
-                <span className="sr-only">Open menu</span>
-                <MoreIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="group/item">
-                <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`./projects/${project.id}`}
-                >
-                  <CornerDownRightIcon className="h-4 w-4" />
-                  <span>View Project details</span>
-                </Link>
-              </DropdownMenuItem>
-              <AccessControl
-                allowedRoles={[Role.ADMIN]}
-                allowedStages={previousStages(Stage.PROJECT_SUBMISSION)}
-                extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
-              >
-                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={handleDelete}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project {project.title}</span>
-                  </button>
-                </DropdownMenuItem>
-              </AccessControl>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  };
+  if (role === Role.STUDENT && stage === Stage.PROJECT_SELECTION) {
+    return [selectCol, ...baseCols];
+  }
 
-  if (role === Role.STUDENT) return baseCols;
+  if (
+    role === Role.ADMIN &&
+    (stage === Stage.PROJECT_SUBMISSION || stage === Stage.PROJECT_SELECTION)
+  ) {
+    return [selectCol, ...baseCols];
+  }
 
-  if (role === Role.SUPERVISOR) return [...baseCols, actionsCol];
-
-  return stage === Stage.PROJECT_SUBMISSION
-    ? [selectCol, ...baseCols, actionsCol]
-    : [...baseCols, actionsCol];
+  return baseCols;
 }

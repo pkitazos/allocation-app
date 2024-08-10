@@ -4,17 +4,26 @@ import { PageWrapper } from "@/components/page-wrapper";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { ProjectsDataTable } from "./_components/all-projects-data-table";
+import { AllProjectsDataTable } from "./_components/all-projects-data-table";
 
 export default async function Projects({ params }: { params: InstanceParams }) {
   const user = await api.user.get();
   const role = await api.user.role({ params });
   const projects = await api.project.getAllForUser({ params });
 
+  const preferencesByProject = await api.user.student.preference.getByProject({
+    params,
+  });
+
   return (
     <PageWrapper>
       <Heading>All Projects</Heading>
-      <ProjectsDataTable user={user} role={role} data={projects} />
+      <AllProjectsDataTable
+        user={user}
+        role={role}
+        data={projects}
+        projectPreferences={preferencesByProject}
+      />
     </PageWrapper>
   );
 }
