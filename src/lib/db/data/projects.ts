@@ -44,7 +44,7 @@ export const projectData = (ID: string) => [
       "A content management system that allows easy customization and extensibility",
     supervisorId: 1,
     tags: [test__tagTitles[5], test__tagTitles[10], test__tagTitles[13]],
-    flags: [test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-006-${ID}`,
@@ -89,7 +89,7 @@ export const projectData = (ID: string) => [
       "A platform for users to discover, save, and share their favourite recipes.",
     supervisorId: 2,
     tags: [test__tagTitles[4], test__tagTitles[10]],
-    flags: [test__flagTitles[2], test__flagTitles[0], test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1], test__flagTitles[2]],
   },
   {
     id: `prjkt-011-${ID}`,
