@@ -10,6 +10,17 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 
 import { spacesLabels } from "@/content/spaces";
+import {
+  DestructiveAction,
+  DestructiveActionCancel,
+  DestructiveActionConfirm,
+  DestructiveActionContent,
+  DestructiveActionDescription,
+  DestructiveActionHeader,
+  DestructiveActionTitle,
+  DestructiveActionTrigger,
+  DestructiveActionVerificationTypeIn,
+} from "@/components/ui/destructive-action";
 
 export function MergeButton({
   forkedInstance,
@@ -39,9 +50,34 @@ export function MergeButton({
   }
 
   return (
-    <Button onClick={handleClick} className="flex items-center gap-2" size="lg">
-      <MergeIcon className="h-4 w-4" />
-      <p>Merge</p>
-    </Button>
+    <DestructiveAction action={handleClick} requiresVerification>
+      <DestructiveActionTrigger asChild>
+        <Button className="flex items-center gap-2" size="lg">
+          <MergeIcon className="h-4 w-4" />
+          <p>Merge</p>
+        </Button>
+      </DestructiveActionTrigger>
+      <DestructiveActionContent>
+        <DestructiveActionHeader>
+          <DestructiveActionTitle>Merge Instances</DestructiveActionTitle>
+          <DestructiveActionDescription>
+            You are about to merge {forkedInstance.displayName} into{" "}
+            {parentInstance.displayName}. Please confirm by typing the name of
+            this instance below:
+          </DestructiveActionDescription>
+        </DestructiveActionHeader>
+        <DestructiveActionVerificationTypeIn
+          phrase={forkedInstance.displayName}
+        />
+        <div className="flex w-full flex-row justify-between">
+          <DestructiveActionCancel asChild>
+            <Button>Cancel</Button>
+          </DestructiveActionCancel>
+          <DestructiveActionConfirm asChild>
+            <Button variant="secondary">Merge</Button>
+          </DestructiveActionConfirm>
+        </div>
+      </DestructiveActionContent>
+    </DestructiveAction>
   );
 }
