@@ -101,7 +101,8 @@ export function SubmissionButton({
             <AlertDescription className="text-base">
               Currently have {s.count} projects by Supervisor{" "}
               <span className="font-bold">{s.name}</span> in your preference
-              list. The maximum number is {maxPreferencesPerSupervisor}.
+              list. The maximum number per supervisor is{" "}
+              {maxPreferencesPerSupervisor}.
             </AlertDescription>
           </Alert>
         ))}

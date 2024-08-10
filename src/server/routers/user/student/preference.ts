@@ -1,4 +1,4 @@
-import { PreferenceType, Stage } from "@prisma/client";
+import { PreferenceType, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageGte } from "@/lib/utils/permissions/stage-check";
@@ -10,10 +10,12 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  roleAwareProcedure,
   studentProcedure,
 } from "@/server/trpc";
 
 import { updatePreferenceTransaction } from "./_utils/update-preference";
+import { updateManyPreferenceTransaction } from "./_utils/update-many-preferences";
 
 export const preferenceRouter = createTRPCRouter({
   getAll: instanceAdminProcedure
@@ -67,6 +69,47 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
+  getByProject: roleAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const role = ctx.session.user.role;
+
+        if (role !== Role.STUDENT) return new Map<string, PreferenceType>();
+
+        const student = await ctx.db.studentDetails.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: ctx.session.user.id,
+          },
+          select: {
+            userInInstance: {
+              select: {
+                studentPreferences: { select: { projectId: true, type: true } },
+              },
+            },
+          },
+        });
+
+        const preferenceByProject = new Map<string, PreferenceType>();
+
+        student.userInInstance.studentPreferences.forEach(
+          ({ projectId, type }) => {
+            preferenceByProject.set(projectId, type);
+          },
+        );
+
+        return preferenceByProject;
+      },
+    ),
+
   update: studentProcedure
     .input(
       z.object({
@@ -86,6 +129,28 @@ export const preferenceRouter = createTRPCRouter({
         preferenceType,
       });
     }),
+
+  updateSelected: studentProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        projectIds: z.array(z.string()),
+        preferenceType: studentPreferenceSchema,
+      }),
+    )
+    .mutation(
+      async ({ ctx, input: { params, projectIds, preferenceType } }) => {
+        if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
+
+        await updateManyPreferenceTransaction({
+          db: ctx.db,
+          student: ctx.session.user,
+          params,
+          projectIds,
+          preferenceType,
+        });
+      },
+    ),
 
   reorder: studentProcedure
     .input(

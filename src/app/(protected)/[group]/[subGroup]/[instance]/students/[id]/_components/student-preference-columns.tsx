@@ -1,22 +1,31 @@
 "use client";
 import { PreferenceType, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { CornerDownRightIcon } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  MoreHorizontalIcon as MoreIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 import { useInstanceStage } from "@/components/params-context";
+import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-
-import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
   project: {
@@ -161,15 +170,31 @@ export function constructColumns({
       if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
         return (
           <div className="flex w-full items-center justify-center">
-            <StudentPreferenceActionMenu
-              defaultType={defaultType}
-              changePreference={async (newPreferenceType) =>
-                void changeSelectedPreferences(
-                  newPreferenceType,
-                  selectedProjectIds,
-                )
-              }
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-68"
+                align="center"
+                side="bottom"
+              >
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <StudentPreferenceActionSubMenu
+                  defaultType={defaultType}
+                  changePreference={async (newPreferenceType) =>
+                    void changeSelectedPreferences(
+                      newPreferenceType,
+                      selectedProjectIds,
+                    )
+                  }
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
       }
@@ -181,22 +206,33 @@ export function constructColumns({
       },
     }) => (
       <div className="flex w-full items-center justify-center">
-        <StudentPreferenceActionMenu
-          defaultType={type}
-          changePreference={async (newPreferenceType) =>
-            void changePreference(newPreferenceType, project.id)
-          }
-        >
-          <DropdownMenuItem className="group/item">
-            <Link
-              className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-              href={`../projects/${project.id}`}
-            >
-              <CornerDownRightIcon className="h-4 w-4" />
-              <span>View Project details</span>
-            </Link>
-          </DropdownMenuItem>
-        </StudentPreferenceActionMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-68" align="center" side="bottom">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="group/item">
+              <Link
+                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                href={`../projects/${project.id}`}
+              >
+                <CornerDownRightIcon className="h-4 w-4" />
+                <span>View Project details</span>
+              </Link>
+            </DropdownMenuItem>
+            <StudentPreferenceActionSubMenu
+              defaultType={type}
+              changePreference={async (newPreferenceType) =>
+                void changePreference(newPreferenceType, project.id)
+              }
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     ),
   };
