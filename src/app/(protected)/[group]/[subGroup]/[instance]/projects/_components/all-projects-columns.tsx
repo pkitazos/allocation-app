@@ -291,7 +291,7 @@ export function constructColumns({
                     href={`./projects/${project.id}`}
                   >
                     <CornerDownRightIcon className="h-4 w-4" />
-                    <span>View Project details</span>
+                    <span>View &quot;{project.title}&quot; details</span>
                   </Link>
                 </DropdownMenuItem>
                 <AccessControl

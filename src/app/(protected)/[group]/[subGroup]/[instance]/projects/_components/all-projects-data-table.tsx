@@ -4,13 +4,20 @@ import { User } from "next-auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useInstanceParams } from "@/components/params-context";
+import {
+  useInstanceParams,
+  useInstancePath,
+} from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
+import { ToastSuccessCard } from "@/components/toast-success-card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { constructColumns } from "./all-projects-columns";
 
 export function AllProjectsDataTable({
@@ -25,6 +32,7 @@ export function AllProjectsDataTable({
   projectPreferences: Map<string, PreferenceType>;
 }) {
   const params = useInstanceParams();
+  const instancePath = useInstancePath();
   const router = useRouter();
 
   const { mutateAsync: deleteAsync } = api.project.delete.useMutation();
@@ -72,7 +80,22 @@ export function AllProjectsDataTable({
       {
         loading: "Updating project preference...",
         error: "Something went wrong",
-        success: `Project ${projectId} preference updated successfully`,
+        success: (
+          <ToastSuccessCard
+            message="Successfully updated project preference"
+            action={
+              <Link
+                href={`${instancePath}/my-preferences`}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "flex h-full w-max items-center gap-2 self-end py-3 text-xs",
+                )}
+              >
+                view &quot;My Preferences&quot;
+              </Link>
+            }
+          />
+        ),
       },
     );
   }
@@ -90,7 +113,22 @@ export function AllProjectsDataTable({
       {
         loading: "Updating all project preferences...",
         error: "Something went wrong",
-        success: `Successfully updated ${projectIds.length} project preferences`,
+        success: (
+          <ToastSuccessCard
+            message={`Successfully updated ${projectIds.length} project preferences`}
+            action={
+              <Link
+                href={`${instancePath}/my-preferences`}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "flex h-full w-max items-center gap-2 self-end py-3 text-xs",
+                )}
+              >
+                view &quot;My Preferences&quot;
+              </Link>
+            }
+          />
+        ),
       },
     );
   }
