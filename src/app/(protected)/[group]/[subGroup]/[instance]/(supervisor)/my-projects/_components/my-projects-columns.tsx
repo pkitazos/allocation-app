@@ -19,6 +19,10 @@ import {
 
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { stageGt } from "@/lib/utils/permissions/stage-check";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 export type SupervisorProjectDataDto = {
   id: string;
@@ -147,19 +151,30 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={() => deleteSelectedProjects(selectedProjectIds)}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Selected Projects</span>
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <YesNoActionContainer
+                action={() => deleteSelectedProjects(selectedProjectIds)}
+                title="Delete Projects?"
+                description={
+                  selectedProjectIds.length === 1
+                    ? `You are about to delete "${selectedProjectIds[0]}". Do you wish to proceed?`
+                    : `You are about to delete ${selectedProjectIds.length} projects. Do you wish to proceed?`
+                }
+              >
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Delete Selected Projects</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );
@@ -179,28 +194,35 @@ export function constructColumns({
               <MoreIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" side="bottom">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link
-                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                href={`${instancePath}/projects/${id}/edit`}
-              >
-                <PenIcon className="h-4 w-4" />
-                <span>Edit Project {id}</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-              <button
-                className="flex items-center gap-2"
-                onClick={() => deleteProject(id)}
-              >
-                <Trash2Icon className="h-4 w-4" />
-                <span>Delete Project {id}</span>
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
+          <YesNoActionContainer
+            action={() => deleteProject(id)}
+            title="Delete Project?"
+            description={`You are about to delete project ${id}. Do you wish to proceed?`}
+          >
+            <DropdownMenuContent align="center" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`${instancePath}/projects/${id}/edit`}
+                >
+                  <PenIcon className="h-4 w-4" />
+                  <span>Edit Project {id}</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                <YesNoActionTrigger
+                  trigger={
+                    <button className="flex items-center gap-2">
+                      <Trash2Icon className="h-4 w-4" />
+                      <span>Delete Project {id}</span>
+                    </button>
+                  }
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </YesNoActionContainer>
         </DropdownMenu>
       </div>
     ),

@@ -28,6 +28,10 @@ import {
   stageLt,
   stageLte,
 } from "@/lib/utils/permissions/stage-check";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 export type SupervisorData = {
   id: string;
@@ -103,6 +107,12 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      function handleRemoveSelectedSupervisors() {
+        void deleteSelectedSupervisors(selectedSupervisorIds).then(() =>
+          table.toggleAllRowsSelected(false),
+        );
+      }
+
       if (
         someSelected &&
         role === Role.ADMIN &&
@@ -117,21 +127,30 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={async () =>
-                      void deleteSelectedSupervisors(selectedSupervisorIds)
-                    }
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Remove selected Supervisors</span>
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <YesNoActionContainer
+                action={handleRemoveSelectedSupervisors}
+                title="Remove Supervisors?"
+                description={
+                  selectedSupervisorIds.length === 1
+                    ? `you are about to remove 1 supervisor from the list. Do you wish to proceed?`
+                    : `You are about to remove ${selectedSupervisorIds.length} supervisors from the list. Do you wish to proceed?`
+                }
+              >
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Remove selected Supervisors</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );
@@ -147,33 +166,40 @@ export function constructColumns({
               <MoreIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" side="bottom">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="group/item">
-              <Link
-                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                href={`./supervisors/${supervisor.id}`}
-              >
-                <CornerDownRightIcon className="h-4 w-4" />
-                <span>View Supervisor Details</span>
-              </Link>
-            </DropdownMenuItem>
-            <AccessControl
-              allowedRoles={[Role.ADMIN]}
-              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-            >
-              <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={async () => void deleteSupervisor(supervisor.id)}
+          <YesNoActionContainer
+            action={async () => void deleteSupervisor(supervisor.id)}
+            title="Remove Supervisor?"
+            description={`You are about to remove "${supervisor.name}" from the supervisor list. Do you wish to proceed?`}
+          >
+            <DropdownMenuContent align="center" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./supervisors/${supervisor.id}`}
                 >
-                  <Trash2Icon className="h-4 w-4" />
-                  <span>Remove Supervisor {supervisor.name}</span>
-                </button>
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Supervisor Details</span>
+                </Link>
               </DropdownMenuItem>
-            </AccessControl>
-          </DropdownMenuContent>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="flex items-center gap-2">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Supervisor {supervisor.name}</span>
+                      </button>
+                    }
+                  />
+                </DropdownMenuItem>
+              </AccessControl>
+            </DropdownMenuContent>
+          </YesNoActionContainer>
         </DropdownMenu>
       </div>
     ),

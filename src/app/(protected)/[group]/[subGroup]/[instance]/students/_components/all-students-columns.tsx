@@ -25,6 +25,10 @@ import {
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 export interface StudentData {
   id: string;
@@ -100,6 +104,12 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      function handleRemoveSelectedStudents() {
+        void deleteSelectedStudents(selectedStudentIds).then(() =>
+          table.toggleAllRowsSelected(false),
+        );
+      }
+
       if (
         someSelected &&
         role === Role.ADMIN &&
@@ -114,21 +124,30 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={async () =>
-                      void deleteSelectedStudents(selectedStudentIds)
-                    }
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Remove selected Students</span>
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <YesNoActionContainer
+                action={handleRemoveSelectedStudents}
+                title="Remove Students?"
+                description={
+                  selectedStudentIds.length === 1
+                    ? `You are about to remove 1 student from the list. Do you wish to proceed?`
+                    : `You are about to remove ${selectedStudentIds.length} students from the list. Do you wish to proceed?`
+                }
+              >
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Remove selected Students</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );
@@ -144,33 +163,40 @@ export function constructColumns({
               <MoreIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" side="bottom">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="group/item">
-              <Link
-                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                href={`./students/${student.id}`}
-              >
-                <CornerDownRightIcon className="h-4 w-4" />
-                <span>View Student Details</span>
-              </Link>
-            </DropdownMenuItem>
-            <AccessControl
-              allowedRoles={[Role.ADMIN]}
-              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-            >
-              <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={async () => void deleteStudent(student.id)}
+          <YesNoActionContainer
+            action={async () => void deleteStudent(student.id)}
+            title="Remove Student?"
+            description={`You are about to remove "${student.name}" from the student list. Do you wish to proceed?`}
+          >
+            <DropdownMenuContent align="start" side="bottom">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./students/${student.id}`}
                 >
-                  <Trash2Icon className="h-4 w-4" />
-                  <span>Remove Student {student.name}</span>
-                </button>
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View Student Details</span>
+                </Link>
               </DropdownMenuItem>
-            </AccessControl>
-          </DropdownMenuContent>
+              <AccessControl
+                allowedRoles={[Role.ADMIN]}
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              >
+                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="flex items-center gap-2">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Student {student.name}</span>
+                      </button>
+                    }
+                  />
+                </DropdownMenuItem>
+              </AccessControl>
+            </DropdownMenuContent>
+          </YesNoActionContainer>
         </DropdownMenu>
       </div>
     ),

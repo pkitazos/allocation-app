@@ -9,14 +9,18 @@ import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 export function constructColumns({
   removeStudent,
@@ -93,6 +97,12 @@ export function constructColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.institutionId);
 
+        function handleRemoveSelectedStudents() {
+          void removeSelectedStudents(selectedStudentIds).then(() =>
+            table.toggleAllRowsSelected(false),
+          );
+        }
+
         if (someSelected)
           return (
             <div className="flex w-14 items-center justify-center">
@@ -103,21 +113,30 @@ export function constructColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={async () =>
-                        void removeSelectedStudents(selectedStudentIds)
-                      }
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Remove selected Students</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <YesNoActionContainer
+                  action={handleRemoveSelectedStudents}
+                  title="Remove Students?"
+                  description={
+                    selectedStudentIds.length === 1
+                      ? `You are about to remove 1 student from the list. Do you wish to proceed?`
+                      : `You are about to remove ${selectedStudentIds.length} students from the list. Do you wish to proceed?`
+                  }
+                >
+                  <DropdownMenuContent align="center" side="bottom">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="m-0 flex items-center gap-2 p-1.5 text-sm">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Remove selected Students</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -137,19 +156,26 @@ export function constructColumns({
                 <MoreIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={async () => void removeStudent(institutionId)}
-                >
-                  <Trash2Icon className="h-4 w-4" />
-                  <span>Remove Student {fullName}</span>
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <YesNoActionContainer
+              action={() => void removeStudent(institutionId)}
+              title="Remove Student?"
+              description={`You are about to remove "${fullName}" from the student list. Do you wish to proceed?`}
+            >
+              <DropdownMenuContent align="center" side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="bg-background text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="m-0 flex items-center gap-2 p-1.5 text-sm">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Student {fullName}</span>
+                      </button>
+                    }
+                  />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </YesNoActionContainer>
           </DropdownMenu>
         </div>
       ),
