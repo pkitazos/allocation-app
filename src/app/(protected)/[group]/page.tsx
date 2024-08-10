@@ -14,7 +14,7 @@ import { api } from "@/lib/trpc/server";
 import { spacesLabels } from "@/content/spaces";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
-import { DangerZone } from "./_components/danger-zone";
+import { DeleteConfirmation } from "./_components/delete-confirmation";
 import { FormButton } from "./_components/form-button";
 
 export default async function Page({ params }: { params: { group: string } }) {
@@ -89,7 +89,10 @@ export default async function Page({ params }: { params: { group: string } }) {
       </div>
       <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
         <div className="mt-16">
-          <DangerZone spaceLabel={spacesLabels.group.full} params={params} />
+          <DeleteConfirmation
+            spaceLabel={spacesLabels.group.full}
+            params={params}
+          />
         </div>
       </AdminLevelAC>
     </div>

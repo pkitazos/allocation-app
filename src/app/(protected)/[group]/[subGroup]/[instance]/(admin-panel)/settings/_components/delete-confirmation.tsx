@@ -2,17 +2,16 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { DestructiveButton } from "@/components/destructive-button";
 import { useInstanceParams } from "@/components/params-context";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { DangerZone } from "@/components/danger-zone";
 import { api } from "@/lib/trpc/client";
 
-export function DangerZone({ spaceLabel }: { spaceLabel: string }) {
+export function DeleteConfirmation({ spaceLabel }: { spaceLabel: string }) {
   const params = useInstanceParams();
   const router = useRouter();
 
-  const { group, subGroup } = params;
+  const { group, subGroup, instance } = params;
 
   const { mutateAsync: deleteAsync } =
     api.institution.subGroup.deleteInstance.useMutation();
@@ -32,16 +31,10 @@ export function DangerZone({ spaceLabel }: { spaceLabel: string }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-red-600">Danger Zone</CardTitle>
-      </CardHeader>
-      <CardContent className="flex items-center gap-5">
-        <DestructiveButton action={destructiveAction}>
-          {spaceLabel}
-        </DestructiveButton>
-        <p>Once you delete an {spaceLabel}, there is no going back.</p>
-      </CardContent>
-    </Card>
+    <DangerZone
+      action={destructiveAction}
+      spaceLabel={spaceLabel}
+      name={instance}
+    />
   );
 }

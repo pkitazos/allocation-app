@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { spacesLabels } from "@/content/spaces";
 
-import { DangerZone } from "./_components/danger-zone";
+import { DeleteConfirmation } from "./_components/delete-confirmation";
 
 export default async function Page() {
   return (
@@ -28,7 +28,7 @@ export default async function Page() {
           <p>Modify {spacesLabels.instance.short}-specific details.</p>
         </CardContent>
       </Card>
-      <DangerZone spaceLabel={spacesLabels.instance.short} />
+      <DeleteConfirmation spaceLabel={spacesLabels.instance.short} />
     </PanelWrapper>
   );
 }

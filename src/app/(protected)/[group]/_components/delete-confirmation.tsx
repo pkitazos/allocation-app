@@ -2,13 +2,11 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { DestructiveButton } from "@/components/destructive-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { DangerZone } from "@/components/danger-zone";
 import { api } from "@/lib/trpc/client";
 import { GroupParams } from "@/lib/validations/params";
 
-export function DangerZone({
+export function DeleteConfirmation({
   spaceLabel,
   params,
 }: {
@@ -33,16 +31,10 @@ export function DangerZone({
     );
   }
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-red-600">Danger Zone</CardTitle>
-      </CardHeader>
-      <CardContent className="flex items-center gap-5">
-        <DestructiveButton action={destructiveAction}>
-          {spaceLabel}
-        </DestructiveButton>
-        <p>Once you delete an {spaceLabel}, there is no going back.</p>
-      </CardContent>
-    </Card>
+    <DangerZone
+      action={destructiveAction}
+      spaceLabel={spaceLabel}
+      name={params.group}
+    />
   );
 }
