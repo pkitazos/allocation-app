@@ -99,6 +99,7 @@ export default async function Page({
           <DeleteConfirmation
             spaceLabel={spacesLabels.subGroup.full}
             params={params}
+            name={displayName}
           />
         </div>
       </AdminLevelAC>

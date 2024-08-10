@@ -44,7 +44,7 @@ export function DangerZone({
                 Are you absolutely sure?
               </DestructiveActionTitle>
               <DestructiveActionDescription>
-                This action cannot be undone. This will permanently delete this
+                This action cannot be undone. This will permanently delete this{" "}
                 {spaceLabel} and all related data.
               </DestructiveActionDescription>
             </DestructiveActionHeader>
@@ -52,10 +52,12 @@ export function DangerZone({
             <DestructiveActionVerificationTypeIn phrase={`${name}`} />
             <DestructiveActionFooter>
               <DestructiveActionCancel asChild>
-                <Button>Cancel</Button>
+                <Button className="w-28">Cancel</Button>
               </DestructiveActionCancel>
               <DestructiveActionConfirm asChild>
-                <Button variant="destructive">Yes, delete</Button>
+                <Button className="w-28" variant="destructive">
+                  Yes, delete
+                </Button>
               </DestructiveActionConfirm>
             </DestructiveActionFooter>
           </DestructiveActionContent>

@@ -33,7 +33,7 @@ export function DestructiveButton({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
+            This action cannot be undone. This will permanently delete this{" "}
             {content} and all related data.
           </AlertDialogDescription>
         </AlertDialogHeader>

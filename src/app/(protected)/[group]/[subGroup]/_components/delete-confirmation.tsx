@@ -11,9 +11,11 @@ import { SubGroupParams } from "@/lib/validations/params";
 export function DeleteConfirmation({
   spaceLabel,
   params,
+  name,
 }: {
   spaceLabel: string;
   params: SubGroupParams;
+  name: string;
 }) {
   const router = useRouter();
   const { mutateAsync: deleteAsync } =
@@ -37,7 +39,7 @@ export function DeleteConfirmation({
     <DangerZone
       action={destructiveAction}
       spaceLabel={spaceLabel}
-      name={params.subGroup}
+      name={name}
     />
   );
 }
