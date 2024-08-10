@@ -48,103 +48,107 @@ export const projectRouter = createTRPCRouter({
 
         const newPreAllocatedStudentId = preAllocatedStudentId || undefined;
 
-        const prev = await ctx.db.project.findFirstOrThrow({
-          where: { id: projectId },
-          select: { preAllocatedStudentId: true },
-        });
+        await ctx.db.$transaction(async (tx) => {
+          const prev = await tx.project.findFirstOrThrow({
+            where: { id: projectId },
+            select: { preAllocatedStudentId: true },
+          });
 
-        if (!prev.preAllocatedStudentId) {
-          if (newPreAllocatedStudentId) {
-            await updateProjectAllocation(ctx.db, {
-              group,
-              subGroup,
-              instance,
-              preAllocatedStudentId: newPreAllocatedStudentId,
-              projectId: projectId,
-            });
+          if (!prev.preAllocatedStudentId) {
+            if (newPreAllocatedStudentId) {
+              await updateProjectAllocation(tx, {
+                group,
+                subGroup,
+                instance,
+                preAllocatedStudentId: newPreAllocatedStudentId,
+                projectId: projectId,
+              });
+            }
+          } else {
+            if (!newPreAllocatedStudentId) {
+              await tx.projectAllocation.delete({
+                where: {
+                  allocationId: {
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
+                    projectId,
+                    userId: prev.preAllocatedStudentId,
+                  },
+                },
+              });
+            } else if (
+              prev.preAllocatedStudentId !== newPreAllocatedStudentId
+            ) {
+              await tx.projectAllocation.delete({
+                where: {
+                  allocationId: {
+                    allocationGroupId: group,
+                    allocationSubGroupId: subGroup,
+                    allocationInstanceId: instance,
+                    projectId,
+                    userId: prev.preAllocatedStudentId,
+                  },
+                },
+              });
+              await updateProjectAllocation(tx, {
+                group,
+                subGroup,
+                instance,
+                preAllocatedStudentId: newPreAllocatedStudentId,
+                projectId,
+              });
+            }
           }
-        } else {
-          if (!newPreAllocatedStudentId) {
-            await ctx.db.projectAllocation.delete({
-              where: {
-                allocationId: {
-                  allocationGroupId: group,
-                  allocationSubGroupId: subGroup,
-                  allocationInstanceId: instance,
-                  projectId,
-                  userId: prev.preAllocatedStudentId,
-                },
-              },
-            });
-          } else if (prev.preAllocatedStudentId !== newPreAllocatedStudentId) {
-            await ctx.db.projectAllocation.delete({
-              where: {
-                allocationId: {
-                  allocationGroupId: group,
-                  allocationSubGroupId: subGroup,
-                  allocationInstanceId: instance,
-                  projectId,
-                  userId: prev.preAllocatedStudentId,
-                },
-              },
-            });
-            await updateProjectAllocation(ctx.db, {
-              group,
-              subGroup,
-              instance,
-              preAllocatedStudentId: newPreAllocatedStudentId,
+
+          await tx.project.update({
+            where: { id: projectId },
+            data: {
+              title: title,
+              description: description,
+              capacityUpperBound: capacityUpperBound,
+              preAllocatedStudentId: nullable(newPreAllocatedStudentId),
+              specialTechnicalRequirements: nullable(
+                specialTechnicalRequirements,
+              ),
+            },
+          });
+
+          await tx.flagOnProject.deleteMany({
+            where: {
               projectId,
-            });
-          }
-        }
+              AND: { flag: { title: { notIn: flagTitles } } },
+            },
+          });
 
-        await ctx.db.project.update({
-          where: { id: projectId },
-          data: {
-            title: title,
-            description: description,
-            capacityUpperBound: capacityUpperBound,
-            preAllocatedStudentId: nullable(newPreAllocatedStudentId),
-            specialTechnicalRequirements: nullable(
-              specialTechnicalRequirements,
-            ),
-          },
-        });
-
-        await ctx.db.flagOnProject.deleteMany({
-          where: {
+          await createProjectFlags(
+            tx,
+            ctx.instance.params,
             projectId,
-            AND: { flag: { title: { notIn: flagTitles } } },
-          },
-        });
+            flagTitles,
+          );
 
-        await createProjectFlags(
-          ctx.db,
-          ctx.instance.params,
-          projectId,
-          flagTitles,
-        );
+          await tx.tag.createMany({
+            data: tags.map((tag) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              ...tag,
+            })),
+            skipDuplicates: true,
+          });
 
-        await ctx.db.tag.createMany({
-          data: tags.map((tag) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            ...tag,
-          })),
-          skipDuplicates: true,
-        });
+          await tx.tagOnProject.deleteMany({
+            where: {
+              projectId,
+              AND: { tagId: { notIn: tags.map(({ id }) => id) } },
+            },
+          });
 
-        await ctx.db.tagOnProject.deleteMany({
-          where: {
-            projectId,
-            AND: { tagId: { notIn: tags.map(({ id }) => id) } },
-          },
-        });
-
-        await ctx.db.tagOnProject.createMany({
-          data: tags.map(({ id }) => ({ tagId: id, projectId })),
-          skipDuplicates: true,
+          await tx.tagOnProject.createMany({
+            data: tags.map(({ id }) => ({ tagId: id, projectId })),
+            skipDuplicates: true,
+          });
         });
       },
     ),
@@ -194,44 +198,6 @@ export const projectRouter = createTRPCRouter({
         flags.some((f) => getStudentLevelFromFlag(f) === student.studentLevel),
       );
     }),
-
-  // ! deprecated
-  getTableData: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const user = ctx.session.user;
-
-        const projects = await ctx.db.project.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            flagOnProjects: {
-              select: { flag: { select: { id: true, title: true } } },
-            },
-            tagOnProject: {
-              select: { tag: { select: { id: true, title: true } } },
-            },
-            supervisor: {
-              select: { user: { select: { name: true, id: true } } },
-            },
-          },
-        });
-
-        return projects.map((project) => ({ ...project, user }));
-      },
-    ),
 
   getById: protectedProcedure
     .input(z.object({ projectId: z.string() }))
@@ -457,61 +423,66 @@ export const projectRouter = createTRPCRouter({
       }) => {
         if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
 
-        const project = await ctx.db.project.create({
-          data: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            supervisorId: supervisorId,
-            title,
-            description,
-            capacityLowerBound: 0,
-            capacityUpperBound,
-            preAllocatedStudentId,
-            specialTechnicalRequirements,
-          },
-        });
-
-        if (preAllocatedStudentId && preAllocatedStudentId !== "") {
-          await updateProjectAllocation(ctx.db, {
-            group,
-            subGroup,
-            instance,
-            preAllocatedStudentId,
-            projectId: project.id,
+        await ctx.db.$transaction(async (tx) => {
+          const project = await tx.project.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              supervisorId: supervisorId,
+              title,
+              description,
+              capacityLowerBound: 0,
+              capacityUpperBound,
+              preAllocatedStudentId,
+              specialTechnicalRequirements,
+            },
           });
-        }
 
-        await createProjectFlags(
-          ctx.db,
-          ctx.instance.params,
-          project.id,
-          flagTitles,
-        );
+          if (preAllocatedStudentId && preAllocatedStudentId !== "") {
+            await updateProjectAllocation(tx, {
+              group,
+              subGroup,
+              instance,
+              preAllocatedStudentId,
+              projectId: project.id,
+            });
+          }
 
-        const currentInstanceTags = await ctx.db.tag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+          await createProjectFlags(
+            tx,
+            ctx.instance.params,
+            project.id,
+            flagTitles,
+          );
 
-        const newInstanceTags = tags.filter((t) => {
-          return !currentInstanceTags.map((e) => e.id).includes(t.id);
-        });
+          const currentInstanceTags = await tx.tag.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+          });
 
-        await ctx.db.tag.createMany({
-          data: newInstanceTags.map((tag) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            ...tag,
-          })),
-        });
+          const newInstanceTags = tags.filter((t) => {
+            return !currentInstanceTags.map((e) => e.id).includes(t.id);
+          });
 
-        await ctx.db.tagOnProject.createMany({
-          data: tags.map(({ id: tagId }) => ({ tagId, projectId: project.id })),
+          await tx.tag.createMany({
+            data: newInstanceTags.map((tag) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              ...tag,
+            })),
+          });
+
+          await tx.tagOnProject.createMany({
+            data: tags.map(({ id: tagId }) => ({
+              tagId,
+              projectId: project.id,
+            })),
+          });
         });
       },
     ),

@@ -132,7 +132,6 @@ export const instanceRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx }) => ctx.instance.selectedAlgName ?? undefined),
 
-  // TODO: decouple data table data from database model & improve filtering in queries
   projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .output(
@@ -289,69 +288,6 @@ export const instanceRouter = createTRPCRouter({
           name: user.name!,
           email: user.email!,
         }));
-      },
-    ),
-
-  addSupervisorDetails: instanceAdminProcedure
-    .input(
-      z.object({
-        params: instanceParamsSchema,
-        newSupervisors: z.array(newSupervisorSchema),
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          newSupervisors: addedSupervisors,
-        },
-      }) => {
-        const currentSupervisors = await ctx.db.userInInstance.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            role: Role.SUPERVISOR,
-          },
-          select: { user: { select: { id: true } } },
-        });
-
-        const supervisorIds = currentSupervisors.map(({ user }) => user.id);
-        const newSupervisors = addedSupervisors.filter((s) => {
-          return !supervisorIds.includes(s.institutionId);
-        });
-
-        await ctx.db.user.createMany({
-          data: newSupervisors.map((e) => ({
-            id: e.institutionId,
-            name: e.fullName,
-            email: e.email,
-          })),
-        });
-
-        await ctx.db.userInInstance.createMany({
-          data: newSupervisors.map(({ institutionId }) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: institutionId,
-            role: Role.SUPERVISOR,
-          })),
-        });
-
-        await ctx.db.supervisorInstanceDetails.createMany({
-          data: newSupervisors.map((e) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: e.institutionId,
-            projectAllocationLowerBound: 0,
-            projectAllocationTarget: e.projectTarget,
-            projectAllocationUpperBound: e.projectUpperQuota,
-          })),
-          skipDuplicates: true,
-        });
       },
     ),
 
@@ -540,17 +476,15 @@ export const instanceRouter = createTRPCRouter({
           supervisorId,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.delete({
-            where: {
-              instanceMembership: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: supervisorId,
-              },
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: supervisorId,
             },
-          });
+          },
         });
       },
     ),
@@ -570,15 +504,13 @@ export const instanceRouter = createTRPCRouter({
           supervisorIds,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: supervisorIds },
-            },
-          });
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: { in: supervisorIds },
+          },
         });
       },
     ),
@@ -610,56 +542,6 @@ export const instanceRouter = createTRPCRouter({
             joined,
           })),
         };
-      },
-    ),
-
-  addStudentDetails: instanceAdminProcedure
-    .input(
-      z.object({
-        params: instanceParamsSchema,
-        newStudents: z.array(newStudentSchema),
-      }),
-    )
-    .mutation(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-          newStudents: addedStudents,
-        },
-      }) => {
-        const currentStudents = await ctx.db.userInInstance.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            role: Role.STUDENT,
-          },
-          select: { user: { select: { id: true } } },
-        });
-
-        const studentIds = currentStudents.map(({ user }) => user.id);
-        const newStudents = addedStudents.filter((s) => {
-          return !studentIds.includes(s.institutionId);
-        });
-
-        await ctx.db.user.createMany({
-          data: newStudents.map((e) => ({
-            id: e.institutionId,
-            name: e.fullName,
-            email: e.email,
-          })),
-        });
-
-        await ctx.db.userInInstance.createMany({
-          data: newStudents.map(({ institutionId }) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: institutionId,
-            role: Role.STUDENT,
-          })),
-        });
       },
     ),
 
@@ -821,17 +703,15 @@ export const instanceRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.delete({
-            where: {
-              instanceMembership: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                userId: studentId,
-              },
+        await ctx.db.userInInstance.delete({
+          where: {
+            instanceMembership: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
             },
-          });
+          },
         });
       },
     ),
@@ -851,15 +731,13 @@ export const instanceRouter = createTRPCRouter({
           studentIds,
         },
       }) => {
-        await ctx.db.$transaction(async (tx) => {
-          await tx.userInInstance.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: { in: studentIds },
-            },
-          });
+        await ctx.db.userInInstance.deleteMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: { in: studentIds },
+          },
         });
       },
     ),
@@ -909,89 +787,91 @@ export const instanceRouter = createTRPCRouter({
           updatedInstance: { flags, tags, ...updatedData },
         },
       }) => {
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
+        await ctx.db.$transaction(async (tx) => {
+          await tx.allocationInstance.update({
+            where: {
+              instanceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                id: instance,
+              },
+            },
+            data: updatedData,
+          });
+
+          const currentInstanceFlags = await tx.flag.findMany({
+            where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
-              id: instance,
+              allocationInstanceId: instance,
             },
-          },
-          data: updatedData,
-        });
+          });
 
-        const currentInstanceFlags = await ctx.db.flag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+          const newInstanceFlags = setDiff(
+            flags,
+            currentInstanceFlags,
+            (a) => a.title,
+          );
+          const staleInstanceFlags = setDiff(
+            currentInstanceFlags,
+            flags,
+            (a) => a.title,
+          );
 
-        const newInstanceFlags = setDiff(
-          flags,
-          currentInstanceFlags,
-          (a) => a.title,
-        );
-        const staleInstanceFlags = setDiff(
-          currentInstanceFlags,
-          flags,
-          (a) => a.title,
-        );
+          await tx.flag.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: { in: staleInstanceFlags.map((f) => f.title) },
+            },
+          });
 
-        await ctx.db.flag.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: { in: staleInstanceFlags.map((f) => f.title) },
-          },
-        });
+          await tx.flag.createMany({
+            data: newInstanceFlags.map((f) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: f.title,
+            })),
+          });
 
-        await ctx.db.flag.createMany({
-          data: newInstanceFlags.map((f) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: f.title,
-          })),
-        });
+          const currentInstanceTags = await tx.tag.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+          });
 
-        const currentInstanceTags = await ctx.db.tag.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-        });
+          const newInstanceTags = setDiff(
+            tags,
+            currentInstanceTags,
+            (a) => a.title,
+          );
+          const staleInstanceTags = setDiff(
+            currentInstanceTags,
+            tags,
+            (a) => a.title,
+          );
 
-        const newInstanceTags = setDiff(
-          tags,
-          currentInstanceTags,
-          (a) => a.title,
-        );
-        const staleInstanceTags = setDiff(
-          currentInstanceTags,
-          tags,
-          (a) => a.title,
-        );
+          await tx.tag.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: { in: staleInstanceTags.map((t) => t.title) },
+            },
+          });
 
-        await ctx.db.tag.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: { in: staleInstanceTags.map((t) => t.title) },
-          },
-        });
-
-        await ctx.db.tag.createMany({
-          data: newInstanceTags.map((t) => ({
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            title: t.title,
-          })),
+          await tx.tag.createMany({
+            data: newInstanceTags.map((t) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              title: t.title,
+            })),
+          });
         });
       },
     ),

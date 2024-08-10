@@ -1,8 +1,8 @@
+import { PrismaTransactionClient } from "@/lib/db";
 import { InstanceParams } from "@/lib/validations/params";
-import { PrismaClient } from "@prisma/client";
 
 export async function createProjectFlags(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: InstanceParams,
   projectId: string,
   flagTitles: string[],
