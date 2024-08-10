@@ -18,6 +18,28 @@ import { preferenceRouter } from "./preference";
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
 
+  exists: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, instance, subGroup },
+          studentId,
+        },
+      }) => {
+        const exists = await ctx.db.studentDetails.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+        });
+        return !!exists;
+      },
+    ),
+
   getById: instanceProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(

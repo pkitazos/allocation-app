@@ -17,6 +17,20 @@ import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
+  get: protectedProcedure
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+        },
+      }) => {
+        return await ctx.db.allocationSubGroup.findFirst({
+          where: { id: subGroup, allocationGroupId: group },
+        });
+      },
+    ),
   access: protectedProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(

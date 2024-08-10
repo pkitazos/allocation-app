@@ -44,6 +44,7 @@ import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+import { getInstance } from "@/server/utils/get-instance";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -52,7 +53,7 @@ export const instanceRouter = createTRPCRouter({
   project: projectRouter,
   external: externalSystemRouter,
 
-  get: protectedProcedure
+  exists: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -61,7 +62,7 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.allocationInstance.findFirstOrThrow({
+        return await ctx.db.allocationInstance.findFirst({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -70,6 +71,10 @@ export const instanceRouter = createTRPCRouter({
         });
       },
     ),
+
+  get: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => getInstance(ctx.db, params)),
 
   // TODO: refactor as it potentially doesn't need the adminAccess function
   access: roleAwareProcedure

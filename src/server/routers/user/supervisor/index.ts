@@ -17,6 +17,28 @@ import { computeProjectSubmissionTarget } from "@/server/utils/submission-target
 import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
 
 export const supervisorRouter = createTRPCRouter({
+  exists: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, supervisorId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorId,
+        },
+      }) => {
+        const exists = await ctx.db.supervisorInstanceDetails.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: supervisorId,
+          },
+        });
+        return !!exists;
+      },
+    ),
+
   instancePage: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

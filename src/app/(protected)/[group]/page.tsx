@@ -16,8 +16,13 @@ import { spacesLabels } from "@/content/spaces";
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DeleteConfirmation } from "./_components/delete-confirmation";
 import { FormButton } from "./_components/form-button";
+import { notFound } from "next/navigation";
+import { GroupParams } from "@/lib/validations/params";
 
-export default async function Page({ params }: { params: { group: string } }) {
+export default async function Page({ params }: { params: GroupParams }) {
+  const allocationGroup = await api.institution.group.get({ params });
+  if (!allocationGroup) notFound();
+
   const access = await api.institution.group.access({ params });
 
   if (!access) {
