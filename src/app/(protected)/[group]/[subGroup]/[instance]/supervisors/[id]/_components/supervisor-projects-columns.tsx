@@ -32,6 +32,10 @@ import {
   stageGte,
   stageLt,
 } from "@/lib/utils/permissions/stage-check";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 export type SupervisorProjectDto = {
   id: string;
@@ -214,21 +218,32 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={async () =>
-                      void deleteSelectedProjects(selectedProjectIds)
-                    }
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Delete selected Projects</span>
-                  </button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+              <YesNoActionContainer
+                action={async () =>
+                  void deleteSelectedProjects(selectedProjectIds)
+                }
+                title="Delete Projects?"
+                description={
+                  selectedProjectIds.length === 1
+                    ? `You are about to delete "${selectedProjectIds[0]}". Do you wish to proceed?`
+                    : `You are about to delete ${selectedProjectIds.length} projects. Do you wish to proceed?`
+                }
+              >
+                <DropdownMenuContent align="center" side="bottom">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Delete selected Projects</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );
@@ -250,41 +265,48 @@ export function constructColumns({
                 <MoreIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="group/item">
-                <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`../projects/${project.id}`}
-                >
-                  <CornerDownRightIcon className="h-4 w-4" />
-                  <span>View Project Details</span>
-                </Link>
-              </DropdownMenuItem>
-              <AccessControl
-                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
-              >
-                <DropdownMenuItem>
+            <YesNoActionContainer
+              action={handleDelete}
+              title="Delete Project?"
+              description={`You are about to delete project ${project.id}. Do you wish to proceed?`}
+            >
+              <DropdownMenuContent side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="group/item">
                   <Link
                     className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                    href={`${instancePath}/projects/${project.id}/edit`}
+                    href={`../projects/${project.id}`}
                   >
-                    <PenIcon className="h-4 w-4" />
-                    <span>Edit Project {project.title}</span>
+                    <CornerDownRightIcon className="h-4 w-4" />
+                    <span>View Project Details</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={handleDelete}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Delete Project {project.title}</span>
-                  </button>
-                </DropdownMenuItem>
-              </AccessControl>
-            </DropdownMenuContent>
+                <AccessControl
+                  allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+                >
+                  <DropdownMenuItem>
+                    <Link
+                      className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                      href={`${instancePath}/projects/${project.id}/edit`}
+                    >
+                      <PenIcon className="h-4 w-4" />
+                      <span>Edit Project {project.title}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Delete Project {project.title}</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </AccessControl>
+              </DropdownMenuContent>
+            </YesNoActionContainer>
           </DropdownMenu>
         </div>
       );
