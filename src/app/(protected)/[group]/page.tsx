@@ -52,9 +52,11 @@ export default async function Page({ params }: { params: { group: string } }) {
               ))}
             </TableBody>
           </Table>
-          <div className="mt-2">
-            <FormButton params={params} />
-          </div>
+          <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
+            <div className="mt-2">
+              <FormButton params={params} />
+            </div>
+          </AdminLevelAC>
         </CardContent>
       </Card>
       <SubHeading>Manage {spacesLabels.subGroup.full}s</SubHeading>
