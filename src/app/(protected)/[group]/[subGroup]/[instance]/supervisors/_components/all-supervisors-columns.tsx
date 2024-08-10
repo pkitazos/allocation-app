@@ -107,6 +107,12 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      function handleRemoveSelectedSupervisors() {
+        void deleteSelectedSupervisors(selectedSupervisorIds).then(() =>
+          table.toggleAllRowsSelected(false),
+        );
+      }
+
       if (
         someSelected &&
         role === Role.ADMIN &&
@@ -122,13 +128,11 @@ export function constructColumns({
                 </Button>
               </DropdownMenuTrigger>
               <YesNoActionContainer
-                action={async () =>
-                  void deleteSelectedSupervisors(selectedSupervisorIds)
-                }
+                action={handleRemoveSelectedSupervisors}
                 title="Remove Supervisors?"
                 description={
                   selectedSupervisorIds.length === 1
-                    ? `you are about to remove "${table.getRow(selectedSupervisorIds[0]).original.name}" from the supervisor list. Do you wish to proceed?`
+                    ? `you are about to remove 1 supervisor from the list. Do you wish to proceed?`
                     : `You are about to remove ${selectedSupervisorIds.length} supervisors from the list. Do you wish to proceed?`
                 }
               >

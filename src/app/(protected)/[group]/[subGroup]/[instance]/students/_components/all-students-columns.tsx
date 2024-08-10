@@ -104,6 +104,12 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      function handleRemoveSelectedStudents() {
+        void deleteSelectedStudents(selectedStudentIds).then(() =>
+          table.toggleAllRowsSelected(false),
+        );
+      }
+
       if (
         someSelected &&
         role === Role.ADMIN &&
@@ -119,13 +125,11 @@ export function constructColumns({
                 </Button>
               </DropdownMenuTrigger>
               <YesNoActionContainer
-                action={async () =>
-                  void deleteSelectedStudents(selectedStudentIds)
-                }
+                action={handleRemoveSelectedStudents}
                 title="Remove Students?"
                 description={
                   selectedStudentIds.length === 1
-                    ? `You are about to remove "${table.getRow(selectedStudentIds[0]).original.name}" from the student list. Do you wish to proceed?`
+                    ? `You are about to remove 1 student from the list. Do you wish to proceed?`
                     : `You are about to remove ${selectedStudentIds.length} students from the list. Do you wish to proceed?`
                 }
               >
