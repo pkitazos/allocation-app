@@ -6,6 +6,7 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+import { notFound } from "next/navigation";
 
 export default async function Layout({
   children,
@@ -14,6 +15,9 @@ export default async function Layout({
   children: ReactNode;
   params: InstanceParams;
 }) {
+  const allocationInstance = await api.institution.instance.exists({ params });
+  if (!allocationInstance) notFound();
+
   const access = await api.institution.instance.access({ params });
 
   if (!access) {

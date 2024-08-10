@@ -19,6 +19,19 @@ import {
 } from "@/server/trpc";
 
 export const projectRouter = createTRPCRouter({
+  exists: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(async ({ ctx, input: { params, projectId } }) => {
+      return await ctx.db.project.findFirst({
+        where: {
+          id: projectId,
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+        },
+      });
+    }),
+
   edit: instanceProcedure
     .input(
       z.object({

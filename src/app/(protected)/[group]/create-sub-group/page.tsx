@@ -5,8 +5,9 @@ import { api } from "@/lib/trpc/server";
 import { FormSection } from "./_components/form-section";
 import { spacesLabels } from "@/content/spaces";
 import { Heading } from "@/components/heading";
+import { GroupParams } from "@/lib/validations/params";
 
-export default async function Page({ params }: { params: { group: string } }) {
+export default async function Page({ params }: { params: GroupParams }) {
   const access = await api.institution.group.access({ params });
 
   if (!access) {

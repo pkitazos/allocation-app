@@ -5,11 +5,18 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceDataTable } from "./_components/student-preference-data-table";
+import { notFound } from "next/navigation";
 
 type PageParams = InstanceParams & { id: string };
 
 export default async function Page({ params }: { params: PageParams }) {
   const studentId = params.id;
+  const exists = await api.user.student.exists({
+    params,
+    studentId,
+  });
+  if (!exists) notFound();
+
   const { user: student } = await api.user.student.getById({
     params,
     studentId,
