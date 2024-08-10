@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
 import { GroupParams } from "@/lib/validations/params";
+import { YesNoAction } from "@/components/yes-no-action";
 
 export function AdminRemovalButton({
   params,
@@ -35,14 +36,18 @@ export function AdminRemovalButton({
     );
   }
 
+  // TODO maybe requires a better message?
   return (
-    <Button
-      variant="destructive"
-      className="flex items-center gap-2"
-      onClick={handleRemoval}
-    >
-      <Trash2Icon className="h-4 w-4" />
-      <p>remove</p>
-    </Button>
+    <YesNoAction
+      action={handleRemoval}
+      title="Remove Subgroup Admin?"
+      description="You are about to remove a subgroup admin. Do you wish to proceed?"
+      trigger={
+        <Button variant="destructive" className="flex items-center gap-2">
+          <Trash2Icon className="h-4 w-4" />
+          <p>remove</p>
+        </Button>
+      }
+    />
   );
 }
