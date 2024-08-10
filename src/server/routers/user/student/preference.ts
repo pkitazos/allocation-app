@@ -230,7 +230,11 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
+        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) {
+          throw new Error("Cannot submit at this stage");
+        }
+
+        const newSubmissionDateTime = new Date();
 
         await ctx.db.studentDetails.update({
           where: {
@@ -243,9 +247,11 @@ export const preferenceRouter = createTRPCRouter({
           },
           data: {
             submittedPreferences: true,
-            latestSubmissionDateTime: new Date(),
+            latestSubmissionDateTime: newSubmissionDateTime,
           },
         });
+
+        return newSubmissionDateTime;
       },
     ),
 

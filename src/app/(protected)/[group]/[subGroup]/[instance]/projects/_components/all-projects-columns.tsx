@@ -299,7 +299,7 @@ export function constructColumns({
                   allowedStages={[Stage.PROJECT_SELECTION]}
                 >
                   <StudentPreferenceActionSubMenu
-                    defaultType={projectPreferences.get(project.id)}
+                    defaultType={projectPreferences.get(project.id) ?? "None"}
                     changePreference={async (t) =>
                       void changePreference(t, project.id)
                     }

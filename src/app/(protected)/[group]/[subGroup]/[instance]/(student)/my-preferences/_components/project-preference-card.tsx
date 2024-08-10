@@ -83,7 +83,7 @@ export function ProjectPreferenceCard({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-4 top-1/2 hidden -translate-y-1/2 items-center justify-center hover:bg-destructive hover:text-destructive-foreground group-hover:flex"
+          className="absolute right-4 top-1/2 hidden -translate-y-1/2 items-center justify-center group-hover:flex hover:bg-destructive hover:text-destructive-foreground"
           onClick={() => deletePreference(project.id as string)}
         >
           <X className="h-4 w-4 font-bold" />

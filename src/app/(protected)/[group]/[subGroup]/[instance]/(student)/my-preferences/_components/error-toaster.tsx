@@ -1,56 +1,26 @@
 "use client";
-import { PreferenceType } from "@prisma/client";
 import { AlertCircleIcon } from "lucide-react";
 
-import { useInstanceParams } from "@/components/params-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-import { api } from "@/lib/trpc/client";
-import { Skeleton } from "@/components/ui/skeleton";
+import { computeOverSelected } from "@/lib/utils/preferences/over-selected";
+import { ProjectPreference } from "@/lib/validations/board";
 
 export function ErrorToaster({
+  preferenceList,
   restrictions: { minPreferences, maxPreferences, maxPreferencesPerSupervisor },
 }: {
+  preferenceList: ProjectPreference[];
   restrictions: {
     minPreferences: number;
     maxPreferences: number;
     maxPreferencesPerSupervisor: number;
   };
 }) {
-  const params = useInstanceParams();
-
-  const { status, data } =
-    api.user.student.preference.initialBoardState.useQuery({
-      params,
-    });
-
-  if (status !== "success") return;
-
-  const preferenceList = data.initialProjects.filter(
-    (p) => p.columnId === PreferenceType.PREFERENCE,
+  const overSelected = computeOverSelected(
+    preferenceList,
+    maxPreferencesPerSupervisor,
   );
-
-  const supervisorCounts = preferenceList.reduce(
-    (acc, { supervisorId }) =>
-      acc.set(supervisorId, (acc.get(supervisorId) || 0) + 1),
-    new Map<string, number>(),
-  );
-
-  const supervisorNames = preferenceList.reduce(
-    (acc, { supervisorId, supervisorName }) => ({
-      ...acc,
-      [supervisorId]: supervisorName,
-    }),
-    {} as { [key: string]: string },
-  );
-
-  const overSelected = Array.from(supervisorCounts.entries())
-    .map(([s, n]) => ({
-      id: s,
-      name: supervisorNames[s],
-      count: n,
-    }))
-    .filter(({ count }) => count > maxPreferencesPerSupervisor);
 
   return (
     <div className="flex flex-col gap-2">
