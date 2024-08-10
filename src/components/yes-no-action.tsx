@@ -10,61 +10,13 @@ import {
   DestructiveActionTitle,
   DestructiveActionTrigger,
 } from "./ui/destructive-action";
-import { DropdownMenuItem } from "./ui/dropdown-menu";
 
-export function YesNoAction({
-  action,
-  trigger,
-  title,
-  description,
-}: {
-  action: () => void;
-  trigger: ReactNode;
-  title: ReactNode;
-  description: ReactNode;
-}) {
-  return (
-    <DestructiveAction action={action}>
-      <DestructiveActionTrigger asChild>
-        <Button variant="destructive" asChild>
-          {trigger}
-        </Button>
-      </DestructiveActionTrigger>
-      <DestructiveActionContent>
-        <DestructiveActionHeader>
-          <DestructiveActionTitle>{title}</DestructiveActionTitle>
-          <DestructiveActionDescription>
-            {description}
-          </DestructiveActionDescription>
-        </DestructiveActionHeader>
-        <div className="flex w-full flex-row justify-between">
-          <DestructiveActionCancel asChild>
-            <Button>No</Button>
-          </DestructiveActionCancel>
-          <DestructiveActionConfirm>
-            <Button variant="destructive">Yes</Button>
-          </DestructiveActionConfirm>
-        </div>
-      </DestructiveActionContent>
-    </DestructiveAction>
-  );
+// TODO get styling on this correct
+function YesNoActionTrigger({ trigger }: { trigger: ReactNode }) {
+  return <DestructiveActionTrigger asChild>{trigger}</DestructiveActionTrigger>;
 }
 
-export function YesNoActionDropdownTrigger({
-  trigger,
-}: {
-  trigger: ReactNode;
-}) {
-  return (
-    <DestructiveActionTrigger asChild>
-      <DropdownMenuItem asChild>
-        <Button variant="destructive">{trigger}</Button>
-      </DropdownMenuItem>
-    </DestructiveActionTrigger>
-  );
-}
-
-export function YesNoActionDropdownContainer({
+function YesNoActionContainer({
   action,
   title,
   description,
@@ -99,3 +51,21 @@ export function YesNoActionDropdownContainer({
     </DestructiveAction>
   );
 }
+
+function YesNoAction({
+  trigger,
+  ...rest
+}: {
+  action: () => void;
+  trigger: ReactNode;
+  title: ReactNode;
+  description: ReactNode;
+}) {
+  return (
+    <YesNoActionContainer {...rest}>
+      <YesNoActionTrigger trigger={trigger} />
+    </YesNoActionContainer>
+  );
+}
+
+export { YesNoAction, YesNoActionContainer, YesNoActionTrigger };

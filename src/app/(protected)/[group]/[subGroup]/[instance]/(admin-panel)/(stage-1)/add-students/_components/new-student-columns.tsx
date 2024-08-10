@@ -16,10 +16,11 @@ import {
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import {
-  YesNoActionDropdownContainer,
-  YesNoActionDropdownTrigger,
+  YesNoActionContainer,
+  YesNoActionTrigger,
 } from "@/components/yes-no-action";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 export function constructColumns({
   removeStudent,
@@ -106,7 +107,7 @@ export function constructColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <YesNoActionDropdownContainer
+                <YesNoActionContainer
                   action={async () =>
                     void removeSelectedStudents(selectedStudentIds)
                   }
@@ -121,16 +122,18 @@ export function constructColumns({
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
-                    <YesNoActionDropdownTrigger
-                      trigger={
-                        <button className="flex items-center gap-2">
-                          <Trash2Icon className="h-4 w-4" />
-                          <span>Remove selected Students</span>
-                        </button>
-                      }
-                    />
+                    <DropdownMenuItem asChild>
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="flex items-center gap-2">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Remove selected Students</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
-                </YesNoActionDropdownContainer>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -151,7 +154,7 @@ export function constructColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <YesNoActionDropdownContainer
+              <YesNoActionContainer
                 action={() => void removeStudent(institutionId)}
                 title="Remove Student?"
                 description={`You are about to remove "${fullName}" from the student list. Do you wish to proceed?`}
@@ -159,16 +162,18 @@ export function constructColumns({
                 <DropdownMenuContent align="center" side="bottom">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <YesNoActionDropdownTrigger
-                    trigger={
-                      <button className="m-1 flex items-center gap-2">
-                        <Trash2Icon className="h-4 w-4" />
-                        <span>Remove Student {fullName}</span>
-                      </button>
-                    }
-                  />
+                  <DropdownMenuItem asChild>
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="m-1 flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Remove Student {fullName}</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
-              </YesNoActionDropdownContainer>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );
