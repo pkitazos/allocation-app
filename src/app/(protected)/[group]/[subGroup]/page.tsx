@@ -58,9 +58,11 @@ export default async function Page({
               ))}
             </TableBody>
           </Table>
-          <div className="mt-2">
-            <FormButton params={params} />
-          </div>
+          <AdminLevelAC minimumAdminLevel={AdminLevel.GROUP}>
+            <div className="mt-2">
+              <FormButton params={params} />
+            </div>
+          </AdminLevelAC>
         </CardContent>
       </Card>
       <SubHeading>Manage {spacesLabels.instance.full}s</SubHeading>
