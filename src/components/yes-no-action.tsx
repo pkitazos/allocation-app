@@ -78,19 +78,21 @@ export function YesNoActionDropdownContainer({
   return (
     <DestructiveAction action={action}>
       {children}
-      <DestructiveActionContent>
+      <DestructiveActionContent className="w-96">
         <DestructiveActionHeader>
           <DestructiveActionTitle>{title}</DestructiveActionTitle>
           <DestructiveActionDescription>
             {description}
           </DestructiveActionDescription>
         </DestructiveActionHeader>
-        <div className="flex w-full flex-row justify-between">
+        <div className="flex w-full flex-row justify-evenly gap-4">
           <DestructiveActionCancel asChild>
-            <Button>No</Button>
+            <Button className="w-full">No</Button>
           </DestructiveActionCancel>
-          <DestructiveActionConfirm>
-            <Button variant="destructive">Yes</Button>
+          <DestructiveActionConfirm asChild>
+            <Button className="w-full" variant="destructive">
+              Yes
+            </Button>
           </DestructiveActionConfirm>
         </div>
       </DestructiveActionContent>
