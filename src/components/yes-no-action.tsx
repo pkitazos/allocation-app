@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { Button } from "./ui/button";
 import {
   DestructiveAction,
@@ -11,7 +12,6 @@ import {
   DestructiveActionTrigger,
 } from "./ui/destructive-action";
 
-// TODO get styling on this correct
 function YesNoActionTrigger({ trigger }: { trigger: ReactNode }) {
   return <DestructiveActionTrigger asChild>{trigger}</DestructiveActionTrigger>;
 }

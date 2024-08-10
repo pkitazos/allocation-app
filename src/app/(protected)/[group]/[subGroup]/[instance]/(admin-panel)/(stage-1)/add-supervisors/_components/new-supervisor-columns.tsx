@@ -109,6 +109,12 @@ export function constructColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.institutionId);
 
+        function handleRemoveSelectedSupervisors() {
+          void removeSelectedSupervisors(selectedSupervisorIds).then(() =>
+            table.toggleAllRowsSelected(false),
+          );
+        }
+
         if (someSelected)
           return (
             <div className="flex w-14 items-center justify-center">
@@ -120,13 +126,11 @@ export function constructColumns({
                   </Button>
                 </DropdownMenuTrigger>
                 <YesNoActionContainer
-                  action={async () =>
-                    void removeSelectedSupervisors(selectedSupervisorIds)
-                  }
+                  action={handleRemoveSelectedSupervisors}
                   title="Remove Supervisors?"
                   description={
                     selectedSupervisorIds.length === 1
-                      ? `you are about to remove "${table.getRow(selectedSupervisorIds[0]).original.fullName}" from the supervisor list. Do you wish to proceed?`
+                      ? `you are about to remove 1 supervisor from the list. Do you wish to proceed?`
                       : `You are about to remove ${selectedSupervisorIds.length} supervisors from the list. Do you wish to proceed?`
                   }
                 >
