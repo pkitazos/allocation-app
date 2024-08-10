@@ -17,6 +17,10 @@ import {
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 export function constructColumns({
   removeSupervisor,
@@ -115,21 +119,32 @@ export function constructColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={async () =>
-                        void removeSelectedSupervisors(selectedSupervisorIds)
-                      }
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Remove selected Supervisors</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <YesNoActionContainer
+                  action={async () =>
+                    void removeSelectedSupervisors(selectedSupervisorIds)
+                  }
+                  title="Remove Supervisors?"
+                  description={
+                    selectedSupervisorIds.length === 1
+                      ? `you are about to remove "${table.getRow(selectedSupervisorIds[0]).original.fullName}" from the supervisor list. Do you wish to proceed?`
+                      : `You are about to remove ${selectedSupervisorIds.length} supervisors from the list. Do you wish to proceed?`
+                  }
+                >
+                  <DropdownMenuContent align="center" side="bottom">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="flex items-center gap-2">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Remove selected Supervisors</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -149,19 +164,26 @@ export function constructColumns({
                 <MoreIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                <button
-                  className="flex items-center gap-2"
-                  onClick={async () => void removeSupervisor(institutionId)}
-                >
-                  <Trash2Icon className="h-4 w-4" />
-                  <span>Remove Supervisor {fullName}</span>
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            <YesNoActionContainer
+              action={async () => void removeSupervisor(institutionId)}
+              title="Remove Supervisor?"
+              description={`You are about to remove "${fullName}" from the supervisor list. Do you wish to proceed?`}
+            >
+              <DropdownMenuContent align="center" side="bottom">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="flex items-center gap-2">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Supervisor {fullName}</span>
+                      </button>
+                    }
+                  />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </YesNoActionContainer>
           </DropdownMenu>
         </div>
       ),

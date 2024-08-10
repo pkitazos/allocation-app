@@ -122,7 +122,7 @@ export function constructColumns({
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
                       <YesNoActionTrigger
                         trigger={
                           <button className="flex items-center gap-2">
@@ -162,7 +162,7 @@ export function constructColumns({
                 <DropdownMenuContent align="center" side="bottom">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem className="m-2 bg-background text-destructive focus:bg-red-100/40 focus:text-destructive">
                     <YesNoActionTrigger
                       trigger={
                         <button className="m-1 flex items-center gap-2">
