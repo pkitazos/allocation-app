@@ -77,7 +77,7 @@ DestructiveActionConfirm.displayName = "DestructiveActionConfirm";
 const DestructiveActionVerificationTypeIn = forwardRef<
   HTMLInputElement,
   Omit<InputProps, "onChange" | "value"> & { phrase: string }
->(({ phrase, ...rest }) => {
+>(({ phrase, ...rest }, ref) => {
   const [state, setState] = useState("");
 
   const { setVerified } = useContext(DestructiveActionContext);
@@ -89,6 +89,7 @@ const DestructiveActionVerificationTypeIn = forwardRef<
 
   return (
     <Input
+      ref={ref}
       {...rest}
       value={state}
       placeholder={phrase}
