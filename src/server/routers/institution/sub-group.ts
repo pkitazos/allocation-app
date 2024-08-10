@@ -17,7 +17,7 @@ import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
-  get: protectedProcedure
+  exists: protectedProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(
       async ({

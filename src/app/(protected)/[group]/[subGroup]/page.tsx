@@ -20,7 +20,7 @@ import { notFound } from "next/navigation";
 import { SubGroupParams } from "@/lib/validations/params";
 
 export default async function Page({ params }: { params: SubGroupParams }) {
-  const allocationSubGroup = await api.institution.subGroup.get({ params });
+  const allocationSubGroup = await api.institution.subGroup.exists({ params });
   if (!allocationSubGroup) notFound();
 
   const access = await api.institution.subGroup.access({ params });
