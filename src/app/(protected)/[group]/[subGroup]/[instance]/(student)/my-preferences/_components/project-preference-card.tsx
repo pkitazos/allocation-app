@@ -1,13 +1,13 @@
 "use client";
-
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
 import { X } from "lucide-react";
+import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
-import { useInstanceStage } from "@/components/params-context";
-import { Button } from "@/components/ui/button";
+import { useInstancePath, useInstanceStage } from "@/components/params-context";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ export function ProjectPreferenceCard({
   deletePreference: (id: string) => Promise<void>;
 }) {
   const stage = useInstanceStage();
+  const instancePath = useInstancePath();
 
   const {
     setNodeRef,
@@ -70,7 +71,14 @@ export function ProjectPreferenceCard({
           {project.columnId === PreferenceType.PREFERENCE && (
             <p className="text-xl font-bold text-sky-600">{idx}</p>
           )}
-          <CardTitle className="text-xl">{project.title}</CardTitle>
+          <CardTitle>
+            <Link
+              className={cn(buttonVariants({ variant: "link" }), "text-xl")}
+              href={`${instancePath}/projects/${project.id}`}
+            >
+              {project.title}
+            </Link>
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent>
