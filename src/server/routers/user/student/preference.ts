@@ -57,15 +57,21 @@ export const preferenceRouter = createTRPCRouter({
             orderBy: { rank: "asc" },
           });
 
-        return studentProjectPreferenceDetails.map(({ project, type }, i) => ({
-          project: { id: project.id, title: project.title },
-          supervisor: {
-            name: project.supervisor.user.name,
-            id: project.supervisor.user.id,
-          },
-          type: type,
-          rank: i + 1,
-        }));
+        return studentProjectPreferenceDetails
+          .sort((a, b) => {
+            const aPref = a.type === PreferenceType.PREFERENCE ? 0 : 1;
+            const bPref = b.type === PreferenceType.PREFERENCE ? 0 : 1;
+            return aPref - bPref;
+          })
+          .map(({ project, type }, i) => ({
+            project: { id: project.id, title: project.title },
+            supervisor: {
+              name: project.supervisor.user.name,
+              id: project.supervisor.user.id,
+            },
+            type: type,
+            rank: type === PreferenceType.PREFERENCE ? i + 1 : NaN,
+          }));
       },
     ),
 
@@ -325,32 +331,22 @@ export const preferenceRouter = createTRPCRouter({
           newPreferenceType,
         },
       }) => {
-        if (newPreferenceType === "None") {
-          await ctx.db.preference.delete({
-            where: {
-              preferenceId: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                allocationInstanceId: instance,
-                projectId,
-                userId: studentId,
-              },
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.update({
+        const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
-            preferenceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              projectId,
-              userId: studentId,
-            },
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
           },
-          data: { type: newPreferenceType },
+          select: { studentLevel: true },
+        });
+
+        await updatePreferenceTransaction({
+          db: ctx.db,
+          student: { id: studentId, studentLevel },
+          params: { group, subGroup, instance },
+          projectId,
+          preferenceType: newPreferenceType,
         });
       },
     ),
@@ -374,28 +370,22 @@ export const preferenceRouter = createTRPCRouter({
           projectIds,
         },
       }) => {
-        if (newPreferenceType === "None") {
-          await ctx.db.preference.deleteMany({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              userId: studentId,
-              projectId: { in: projectIds },
-            },
-          });
-          return;
-        }
-
-        await ctx.db.preference.updateMany({
+        const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             userId: studentId,
-            projectId: { in: projectIds },
           },
-          data: { type: newPreferenceType },
+          select: { studentLevel: true },
+        });
+
+        await updateManyPreferenceTransaction({
+          db: ctx.db,
+          student: { id: studentId, studentLevel },
+          params: { group, subGroup, instance },
+          projectIds,
+          preferenceType: newPreferenceType,
         });
       },
     ),

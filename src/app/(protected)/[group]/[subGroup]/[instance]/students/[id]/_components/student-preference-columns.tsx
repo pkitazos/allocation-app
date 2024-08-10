@@ -146,7 +146,11 @@ export function constructColumns({
         row: {
           original: { rank },
         },
-      }) => <div className="text-center font-semibold">{rank}</div>,
+      }) => (
+        <div className="text-center font-semibold">
+          {Number.isNaN(rank) ? "-" : rank}
+        </div>
+      ),
     },
   ];
 
@@ -167,6 +171,17 @@ export function constructColumns({
         rowTypes.at(0),
       );
 
+      async function handleSelectedPreferenceChange(
+        newPreferenceType: StudentPreferenceType,
+      ) {
+        void changeSelectedPreferences(
+          newPreferenceType,
+          selectedProjectIds,
+        ).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
+
       if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
         return (
           <div className="flex w-full items-center justify-center">
@@ -186,12 +201,7 @@ export function constructColumns({
                 <DropdownMenuSeparator />
                 <StudentPreferenceActionSubMenu
                   defaultType={defaultType}
-                  changePreference={async (newPreferenceType) =>
-                    void changeSelectedPreferences(
-                      newPreferenceType,
-                      selectedProjectIds,
-                    )
-                  }
+                  changePreference={handleSelectedPreferenceChange}
                 />
               </DropdownMenuContent>
             </DropdownMenu>
