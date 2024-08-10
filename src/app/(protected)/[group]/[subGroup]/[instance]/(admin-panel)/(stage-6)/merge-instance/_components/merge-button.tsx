@@ -69,12 +69,14 @@ export function MergeButton({
         <DestructiveActionVerificationTypeIn
           phrase={forkedInstance.displayName}
         />
-        <div className="flex w-full flex-row justify-between">
+        <div className="flex w-full flex-row justify-between gap-4">
           <DestructiveActionCancel asChild>
-            <Button>Cancel</Button>
+            <Button className="w-full">Cancel</Button>
           </DestructiveActionCancel>
           <DestructiveActionConfirm asChild>
-            <Button variant="secondary">Merge</Button>
+            <Button className="w-full" variant="secondary">
+              Merge
+            </Button>
           </DestructiveActionConfirm>
         </div>
       </DestructiveActionContent>
