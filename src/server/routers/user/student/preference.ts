@@ -241,7 +241,10 @@ export const preferenceRouter = createTRPCRouter({
               userId: ctx.session.user.id,
             },
           },
-          data: { submittedPreferences: true },
+          data: {
+            submittedPreferences: true,
+            latestSubmissionDateTime: new Date(),
+          },
         });
       },
     ),

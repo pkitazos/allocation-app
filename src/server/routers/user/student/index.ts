@@ -101,6 +101,12 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
+  latestSubmission: studentProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({ ctx }) => ctx.session.user.latestSubmissionDateTime ?? undefined,
+    ),
+
   allocatedProject: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

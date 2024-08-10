@@ -178,13 +178,21 @@ export const studentProcedure = instanceProcedure
       });
     }
 
-    const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
-      where: { userId: user.id },
-    });
+    const { studentLevel, latestSubmissionDateTime } =
+      await ctx.db.studentDetails.findFirstOrThrow({
+        where: { userId: user.id },
+      });
 
     return next({
       ctx: {
-        session: { user: { ...user, role: user.role, studentLevel } },
+        session: {
+          user: {
+            ...user,
+            role: user.role,
+            studentLevel,
+            latestSubmissionDateTime,
+          },
+        },
       },
     });
   });
