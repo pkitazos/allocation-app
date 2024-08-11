@@ -40,12 +40,14 @@ export const instanceTabs = {
 } as const;
 
 export const supervisorTabs = [
+  instanceTabs.allProjects,
   instanceTabs.myProjects,
   instanceTabs.newProject,
   instanceTabs.myAllocations,
 ];
 
 export const studentTabs = [
+  instanceTabs.allProjects,
   instanceTabs.myPreferences,
   instanceTabs.myAllocation,
 ];
@@ -60,6 +62,7 @@ export const studentRoutes: string[] = Object.values(studentTabs).map(
 
 export const adminRoutes: string[] = [
   ...Object.values(adminPanelTabs).map((tab) => tab.href),
+  instanceTabs.allProjects.href,
   instanceTabs.allSupervisors.href,
   instanceTabs.allStudents.href,
 ];

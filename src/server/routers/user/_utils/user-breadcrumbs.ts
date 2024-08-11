@@ -170,7 +170,7 @@ async function handle_in_instance(
   baseSegments = [
     { segment: group, access: false },
     { segment: subGroup, access },
-    { segment: instance, access },
+    { segment: instance, access: true },
   ];
 
   if (remainingSegments.length === 0) return baseSegments;
@@ -198,12 +198,12 @@ async function handle_in_instance(
     if (remainingSegments[0] === instanceTabs.allProjects.href) {
       // all users can see the projects pages
       return allSegments(
-        segments.map((segment) => ({ segment, access: true })),
+        remainingSegments.map((segment) => ({ segment, access: true })),
       );
     } else {
       // only admins can see the student and supervisor pages
       return allSegments(
-        segments.map((segment) => ({
+        remainingSegments.map((segment) => ({
           segment,
           access: role === Role.ADMIN,
         })),
@@ -220,7 +220,7 @@ async function handle_in_instance(
       });
 
       return allSegments(
-        segments.map((segment) => ({
+        remainingSegments.map((segment) => ({
           segment,
           access: userId === supervisorId,
         })),
@@ -228,7 +228,7 @@ async function handle_in_instance(
     }
 
     return allSegments(
-      segments.map((segment) => ({
+      remainingSegments.map((segment) => ({
         segment,
         access: role === Role.ADMIN,
       })),
