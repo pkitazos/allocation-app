@@ -51,6 +51,12 @@ export const superAdminInSpace: New<AdminInSpace> = {
 
 export const to_ID = (ID: number) => ID.toString().padStart(3, "0");
 
+export const evaluator__groupAdmin = (ID: string): StableUser => ({
+  id: `${ID}-0000001a`,
+  name: "Group Admin Evaluator",
+  email: `${ID}-0000group@email.com`,
+});
+
 export const evaluator__subGroupAdmin = (ID: string): StableUser => ({
   id: `${ID}-012345w`,
   name: "Admin Evaluator",
@@ -172,6 +178,7 @@ const allStudents = (ID: string): StableUser[] => [
 ];
 
 export const allUsers = (ID: string): StableUser[] => [
+  evaluator__groupAdmin(ID),
   evaluator__subGroupAdmin(ID),
   ...allSupervisors(ID),
   ...allStudents(ID),
@@ -274,6 +281,7 @@ export const test__tagTitles: Pick<Tag, "title">[] = [
 // dependant
 
 export const invites = (ID: string): Invitation[] => [
+  inInstance(ID, { email: evaluator__groupAdmin(ID).email! }),
   inInstance(ID, { email: evaluator__subGroupAdmin(ID).email! }),
   ...dummy__supervisors(ID).map((s) => inInstance(ID, { email: s.email! })),
   ...dummy__students(ID).map((s) => inInstance(ID, { email: s.email! })),
@@ -306,6 +314,12 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
 });
 
 export const adminsInSpaces = (ID: string): New<AdminInSpace>[] => [
+  {
+    userId: evaluator__groupAdmin(ID).id,
+    allocationGroupId: allocationGroup(ID).id,
+    allocationSubGroupId: null,
+    adminLevel: AdminLevel.GROUP,
+  },
   {
     userId: evaluator__subGroupAdmin(ID).id,
     allocationGroupId: allocationGroup(ID).id,
