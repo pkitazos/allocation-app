@@ -30,7 +30,7 @@ export function Breadcrumbs() {
               <Link
                 href="/"
                 prefetch={false}
-                className="--orange-500 hover:text-secondary hover:underline"
+                className="hover:text-secondary hover:underline"
               >
                 Home
               </Link>
@@ -40,9 +40,7 @@ export function Breadcrumbs() {
             <>
               <BreadcrumbSeparator />
               <BreadcrumbItem key={segment}>
-                <BreadcrumbPage className="--orange-500">
-                  {segment}
-                </BreadcrumbPage>
+                <BreadcrumbPage>{segment}</BreadcrumbPage>
               </BreadcrumbItem>
             </>
           ))}
@@ -59,7 +57,7 @@ export function Breadcrumbs() {
             <Link
               href="/"
               prefetch={false}
-              className="--pink-500 hover:text-secondary hover:underline"
+              className="hover:text-secondary hover:underline"
             >
               Home
             </Link>
@@ -73,14 +71,14 @@ export function Breadcrumbs() {
                 <BreadcrumbLink asChild>
                   <Link
                     href={`/${segments.slice(0, index + 1).join("/")}`}
-                    className="--pink-500 hover:text-secondary hover:underline"
+                    className="hover:text-secondary hover:underline"
                     prefetch={false}
                   >
                     {segment}
                   </Link>
                 </BreadcrumbLink>
               ) : (
-                <BreadcrumbPage className={"text-muted-foreground --pink-500"}>
+                <BreadcrumbPage className="text-muted-foreground">
                   {segment}
                 </BreadcrumbPage>
               )}
