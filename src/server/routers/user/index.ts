@@ -2,6 +2,7 @@ import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+import { validatedSegmentsSchema } from "@/lib/validations/breadcrumbs";
 
 import {
   adminProcedure,
@@ -13,6 +14,7 @@ import {
 import { getUserRole } from "@/server/utils/user-role";
 
 import { isInstancePath } from "./_utils/is-instance-path";
+import { validateSegments } from "./_utils/user-breadcrumbs";
 import {
   formatInstanceData,
   getGroupInstances,
@@ -193,6 +195,15 @@ export const userRouter = createTRPCRouter({
       formatInstanceData(allGroups, instance),
     );
   }),
+
+  breadcrumbs: publicProcedure
+    .input(z.object({ segments: z.array(z.string()) }))
+    .output(z.array(validatedSegmentsSchema))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session || !ctx.session.user) return [];
+      const user = ctx.session.user;
+      return await validateSegments(ctx.db, input.segments, user.id);
+    }),
 });
 
 function getHighestAdminLevel(adminLevels: AdminLevel[]) {

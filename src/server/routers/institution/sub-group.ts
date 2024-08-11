@@ -1,7 +1,9 @@
-import { AdminLevel } from "@prisma/client";
+import { AdminLevel, Role } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
+import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
 import { createdInstanceSchema } from "@/lib/validations/instance-form";
 import {
   instanceParamsSchema,
@@ -13,11 +15,8 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { adminAccess } from "@/server/utils/admin-access";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
 import { isAdminInSubGroup_v2 } from "@/server/utils/is-sub-group-admin";
-import { TRPCClientError } from "@trpc/client";
+import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
   exists: protectedProcedure
@@ -145,36 +144,59 @@ export const subGroupRouter = createTRPCRouter({
       }) => {
         const instance = slugify(instanceName);
 
-        await ctx.db.allocationInstance.create({
-          data: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-            displayName: instanceName,
-            minPreferences,
-            maxPreferences,
-            maxPreferencesPerSupervisor,
-            preferenceSubmissionDeadline,
-            projectSubmissionDeadline,
-          },
-        });
+        await ctx.db.$transaction(async (tx) => {
+          await tx.allocationInstance.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+              displayName: instanceName,
+              minPreferences,
+              maxPreferences,
+              maxPreferencesPerSupervisor,
+              preferenceSubmissionDeadline,
+              projectSubmissionDeadline,
+            },
+          });
 
-        await ctx.db.flag.createMany({
-          data: flags.map(({ title }) => ({
-            title,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          })),
-        });
+          await tx.flag.createMany({
+            data: flags.map(({ title }) => ({
+              title,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            })),
+          });
 
-        await ctx.db.tag.createMany({
-          data: tags.map(({ title }) => ({
-            title,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          })),
+          await tx.tag.createMany({
+            data: tags.map(({ title }) => ({
+              title,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            })),
+          });
+
+          const admins = await tx.adminInSpace.findMany({
+            where: {
+              OR: [
+                { allocationGroupId: group, allocationSubGroupId: null },
+                { allocationGroupId: group, allocationSubGroupId: subGroup },
+              ],
+            },
+            select: { userId: true },
+          });
+
+          await tx.userInInstance.createMany({
+            data: admins.map(({ userId }) => ({
+              userId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.ADMIN,
+            })),
+            skipDuplicates: true,
+          });
         });
       },
     ),
