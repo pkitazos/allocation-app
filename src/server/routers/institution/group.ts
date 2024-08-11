@@ -151,6 +151,24 @@ export const groupRouter = createTRPCRouter({
     ),
 
   // TODO: refactor after auth is implemented
+  /**
+   * Handles the form submission to add a new admin to a specified Group.
+   *
+   * @description
+   * 1. Checks if the user (identified by `institutionId`) is already an admin in the specified Group.
+   *    - If so, throws a `TRPCClientError` with the message "User is already an admin".
+   *
+   * 2. If the user is not already an admin:
+   *    - Attempts to find the user in the database based on `institutionId` and `email`.
+   *    - If the user is not found:
+   *      - Tries to create a new user with the provided `institutionId`, `name`, and `email`.
+   *      - If the user creation fails (e.g., due to a GUID/email mismatch), throws a `TRPCClientError` with the message "GUID and email do not match".
+   *
+   * 3. Finally, if the user exists (either found or newly created):
+   *    - Creates an `adminInSpace` record associating the user with the specified Group and admin level.
+   *
+   * @throws {TRPCClientError} If the user is already an admin or if there's a GUID/email mismatch during user creation.
+   */
   addAdmin: adminProcedure
     .input(
       z.object({
