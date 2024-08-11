@@ -38,9 +38,9 @@ type StableUser = Omit<User, "id"> & {
 type New<T> = Omit<T, "id" | "systemId">;
 
 export const superAdmin: StableUser = {
-  id: "super-admin",
-  name: "Super-Admin",
-  email: "super.allocationapp@gmail.com",
+  id: "pk150z",
+  name: "Petros Kitazos",
+  email: "test@gmail.com",
 };
 
 export const superAdminInSpace: New<AdminInSpace> = {
