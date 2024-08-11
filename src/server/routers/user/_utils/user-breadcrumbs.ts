@@ -27,11 +27,11 @@ export async function validateSegments(
   }
 
   if (segments.length === 2) {
-    const hello = await handle_length_2(db, segments, userId);
-    return hello;
+    const access = await handle_length_2(db, segments, userId);
+    return access;
   }
 
-  return await handle_length_3(db, segments, userId);
+  return await handle_length_over_2(db, segments, userId);
 }
 
 async function handle_length_1(
@@ -94,7 +94,7 @@ async function handle_length_2(
   }
 }
 
-async function handle_length_3(
+async function handle_length_over_2(
   db: PrismaClient,
   segments: string[],
   userId: string,
@@ -151,25 +151,12 @@ async function handle_in_instance(
     select: { role: true },
   });
 
-  // if the user is an admin
-  // check their level
-  // if they are a group admin they can see everything
-  // if they are a sub-group admin they can see everything except the group settings
+  const groupAdmin = await isGroupAdmin(db, { group }, userId);
+  const subGroupAdmin = await isSubGroupAdmin(db, { group, subGroup }, userId);
 
-  let baseSegments: ValidatedSegments[] = [];
-  if (role !== Role.ADMIN) {
-    baseSegments = segments.map((segment) => ({ segment, access: false }));
-  }
-
-  let access = await isGroupAdmin(db, { group }, userId);
-  if (access) {
-    baseSegments = segments.map((segment) => ({ segment, access }));
-  }
-
-  access = await isSubGroupAdmin(db, { group, subGroup }, userId);
-  baseSegments = [
-    { segment: group, access: false },
-    { segment: subGroup, access },
+  const baseSegments = [
+    { segment: group, access: groupAdmin },
+    { segment: subGroup, access: subGroupAdmin || groupAdmin },
     { segment: instance, access: true },
   ];
 
@@ -198,7 +185,10 @@ async function handle_in_instance(
     if (remainingSegments[0] === instanceTabs.allProjects.href) {
       // all users can see the projects pages
       return allSegments(
-        remainingSegments.map((segment) => ({ segment, access: true })),
+        remainingSegments.map((segment) => ({
+          segment,
+          access: true,
+        })),
       );
     } else {
       // only admins can see the student and supervisor pages
@@ -214,32 +204,34 @@ async function handle_in_instance(
   if (remainingSegments.length === 3) {
     // you are in the edit project page
     if (role === Role.SUPERVISOR) {
+      // you are a supervisor
       const { supervisorId } = await db.project.findFirstOrThrow({
         where: { id: remainingSegments[1] },
         select: { supervisorId: true },
       });
 
+      // only the project supervisor can see this page
       return allSegments(
         remainingSegments.map((segment) => ({
           segment,
           access: userId === supervisorId,
         })),
       );
+    } else {
+      // otherwise only admins can see this page
+      return allSegments(
+        remainingSegments.map((segment) => ({
+          segment,
+          access: role === Role.ADMIN,
+        })),
+      );
     }
-
-    return allSegments(
-      remainingSegments.map((segment) => ({
-        segment,
-        access: role === Role.ADMIN,
-      })),
-    );
   }
 
   throw new Error("Invalid path");
 
-  // // the remaining segments can be
   // const possible_routes = [
-  //   // admin-panel pages
+  // // ---------------------- admin only
   //   "edit",
   //   "settings",
   //   "add-students",
@@ -255,20 +247,19 @@ async function handle_in_instance(
   //   "export-to-external-system",
   //   "fork-instance",
   //   "merge-instance",
-  //   // admin only
   //   "students",
   //   "students/[id]",
   //   "supervisors",
-  //   "supervisors/[id]",
   //   "projects/[id]/edit", // admin + supervisor (if this is their project)
-  //   // student pages
+  //   "supervisors/[id]",
+  // // ---------------------- student pages
   //   "my-preferences",
   //   "my-allocation",
-  //   // supervisor pages
+  // // ---------------------- supervisor pages
   //   "my-projects",
   //   "my-allocations",
   //   "new-project",
-  //   // all users
+  // // ---------------------- all users
   //   "projects",
   //   "projects/[id]",
   // ];
