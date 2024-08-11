@@ -353,13 +353,6 @@ const evaluator__student__userInInstance = (ID: string): UserInInstance =>
     joined: true,
   });
 
-const evaluator__supervisor__userInInstance = (ID: string): UserInInstance =>
-  inInstance(ID, {
-    userId: evaluator__supervisor(ID).id,
-    role: Role.SUPERVISOR,
-    joined: true,
-  });
-
 const evaluator__groupAdmin__userInInstance = (ID: string): UserInInstance =>
   inInstance(ID, {
     userId: evaluator__groupAdmin(ID).id,
@@ -378,7 +371,6 @@ export const allUsersInInstance = (ID: string): UserInInstance[] => [
   ...supervisors__userInInstance(ID),
   ...students__userInInstance(ID),
   evaluator__student__userInInstance(ID),
-  // evaluator__supervisor__userInInstance(ID),
   evaluator__groupAdmin__userInInstance(ID),
   evaluator__subGroupAdmin__userInInstance(ID),
 ];
