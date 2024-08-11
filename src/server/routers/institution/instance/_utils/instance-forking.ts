@@ -48,6 +48,7 @@ export async function getAvailableSupervisors(
           description: true,
           capacityUpperBound: true,
           allocations: true,
+          latestEditDateTime: true,
           flagOnProjects: { select: { flag: { select: { title: true } } } },
           tagOnProject: { select: { tag: { select: { title: true } } } },
         },
@@ -92,6 +93,7 @@ export async function getAvailableSupervisors(
           allocationCount: p.allocations.length,
           flags: p.flagOnProjects.map((f) => f.flag),
           tags: p.tagOnProject.map((t) => t.tag),
+          latestEditDateTime: p.latestEditDateTime,
         })),
       };
     })
@@ -269,6 +271,7 @@ export async function createProjects(
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: forkedInstanceId,
+      latestEditDateTime: p.latestEditDateTime,
     })),
   });
 
@@ -339,6 +342,7 @@ type AvailableSupervisor = {
     flags: { title: string }[];
     tags: { title: string }[];
     allocationCount: number;
+    latestEditDateTime: Date;
   }[];
 };
 
@@ -348,6 +352,7 @@ type AvailableProjects = {
   description: string;
   supervisorId: string;
   capacityUpperBound: number;
+  latestEditDateTime: Date;
   actualCapacity: number;
   remainingCapacity: number;
   flags: {

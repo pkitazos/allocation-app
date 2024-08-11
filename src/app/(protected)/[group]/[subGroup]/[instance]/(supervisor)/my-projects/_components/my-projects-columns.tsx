@@ -32,7 +32,7 @@ export type SupervisorProjectDataDto = {
   allocatedStudentId?: string;
 };
 
-export function constructColumns({
+export function useMyProjectColumns({
   deleteProject,
   deleteSelectedProjects,
 }: {
@@ -141,6 +141,12 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.id);
 
+      async function handleDeleteSelected() {
+        void deleteSelectedProjects(selectedProjectIds).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
+
       if (someSelected) {
         return (
           <div className="flex w-24 items-center justify-center">
@@ -152,7 +158,7 @@ export function constructColumns({
                 </Button>
               </DropdownMenuTrigger>
               <YesNoActionContainer
-                action={() => deleteSelectedProjects(selectedProjectIds)}
+                action={handleDeleteSelected}
                 title="Delete Projects?"
                 description={
                   selectedProjectIds.length === 1
