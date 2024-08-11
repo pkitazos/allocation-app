@@ -122,6 +122,7 @@ async function handle_length_3(
     return [
       { segment: group, access: false },
       { segment: subGroup, access },
+      { segment: segments[2], access },
     ];
   } else {
     // user is in an instance
@@ -173,6 +174,7 @@ async function handle_in_instance(
   baseSegments = [
     { segment: group, access: false },
     { segment: subGroup, access },
+    { segment: instance, access },
   ];
 
   if (remainingSegments.length === 0) return baseSegments;

@@ -113,6 +113,7 @@ export const userRouter = createTRPCRouter({
     return;
   }),
 
+  // ! deprecated
   canAccessAllSegments: publicProcedure
     .input(z.object({ segments: z.array(z.string()) }))
     .query(async ({ ctx, input: { segments } }) => {

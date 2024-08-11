@@ -17,9 +17,7 @@ export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter((segment) => segment !== "");
 
-  const { status, data: access } = api.user.canAccessAllSegments.useQuery({
-    segments,
-  });
+  const { status, data } = api.user.breadcrumbs.useQuery({ segments });
 
   if (segments.length === 0) return <></>;
 
@@ -32,7 +30,7 @@ export function Breadcrumbs() {
               <Link
                 href="/"
                 prefetch={false}
-                className="hover:text-secondary hover:underline"
+                className="--orange-500 hover:text-secondary hover:underline"
               >
                 Home
               </Link>
@@ -42,7 +40,9 @@ export function Breadcrumbs() {
             <>
               <BreadcrumbSeparator />
               <BreadcrumbItem key={segment}>
-                <BreadcrumbPage>{segment}</BreadcrumbPage>
+                <BreadcrumbPage className="--orange-500">
+                  {segment}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </>
           ))}
@@ -59,13 +59,13 @@ export function Breadcrumbs() {
             <Link
               href="/"
               prefetch={false}
-              className="hover:text-secondary hover:underline"
+              className="--pink-500 hover:text-secondary hover:underline"
             >
               Home
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        {segments.map((segment, index) => (
+        {data.map(({ segment, access }, index) => (
           <>
             <BreadcrumbSeparator />
             <BreadcrumbItem key={segment}>
@@ -73,14 +73,14 @@ export function Breadcrumbs() {
                 <BreadcrumbLink asChild>
                   <Link
                     href={`/${segments.slice(0, index + 1).join("/")}`}
-                    className="hover:text-secondary hover:underline"
+                    className="--pink-500 hover:text-secondary hover:underline"
                     prefetch={false}
                   >
                     {segment}
                   </Link>
                 </BreadcrumbLink>
               ) : (
-                <BreadcrumbPage className={"text-muted-foreground"}>
+                <BreadcrumbPage className={"text-muted-foreground --pink-500"}>
                   {segment}
                 </BreadcrumbPage>
               )}
