@@ -7,10 +7,10 @@ import { Header } from "@/components/header";
 import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
-import { fake_middleware } from "@/lib/auth/fake-middleware";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
+import { slim_auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,8 +24,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await fake_middleware();
-
+  const user = await slim_auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
@@ -34,18 +33,16 @@ export default async function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <SessionProvider session={{ user }}>
-            <TRPCReactProvider>
-              <Header />
-              <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
-                <Breadcrumbs />
-                <section className="mx-auto flex h-full w-full max-w-7xl justify-center pb-32 pt-6 3xl:max-w-9xl">
-                  {children}
-                </section>
-              </main>
-              <Toaster position="bottom-right" />
-            </TRPCReactProvider>
-          </SessionProvider>
+          <TRPCReactProvider>
+            <Header />
+            <main className="flex h-[92dvh] flex-col justify-start gap-4 bg-background">
+              <Breadcrumbs />
+              <section className="mx-auto flex h-full w-full max-w-7xl justify-center pb-32 pt-6 3xl:max-w-9xl">
+                {children}
+              </section>
+            </main>
+            <Toaster position="bottom-right" />
+          </TRPCReactProvider>
         </ThemeProvider>
       </body>
     </html>

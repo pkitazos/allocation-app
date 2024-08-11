@@ -2,7 +2,21 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { getUserAction } from "./procedures";
 
-export async function fake_middleware() {
+// export async function fake_middleware() {
+//   // TODO: Replace dummy values with the parsed values from above when running behind shibboleth server
+//   // test values for testing while running locally
+//   //   const guid = "123456";
+//   //   const displayName = "Name from shib";
+//   //   const email = "";
+//   //   const groups = [];
+//   const user = await getUserFromHeaders();
+
+//   const newUser = await getUserAction(user);
+
+//   return newUser;
+// }
+
+export async function getUserFromHeaders() {
   // Extract the headers from the request
   const shib_guid = headers().get("DH75HDYT76");
   const shib_displayName = headers().get("DH75HDYT77");
@@ -20,15 +34,5 @@ export async function fake_middleware() {
   const displayName = z.string().parse(shib_displayName);
   const email = "test@gmail.com";
   const groups = z.string().parse(shib_groups).split(";");
-
-  // TODO: Replace dummy values with the parsed values from above when running behind shibboleth server
-  // test values for testing while running locally
-  //   const guid = "123456";
-  //   const displayName = "Name from shib";
-  //   const email = "";
-  //   const groups = [];
-
-  const newUser = await getUserAction({ guid, displayName, email });
-
-  return newUser;
+  return { guid, displayName, email };
 }
