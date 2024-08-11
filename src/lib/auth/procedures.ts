@@ -6,6 +6,7 @@ import { z } from "zod";
 export async function getShibUserFromHeaders() {
   const shib_guid = headers().get("DH75HDYT76");
   const shib_displayName = headers().get("DH75HDYT77");
+  const shib_email = "test@gmail.com";
   // const shib_groups = headers().get("DH75HDYT78");
 
   console.log(">>> from shibboleth", {
@@ -16,7 +17,7 @@ export async function getShibUserFromHeaders() {
 
   const guid = z.string().parse(shib_guid);
   const displayName = z.string().parse(shib_displayName);
-  const email = "test@gmail.com";
+  const email = z.string().parse(shib_email);
   // const groups = z.string().parse(shib_groups).split(";");
 
   return { guid, displayName, email };
