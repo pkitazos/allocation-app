@@ -40,7 +40,9 @@ export function Breadcrumbs() {
             <>
               <BreadcrumbSeparator />
               <BreadcrumbItem key={segment}>
-                <BreadcrumbPage>{segment}</BreadcrumbPage>
+                <BreadcrumbPage className="text-muted-foreground">
+                  {segment}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </>
           ))}
