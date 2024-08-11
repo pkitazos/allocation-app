@@ -31,6 +31,11 @@ export const adminPanelTabs = {
     href: "preference-submissions",
     action: false,
   },
+  lateProposals: {
+    title: "Late Proposals",
+    href: "late-proposals",
+    action: false,
+  },
   algorithmsOverview: {
     title: "Algorithms Overview",
     href: "algorithms-overview",
@@ -85,6 +90,7 @@ export const adminPanelTabsByStage: Record<
   PROJECT_SELECTION: [
     adminPanelTabs.studentInvites,
     adminPanelTabs.preferenceSubmissions,
+    adminPanelTabs.lateProposals,
   ],
   PROJECT_ALLOCATION: [
     adminPanelTabs.algorithmsOverview,

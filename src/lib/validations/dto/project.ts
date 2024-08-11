@@ -1,3 +1,4 @@
+import { tagTypeSchema } from "@/components/tag/tag-input";
 import { z } from "zod";
 
 export const projectTableDataDtoSchema = z.object({
@@ -22,3 +23,13 @@ export const projectTableDataDtoSchema = z.object({
 });
 
 export type ProjectTableDataDto = z.infer<typeof projectTableDataDtoSchema>;
+
+export const lateProjectDtoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  supervisorId: z.string(),
+  flags: z.array(tagTypeSchema),
+  capacityUpperBound: z.number(),
+});
+
+export type LateProjectDto = z.infer<typeof lateProjectDtoSchema>;

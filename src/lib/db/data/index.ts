@@ -30,6 +30,7 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
+import { addDays, subDays } from "date-fns";
 
 export const EVALUATORS = 30;
 
@@ -304,8 +305,8 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
   allocationSubGroupId: allocationSubGroup.id,
   displayName: allocationInstance.displayName,
   stage: Stage.SETUP,
-  projectSubmissionDeadline: new Date(2024, 2, 20),
-  preferenceSubmissionDeadline: new Date(2024, 3, 20),
+  projectSubmissionDeadline: subDays(new Date(), 1),
+  preferenceSubmissionDeadline: addDays(new Date(), 7),
   minPreferences: 6,
   maxPreferences: 6,
   maxPreferencesPerSupervisor: 2,
@@ -404,6 +405,7 @@ export const projects = (ID: string): Project[] =>
       supervisorId: allSupervisors(ID)[p.supervisorId].id,
       preAllocatedStudentId: null,
       specialTechnicalRequirements: null,
+      latestEditDateTime: subDays(new Date(), 7),
       capacityLowerBound: 0,
       capacityUpperBound: 1,
     }),

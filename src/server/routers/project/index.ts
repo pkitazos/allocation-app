@@ -14,6 +14,7 @@ import { updateProjectAllocation } from "@/server/routers/project/_utils/project
 import { createProjectFlags } from "@/server/routers/project/_utils/project-flags";
 import {
   createTRPCRouter,
+  instanceAdminProcedure,
   instanceProcedure,
   protectedProcedure,
 } from "@/server/trpc";
@@ -121,6 +122,7 @@ export const projectRouter = createTRPCRouter({
               description: description,
               capacityUpperBound: capacityUpperBound,
               preAllocatedStudentId: nullable(newPreAllocatedStudentId),
+              latestEditDateTime: new Date(),
               specialTechnicalRequirements: nullable(
                 specialTechnicalRequirements,
               ),
@@ -211,6 +213,35 @@ export const projectRouter = createTRPCRouter({
         flags.some((f) => getStudentLevelFromFlag(f) === student.studentLevel),
       );
     }),
+
+  getAllLateProposals: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const data = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            latestEditDateTime: { gt: ctx.instance.projectSubmissionDeadline },
+          },
+          include: { flagOnProjects: { select: { flag: true } } },
+        });
+
+        return data.map((p) => ({
+          id: p.id,
+          title: p.title,
+          supervisorId: p.supervisorId,
+          capacityUpperBound: p.capacityUpperBound,
+          flags: p.flagOnProjects.map(({ flag }) => flag),
+        }));
+      },
+    ),
 
   getById: protectedProcedure
     .input(z.object({ projectId: z.string() }))
@@ -449,6 +480,7 @@ export const projectRouter = createTRPCRouter({
               capacityUpperBound,
               preAllocatedStudentId,
               specialTechnicalRequirements,
+              latestEditDateTime: new Date(),
             },
           });
 
