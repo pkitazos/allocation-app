@@ -1,13 +1,7 @@
-// "use server";
-import { cookies } from "next/headers";
+import { User } from "@/lib/validations/auth";
+import { getShibUserFromHeaders, retrieveUser } from "./procedures";
 
-import { newUserSchema, User } from "@/lib/validations/auth";
-import { getUserFromHeaders } from "./fake-middleware";
-import { getUserAction } from "./procedures";
-
-export async function slim_auth(): Promise<User | null> {
-  // const sessionCookie = JSON.parse(cookies().get("user")?.value ?? "");
-  const user = await getUserFromHeaders();
-  const newUser = await getUserAction(user);
-  return newUser;
+export async function auth(): Promise<User | null> {
+  const shibUser = await getShibUserFromHeaders();
+  return await retrieveUser(shibUser);
 }

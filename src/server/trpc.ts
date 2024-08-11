@@ -11,7 +11,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
-import { slim_auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Session } from "@/lib/validations/auth";
 import { instanceParamsSchema } from "@/lib/validations/params";
@@ -32,7 +32,7 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   session: Session | null;
 }) => {
-  const user = opts.session ?? (await slim_auth()); // TODO: replace with slimmed down auth function
+  const user = opts.session ?? (await auth()); // TODO: replace with slimmed down auth function
 
   if (!user) {
     // TODO: check headers for shibboleth headers

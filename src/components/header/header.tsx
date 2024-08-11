@@ -9,11 +9,11 @@ import { InstanceLink } from "./instance-link";
 import { UserButton } from "./user-button";
 
 import whiteLogo from "@/assets/uofg-white.png";
-import { slim_auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 export async function Header() {
   // TODO: refactor once new auth is implemented, can assume that user will be signed in
-  const user = await slim_auth();
+  const user = await auth();
   const adminPanel = await api.user.adminPanelRoute();
 
   return (

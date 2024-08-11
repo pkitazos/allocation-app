@@ -1,9 +1,9 @@
 import { PageWrapper } from "@/components/page-wrapper";
 
-import { slim_auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 export default async function Page() {
-  const user = await slim_auth();
+  const user = await auth();
   return (
     <PageWrapper className="grid place-items-center">
       {user ? (

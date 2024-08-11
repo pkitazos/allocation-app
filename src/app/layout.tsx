@@ -4,13 +4,12 @@ import { Toaster } from "sonner";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Header } from "@/components/header";
-import { SessionProvider } from "@/components/session-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
+import { auth } from "@/lib/auth";
 import { TRPCReactProvider } from "@/lib/trpc/client";
 
 import "@/styles/globals.css";
-import { slim_auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +23,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await slim_auth();
+  await auth();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>

@@ -3,7 +3,7 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "@/server/root";
 import { createTRPCContext } from "@/server/trpc";
 import { NextRequest } from "next/server";
-import { slim_auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 /**
  * Configure basic CORS headers
@@ -25,7 +25,7 @@ export function OPTIONS() {
 }
 
 const handler = async (req: NextRequest) => {
-  const user = await slim_auth();
+  const user = await auth();
 
   const response = await fetchRequestHandler({
     endpoint: "/api/trpc",
