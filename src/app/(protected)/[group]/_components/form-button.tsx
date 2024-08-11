@@ -126,7 +126,7 @@ export function FormButton({ params }: { params: GroupParams }) {
             </div>
             <Separator />
             <FormDescription>
-              Make sure that the GUID and email correctly correspond to the same
+              Ensure that the GUID and email correspond to the same
               user account
             </FormDescription>
             <DialogFooter>
