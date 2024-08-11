@@ -32,8 +32,5 @@ export async function isAdminInSubGroup_v2(
     select: { subGroupAdmins: { select: { userId: true } } },
   });
 
-  const exists = subGroupAdmins.find(
-    ({ userId: adminId }) => adminId === userId,
-  );
-  return !!exists;
+  return subGroupAdmins.map((x) => x.userId).includes(userId);
 }

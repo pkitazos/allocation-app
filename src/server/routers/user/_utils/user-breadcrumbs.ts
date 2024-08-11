@@ -11,10 +11,6 @@ import { isSubGroupAdmin } from "@/server/utils/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 import { PrismaClient, Role } from "@prisma/client";
 
-/**
- * Depending on the url route params we can infer where the user is (or thinks they are)
- * @param path
- */
 export async function validateSegments(
   db: PrismaClient,
   segments: string[],
