@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addDays, format, setHours, setMinutes } from "date-fns";
+import { addDays, format, setHours, setMinutes, subDays } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { z } from "zod";
@@ -299,7 +299,7 @@ export function InstanceForm({
                         const newDate = updateDateOnly(field.value, val);
                         field.onChange(newDate);
                       }}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => date < subDays(new Date(), 1)}
                       initialFocus
                     />
                   </PopoverContent>
@@ -434,7 +434,7 @@ export function InstanceForm({
                           const newDate = updateDateOnly(field.value, val);
                           field.onChange(newDate);
                         }}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => date < subDays(new Date(), 1)}
                         initialFocus
                       />
                     </PopoverContent>
