@@ -16,6 +16,7 @@ import { type InstanceParams } from "@/lib/validations/params";
 
 import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
+import { StudentPreferenceButton } from "./_components/student-preference-button";
 
 interface pageParams extends InstanceParams {
   id: string;
