@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TRPCClientError } from "@trpc/client";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,61 +29,53 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
+import { spacesLabels } from "@/content/spaces";
 import { api } from "@/lib/trpc/client";
+import {
+  NewAdmin,
+  newAdminSchema,
+} from "@/lib/validations/add-admins/new-admin";
 import { GroupParams } from "@/lib/validations/params";
-
-const NewAdminSchema = z.object({
-  name: z.string(),
-  schoolId: z.string(),
-  email: z.string().email(),
-});
-
-type NewAdmin = z.infer<typeof NewAdminSchema>;
 
 export function FormButton({ params }: { params: GroupParams }) {
   const router = useRouter();
-
   const [open, setOpen] = useState(false);
 
-  const form = useForm<NewAdmin>({
-    resolver: zodResolver(NewAdminSchema),
-  });
+  const form = useForm<NewAdmin>({ resolver: zodResolver(newAdminSchema) });
 
   const { mutateAsync } = api.institution.group.addAdmin.useMutation();
 
-  const onSubmit = async (data: NewAdmin) => {
+  function onSubmit(newAdmin: NewAdmin) {
     void toast.promise(
-      mutateAsync({ params, ...data }).then(() => {
+      mutateAsync({ params, newAdmin }).then(() => {
         form.reset();
         setOpen(false);
         router.refresh();
       }),
       {
-        loading: "Making user a Group Admin...",
-        error: "Something went wrong",
-        success: "Success",
+        loading: `Adding new ${spacesLabels.group.short} Admin...`,
+        error: (err) =>
+          err instanceof TRPCClientError ? err.message : "Something went wrong",
+        success: `Successfully added ${newAdmin.name} as a new ${spacesLabels.group.short} Admin`,
       },
     );
-
-    // run mutation
-    // if user with that id exists set that user as the admin, otherwise create new user and set them to be the admin
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="flex items-center gap-3">
           <Plus className="h-4 w-4" />
-          <p>add Group Admin</p>
+          <p>add {spacesLabels.group.short} Admin</p>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl underline decoration-secondary underline-offset-2">
-            New Group Admin
+            New {spacesLabels.group.short} Admin
           </DialogTitle>
           <DialogDescription>
-            Add the details of the user to be the new Admin
+            Add the details of the user to be a new Admin
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -93,14 +86,14 @@ export function FormButton({ params }: { params: GroupParams }) {
             <div className="flex flex-col items-start gap-3">
               <FormField
                 control={form.control}
-                name="schoolId"
+                name="institutionId"
                 render={({ field }) => (
                   <FormItem className="grid w-full grid-cols-3 items-center gap-3">
                     <FormLabel className="col-span-1 text-lg">GUID</FormLabel>
                     <FormControl className="col-span-2 flex items-center">
                       <Input placeholder="GUID" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="col-span-3" />
                   </FormItem>
                 )}
               />
@@ -113,10 +106,7 @@ export function FormButton({ params }: { params: GroupParams }) {
                     <FormControl className="col-span-2">
                       <Input placeholder="Name" {...field} />
                     </FormControl>
-                    {/* <FormDescription>
-                        if the user exists we'll add them as an admin
-                    </FormDescription> */}
-                    <FormMessage />
+                    <FormMessage className="col-span-3" />
                   </FormItem>
                 )}
               />
@@ -129,16 +119,20 @@ export function FormButton({ params }: { params: GroupParams }) {
                     <FormControl className="col-span-2">
                       <Input placeholder="Email" {...field} />
                     </FormControl>
-                    {/* <FormDescription>
-                        if the user exists we'll add them as an admin
-                    </FormDescription> */}
-                    <FormMessage />
+                    <FormMessage className="col-span-3" />
                   </FormItem>
                 )}
               />
             </div>
+            <Separator />
+            <FormDescription>
+              Make sure that the GUID and email correctly correspond to the same
+              user account
+            </FormDescription>
             <DialogFooter>
-              <Button type="submit">Add user to Group</Button>
+              <Button type="submit">
+                Create new {spacesLabels.group.short} Admin
+              </Button>
             </DialogFooter>
           </form>
         </Form>

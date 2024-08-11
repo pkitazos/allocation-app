@@ -1,7 +1,7 @@
 "use client";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -20,6 +20,8 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/client";
 import { slugify } from "@/lib/utils/general/slugify";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function FormSection({
   takenGroupNames,
@@ -43,27 +45,25 @@ export function FormSection({
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      groupName: "",
-    },
+    defaultValues: { groupName: "" },
   });
 
   const { mutateAsync: createGroupAsync } =
     api.institution.createGroup.useMutation();
 
-  const onSubmit = ({ groupName }: { groupName: string }) => {
+  function onSubmit({ groupName }: { groupName: string }) {
     void toast.promise(
       createGroupAsync({ groupName }).then(() => {
         router.push(`/${slugify(groupName)}`);
         router.refresh();
       }),
       {
-        loading: "Loading",
+        loading: `Creating new ${spacesLabels.group.short}...`,
         error: "Something went wrong",
-        success: "Success",
+        success: `Successfully created new ${spacesLabels.group.short}`,
       },
     );
-  };
+  }
 
   return (
     <Form {...form}>
@@ -78,13 +78,17 @@ export function FormSection({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel className="text-2xl">
-                  Allocation Group Name
+                  {spacesLabels.group.full} Name
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Group Name" {...field} />
+                  <Input
+                    placeholder={`${spacesLabels.group.short} Name`}
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
-                  Please select a unique name for this group
+                  Please select a unique name for this{" "}
+                  {spacesLabels.group.short.toLowerCase()}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -94,7 +98,7 @@ export function FormSection({
         <Separator className="my-14" />
         <div className="flex justify-end">
           <Button type="submit" size="lg">
-            Create New Group
+            Create New {spacesLabels.group.short}
           </Button>
         </div>
       </form>

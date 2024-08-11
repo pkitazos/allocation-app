@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TRPCClientError } from "@trpc/client";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,24 +28,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
+import { spacesLabels } from "@/content/spaces";
 import { api } from "@/lib/trpc/client";
+import {
+  NewAdmin,
+  newAdminSchema,
+} from "@/lib/validations/add-admins/new-admin";
 import { SubGroupParams } from "@/lib/validations/params";
-
-const NewAdminSchema = z.object({
-  name: z.string(),
-  schoolId: z.string(),
-  email: z.string().email(),
-});
-
-type NewAdmin = z.infer<typeof NewAdminSchema>;
 
 export function FormButton({ params }: { params: SubGroupParams }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const form = useForm<NewAdmin>({
-    resolver: zodResolver(NewAdminSchema),
-  });
+  const form = useForm<NewAdmin>({ resolver: zodResolver(newAdminSchema) });
 
   const { mutateAsync } = api.institution.subGroup.addAdmin.useMutation();
 
@@ -57,14 +52,12 @@ export function FormButton({ params }: { params: SubGroupParams }) {
         router.refresh();
       }),
       {
-        loading: "Making user a Sub-Group Admin...",
-        error: "Something went wrong",
-        success: "Success",
+        loading: `Adding new ${spacesLabels.subGroup.short} Admin...`,
+        error: (err) =>
+          err instanceof TRPCClientError ? err.message : "Something went wrong",
+        success: `Successfully added ${newAdmin.name} as a new ${spacesLabels.subGroup.short} Admin`,
       },
     );
-
-    // TODO: finish after auth is implemented
-    // if user with that id exists set that user as the admin, otherwise create new user and set them to be the admin
   };
 
   return (
@@ -92,7 +85,7 @@ export function FormButton({ params }: { params: SubGroupParams }) {
             <div className="flex flex-col items-start gap-3">
               <FormField
                 control={form.control}
-                name="schoolId"
+                name="institutionId"
                 render={({ field }) => (
                   <FormItem className="grid w-full grid-cols-3 items-center gap-3">
                     <FormLabel className="col-span-1 text-lg">GUID</FormLabel>

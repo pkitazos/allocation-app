@@ -15,6 +15,9 @@ import {
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
+import { isAdminInSubGroup_v2 } from "@/server/utils/is-sub-group-admin";
+import { TRPCClientError } from "@trpc/client";
 
 export const subGroupRouter = createTRPCRouter({
   exists: protectedProcedure
@@ -202,11 +205,7 @@ export const subGroupRouter = createTRPCRouter({
     .input(
       z.object({
         params: subGroupParamsSchema,
-        newAdmin: z.object({
-          schoolId: z.string(),
-          name: z.string(),
-          email: z.string(),
-        }),
+        newAdmin: newAdminSchema,
       }),
     )
     .mutation(
@@ -214,46 +213,42 @@ export const subGroupRouter = createTRPCRouter({
         ctx,
         input: {
           params: { group, subGroup },
-          newAdmin: { schoolId, name, email },
+          newAdmin: { institutionId, name, email },
         },
       }) => {
-        /**
-         * check if user is already an admin in this group
-         *  -> do nothing
-         *
-         * if user exists but is not an admin in this group
-         *  -> make them an admin in this group
-         *
-         * if the user does not exist
-         *  -> invite them
-         *  -> make them an admin in this group
-         *
-         * */
-
-        const alreadyAdmin = await adminAccess(ctx.db, schoolId, { group });
-        if (alreadyAdmin) return;
-
-        let user = await ctx.db.user.findFirst({
-          where: { id: schoolId },
-        });
-
-        if (!user) {
-          // TODO: if user does not exist
-          user = await ctx.db.user.create({
-            data: { id: schoolId, name, email },
+        await ctx.db.$transaction(async (tx) => {
+          const exists = await isAdminInSubGroup_v2(tx, institutionId, {
+            group,
+            subGroup,
           });
-          // -> add them to invitation list
-          // -> send them an email
-          // -> make them an admin in this group
-        }
+          if (exists) throw new TRPCClientError("User is already an admin");
 
-        await ctx.db.adminInSpace.create({
-          data: {
-            userId: user.id,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            adminLevel: AdminLevel.GROUP,
-          },
+          let user = await tx.user.findFirst({
+            where: { id: institutionId, email },
+          });
+
+          if (!user) {
+            try {
+              user = await tx.user.create({
+                data: {
+                  id: institutionId,
+                  name,
+                  email,
+                },
+              });
+            } catch (e) {
+              throw new TRPCClientError("GUID and email do not match");
+            }
+          }
+
+          await tx.adminInSpace.create({
+            data: {
+              userId: user.id,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              adminLevel: AdminLevel.SUB_GROUP,
+            },
+          });
         });
       },
     ),
