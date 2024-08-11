@@ -93,19 +93,26 @@ async function isAdminInGroup(
 }
 
 /**
- * 
-admin procedure should check that the user is an admin in the particular space they find themselves in
-
-that means:
-
-- if they are in a group admin-panel, they should be at least a 
-  group-admin in that group
-
-- if they are in a sub-group admin-panel, they should be at 
-  least a sub-group-admin in that sub-group
-
-- if they are in an instance admin-panel, they must be at least 
-  a sub-group-admin in the sub-group containing that instance
+ * Verifies if a user has the necessary admin permissions within a specific space.
+ *
+ * @description
+ * This function determines if the user possesses the required admin level
+ * based on the type of space (group, sub-group, or instance) they are currently in.
+ *
+ * 1. Checks if the user is a super admin. If so, grants access immediately.
+ *
+ * 2. If the space is an instance:
+ *    - Validates `params` against `instanceParamsSchema`.
+ *    - Checks if the user is an admin within the instance.
+ *
+ * 3. If the space is a sub-group:
+ *    - Validates `params` against `subGroupParamsSchema`.
+ *    - Checks if the user is an admin within the group. If so, grants access.
+ *    - If not a group admin, checks if the user is an admin within the sub-group.
+ *
+ * 4. Otherwise (if the space is a group):
+ *    - Checks if the user is an admin within the group.
+ *
  */
 export async function checkAdminPermissions(
   db: PrismaClient,
@@ -124,7 +131,11 @@ export async function checkAdminPermissions(
   const subGroupResult = subGroupParamsSchema.safeParse(params);
 
   if (subGroupResult.success) {
-    return isAdminInSubgroup(db, subGroupResult.data, userId);
+    const inGroup = await isAdminInGroup(db, subGroupResult.data, userId);
+    if (inGroup) return true;
+
+    const inSubGroup = await isAdminInSubgroup(db, subGroupResult.data, userId);
+    return inSubGroup;
   }
 
   return isAdminInGroup(db, params, userId);

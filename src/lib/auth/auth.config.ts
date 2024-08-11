@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 import {
   evaluator__student as student,
+  evaluator__groupAdmin as groupAdmin,
   evaluator__subGroupAdmin as admin,
   evaluator__supervisor as supervisor,
   superAdmin,
@@ -31,6 +32,7 @@ export default {
         const evaluatorID = getEvaluatorID(password);
         if (!evaluatorID) return null;
 
+        if (username === "group-admin") return groupAdmin(evaluatorID);
         if (username === "admin") return admin(evaluatorID);
         if (username === "supervisor") return supervisor(evaluatorID);
         if (username === "student") return student(evaluatorID);

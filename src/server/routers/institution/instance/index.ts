@@ -887,7 +887,7 @@ export const instanceRouter = createTRPCRouter({
       const stage = ctx.instance.stage;
       const role = ctx.session.user.role;
 
-      const adminTabs = [instanceTabs.supervisors, instanceTabs.students];
+      const adminTabs = [instanceTabs.allSupervisors, instanceTabs.allStudents];
 
       if (role === Role.ADMIN)
         return stage === Stage.SETUP
