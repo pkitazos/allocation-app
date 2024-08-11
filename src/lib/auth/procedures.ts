@@ -1,7 +1,28 @@
 import { db } from "@/lib/db";
-import { newUserSchema, ShibUser } from "@/lib/validations/auth";
+import { ShibUser } from "@/lib/validations/auth";
+import { headers } from "next/headers";
+import { z } from "zod";
 
-export async function getUserAction(user: ShibUser) {
+export async function getShibUserFromHeaders() {
+  const shib_guid = headers().get("DH75HDYT76");
+  const shib_displayName = headers().get("DH75HDYT77");
+  // const shib_groups = headers().get("DH75HDYT78");
+
+  console.log(">>> from shibboleth", {
+    GUID: shib_guid,
+    DisplayName: shib_displayName,
+    // Groups: shib_groups?.split(";"),
+  });
+
+  const guid = z.string().parse(shib_guid);
+  const displayName = z.string().parse(shib_displayName);
+  const email = "test@gmail.com";
+  // const groups = z.string().parse(shib_groups).split(";");
+
+  return { guid, displayName, email };
+}
+
+export async function retrieveUser(user: ShibUser) {
   const dbUser = await db.user.findFirst({ where: { id: user.guid } });
   if (dbUser) return dbUser;
 
@@ -13,14 +34,4 @@ export async function getUserAction(user: ShibUser) {
     },
   });
   return newUser;
-}
-
-export async function authenticateUser(userPayload: ShibUser) {
-  return await fetch("/api/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userPayload),
-  })
-    .then(async (res) => res.json())
-    .then((res) => newUserSchema.safeParse(res.data));
 }
