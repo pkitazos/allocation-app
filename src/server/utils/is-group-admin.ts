@@ -21,8 +21,8 @@ export async function isGroupAdmin(
 
 export async function isAdminInGroup_v2(
   db: PrismaTransactionClient,
-  userId: string,
   params: GroupParams,
+  userId: string,
 ) {
   const { groupAdmins } = await db.allocationGroup.findFirstOrThrow({
     where: { id: params.group },

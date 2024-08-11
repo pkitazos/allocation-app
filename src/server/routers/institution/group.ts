@@ -185,7 +185,7 @@ export const groupRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const exists = await isAdminInGroup_v2(tx, institutionId, { group });
+          const exists = await isAdminInGroup_v2(tx, { group }, institutionId);
           if (exists) throw new TRPCClientError("User is already an admin");
 
           let user = await tx.user.findFirst({

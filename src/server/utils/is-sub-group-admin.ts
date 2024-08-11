@@ -24,8 +24,8 @@ export async function isSubGroupAdmin(
 
 export async function isAdminInSubGroup_v2(
   db: PrismaTransactionClient,
-  userId: string,
   params: SubGroupParams,
+  userId: string,
 ) {
   const { subGroupAdmins } = await db.allocationSubGroup.findFirstOrThrow({
     where: { allocationGroupId: params.group, id: params.subGroup },

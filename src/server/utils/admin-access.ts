@@ -124,7 +124,11 @@ export async function checkAdminPermissions(
   const subGroupResult = subGroupParamsSchema.safeParse(params);
 
   if (subGroupResult.success) {
-    return isAdminInSubgroup(db, subGroupResult.data, userId);
+    const inGroup = await isAdminInGroup(db, subGroupResult.data, userId);
+    if (inGroup) return true;
+
+    const inSubGroup = await isAdminInSubgroup(db, subGroupResult.data, userId);
+    return inSubGroup;
   }
 
   return isAdminInGroup(db, params, userId);
