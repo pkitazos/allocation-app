@@ -14,8 +14,8 @@ import {
   studentProcedure,
 } from "@/server/trpc";
 
-import { updatePreferenceTransaction } from "./_utils/update-preference";
 import { updateManyPreferenceTransaction } from "./_utils/update-many-preferences";
+import { updatePreferenceTransaction } from "./_utils/update-preference";
 
 export const preferenceRouter = createTRPCRouter({
   getAll: instanceAdminProcedure
@@ -66,12 +66,58 @@ export const preferenceRouter = createTRPCRouter({
           .map(({ project, type }, i) => ({
             project: { id: project.id, title: project.title },
             supervisor: {
-              name: project.supervisor.user.name,
+              name: project.supervisor.user.name!,
               id: project.supervisor.user.id,
             },
             type: type,
             rank: type === PreferenceType.PREFERENCE ? i + 1 : NaN,
           }));
+      },
+    ),
+
+  getAllSaved: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const { preferences } = await ctx.db.studentDetails.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          select: {
+            preferences: {
+              select: {
+                project: {
+                  include: {
+                    supervisor: {
+                      select: { user: { select: { id: true, name: true } } },
+                    },
+                  },
+                },
+                rank: true,
+              },
+              orderBy: { rank: "asc" },
+            },
+          },
+        });
+
+        return preferences.map(({ project, rank }) => ({
+          id: project.id,
+          title: project.title,
+          supervisor: {
+            id: project.supervisor.user.id,
+            name: project.supervisor.user.name!,
+          },
+          rank,
+        }));
       },
     ),
 
@@ -242,19 +288,53 @@ export const preferenceRouter = createTRPCRouter({
 
         const newSubmissionDateTime = new Date();
 
-        await ctx.db.studentDetails.update({
-          where: {
-            detailsId: {
+        await ctx.db.$transaction(async (tx) => {
+          const preferences = await tx.preference.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: ctx.session.user.id,
+              type: PreferenceType.PREFERENCE,
+            },
+            select: { projectId: true, rank: true },
+            orderBy: { rank: "asc" },
+          });
+
+          await tx.savedPreference.deleteMany({
+            where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
               userId: ctx.session.user.id,
             },
-          },
-          data: {
-            submittedPreferences: true,
-            latestSubmissionDateTime: newSubmissionDateTime,
-          },
+          });
+
+          await tx.savedPreference.createMany({
+            data: preferences.map(({ projectId }, i) => ({
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              rank: i + 1,
+              userId: ctx.session.user.id,
+            })),
+          });
+
+          await tx.studentDetails.update({
+            where: {
+              detailsId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: ctx.session.user.id,
+              },
+            },
+            data: {
+              submittedPreferences: true,
+              latestSubmissionDateTime: newSubmissionDateTime,
+            },
+          });
         });
 
         return newSubmissionDateTime;

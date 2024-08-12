@@ -11,6 +11,7 @@ import {
   PreferenceType,
   Project,
   Role,
+  SavedPreference,
   Stage,
   StudentDetails,
   SupervisorInstanceDetails,
@@ -18,6 +19,7 @@ import {
   TagOnProject,
   UserInInstance,
 } from "@prisma/client";
+import { addDays, subDays } from "date-fns";
 import { User } from "next-auth";
 
 import {
@@ -30,7 +32,6 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
-import { addDays, subDays } from "date-fns";
 
 export const EVALUATORS = 30;
 
@@ -418,6 +419,15 @@ export const preferences = (ID: string): Preference[] =>
       userId: allStudents(ID)[p.studentIdx].id,
       rank: p.studentRanking,
       type: PreferenceType.PREFERENCE,
+    }),
+  );
+
+export const savedPreferences = (ID: string): SavedPreference[] =>
+  preferenceData(ID).map((p) =>
+    inInstance(ID, {
+      projectId: p.projectId,
+      userId: allStudents(ID)[p.studentIdx].id,
+      rank: p.studentRanking,
     }),
   );
 
