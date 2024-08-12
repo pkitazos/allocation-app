@@ -12,9 +12,8 @@ import { UserButton } from "./user-button";
 import whiteLogo from "@/assets/uofg-white.png";
 
 export async function Header() {
-  const session = await auth();
   const adminPanel = await api.user.adminPanelRoute();
-
+  const user = await auth();
   return (
     <nav className="sticky top-0 z-50 flex h-[8dvh] max-h-[5rem] w-full items-center justify-between gap-6 bg-primary px-10 py-5 shadow-md">
       <Link className="basis-1/4" href="/">
@@ -26,7 +25,7 @@ export async function Header() {
           alt=""
         />
       </Link>
-      {session && (
+      {user && (
         <div className="flex w-full flex-grow justify-between">
           <InstanceHeader />
         </div>

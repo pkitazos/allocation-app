@@ -16,9 +16,10 @@ import {
   SupervisorInstanceDetails,
   Tag,
   TagOnProject,
+  User,
   UserInInstance,
 } from "@prisma/client";
-import { User } from "next-auth";
+import { addDays, subDays } from "date-fns";
 
 import {
   GenerousAlgorithm,
@@ -30,7 +31,6 @@ import { slugify } from "@/lib/utils/general/slugify";
 
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
-import { addDays, subDays } from "date-fns";
 
 export const EVALUATORS = 30;
 
@@ -38,9 +38,9 @@ type StableUser = Omit<User, "id"> & { id: string };
 type New<T> = Omit<T, "id" | "systemId">;
 
 export const superAdmin: StableUser = {
-  id: "super-admin",
-  name: "Super-Admin",
-  email: "super.allocationapp@gmail.com",
+  id: "pk150z",
+  name: "Petros Kitazos",
+  email: "test@gmail.com",
 };
 
 export const superAdminInSpace: New<AdminInSpace> = {

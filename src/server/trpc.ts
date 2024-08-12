@@ -9,12 +9,12 @@
 
 import { Role } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { Session } from "next-auth";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Session } from "@/lib/validations/auth";
 import {
   instanceParamsSchema,
   refinedSpaceParamsSchema,
@@ -41,10 +41,17 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   session: Session | null;
 }) => {
-  const session = opts.session ?? (await auth());
+  const session = opts.session ?? { user: await auth() };
+  // if there's a header indicating that a user exists
+  // (like an Authorization header or something)
+  // -> return a new session with the correct user attached
+  //
+  // otherwise
+  // -> return an empty session / null / throw an error
+
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
-  console.log(">>> tRPC Request from", source, "by", session?.user);
+  console.log(">>> tRPC Request from", source, "by", session.user);
 
   return {
     session,
@@ -112,7 +119,7 @@ const authedMiddleware = t.middleware(({ ctx: { session }, next }) => {
       message: "User is not signed in",
     });
   }
-  return next({ ctx: { session: { ...session, user: session.user } } });
+  return next({ ctx: { session: { user: session.user } } });
 });
 
 /**
