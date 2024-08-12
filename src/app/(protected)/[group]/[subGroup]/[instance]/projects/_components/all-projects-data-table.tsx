@@ -1,24 +1,24 @@
 "use client";
 import { PreferenceType, Role } from "@prisma/client";
-import { User } from "next-auth";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { User } from "next-auth";
 import { toast } from "sonner";
 
 import {
   useInstanceParams,
   useInstancePath,
 } from "@/components/params-context";
+import { ToastSuccessCard } from "@/components/toast-success-card";
+import { buttonVariants } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
-import { ToastSuccessCard } from "@/components/toast-success-card";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { constructColumns } from "./all-projects-columns";
+import { useAllProjectsColumns } from "./all-projects-columns";
 
 export function AllProjectsDataTable({
   data,
@@ -133,7 +133,7 @@ export function AllProjectsDataTable({
     );
   }
 
-  const columns = constructColumns({
+  const columns = useAllProjectsColumns({
     user,
     role,
     projectPreferences,
@@ -145,7 +145,7 @@ export function AllProjectsDataTable({
 
   return (
     <DataTable
-      searchableColumn={{ id: "title", displayName: "Project Titles" }}
+      searchableColumn={{ id: "Title", displayName: "Project Titles" }}
       className="w-full"
       columns={columns}
       data={data}

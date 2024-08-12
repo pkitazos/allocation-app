@@ -1,17 +1,18 @@
 "use client";
 import { PreferenceType, Role, Stage } from "@prisma/client";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
   PenIcon,
   Trash2Icon,
 } from "lucide-react";
-import { User } from "next-auth";
 import Link from "next/link";
+import { type User } from "next-auth";
 
 import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
+import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -28,12 +29,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { cn } from "@/lib/utils";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
-export function constructColumns({
+export function useAllProjectsColumns({
   user,
   role,
   projectPreferences,
