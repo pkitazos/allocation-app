@@ -104,9 +104,7 @@ export function useAllProjectsColumns({
     {
       id: "Flags",
       accessorFn: (row) => row.flags,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Flags" />
-      ),
+      header: () => <div className="text-center">Flags</div>,
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
         const rowFlags = row.getValue(columnId) as TagType[];
