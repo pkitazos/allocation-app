@@ -49,13 +49,20 @@ export const projectRouter = createTRPCRouter({
 
           forkedInstanceSubmissionDetails.forEach(
             ({ projectAllocationTarget, userId, ...forked }) => {
-              const parent = findByUserId(
-                parentInstanceSubmissionDetails,
-                userId,
-              );
+              let parentAllocationCount = 0;
+              try {
+                parentAllocationCount = findByUserId(
+                  parentInstanceSubmissionDetails,
+                  userId,
+                ).allocatedCount;
+              } catch (e) {
+                // this means the supervisor is new
+                // so they don't have an equivalent in the parent instance
+                parentAllocationCount = 0;
+              }
 
               const newAllocatedCount =
-                forked.allocatedCount + parent.allocatedCount;
+                forked.allocatedCount + parentAllocationCount;
 
               const newSubmissionTarget = computeProjectSubmissionTarget(
                 projectAllocationTarget,

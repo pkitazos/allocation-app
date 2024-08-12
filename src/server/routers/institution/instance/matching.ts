@@ -248,7 +248,7 @@ export const matchingRouter = createTRPCRouter({
         projectData.forEach(({ id, ...rest }) => {
           projectDetails[id] = {
             ...rest,
-            allocatedTo: allocationRecord[id] || [],
+            allocatedTo: allocationRecord[id] ?? [],
           };
         });
 
