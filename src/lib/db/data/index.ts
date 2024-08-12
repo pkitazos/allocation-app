@@ -378,12 +378,12 @@ export const allUsersInInstance = (ID: string): UserInInstance[] => [
 ];
 
 export const studentDetails = (ID: string): StudentDetails[] => [
-  ...dummy__students(ID).map(({ id }) =>
+  ...dummy__students(ID).map(({ id }, i) =>
     inInstance(ID, {
       userId: id,
       submittedPreferences: true,
       latestSubmissionDateTime: new Date(),
-      studentLevel: 4,
+      studentLevel: i === 0 ? 5 : 4,
     }),
   ),
   inInstance(ID, {
