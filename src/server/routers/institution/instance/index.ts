@@ -35,6 +35,7 @@ import {
   roleAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
+import { getInstance } from "@/server/utils/get-instance";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 import { getAllocationData } from "./_utils/allocation-data";
@@ -44,7 +45,6 @@ import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
-import { getInstance } from "@/server/utils/get-instance";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -276,23 +276,26 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const studentData = await ctx.db.userInInstance.findMany({
+        const studentData = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
           select: {
-            user: { select: { id: true, name: true, email: true } },
+            userInInstance: { select: { user: true } },
+            studentLevel: true,
           },
         });
 
-        return studentData.map(({ user }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
-        }));
+        return studentData.map(
+          ({ userInInstance: { user }, studentLevel }) => ({
+            id: user.id,
+            name: user.name!,
+            email: user.email!,
+            level: studentLevel,
+          }),
+        );
       },
     ),
 

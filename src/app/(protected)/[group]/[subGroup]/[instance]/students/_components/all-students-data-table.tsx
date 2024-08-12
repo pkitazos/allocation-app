@@ -8,15 +8,19 @@ import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 
+import {
+  AllStudentTableDto,
+  useAllStudentsColumns,
+} from "./all-students-columns";
+
 import { spacesLabels } from "@/content/spaces";
-import { StudentData, constructColumns } from "./all-students-columns";
 
 export function StudentsDataTable({
   role,
   data,
 }: {
   role: Role;
-  data: StudentData[];
+  data: AllStudentTableDto[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -47,7 +51,7 @@ export function StudentsDataTable({
     );
   }
 
-  const columns = constructColumns({
+  const columns = useAllStudentsColumns({
     role,
     deleteStudent: handleDelete,
     deleteSelectedStudents: handleDeleteSelected,
