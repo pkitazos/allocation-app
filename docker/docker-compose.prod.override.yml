@@ -1,11 +1,4 @@
 services:
-  postgres_is_ready:
-    image: postgres:latest
-    networks:
-      - spa-network
-    depends_on:
-      db:
-        condition: service_healthy
   app:
     image: spa:latest
     depends_on:
