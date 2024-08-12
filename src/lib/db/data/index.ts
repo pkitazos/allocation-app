@@ -32,19 +32,33 @@ import { slugify } from "@/lib/utils/general/slugify";
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
 
+import { env } from "@/env";
+
 export const EVALUATORS = 30;
 
 type StableUser = Omit<User, "id"> & { id: string };
 type New<T> = Omit<T, "id" | "systemId">;
 
 export const superAdmin: StableUser = {
-  id: "pk150z",
+  id: env.DEV_P_ID,
   name: "Petros Kitazos",
-  email: "test@gmail.com",
+  email: env.DEV_P_EMAIL,
+};
+
+export const superAdmin2: StableUser = {
+  id: env.DEV_A_ID,
+  name: "Alyson Dick",
+  email: env.DEV_A_EMAIL,
 };
 
 export const superAdminInSpace: New<AdminInSpace> = {
   userId: superAdmin.id,
+  allocationGroupId: null,
+  allocationSubGroupId: null,
+  adminLevel: AdminLevel.SUPER,
+};
+export const superAdminInSpace2: New<AdminInSpace> = {
+  userId: superAdmin2.id,
   allocationGroupId: null,
   allocationSubGroupId: null,
   adminLevel: AdminLevel.SUPER,
