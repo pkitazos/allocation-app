@@ -1,7 +1,7 @@
 "use client";
 import { User2 } from "lucide-react";
 
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,9 @@ export function UserButton() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <User2 />
+          <AvatarFallback>
+            <User2 />
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="mr-4 mt-3 w-fit min-w-40 max-w-60">

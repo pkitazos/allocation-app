@@ -4,11 +4,19 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { ShibUser } from "@/lib/validations/auth";
 
+import { env } from "@/env";
+
 export async function getShibUserFromHeaders() {
-  const shib_guid = headers().get("DH75HDYT76");
-  const shib_displayName = headers().get("DH75HDYT77");
-  const shib_email = "test@gmail.com";
-  // const shib_groups = headers().get("DH75HDYT78");
+  let shib_guid: string | null = "pk150z";
+  let shib_displayName: string | null = "Petros Kitazos";
+  let shib_email: string | null = "test@gmail.com";
+
+  if (env.DEV_ENV !== "LOCAL") {
+    shib_guid = headers().get("DH75HDYT76");
+    shib_displayName = headers().get("DH75HDYT77");
+    shib_email = "test@gmail.com";
+    // const shib_groups = headers().get("DH75HDYT78");
+  }
 
   console.log(">>> from shibboleth", {
     GUID: shib_guid,
