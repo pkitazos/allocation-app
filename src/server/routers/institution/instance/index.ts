@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import {
@@ -36,6 +37,7 @@ import {
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
 import { getInstance } from "@/server/utils/get-instance";
+import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 import { getAllocationData } from "./_utils/allocation-data";
@@ -360,20 +362,17 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const user = await tx.user.findFirst({
-            where: { id: institutionId },
+          const exists = await tx.supervisorInstanceDetails.findFirst({
+            where: {
+              userId: institutionId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
           });
+          if (exists) throw new TRPCClientError("User is already a supervisor");
 
-          if (!user) {
-            // TODO: Change what gets added to user table after auth is implemented
-            await tx.user.create({
-              data: {
-                id: institutionId,
-                name: fullName,
-                email,
-              },
-            });
-          }
+          await validateEmailGUIDMatch(tx, institutionId, email, fullName);
 
           await tx.userInInstance.create({
             data: {
@@ -599,20 +598,17 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const user = await tx.user.findFirst({
-            where: { id: institutionId },
+          const exists = await tx.studentDetails.findFirst({
+            where: {
+              userId: institutionId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
           });
+          if (exists) throw new TRPCClientError("User is already a student");
 
-          if (!user) {
-            // TODO: Change what gets added to user table after auth is implemented
-            await tx.user.create({
-              data: {
-                id: institutionId,
-                name: fullName,
-                email,
-              },
-            });
-          }
+          await validateEmailGUIDMatch(tx, institutionId, email, fullName);
 
           await tx.userInInstance.create({
             data: {
