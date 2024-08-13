@@ -1,12 +1,12 @@
 "use client";
-import { ReactNode, useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Role, Stage, Tag } from "@prisma/client";
+import { Role, Stage, type Tag } from "@prisma/client";
 import { Check, ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
+import { type ReactNode, useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { TagInput, TagType } from "@/components/tag/tag-input";
+import { TagInput, type TagType } from "@/components/tag/tag-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -41,16 +41,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
   buildUpdatedProjectSchema,
-  CurrentProjectFormDetails,
-  FormInternalData,
-  UpdatedProject,
+  type CurrentProjectFormDetails,
+  type FormInternalData,
+  type UpdatedProject,
 } from "@/lib/validations/project-form";
 
 import { AccessControl } from "./access-control";
-import { MarkdownEditor } from "./markdown-editor";
 import { useInstancePath } from "./params-context";
 
 import { spacesLabels } from "@/content/spaces";
+import dynamic from "next/dynamic";
+
+const MarkdownEditor = dynamic(
+  () => import("./markdown-editor").then((mod) => mod.MarkdownEditor),
+  {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>,
+  },
+);
 
 export function ProjectForm({
   formInternalData: { takenTitles, flags, tags, students },

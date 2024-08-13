@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
 import { Heading, SubHeading } from "@/components/heading";
-import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,14 +12,24 @@ import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
-import { InstanceParams } from "@/lib/validations/params";
+import { type InstanceParams } from "@/lib/validations/params";
 
-import { StudentPreferenceButton } from "./_components/student-preference-button";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
+import { StudentPreferenceButton } from "./_components/student-preference-button";
 
 interface pageParams extends InstanceParams {
   id: string;
 }
+
+const MarkdownRenderer = dynamic(
+  () =>
+    import("@/components/markdown-editor").then((mod) => mod.MarkdownRenderer),
+  {
+    ssr: false,
+    loading: () => <p>Loading...</p>,
+  },
+);
 
 export default async function Project({ params }: { params: pageParams }) {
   const projectId = params.id;
