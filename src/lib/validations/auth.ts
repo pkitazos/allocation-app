@@ -3,7 +3,6 @@ import { z } from "zod";
 export const shibUserSchema = z.object({
   guid: z.string(),
   displayName: z.string(),
-  email: z.string(),
 });
 
 export type ShibUser = z.infer<typeof shibUserSchema>;
