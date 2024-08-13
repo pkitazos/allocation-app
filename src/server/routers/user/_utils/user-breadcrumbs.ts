@@ -22,7 +22,13 @@ export async function validateSegments(
   if (segments.length === 0) return [];
 
   const access = await isSuperAdmin(db, userId);
-  if (access) return segments.map((segment) => ({ segment, access: true }));
+  if (access) {
+    // TODO: fix super-admin breadcrumbs
+    return segments.map((segment) => ({
+      segment,
+      access: true,
+    }));
+  }
 
   if (segments.length === 1) {
     const access = await handle_length_1(db, segments[0], userId);

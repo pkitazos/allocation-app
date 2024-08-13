@@ -31,6 +31,18 @@ export async function getShibUserFromHeaders() {
 
 export async function retrieveUser(user: ShibUser) {
   const dbUser = await db.user.findFirst({ where: { id: user.guid } });
-  if (!dbUser) throw new Error("No valid invite found for this user");
-  return dbUser;
+  if (dbUser) return dbUser;
+
+  try {
+    const newUser = await db.user.create({
+      data: {
+        id: user.guid,
+        name: user.displayName,
+        email: "",
+      },
+    });
+    return newUser;
+  } catch (e) {
+    throw new Error("No valid invite found for this user");
+  }
 }
