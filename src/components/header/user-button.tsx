@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -35,7 +34,6 @@ export function UserButton() {
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
           </>
         )}
       </DropdownMenuContent>
