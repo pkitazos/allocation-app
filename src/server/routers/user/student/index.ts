@@ -50,7 +50,7 @@ export const studentRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        const data = await ctx.db.userInInstance.findFirstOrThrow({
+        const data = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -58,11 +58,18 @@ export const studentRouter = createTRPCRouter({
             userId: studentId,
           },
           select: {
-            user: { select: { email: true, name: true } },
+            studentLevel: true,
+            userInInstance: {
+              select: { user: { select: { email: true, name: true } } },
+            },
           },
         });
 
-        return data;
+        return {
+          name: data.userInInstance.user.name,
+          email: data.userInInstance.user.email,
+          level: data.studentLevel,
+        };
       },
     ),
 

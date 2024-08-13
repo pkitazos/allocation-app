@@ -21,7 +21,7 @@ export default async function Page({ params }: { params: PageParams }) {
   });
   if (!exists) notFound();
 
-  const { user: student } = await api.user.student.getById({
+  const student = await api.user.student.getById({
     params,
     studentId,
   });
@@ -48,6 +48,10 @@ export default async function Page({ params }: { params: PageParams }) {
         <div className="flex gap-2">
           <span className="w-16 font-semibold text-slate-500">Email:</span>
           <p className="col-span-9">{student.email}</p>
+        </div>
+        <div className="flex gap-2">
+          <span className="w-16 font-semibold text-slate-500">Level:</span>
+          <p className="col-span-9">{student.level}</p>
         </div>
       </div>
       <SubHeading>Preferences</SubHeading>

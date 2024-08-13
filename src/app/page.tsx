@@ -15,7 +15,7 @@ export default async function Home() {
         )}
         !
       </h1>
-      <Separator className="w-1/3 py-4" />
+      <Separator className="my-4 w-1/3" />
       {user && (
         <div className="absolute bottom-0 w-full max-w-5xl">
           <UserInstances />
