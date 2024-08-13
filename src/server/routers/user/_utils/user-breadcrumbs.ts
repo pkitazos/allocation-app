@@ -1,3 +1,6 @@
+import { PrismaClient, Role } from "@prisma/client";
+
+import { unSlugify } from "@/lib/utils/general/slugify";
 import { ValidatedSegments } from "@/lib/validations/breadcrumbs";
 import {
   adminRoutes,
@@ -6,10 +9,10 @@ import {
   supervisorRoutes,
 } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
+
 import { isGroupAdmin } from "@/server/utils/is-group-admin";
 import { isSubGroupAdmin } from "@/server/utils/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { PrismaClient, Role } from "@prisma/client";
 
 export async function validateSegments(
   db: PrismaClient,
@@ -18,7 +21,7 @@ export async function validateSegments(
 ) {
   if (segments.length === 0) return [];
 
-  let access = await isSuperAdmin(db, userId);
+  const access = await isSuperAdmin(db, userId);
   if (access) return segments.map((segment) => ({ segment, access: true }));
 
   if (segments.length === 1) {
@@ -51,7 +54,7 @@ async function handle_length_1(
     // user is in a group admin-panel
     // user must be a group admin
     const access = await isGroupAdmin(db, { group: segment }, userId);
-    return [{ segment, access }];
+    return [{ segment: unSlugify(segment), access }];
   }
 }
 
@@ -76,19 +79,26 @@ async function handle_length_2(
     if (segments[1] === "create-sub-group") {
       // user must be a group admin
       const access = await isGroupAdmin(db, { group }, userId);
-      return segments.map((segment) => ({ segment, access }));
+      return [
+        { segment: unSlugify(group), access },
+        { segment: segments[1], access },
+      ];
     } else {
       const subGroup = segments[1];
       // user is in a sub-group
       // user must be a group admin in this sub-group
       // or must be a sub-group admin in this sub-group
       let access = await isGroupAdmin(db, { group }, userId);
-      if (access) return segments.map((segment) => ({ segment, access }));
+      if (access)
+        return segments.map((segment) => ({
+          segment: unSlugify(segment),
+          access,
+        }));
 
       access = await isSubGroupAdmin(db, { group, subGroup }, userId);
       return [
-        { segment: group, access: false },
-        { segment: subGroup, access },
+        { segment: unSlugify(group), access: false },
+        { segment: unSlugify(subGroup), access },
       ];
     }
   }
@@ -112,12 +122,18 @@ async function handle_length_over_2(
     // user should be a sub-group admin in this sub-group
     // or a group admin in the parent group
     let access = await isGroupAdmin(db, { group }, userId);
-    if (access) return segments.map((segment) => ({ segment, access }));
+    if (access) {
+      return [
+        { segment: unSlugify(group), access },
+        { segment: unSlugify(subGroup), access },
+        { segment: segments[2], access },
+      ];
+    }
 
     access = await isSubGroupAdmin(db, { group, subGroup }, userId);
     return [
-      { segment: group, access: false },
-      { segment: subGroup, access },
+      { segment: unSlugify(group), access: false },
+      { segment: unSlugify(subGroup), access },
       { segment: segments[2], access },
     ];
   } else {
@@ -155,9 +171,9 @@ async function handle_in_instance(
   const subGroupAdmin = await isSubGroupAdmin(db, { group, subGroup }, userId);
 
   const baseSegments = [
-    { segment: group, access: groupAdmin },
-    { segment: subGroup, access: subGroupAdmin || groupAdmin },
-    { segment: instance, access: true },
+    { segment: unSlugify(group), access: groupAdmin },
+    { segment: unSlugify(subGroup), access: subGroupAdmin || groupAdmin },
+    { segment: unSlugify(instance), access: true },
   ];
 
   if (remainingSegments.length === 0) return baseSegments;
