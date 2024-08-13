@@ -15,6 +15,7 @@ import {
   sampleGroup,
   sampleInstance,
   sampleSubGroup,
+  savedPreferences,
   studentDetails,
   superAdmin,
   superAdminInSpace,
@@ -72,6 +73,7 @@ async function main() {
       await tx.tagOnProject.createMany({ data: tagsOnProjects(ID) });
       await tx.flagOnProject.createMany({ data: flagsOnProjects(ID) });
       await tx.preference.createMany({ data: preferences(ID) });
+      await tx.savedPreference.createMany({ data: savedPreferences(ID) });
       dbg("projects + preferences");
 
       dbg(`instance ${idx}/${EVALUATORS} complete\n`);

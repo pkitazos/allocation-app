@@ -1,5 +1,6 @@
 "use client";
 
+import { TRPCClientError } from "@trpc/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -16,11 +17,11 @@ import { addSupervisorsCsvHeaders } from "@/lib/validations/add-users/csv";
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
 
-import { spacesLabels } from "@/content/spaces";
-
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { FormSection } from "./_components/form-section";
 import { constructColumns } from "./_components/new-supervisor-columns";
+
+import { spacesLabels } from "@/content/spaces";
 
 export default function Page() {
   const router = useRouter();
@@ -44,8 +45,11 @@ export default function Page() {
       }),
       {
         loading: "Adding supervisor...",
+        error: (err) =>
+          err instanceof TRPCClientError
+            ? err.message
+            : `Failed to add supervisor to ${spacesLabels.instance.short}`,
         success: `Successfully added supervisor ${newSupervisor.institutionId} to ${spacesLabels.instance.short}`,
-        error: `Failed to add supervisor to ${spacesLabels.instance.short}`,
       },
     );
   }

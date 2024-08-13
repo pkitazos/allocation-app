@@ -27,8 +27,8 @@ export function MatchingInfoTable() {
         .map((s) => s.projects.findIndex((a) => a.id === p.id)),
     );
 
-    const maxRank = Math.max(...ranks);
-    const counts = zeros(maxRank + 1);
+    const maxRank = ranks.length === 0 ? 0 : Math.max(...ranks);
+    const counts: number[] = zeros(maxRank + 1);
 
     for (const r of ranks) {
       if (r === -1) continue;

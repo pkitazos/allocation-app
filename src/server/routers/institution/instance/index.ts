@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import {
@@ -35,6 +36,8 @@ import {
   roleAwareProcedure,
 } from "@/server/trpc";
 import { adminAccess } from "@/server/utils/admin-access";
+import { getInstance } from "@/server/utils/get-instance";
+import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 import { getAllocationData } from "./_utils/allocation-data";
@@ -44,7 +47,6 @@ import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
-import { getInstance } from "@/server/utils/get-instance";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -276,23 +278,26 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const studentData = await ctx.db.userInInstance.findMany({
+        const studentData = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
           select: {
-            user: { select: { id: true, name: true, email: true } },
+            userInInstance: { select: { user: true } },
+            studentLevel: true,
           },
         });
 
-        return studentData.map(({ user }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
-        }));
+        return studentData.map(
+          ({ userInInstance: { user }, studentLevel }) => ({
+            id: user.id,
+            name: user.name!,
+            email: user.email!,
+            level: studentLevel,
+          }),
+        );
       },
     ),
 
@@ -357,20 +362,17 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const user = await tx.user.findFirst({
-            where: { id: institutionId },
+          const exists = await tx.supervisorInstanceDetails.findFirst({
+            where: {
+              userId: institutionId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
           });
+          if (exists) throw new TRPCClientError("User is already a supervisor");
 
-          if (!user) {
-            // TODO: Change what gets added to user table after auth is implemented
-            await tx.user.create({
-              data: {
-                id: institutionId,
-                name: fullName,
-                email,
-              },
-            });
-          }
+          await validateEmailGUIDMatch(tx, institutionId, email, fullName);
 
           await tx.userInInstance.create({
             data: {
@@ -596,20 +598,17 @@ export const instanceRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const user = await tx.user.findFirst({
-            where: { id: institutionId },
+          const exists = await tx.studentDetails.findFirst({
+            where: {
+              userId: institutionId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
           });
+          if (exists) throw new TRPCClientError("User is already a student");
 
-          if (!user) {
-            // TODO: Change what gets added to user table after auth is implemented
-            await tx.user.create({
-              data: {
-                id: institutionId,
-                name: fullName,
-                email,
-              },
-            });
-          }
+          await validateEmailGUIDMatch(tx, institutionId, email, fullName);
 
           await tx.userInInstance.create({
             data: {

@@ -1,26 +1,18 @@
-import { Stage } from "@prisma/client";
-import { useInstanceStage, useInstancePath } from "@/components/params-context";
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  MoreHorizontalIcon as MoreIcon,
+  PenIcon,
+  Trash2Icon,
+} from "lucide-react";
+import Link from "next/link";
+
+import { useInstancePath } from "@/components/params-context";
+import { TagType } from "@/components/tag/tag-input";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
-import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-import {
-  YesNoActionContainer,
-  YesNoActionTrigger,
-} from "@/components/yes-no-action";
-
-import { stageGt } from "@/lib/utils/permissions/stage-check";
-
-import { ColumnDef } from "@tanstack/react-table";
-import {
-  Trash2Icon,
-  PenIcon,
-  MoreHorizontalIcon as MoreIcon,
-} from "lucide-react";
-import { z } from "zod";
-import { TagType, tagTypeSchema } from "@/components/tag/tag-input";
-import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
+
 import { cn } from "@/lib/utils";
 import { LateProjectDto } from "@/lib/validations/dto/project";
 
@@ -96,9 +93,7 @@ export function useLateProjectColumns({
     {
       id: "Flags",
       accessorFn: (row) => row.flags,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Flags" />
-      ),
+      header: () => <div className="text-center">Flags</div>,
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
         const rowFlags = row.getValue(columnId) as TagType[];

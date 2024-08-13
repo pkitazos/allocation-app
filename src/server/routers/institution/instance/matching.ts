@@ -149,16 +149,17 @@ export const matchingRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const studentData = await ctx.db.userInInstance.findMany({
+        const studentData = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
           select: {
-            user: { select: { id: true, name: true } },
-            studentPreferences: {
+            userInInstance: {
+              select: { user: { select: { id: true, name: true } } },
+            },
+            preferences: {
               select: {
                 project: {
                   select: {
@@ -248,20 +249,20 @@ export const matchingRouter = createTRPCRouter({
         projectData.forEach(({ id, ...rest }) => {
           projectDetails[id] = {
             ...rest,
-            allocatedTo: allocationRecord[id] || [],
+            allocatedTo: allocationRecord[id] ?? [],
           };
         });
 
-        const students = studentData.map((e) => ({
-          student: { id: e.user.id, name: e.user.name! },
-          projects: e.studentPreferences.map(
-            ({ project: { id, allocations } }) => ({
+        const students = studentData.map(
+          ({ userInInstance: { user }, preferences }) => ({
+            student: { id: user.id, name: user.name! },
+            projects: preferences.map(({ project: { id, allocations } }) => ({
               id,
               selected:
-                allocations.filter((u) => u.userId === e.user.id).length === 1,
-            }),
-          ),
-        }));
+                allocations.filter((u) => u.userId === user.id).length === 1,
+            })),
+          }),
+        );
 
         const projects = projectData.map((p) => {
           const supervisor = p.supervisor.supervisorInstanceDetails[0];
