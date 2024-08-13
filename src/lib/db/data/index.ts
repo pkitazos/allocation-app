@@ -11,6 +11,7 @@ import {
   PreferenceType,
   Project,
   Role,
+  SavedPreference,
   Stage,
   StudentDetails,
   SupervisorInstanceDetails,
@@ -33,6 +34,7 @@ import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
 
 import { env } from "@/env";
+
 
 export const EVALUATORS = 30;
 
@@ -391,12 +393,12 @@ export const allUsersInInstance = (ID: string): UserInInstance[] => [
 ];
 
 export const studentDetails = (ID: string): StudentDetails[] => [
-  ...dummy__students(ID).map(({ id }) =>
+  ...dummy__students(ID).map(({ id }, i) =>
     inInstance(ID, {
       userId: id,
       submittedPreferences: true,
       latestSubmissionDateTime: new Date(),
-      studentLevel: 4,
+      studentLevel: i === 0 ? 5 : 4,
     }),
   ),
   inInstance(ID, {
@@ -432,6 +434,15 @@ export const preferences = (ID: string): Preference[] =>
       userId: allStudents(ID)[p.studentIdx].id,
       rank: p.studentRanking,
       type: PreferenceType.PREFERENCE,
+    }),
+  );
+
+export const savedPreferences = (ID: string): SavedPreference[] =>
+  preferenceData(ID).map((p) =>
+    inInstance(ID, {
+      projectId: p.projectId,
+      userId: allStudents(ID)[p.studentIdx].id,
+      rank: p.studentRanking,
     }),
   );
 

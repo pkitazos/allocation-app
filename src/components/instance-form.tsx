@@ -164,7 +164,9 @@ export function InstanceForm({
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               e.preventDefault();
-                              appendFlag({ title: "" });
+                              if (e.currentTarget.value.trim() !== "") {
+                                appendFlag({ title: "" });
+                              }
                             }
                           }}
                         />
@@ -228,7 +230,9 @@ export function InstanceForm({
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               e.preventDefault();
-                              appendTag({ title: "" });
+                              if (e.currentTarget.value.trim() !== "") {
+                                appendTag({ title: "" });
+                              }
                             }
                           }}
                         />

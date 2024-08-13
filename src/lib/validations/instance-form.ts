@@ -11,7 +11,9 @@ const baseSchema = z.object({
   flags: z.array(
     z.object({ title: z.string().min(3, "Please enter a valid title") }),
   ),
-  tags: z.array(z.object({ title: z.string() })),
+  tags: z.array(
+    z.object({ title: z.string().min(3, "Please enter a valid title") }),
+  ),
 });
 
 export const createdInstanceSchema = baseSchema;

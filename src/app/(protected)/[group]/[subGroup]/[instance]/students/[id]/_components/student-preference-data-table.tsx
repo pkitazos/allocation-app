@@ -8,7 +8,10 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
-import { PreferenceData, constructColumns } from "./student-preference-columns";
+import {
+  PreferenceData,
+  useStudentPreferencesColumns,
+} from "./student-preference-columns";
 
 export function StudentPreferenceDataTable({
   data,
@@ -64,7 +67,7 @@ export function StudentPreferenceDataTable({
     );
   }
 
-  const columns = constructColumns({
+  const columns = useStudentPreferencesColumns({
     changePreference,
     changeSelectedPreferences,
   });

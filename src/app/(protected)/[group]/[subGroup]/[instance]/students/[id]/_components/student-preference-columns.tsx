@@ -33,14 +33,14 @@ export type PreferenceData = {
     title: string;
   };
   supervisor: {
-    name: string | null;
+    name: string;
     id: string;
   };
   type: PreferenceType;
   rank: number;
 };
 
-export function constructColumns({
+export function useStudentPreferencesColumns({
   changePreference,
   changeSelectedPreferences,
 }: {
@@ -109,9 +109,12 @@ export function constructColumns({
           },
         },
       }) => (
-        <Button variant="link" asChild>
-          <Link href={`../supervisors/${id}`}>{name}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../supervisors/${id}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {

@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
+import { useInstancePath, useInstanceStage } from "@/components/params-context";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -24,18 +25,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
-import { useInstancePath, useInstanceStage } from "@/components/params-context";
 import { cn } from "@/lib/utils";
 import {
   previousStages,
   stageGte,
   stageLt,
 } from "@/lib/utils/permissions/stage-check";
-import {
-  YesNoActionContainer,
-  YesNoActionTrigger,
-} from "@/components/yes-no-action";
 
 export type SupervisorProjectDto = {
   id: string;
@@ -45,7 +45,7 @@ export type SupervisorProjectDto = {
   tags: TagType[];
 };
 
-export function constructColumns({
+export function useSupervisorProjectsColumns({
   deleteProject,
   deleteSelectedProjects,
 }: {
@@ -96,9 +96,7 @@ export function constructColumns({
     {
       id: "Flags",
       accessorFn: (row) => row.flags,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Flags" />
-      ),
+      header: () => <div className="text-center">Flags</div>,
       filterFn: (row, columnId, value) => {
         const ids = value as string[];
         const rowFlags = row.getValue(columnId) as TagType[];

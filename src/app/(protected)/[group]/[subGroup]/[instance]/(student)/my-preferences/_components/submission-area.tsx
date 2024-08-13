@@ -1,8 +1,8 @@
 "use client";
+import { useState } from "react";
 import { PreferenceType } from "@prisma/client";
 import { format } from "date-fns";
 import { AlertCircleIcon } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -40,12 +40,18 @@ export function SubmissionArea({
   const { isOver, isUnder, hasOverSelectedSupervisor, overSelected } =
     getSubmissionErrors(preferenceList, restrictions);
 
+  const utils = api.useUtils();
+  const invalidateLatestSubmission = () =>
+    utils.user.student.preference.getAllSaved.invalidate();
   const { mutateAsync: submitAsync } =
     api.user.student.preference.submit.useMutation();
 
   async function handleSubmission() {
     void toast.promise(
-      submitAsync({ params }).then((date) => setSubmissionDate(date)),
+      submitAsync({ params }).then(async (date) => {
+        await invalidateLatestSubmission();
+        setSubmissionDate(date);
+      }),
       {
         loading: "Submitting preference list...",
         error: "Something went wrong",

@@ -204,6 +204,9 @@ export const studentProcedure = instanceProcedure
     });
   });
 
+/**
+ * Procedure that enforces the user is a admin.
+ */
 export const adminProcedure = protectedProcedure
   .input(z.object({ params: refinedSpaceParamsSchema }))
   .use(async ({ ctx, input, next }) => {
@@ -224,10 +227,16 @@ export const adminProcedure = protectedProcedure
     return next({ ctx: { session: { user: { ...user, role: Role.ADMIN } } } });
   });
 
+/**
+ * Procedure that enforces the user is an Instance admin.
+ */
 export const instanceAdminProcedure = adminProcedure
   .input(z.object({ params: instanceParamsSchema }))
   .use(instanceMiddleware);
 
+/**
+ * Procedure that enforces the user is a super-admin
+ */
 export const superAdminProcedure = protectedProcedure.use(
   async ({ ctx, next }) => {
     const membership = await isSuperAdmin(ctx.db, ctx.session.user.id);
@@ -242,3 +251,35 @@ export const superAdminProcedure = protectedProcedure.use(
     return next();
   },
 );
+
+export const projectProcedure = instanceProcedure
+  .input(z.object({ projectId: z.string() }))
+  .use(async ({ ctx, next, input }) => {
+    const projectData = await ctx.db.project.findFirstOrThrow({
+      where: { id: input.projectId },
+      include: {
+        flagOnProjects: {
+          select: { flag: { select: { id: true, title: true } } },
+        },
+        tagOnProject: {
+          select: { tag: { select: { id: true, title: true } } },
+        },
+      },
+    });
+
+    if (!projectData) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found",
+      });
+    }
+
+    const { flagOnProjects, tagOnProject, ...rest } = projectData;
+    const project = {
+      ...rest,
+      flags: flagOnProjects.map((f) => f.flag),
+      tags: tagOnProject.map((t) => t.tag),
+    };
+
+    return next({ ctx: { project } });
+  });

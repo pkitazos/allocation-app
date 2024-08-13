@@ -1,4 +1,5 @@
 "use client";
+import { TRPCClientError } from "@trpc/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -47,7 +48,10 @@ export default function Page() {
       {
         loading: "Adding student...",
         success: `Successfully added student ${newStudent.institutionId} to ${spacesLabels.instance.short}`,
-        error: `Failed to add student to ${spacesLabels.instance.short}`,
+        error: (err) =>
+          err instanceof TRPCClientError
+            ? err.message
+            : `Failed to add student to ${spacesLabels.instance.short}`,
       },
     );
   }
