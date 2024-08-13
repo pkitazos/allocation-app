@@ -29,7 +29,7 @@ export async function checkUsersMembership<
     "Some users already exist in the instance",
   );
 
-  // already students in the instance
+  // already users in the instance as the same role
   const fails_batch_A = results_batch_1
     .map((res) => (!res.success ? res.msg : null))
     .filter((x) => !!x);
@@ -44,18 +44,19 @@ export async function checkUsersMembership<
     success_batch_1,
     new Set(dbUserKeys),
     (u) => `${u.institutionId}-${u.email}`,
-    "User with this exact email and ID exists", // not necessarily a bad thing (could be a new user or it could be that this email is taken)
+    "User with this exact email and ID exists",
   );
 
   // looks like there are in fact user accounts associated with these Ids and Emails
   // these are safe to be added to the instance (no new user account is necessary)
-  const validNewStudents = results_batch_2
+  // can throw error out
+  const validNewUsersInInstance = results_batch_2
     .map((res) => (!res.success ? res.msg[0] : null))
     .filter((x) => !!x);
 
   // does not seem to be the case that a user with these exact credentials exists
+  // not necessarily a bad thing (could be a new user or it could be that this email is taken)
   // but we need to check that their emails don't exist either
-  // can throw error out
   const new_users_batch_1 = results_batch_2
     .map((res) => (res.success ? res.data : null))
     .filter((x) => !!x);
@@ -86,7 +87,7 @@ export async function checkUsersMembership<
   });
 
   return {
-    validatedNewUsers: [...validNewUsers, ...validNewStudents],
+    validatedNewUsers: [...validNewUsers, ...validNewUsersInInstance],
     errors: [...fails_batch_A, ...fails_batch_B],
   };
 }

@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { CSVParsingErrorCard } from "@/components/toast-card/csv-parsing-error";
+import { UserCreationErrorCard } from "@/components/toast-card/user-creation-error";
 import { Input } from "@/components/ui/input";
 
+import { parseForDuplicates } from "@/lib/utils/csv/parse-for-duplicates";
 import { addSupervisorsCsvRowSchema } from "@/lib/validations/add-users/csv";
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
@@ -50,10 +52,27 @@ export function CSVUploadButton({
             );
             return;
           }
-          toast.success("CSV parsed successfully!");
+
+          const { uniqueRows, duplicateRowGuids } = parseForDuplicates(
+            result.data,
+          );
+
+          if (duplicateRowGuids.size === 0) {
+            toast.success("CSV parsed successfully!");
+          } else if (uniqueRows.length === 0) {
+            toast.error("All rows seem to contain duplicates");
+          } else {
+            toast.success(`${uniqueRows.length} rows parsed successfully!`);
+            toast.error(
+              <UserCreationErrorCard
+                error={`${duplicateRowGuids.size} duplicate rows found`}
+                affectedUsers={Array.from(duplicateRowGuids)}
+              />,
+            );
+          }
 
           handleUpload(
-            result.data.map((e) => ({
+            uniqueRows.map((e) => ({
               fullName: e.full_name,
               institutionId: e.guid,
               email: e.email,

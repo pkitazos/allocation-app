@@ -7,7 +7,7 @@ import { checkUsersMembership } from "./check-users-membership";
 
 export async function addSupervisorsTx(
   db: PrismaClient,
-  newStudents: NewSupervisor[],
+  newSupervisors: NewSupervisor[],
   { group, subGroup, instance }: InstanceParams,
 ) {
   return await db.$transaction(async (tx) => {
@@ -22,7 +22,7 @@ export async function addSupervisorsTx(
 
     const { validatedNewUsers, errors } = await checkUsersMembership(
       tx,
-      newStudents,
+      newSupervisors,
       supervisorData.map((s) => s.userId),
     );
 
