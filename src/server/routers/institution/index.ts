@@ -1,3 +1,4 @@
+import { AdminLevel } from "@prisma/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
@@ -26,8 +27,11 @@ export const institutionRouter = createTRPCRouter({
 
   groupManagement: superAdminProcedure.query(async ({ ctx }) => {
     const groups = await ctx.db.allocationGroup.findMany({});
-    const superAdmin = ctx.session.user;
-    return { groups, superAdmin };
+    const superAdmins = await ctx.db.adminInSpace.findMany({
+      where: { adminLevel: AdminLevel.SUPER },
+      select: { user: { select: { id: true, name: true, email: true } } },
+    });
+    return { groups, superAdmins: superAdmins.map(({ user }) => user) };
   }),
 
   takenGroupNames: superAdminProcedure.query(async ({ ctx }) => {
