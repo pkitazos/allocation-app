@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { useInstanceParams } from "@/components/params-context";
+import { UserCreationErrorCard } from "@/components/toast-card/user-creation-error";
 import DataTable from "@/components/ui/data-table/data-table";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
@@ -58,17 +59,37 @@ export default function Page() {
     api.institution.instance.addSupervisors.useMutation();
 
   async function handleAddSupervisors(newSupervisors: NewSupervisor[]) {
-    void toast.promise(
-      addSupervisorsAsync({ params, newSupervisors }).then(() => {
+    const res = await addSupervisorsAsync({ params, newSupervisors }).then(
+      (data) => {
         router.refresh();
         refetchData();
-      }),
-      {
-        loading: "Adding supervisors...",
-        success: `Successfully added ${newSupervisors.length} supervisors to ${spacesLabels.instance.short}`,
-        error: `Failed to add supervisors to ${spacesLabels.instance.short}`,
+        return data;
       },
     );
+
+    if (res.successFullyAdded === 0) {
+      toast.error(
+        `No supervisors were added to ${spacesLabels.instance.short}`,
+      );
+    } else {
+      toast.success(
+        `Successfully added ${res.successFullyAdded} supervisors to ${spacesLabels.instance.short}`,
+      );
+    }
+
+    const errors = res.errors.reduce(
+      (acc, val) => ({
+        ...acc,
+        [val.msg]: [...(acc[val.msg] ?? []), val.user.institutionId],
+      }),
+      {} as { [key: string]: string[] },
+    );
+
+    Object.entries(errors).forEach(([msg, affectedUsers]) => {
+      toast.error(
+        <UserCreationErrorCard error={msg} affectedUsers={affectedUsers} />,
+      );
+    });
   }
 
   const { mutateAsync: removeSupervisorAsync } =

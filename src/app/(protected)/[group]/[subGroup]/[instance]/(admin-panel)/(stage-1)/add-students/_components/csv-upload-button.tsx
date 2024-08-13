@@ -1,15 +1,15 @@
 "use client";
 
-import { parse } from "papaparse";
 import React from "react";
+import { parse } from "papaparse";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { CSVParsingErrorCard } from "@/components/toast-card/csv-parsing-error";
 import { Input } from "@/components/ui/input";
 
 import { addStudentsCsvRowSchema } from "@/lib/validations/add-users/csv";
 import { NewStudent } from "@/lib/validations/add-users/new-user";
-import { ToastErrorCard } from "@/components/toast-error-card";
 
 export function CSVUploadButton({
   handleUpload,
@@ -40,7 +40,7 @@ export function CSVUploadButton({
             const allErrors = result.error.errors;
             const uniqueErrors = [...new Set(allErrors)];
             toast.error(
-              <ToastErrorCard
+              <CSVParsingErrorCard
                 title="CSV data was not formatted correctly. Ensure all rows contain:"
                 errors={uniqueErrors}
               />,

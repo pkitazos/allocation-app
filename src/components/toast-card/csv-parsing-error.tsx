@@ -1,4 +1,4 @@
-export function ToastErrorCard({
+export function CSVParsingErrorCard({
   title,
   errors,
   getError = (error) => error.message,
@@ -13,7 +13,7 @@ export function ToastErrorCard({
       <p className="font-semibold">{title}</p>
       <ul className="list-disc pl-4">
         {uniqueErrors.map((e) => (
-          <li>{e}</li>
+          <li key={e}>{e}</li>
         ))}
       </ul>
     </p>
