@@ -5,7 +5,6 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string(),
     SERVER_URL: z.string(),
-    ID_KEY: z.string(),
     // optional
     DEV_ENV: z.string().optional(),
 
