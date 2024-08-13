@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -37,14 +38,14 @@ export function Breadcrumbs() {
             </BreadcrumbLink>
           </BreadcrumbItem>
           {segments.map((segment) => (
-            <>
-              <BreadcrumbSeparator key={segment} />
-              <BreadcrumbItem key={segment}>
+            <React.Fragment key={segment}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
                 <BreadcrumbPage className="text-muted-foreground">
                   {segment}
                 </BreadcrumbPage>
               </BreadcrumbItem>
-            </>
+            </React.Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
@@ -66,9 +67,9 @@ export function Breadcrumbs() {
           </BreadcrumbLink>
         </BreadcrumbItem>
         {data.map(({ segment, access }, index) => (
-          <>
-            <BreadcrumbSeparator key={segment} />
-            <BreadcrumbItem key={segment}>
+          <React.Fragment key={segment}>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
               {index < segments.length - 1 && access ? (
                 <BreadcrumbLink asChild>
                   <Link
@@ -80,12 +81,12 @@ export function Breadcrumbs() {
                   </Link>
                 </BreadcrumbLink>
               ) : (
-                <BreadcrumbPage key={segment} className="text-muted-foreground">
+                <BreadcrumbPage className="text-muted-foreground">
                   {segment}
                 </BreadcrumbPage>
               )}
             </BreadcrumbItem>
-          </>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

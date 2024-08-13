@@ -2,6 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { setDiff } from "@/lib/utils/general/set-difference";
 import {
   newStudentSchema,
@@ -36,6 +37,7 @@ import { adminAccess } from "@/server/utils/admin-access";
 import { getInstance } from "@/server/utils/get-instance";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { getUserRole } from "@/server/utils/user-role";
 
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
@@ -773,6 +775,36 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
+  getHeaderTabs: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema.partial() }))
+    .query(async ({ ctx, input }) => {
+      const result = instanceParamsSchema.safeParse(input.params);
+      if (!result.success) return { headerTabs: [], instancePath: "" };
+
+      const params = result.data;
+
+      const instance = await getInstance(ctx.db, params);
+      const role = await getUserRole(ctx.db, ctx.session.user, params);
+      const instancePath = formatParamsAsPath(params);
+
+      const adminTabs = [instanceTabs.allSupervisors, instanceTabs.allStudents];
+
+      if (role !== Role.ADMIN) {
+        return {
+          headerTabs: [instanceTabs.instanceHome, instanceTabs.allProjects],
+          instancePath,
+        };
+      }
+
+      const headerTabs =
+        instance.stage === Stage.SETUP
+          ? [instanceTabs.instanceHome, ...adminTabs]
+          : [instanceTabs.instanceHome, instanceTabs.allProjects, ...adminTabs];
+
+      return { headerTabs, instancePath };
+    }),
+
+  // ! deprecated
   headerTabs: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx }) => {
