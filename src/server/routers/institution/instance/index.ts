@@ -804,23 +804,6 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
-  // ! deprecated
-  headerTabs: roleAwareProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx }) => {
-      const stage = ctx.instance.stage;
-      const role = ctx.session.user.role;
-
-      const adminTabs = [instanceTabs.allSupervisors, instanceTabs.allStudents];
-
-      if (role === Role.ADMIN)
-        return stage === Stage.SETUP
-          ? [instanceTabs.instanceHome, ...adminTabs]
-          : [instanceTabs.instanceHome, instanceTabs.allProjects, ...adminTabs];
-
-      return [instanceTabs.instanceHome, instanceTabs.allProjects];
-    }),
-
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx }) => {
