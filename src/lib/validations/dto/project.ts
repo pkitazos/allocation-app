@@ -1,5 +1,6 @@
-import { tagTypeSchema } from "@/components/tag/tag-input";
 import { z } from "zod";
+
+import { tagTypeSchema } from "@/components/tag/tag-input";
 
 export const projectTableDataDtoSchema = z.object({
   id: z.string(),

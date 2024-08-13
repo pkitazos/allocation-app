@@ -2,11 +2,11 @@ import { Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { nullable } from "@/lib/utils/general/nullable";
-import { stageGte } from "@/lib/utils/permissions/stage-check";
 import {
   getFlagFromStudentLevel,
   getStudentLevelFromFlag,
 } from "@/lib/utils/permissions/get-student-level";
+import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
@@ -16,8 +16,11 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  projectProcedure,
   protectedProcedure,
 } from "@/server/trpc";
+
+import { requiredFlags } from "@/content/config/flags";
 
 export const projectRouter = createTRPCRouter({
   exists: instanceProcedure
@@ -532,8 +535,8 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  getFormDetails: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  getFormDetails: projectProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .query(
       async ({
         ctx,
@@ -554,6 +557,8 @@ export const projectRouter = createTRPCRouter({
             },
           });
 
+        // make sure only students with the correct data are returned
+
         const studentData = await ctx.db.userInInstance.findMany({
           where: {
             allocationGroupId: group,
@@ -561,6 +566,9 @@ export const projectRouter = createTRPCRouter({
             allocationInstanceId: instance,
             role: Role.STUDENT,
             studentAllocation: { is: null },
+          },
+          select: {
+            studentDetails: { select: { userId: true, studentLevel: true } },
           },
         });
 
@@ -577,7 +585,20 @@ export const projectRouter = createTRPCRouter({
           takenTitles: projectTitles.map(({ title }) => title),
           flags,
           tags,
-          students: studentData.map(({ userId }) => ({ id: userId })),
+          students: studentData
+            .filter((s) => {
+              if (requiredFlags.length === 0) return true;
+              return ctx.project.flags.some((f) => {
+                return (
+                  getStudentLevelFromFlag(f) ===
+                  s.studentDetails[0].studentLevel
+                );
+              });
+            })
+            .map(({ studentDetails }) => ({
+              id: studentDetails[0].userId,
+              studentLevel: studentDetails[0].studentLevel,
+            })),
         };
       },
     ),

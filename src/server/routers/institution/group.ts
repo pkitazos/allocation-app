@@ -1,21 +1,22 @@
 import { AdminLevel } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
+import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
 import {
   groupParamsSchema,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
 
-import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
 import {
   adminProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
+import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { isAdminInGroup_v2 } from "@/server/utils/is-group-admin";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { TRPCClientError } from "@trpc/client";
 
 export const groupRouter = createTRPCRouter({
   exists: protectedProcedure
@@ -188,23 +189,12 @@ export const groupRouter = createTRPCRouter({
           const exists = await isAdminInGroup_v2(tx, { group }, institutionId);
           if (exists) throw new TRPCClientError("User is already an admin");
 
-          let user = await tx.user.findFirst({
-            where: { id: institutionId, email },
-          });
-
-          if (!user) {
-            try {
-              user = await tx.user.create({
-                data: {
-                  id: institutionId,
-                  name,
-                  email,
-                },
-              });
-            } catch (e) {
-              throw new TRPCClientError("GUID and email do not match");
-            }
-          }
+          const user = await validateEmailGUIDMatch(
+            tx,
+            institutionId,
+            email,
+            name,
+          );
 
           await tx.adminInSpace.create({
             data: {

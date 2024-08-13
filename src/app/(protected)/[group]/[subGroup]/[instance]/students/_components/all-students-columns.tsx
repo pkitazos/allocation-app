@@ -23,20 +23,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-
-import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
 import {
   YesNoActionContainer,
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
 
-export interface StudentData {
+import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
+
+export interface AllStudentTableDto {
   id: string;
   name: string;
   email: string;
+  level: number;
 }
 
-export function constructColumns({
+export function useAllStudentsColumns({
   role,
   deleteStudent,
   deleteSelectedStudents,
@@ -44,12 +45,12 @@ export function constructColumns({
   role: Role;
   deleteStudent: (id: string) => Promise<void>;
   deleteSelectedStudents: (ids: string[]) => Promise<void>;
-}): ColumnDef<StudentData>[] {
+}): ColumnDef<AllStudentTableDto>[] {
   const stage = useInstanceStage();
 
-  const selectCol = getSelectColumn<StudentData>();
+  const selectCol = getSelectColumn<AllStudentTableDto>();
 
-  const userCols: ColumnDef<StudentData>[] = [
+  const userCols: ColumnDef<AllStudentTableDto>[] = [
     {
       id: "GUID",
       accessorFn: ({ id }) => id,
@@ -91,9 +92,21 @@ export function constructColumns({
         <DataTableColumnHeader column={column} title="Email" />
       ),
     },
+    {
+      id: "Level",
+      accessorFn: ({ level }) => level,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Level" />
+      ),
+      cell: ({
+        row: {
+          original: { level },
+        },
+      }) => <div className="text-center">{level}</div>,
+    },
   ];
 
-  const actionsCol: ColumnDef<StudentData> = {
+  const actionsCol: ColumnDef<AllStudentTableDto> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {

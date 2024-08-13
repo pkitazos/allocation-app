@@ -1,4 +1,5 @@
 "use client";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal as MoreIcon, Trash2Icon } from "lucide-react";
 
@@ -14,13 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-
 import {
   YesNoActionContainer,
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
+
 import { NewStudent } from "@/lib/validations/add-users/new-user";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 export function constructColumns({
   removeStudent,

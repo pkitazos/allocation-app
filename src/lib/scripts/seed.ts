@@ -15,9 +15,12 @@ import {
   sampleGroup,
   sampleInstance,
   sampleSubGroup,
+  savedPreferences,
   studentDetails,
   superAdmin,
+  superAdmin2,
   superAdminInSpace,
+  superAdminInSpace2,
   tags,
   tagsOnProjects,
   to_ID,
@@ -31,7 +34,9 @@ async function main() {
 
   await db.$transaction(async (tx) => {
     await tx.user.create({ data: superAdmin });
+    await tx.user.create({ data: superAdmin2 });
     await tx.adminInSpace.create({ data: superAdminInSpace });
+    await tx.adminInSpace.create({ data: superAdminInSpace2 });
     dbg("super-admin\n");
 
     for (let idx = 1; idx <= EVALUATORS; idx++) {
@@ -72,6 +77,7 @@ async function main() {
       await tx.tagOnProject.createMany({ data: tagsOnProjects(ID) });
       await tx.flagOnProject.createMany({ data: flagsOnProjects(ID) });
       await tx.preference.createMany({ data: preferences(ID) });
+      await tx.savedPreference.createMany({ data: savedPreferences(ID) });
       dbg("projects + preferences");
 
       dbg(`instance ${idx}/${EVALUATORS} complete\n`);

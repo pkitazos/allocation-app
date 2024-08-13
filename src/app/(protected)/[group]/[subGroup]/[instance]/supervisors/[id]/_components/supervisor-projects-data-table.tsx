@@ -8,7 +8,7 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 
 import {
-  constructColumns,
+  useSupervisorProjectsColumns,
   SupervisorProjectDto,
 } from "./supervisor-projects-columns";
 
@@ -46,7 +46,7 @@ export function SupervisorProjectsDataTable({
     );
   }
 
-  const columns = constructColumns({
+  const columns = useSupervisorProjectsColumns({
     deleteProject: handleDelete,
     deleteSelectedProjects: handleDeleteSelected,
   });

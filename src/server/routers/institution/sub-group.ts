@@ -15,6 +15,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
+import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { isAdminInSubGroup_v2 } from "@/server/utils/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
@@ -264,23 +265,12 @@ export const subGroupRouter = createTRPCRouter({
           );
           if (exists) throw new TRPCClientError("User is already an admin");
 
-          let user = await tx.user.findFirst({
-            where: { id: institutionId, email },
-          });
-
-          if (!user) {
-            try {
-              user = await tx.user.create({
-                data: {
-                  id: institutionId,
-                  name,
-                  email,
-                },
-              });
-            } catch (e) {
-              throw new TRPCClientError("GUID and email do not match");
-            }
-          }
+          const user = await validateEmailGUIDMatch(
+            tx,
+            institutionId,
+            email,
+            name,
+          );
 
           await tx.adminInSpace.create({
             data: {

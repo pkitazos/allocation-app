@@ -49,13 +49,20 @@ export const projectRouter = createTRPCRouter({
 
           forkedInstanceSubmissionDetails.forEach(
             ({ projectAllocationTarget, userId, ...forked }) => {
-              const parent = findByUserId(
-                parentInstanceSubmissionDetails,
-                userId,
-              );
+              let parentAllocationCount = 0;
+              try {
+                parentAllocationCount = findByUserId(
+                  parentInstanceSubmissionDetails,
+                  userId,
+                ).allocatedCount;
+              } catch (e) {
+                // this means the supervisor is new
+                // so they don't have an equivalent in the parent instance
+                parentAllocationCount = 0;
+              }
 
               const newAllocatedCount =
-                forked.allocatedCount + parent.allocatedCount;
+                forked.allocatedCount + parentAllocationCount;
 
               const newSubmissionTarget = computeProjectSubmissionTarget(
                 projectAllocationTarget,
@@ -97,19 +104,11 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const preferenceCapacities =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: {
-              minPreferences: true,
-              maxPreferences: true,
-              maxPreferencesPerSupervisor: true,
-            },
-          });
+        const preferenceCapacities = {
+          minPreferences: ctx.instance.minPreferences,
+          maxPreferences: ctx.instance.maxPreferences,
+          maxPreferencesPerSupervisor: ctx.instance.maxPreferencesPerSupervisor,
+        };
 
         const data = await ctx.db.studentDetails.findMany({
           where: {
@@ -129,7 +128,7 @@ export const projectRouter = createTRPCRouter({
             return {
               userId,
               submissionCount: userInInstance.studentPreferences.length,
-              submittedPreferences: submittedPreferences,
+              submittedPreferences,
             };
           },
         );

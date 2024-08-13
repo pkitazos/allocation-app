@@ -15,12 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-
-import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 import {
   YesNoActionContainer,
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
+
+import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
 export function constructColumns({
   removeSupervisor,

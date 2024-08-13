@@ -38,7 +38,7 @@ export function Breadcrumbs() {
           </BreadcrumbItem>
           {segments.map((segment) => (
             <>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator key={segment} />
               <BreadcrumbItem key={segment}>
                 <BreadcrumbPage className="text-muted-foreground">
                   {segment}
@@ -67,7 +67,7 @@ export function Breadcrumbs() {
         </BreadcrumbItem>
         {data.map(({ segment, access }, index) => (
           <>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator key={segment} />
             <BreadcrumbItem key={segment}>
               {index < segments.length - 1 && access ? (
                 <BreadcrumbLink asChild>
@@ -80,7 +80,7 @@ export function Breadcrumbs() {
                   </Link>
                 </BreadcrumbLink>
               ) : (
-                <BreadcrumbPage className="text-muted-foreground">
+                <BreadcrumbPage key={segment} className="text-muted-foreground">
                   {segment}
                 </BreadcrumbPage>
               )}

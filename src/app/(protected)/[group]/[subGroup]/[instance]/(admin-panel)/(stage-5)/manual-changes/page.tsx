@@ -1,8 +1,9 @@
+import { PanelWrapper } from "@/components/panel-wrapper";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
-import { PanelWrapper } from "@/components/panel-wrapper";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { students, projects, supervisors } =
