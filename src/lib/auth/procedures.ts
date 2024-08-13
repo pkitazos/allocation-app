@@ -7,14 +7,14 @@ import { ShibUser } from "@/lib/validations/auth";
 import { env } from "@/env";
 
 export async function getShibUserFromHeaders() {
-  let shib_guid: string | null = "pk150z";
-  let shib_displayName: string | null = "Petros Kitazos";
-  let shib_email: string | null = "test@gmail.com";
+  let shib_guid: string | null = null;
+  let shib_displayName: string | null = null;
+  let shib_email: string | null = null;
 
   if (env.DEV_ENV !== "LOCAL") {
     shib_guid = headers().get("DH75HDYT76");
     shib_displayName = headers().get("DH75HDYT77");
-    shib_email = "test@gmail.com";
+    shib_email = "test@email.com";
     // const shib_groups = headers().get("DH75HDYT78");
   }
 
