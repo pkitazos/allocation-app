@@ -104,19 +104,11 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const preferenceCapacities =
-          await ctx.db.allocationInstance.findFirstOrThrow({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: {
-              minPreferences: true,
-              maxPreferences: true,
-              maxPreferencesPerSupervisor: true,
-            },
-          });
+        const preferenceCapacities = {
+          minPreferences: ctx.instance.minPreferences,
+          maxPreferences: ctx.instance.maxPreferences,
+          maxPreferencesPerSupervisor: ctx.instance.maxPreferencesPerSupervisor,
+        };
 
         const data = await ctx.db.studentDetails.findMany({
           where: {
@@ -136,7 +128,7 @@ export const projectRouter = createTRPCRouter({
             return {
               userId,
               submissionCount: userInInstance.studentPreferences.length,
-              submittedPreferences: submittedPreferences,
+              submittedPreferences,
             };
           },
         );

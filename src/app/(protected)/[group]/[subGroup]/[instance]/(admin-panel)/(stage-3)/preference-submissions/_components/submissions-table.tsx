@@ -29,7 +29,7 @@ export function SubmissionsTable({
       <TableHeader>
         <TableRow className="bg-accent/50">
           <TableHead className="font-semibold">GUID</TableHead>
-          <TableHead className="text-center">Submitted</TableHead>
+          <TableHead className="text-center">Preferences Submitted</TableHead>
           <TableHead className="text-center">Count</TableHead>
         </TableRow>
       </TableHeader>
@@ -50,7 +50,7 @@ export function SubmissionsTable({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={2}>Total Submitted</TableCell>
+          <TableCell colSpan={2}>Total Submitted Preference Lists</TableCell>
           <TableCell colSpan={1} className="text-center">
             {totalSubmitted}
           </TableCell>

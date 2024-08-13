@@ -22,6 +22,7 @@ export async function validateEmailGUIDMatch(
         },
       });
     } catch (e) {
+      // this email is already taken
       throw new TRPCClientError("GUID and email do not match");
     }
   }

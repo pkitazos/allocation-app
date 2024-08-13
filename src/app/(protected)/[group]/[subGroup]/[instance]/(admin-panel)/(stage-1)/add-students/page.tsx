@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { useInstanceParams } from "@/components/params-context";
+import { UserCreationErrorCard } from "@/components/toast-card/user-creation-error";
 import DataTable from "@/components/ui/data-table/data-table";
 import { LabelledSeparator } from "@/components/ui/labelled-separator";
 import { Separator } from "@/components/ui/separator";
@@ -25,6 +26,7 @@ import { spacesLabels } from "@/content/spaces";
 export default function Page() {
   const router = useRouter();
   const params = useInstanceParams();
+
   const utils = api.useUtils();
 
   const { data, isLoading } = api.institution.instance.getStudents.useQuery({
@@ -60,17 +62,33 @@ export default function Page() {
     api.institution.instance.addStudents.useMutation();
 
   async function handleAddStudents(newStudents: NewStudent[]) {
-    void toast.promise(
-      addStudentsAsync({ params, newStudents }).then(() => {
-        router.refresh();
-        refetchData();
+    const res = await addStudentsAsync({ params, newStudents }).then((data) => {
+      router.refresh();
+      refetchData();
+      return data;
+    });
+
+    if (res.successFullyAdded === 0) {
+      toast.error(`No students were added to ${spacesLabels.instance.short}`);
+    } else {
+      toast.success(
+        `Successfully added ${res.successFullyAdded} students to ${spacesLabels.instance.short}`,
+      );
+    }
+
+    const errors = res.errors.reduce(
+      (acc, val) => ({
+        ...acc,
+        [val.msg]: [...(acc[val.msg] ?? []), val.user.institutionId],
       }),
-      {
-        loading: "Adding students...",
-        success: `Successfully added ${newStudents.length} students to ${spacesLabels.instance.short}`,
-        error: `Failed to add students to ${spacesLabels.instance.short}`,
-      },
+      {} as { [key: string]: string[] },
     );
+
+    Object.entries(errors).forEach(([msg, affectedUsers]) => {
+      toast.error(
+        <UserCreationErrorCard error={msg} affectedUsers={affectedUsers} />,
+      );
+    });
   }
 
   const { mutateAsync: removeStudentAsync } =
