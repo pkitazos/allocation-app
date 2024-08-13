@@ -48,8 +48,6 @@ export const algorithmRouter = createTRPCRouter({
           matchingData,
         });
 
-        // TODO: validate results before saving
-
         await ctx.db.algorithm.update({
           where: {
             algorithmId: {

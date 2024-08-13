@@ -282,7 +282,6 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
-  // TODO: refactor to use transactions
   updateAllocation: instanceAdminProcedure
     .input(
       z.object({
