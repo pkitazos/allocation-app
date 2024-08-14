@@ -244,8 +244,8 @@ const supervisorCapacities = (
 ];
 
 const allocationInstance = {
-  id: "2024-2025",
-  displayName: "2024-2025",
+  id: "playground",
+  displayName: "Playground",
 };
 
 const allocationSubGroup = {
@@ -276,25 +276,25 @@ export const test__flagTitles: Pick<Flag, "title">[] = [
 ] as const;
 
 export const test__tagTitles: Pick<Tag, "title">[] = [
-  { title: "Python" }, // 0
-  { title: "Java" }, // 1
-  { title: "C++" }, // 2
-  { title: "JavaScript" }, // 3
-  { title: "Ruby" }, // 4
-  { title: "PHP" }, // 5
-  { title: "HTML/CSS" }, // 6
-  { title: "Artificial Intelligence" }, // 7
-  { title: "Machine Learning" }, // 8
-  { title: "Data Science" }, // 9
-  { title: "Web Development" }, // 10
-  { title: "Mobile App Development" }, // 11
-  { title: "Cybersecurity" }, // 12
-  { title: "Databases" }, // 13
-  { title: "Cloud Computing" }, // 14
-  { title: "DevOps" }, // 15
-  { title: "Natural Language Processing" }, // 16
-  { title: "Computer Vision" }, // 17
-  { title: "Game Development" }, // 18
+  { title: "Python" },
+  { title: "Java" },
+  { title: "C++" },
+  { title: "JavaScript" },
+  { title: "Ruby" },
+  { title: "PHP" },
+  { title: "HTML/CSS" },
+  { title: "Artificial Intelligence" },
+  { title: "Machine Learning" },
+  { title: "Data Science" },
+  { title: "Web Development" },
+  { title: "Mobile App Development" },
+  { title: "Cybersecurity" },
+  { title: "Databases" },
+  { title: "Cloud Computing" },
+  { title: "DevOps" },
+  { title: "Natural Language Processing" },
+  { title: "Computer Vision" },
+  { title: "Game Development" },
 ] as const;
 
 // dependant
