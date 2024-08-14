@@ -8,12 +8,8 @@ export default async function Home() {
 
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center gap-6">
-      <h1 className="text-4xl font-medium">
-        Welcome{" "}
-        {user && (
-          <span className="font-semibold text-secondary">{user.name}</span>
-        )}
-        !
+      <h1 className="text-3xl font-medium">
+        Welcome to the SoCS project allocation system!
       </h1>
       <Separator className="my-4 w-1/3" />
       {user && (
