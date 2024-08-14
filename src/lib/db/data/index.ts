@@ -255,7 +255,7 @@ const allocationSubGroup = {
 
 const allocationGroup = (ID: string) => ({
   id: `socs`,
-  displayName: `School of Computing Science ${ID}`,
+  displayName: `School of Computing Science`,
 });
 
 const instanceId = (ID: string) => ({
