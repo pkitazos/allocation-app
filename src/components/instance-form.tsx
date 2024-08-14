@@ -1,10 +1,10 @@
 "use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addDays, format, setHours, setMinutes } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
-import { CalendarIcon, Plus, X } from "lucide-react";
 import { ReactNode } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { addDays, format, setHours, setMinutes, subDays } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
@@ -14,9 +14,6 @@ import {
   ValidatedInstanceDetails,
 } from "@/lib/validations/instance-form";
 
-import { spacesLabels } from "@/content/spaces";
-
-import { SubHeading } from "./heading";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import {
@@ -29,11 +26,13 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
-import { MoreInformation } from "./ui/more-information";
 import { NoteCard } from "./ui/note-card";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Separator } from "./ui/separator";
 import { TimePicker } from "./ui/time-picker";
+import { SubHeading } from "./heading";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function InstanceForm({
   submissionButtonLabel,
@@ -162,6 +161,14 @@ export function InstanceForm({
                         <Input
                           placeholder="Flag"
                           {...form.register(`flags.${idx}.title` as const)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              if (e.currentTarget.value.trim() !== "") {
+                                appendFlag({ title: "" });
+                              }
+                            }
+                          }}
                         />
                         <Button
                           variant="ghost"
@@ -220,6 +227,14 @@ export function InstanceForm({
                         <Input
                           placeholder="Keyword"
                           {...form.register(`tags.${idx}.title`)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              if (e.currentTarget.value.trim() !== "") {
+                                appendTag({ title: "" });
+                              }
+                            }
+                          }}
                         />
                         <Button
                           variant="ghost"
@@ -245,7 +260,7 @@ export function InstanceForm({
               onClick={() => appendTag({ title: "" })}
             >
               <Plus />
-              <p>Add new Tag</p>
+              <p>Add new Keyword</p>
             </Button>
           </div>
         </div>
@@ -288,7 +303,7 @@ export function InstanceForm({
                         const newDate = updateDateOnly(field.value, val);
                         field.onChange(newDate);
                       }}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => date < subDays(new Date(), 1)}
                       initialFocus
                     />
                   </PopoverContent>
@@ -423,7 +438,7 @@ export function InstanceForm({
                           const newDate = updateDateOnly(field.value, val);
                           field.onChange(newDate);
                         }}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => date < subDays(new Date(), 1)}
                         initialFocus
                       />
                     </PopoverContent>

@@ -1,7 +1,8 @@
-import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
+import { AdminLevel, AllocationInstance } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
+import { validatedSegmentsSchema } from "@/lib/validations/breadcrumbs";
 
 import {
   adminProcedure,
@@ -10,9 +11,8 @@ import {
   publicProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
-import { getUserRole } from "@/server/utils/user-role";
 
-import { isInstancePath } from "./_utils/is-instance-path";
+import { validateSegments } from "./_utils/user-breadcrumbs";
 import {
   formatInstanceData,
   getGroupInstances,
@@ -80,6 +80,44 @@ export const userRouter = createTRPCRouter({
       return highestLevel;
     }),
 
+  getAdminPanel: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session || !ctx.session.user) return;
+
+    const user = ctx.session.user;
+
+    const adminSpaces = await ctx.db.adminInSpace.findMany({
+      where: { userId: user.id },
+      select: {
+        adminLevel: true,
+        allocationGroupId: true,
+        allocationSubGroupId: true,
+      },
+    });
+
+    if (adminSpaces.length === 0) return;
+
+    const highestLevel = adminSpaces
+      .sort((a, b) => (permissionCheck(a.adminLevel, b.adminLevel) ? 1 : 0))
+      .at(0);
+
+    if (!highestLevel) return;
+
+    const {
+      adminLevel,
+      allocationGroupId: group,
+      allocationSubGroupId: subGroup,
+    } = highestLevel;
+
+    // TODO: breaks if user is admin in multiple groups and/or subgroups
+
+    if (adminLevel === "SUPER") return "/admin";
+    if (adminLevel === "GROUP") return `/${group}`;
+    if (adminLevel === "SUB_GROUP") return `/${group}/${subGroup}`;
+
+    return;
+  }),
+
+  // ! deprecated
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session || !ctx.session.user) return;
 
@@ -111,27 +149,8 @@ export const userRouter = createTRPCRouter({
     return;
   }),
 
-  canAccessAllSegments: publicProcedure
-    .input(z.object({ segments: z.array(z.string()) }))
-    .query(async ({ ctx, input: { segments } }) => {
-      const inInstance = isInstancePath(segments);
-
-      if (!inInstance) return false;
-      if (!ctx.session || !ctx.session.user) return false;
-
-      const instanceParams = {
-        group: segments[0],
-        subGroup: segments[1],
-        instance: segments[2],
-      };
-
-      const role = await getUserRole(ctx.db, ctx.session.user, instanceParams);
-
-      return role === Role.ADMIN;
-    }),
-
   instances: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.session) return [];
+    if (!ctx.session || !ctx.session.user) return [];
 
     const user = ctx.session.user;
 
@@ -193,6 +212,15 @@ export const userRouter = createTRPCRouter({
       formatInstanceData(allGroups, instance),
     );
   }),
+
+  breadcrumbs: publicProcedure
+    .input(z.object({ segments: z.array(z.string()) }))
+    .output(z.array(validatedSegmentsSchema))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.session || !ctx.session.user) return [];
+      const user = ctx.session.user;
+      return await validateSegments(ctx.db, input.segments, user.id);
+    }),
 });
 
 function getHighestAdminLevel(adminLevels: AdminLevel[]) {

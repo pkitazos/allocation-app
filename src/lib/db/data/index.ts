@@ -11,14 +11,16 @@ import {
   PreferenceType,
   Project,
   Role,
+  SavedPreference,
   Stage,
   StudentDetails,
   SupervisorInstanceDetails,
   Tag,
   TagOnProject,
+  User,
   UserInInstance,
 } from "@prisma/client";
-import { User } from "next-auth";
+import { addDays, subDays } from "date-fns";
 
 import {
   GenerousAlgorithm,
@@ -31,25 +33,48 @@ import { slugify } from "@/lib/utils/general/slugify";
 import { preferenceData } from "./preferences";
 import { projectData } from "./projects";
 
+import { env } from "@/env";
+
 export const EVALUATORS = 30;
 
 type StableUser = Omit<User, "id"> & { id: string };
 type New<T> = Omit<T, "id" | "systemId">;
 
-export const superAdmin: StableUser = {
-  id: "super-admin",
-  name: "Super-Admin",
-  email: "super.allocationapp@gmail.com",
+const superAdmin: StableUser = {
+  id: env.DEV_P_ID,
+  name: "Petros Kitazos",
+  email: env.DEV_P_EMAIL,
 };
 
-export const superAdminInSpace: New<AdminInSpace> = {
+const superAdmin2: StableUser = {
+  id: env.DEV_A_ID,
+  name: "Alyson Dick",
+  email: env.DEV_A_EMAIL,
+};
+
+const superAdminInSpace: New<AdminInSpace> = {
   userId: superAdmin.id,
   allocationGroupId: null,
   allocationSubGroupId: null,
   adminLevel: AdminLevel.SUPER,
 };
+const superAdminInSpace2: New<AdminInSpace> = {
+  userId: superAdmin2.id,
+  allocationGroupId: null,
+  allocationSubGroupId: null,
+  adminLevel: AdminLevel.SUPER,
+};
+
+export const superAdmin_users = [superAdmin, superAdmin2];
+export const superAdmin_levels = [superAdminInSpace, superAdminInSpace2];
 
 export const to_ID = (ID: number) => ID.toString().padStart(3, "0");
+
+export const evaluator__groupAdmin = (ID: string): StableUser => ({
+  id: `${ID}-0000001a`,
+  name: "Group Admin Evaluator",
+  email: `${ID}-0000group@email.com`,
+});
 
 export const evaluator__subGroupAdmin = (ID: string): StableUser => ({
   id: `${ID}-012345w`,
@@ -172,6 +197,7 @@ const allStudents = (ID: string): StableUser[] => [
 ];
 
 export const allUsers = (ID: string): StableUser[] => [
+  evaluator__groupAdmin(ID),
   evaluator__subGroupAdmin(ID),
   ...allSupervisors(ID),
   ...allStudents(ID),
@@ -218,8 +244,8 @@ const supervisorCapacities = (
 ];
 
 const allocationInstance = {
-  id: "2024-2025",
-  displayName: "2024-2025",
+  id: "playground",
+  displayName: "Playground",
 };
 
 const allocationSubGroup = {
@@ -250,30 +276,31 @@ export const test__flagTitles: Pick<Flag, "title">[] = [
 ] as const;
 
 export const test__tagTitles: Pick<Tag, "title">[] = [
-  { title: "Python" }, // 0
-  { title: "Java" }, // 1
-  { title: "C++" }, // 2
-  { title: "JavaScript" }, // 3
-  { title: "Ruby" }, // 4
-  { title: "PHP" }, // 5
-  { title: "HTML/CSS" }, // 6
-  { title: "Artificial Intelligence" }, // 7
-  { title: "Machine Learning" }, // 8
-  { title: "Data Science" }, // 9
-  { title: "Web Development" }, // 10
-  { title: "Mobile App Development" }, // 11
-  { title: "Cybersecurity" }, // 12
-  { title: "Databases" }, // 13
-  { title: "Cloud Computing" }, // 14
-  { title: "DevOps" }, // 15
-  { title: "Natural Language Processing" }, // 16
-  { title: "Computer Vision" }, // 17
-  { title: "Game Development" }, // 18
+  { title: "Python" },
+  { title: "Java" },
+  { title: "C++" },
+  { title: "JavaScript" },
+  { title: "Ruby" },
+  { title: "PHP" },
+  { title: "HTML/CSS" },
+  { title: "Artificial Intelligence" },
+  { title: "Machine Learning" },
+  { title: "Data Science" },
+  { title: "Web Development" },
+  { title: "Mobile App Development" },
+  { title: "Cybersecurity" },
+  { title: "Databases" },
+  { title: "Cloud Computing" },
+  { title: "DevOps" },
+  { title: "Natural Language Processing" },
+  { title: "Computer Vision" },
+  { title: "Game Development" },
 ] as const;
 
 // dependant
 
 export const invites = (ID: string): Invitation[] => [
+  inInstance(ID, { email: evaluator__groupAdmin(ID).email! }),
   inInstance(ID, { email: evaluator__subGroupAdmin(ID).email! }),
   ...dummy__supervisors(ID).map((s) => inInstance(ID, { email: s.email! })),
   ...dummy__students(ID).map((s) => inInstance(ID, { email: s.email! })),
@@ -296,8 +323,8 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
   allocationSubGroupId: allocationSubGroup.id,
   displayName: allocationInstance.displayName,
   stage: Stage.SETUP,
-  projectSubmissionDeadline: new Date(2024, 2, 20),
-  preferenceSubmissionDeadline: new Date(2024, 3, 20),
+  projectSubmissionDeadline: subDays(new Date(), 1),
+  preferenceSubmissionDeadline: addDays(new Date(), 7),
   minPreferences: 6,
   maxPreferences: 6,
   maxPreferencesPerSupervisor: 2,
@@ -306,6 +333,12 @@ export const sampleInstance = (ID: string): AllocationInstance => ({
 });
 
 export const adminsInSpaces = (ID: string): New<AdminInSpace>[] => [
+  {
+    userId: evaluator__groupAdmin(ID).id,
+    allocationGroupId: allocationGroup(ID).id,
+    allocationSubGroupId: null,
+    adminLevel: AdminLevel.GROUP,
+  },
   {
     userId: evaluator__subGroupAdmin(ID).id,
     allocationGroupId: allocationGroup(ID).id,
@@ -339,23 +372,41 @@ const evaluator__student__userInInstance = (ID: string): UserInInstance =>
     joined: true,
   });
 
+const evaluator__groupAdmin__userInInstance = (ID: string): UserInInstance =>
+  inInstance(ID, {
+    userId: evaluator__groupAdmin(ID).id,
+    role: Role.ADMIN,
+    joined: true,
+  });
+
+const evaluator__subGroupAdmin__userInInstance = (ID: string): UserInInstance =>
+  inInstance(ID, {
+    userId: evaluator__subGroupAdmin(ID).id,
+    role: Role.ADMIN,
+    joined: true,
+  });
+
 export const allUsersInInstance = (ID: string): UserInInstance[] => [
   ...supervisors__userInInstance(ID),
   ...students__userInInstance(ID),
   evaluator__student__userInInstance(ID),
+  evaluator__groupAdmin__userInInstance(ID),
+  evaluator__subGroupAdmin__userInInstance(ID),
 ];
 
 export const studentDetails = (ID: string): StudentDetails[] => [
-  ...dummy__students(ID).map(({ id }) =>
+  ...dummy__students(ID).map(({ id }, i) =>
     inInstance(ID, {
       userId: id,
       submittedPreferences: true,
-      studentLevel: 4,
+      latestSubmissionDateTime: new Date(),
+      studentLevel: i === 0 ? 5 : 4,
     }),
   ),
   inInstance(ID, {
     userId: evaluator__student(ID).id,
     submittedPreferences: true,
+    latestSubmissionDateTime: new Date(),
     studentLevel: 4,
   }),
 ];
@@ -372,6 +423,7 @@ export const projects = (ID: string): Project[] =>
       supervisorId: allSupervisors(ID)[p.supervisorId].id,
       preAllocatedStudentId: null,
       specialTechnicalRequirements: null,
+      latestEditDateTime: subDays(new Date(), 7),
       capacityLowerBound: 0,
       capacityUpperBound: 1,
     }),
@@ -384,6 +436,15 @@ export const preferences = (ID: string): Preference[] =>
       userId: allStudents(ID)[p.studentIdx].id,
       rank: p.studentRanking,
       type: PreferenceType.PREFERENCE,
+    }),
+  );
+
+export const savedPreferences = (ID: string): SavedPreference[] =>
+  preferenceData(ID).map((p) =>
+    inInstance(ID, {
+      projectId: p.projectId,
+      userId: allStudents(ID)[p.studentIdx].id,
+      rank: p.studentRanking,
     }),
   );
 

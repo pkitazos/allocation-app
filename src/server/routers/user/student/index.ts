@@ -18,6 +18,28 @@ import { preferenceRouter } from "./preference";
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
 
+  exists: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, instance, subGroup },
+          studentId,
+        },
+      }) => {
+        const exists = await ctx.db.studentDetails.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+        });
+        return !!exists;
+      },
+    ),
+
   getById: instanceProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(
@@ -28,7 +50,7 @@ export const studentRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        const data = await ctx.db.userInInstance.findFirstOrThrow({
+        const data = await ctx.db.studentDetails.findFirstOrThrow({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -36,11 +58,18 @@ export const studentRouter = createTRPCRouter({
             userId: studentId,
           },
           select: {
-            user: { select: { email: true, name: true } },
+            studentLevel: true,
+            userInInstance: {
+              select: { user: { select: { email: true, name: true } } },
+            },
           },
         });
 
-        return data;
+        return {
+          name: data.userInInstance.user.name,
+          email: data.userInInstance.user.email,
+          level: data.studentLevel,
+        };
       },
     ),
 
@@ -99,6 +128,12 @@ export const studentRouter = createTRPCRouter({
           },
         });
       },
+    ),
+
+  latestSubmission: studentProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({ ctx }) => ctx.session.user.latestSubmissionDateTime ?? undefined,
     ),
 
   allocatedProject: studentProcedure

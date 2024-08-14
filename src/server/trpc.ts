@@ -9,12 +9,12 @@
 
 import { Role } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
-import { Session } from "next-auth";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Session } from "@/lib/validations/auth";
 import {
   instanceParamsSchema,
   refinedSpaceParamsSchema,
@@ -41,10 +41,17 @@ export const createTRPCContext = async (opts: {
   headers: Headers;
   session: Session | null;
 }) => {
-  const session = opts.session ?? (await auth());
+  const session = opts.session ?? { user: await auth() };
+  // if there's a header indicating that a user exists
+  // (like an Authorization header or something)
+  // -> return a new session with the correct user attached
+  //
+  // otherwise
+  // -> return an empty session / null / throw an error
+
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
 
-  console.log(">>> tRPC Request from", source, "by", session?.user);
+  console.log(">>> tRPC Request from", source, "by", session.user);
 
   return {
     session,
@@ -112,7 +119,7 @@ const authedMiddleware = t.middleware(({ ctx: { session }, next }) => {
       message: "User is not signed in",
     });
   }
-  return next({ ctx: { session: { ...session, user: session.user } } });
+  return next({ ctx: { session: { user: session.user } } });
 });
 
 /**
@@ -178,17 +185,28 @@ export const studentProcedure = instanceProcedure
       });
     }
 
-    const { studentLevel } = await ctx.db.studentDetails.findFirstOrThrow({
-      where: { userId: user.id },
-    });
+    const { studentLevel, latestSubmissionDateTime } =
+      await ctx.db.studentDetails.findFirstOrThrow({
+        where: { userId: user.id },
+      });
 
     return next({
       ctx: {
-        session: { user: { ...user, role: user.role, studentLevel } },
+        session: {
+          user: {
+            ...user,
+            role: user.role,
+            studentLevel,
+            latestSubmissionDateTime,
+          },
+        },
       },
     });
   });
 
+/**
+ * Procedure that enforces the user is a admin.
+ */
 export const adminProcedure = protectedProcedure
   .input(z.object({ params: refinedSpaceParamsSchema }))
   .use(async ({ ctx, input, next }) => {
@@ -209,10 +227,16 @@ export const adminProcedure = protectedProcedure
     return next({ ctx: { session: { user: { ...user, role: Role.ADMIN } } } });
   });
 
+/**
+ * Procedure that enforces the user is an Instance admin.
+ */
 export const instanceAdminProcedure = adminProcedure
   .input(z.object({ params: instanceParamsSchema }))
   .use(instanceMiddleware);
 
+/**
+ * Procedure that enforces the user is a super-admin
+ */
 export const superAdminProcedure = protectedProcedure.use(
   async ({ ctx, next }) => {
     const membership = await isSuperAdmin(ctx.db, ctx.session.user.id);
@@ -228,70 +252,34 @@ export const superAdminProcedure = protectedProcedure.use(
   },
 );
 
-// ! deprecated ---------------------------
-/** Reusable middleware that enforces users are logged in before running the procedure. */
-const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "User is not signed in",
-    });
-  }
-  return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: {
-        ...ctx.session,
-        user: ctx.session.user,
-      },
-    },
-  });
-});
-
-export const stageAwareProcedure = t.procedure
-  .use(enforceUserIsAuthed)
-  .input(z.object({ params: instanceParamsSchema }))
-  .use(
-    async ({
-      ctx,
-      input: {
-        params: { group, subGroup, instance },
-      },
-      next,
-    }) => {
-      const { stage } = await ctx.db.allocationInstance.findFirstOrThrow({
-        where: {
-          allocationGroupId: group,
-          allocationSubGroupId: subGroup,
-          id: instance,
+export const projectProcedure = instanceProcedure
+  .input(z.object({ projectId: z.string() }))
+  .use(async ({ ctx, next, input }) => {
+    const projectData = await ctx.db.project.findFirstOrThrow({
+      where: { id: input.projectId },
+      include: {
+        flagOnProjects: {
+          select: { flag: { select: { id: true, title: true } } },
         },
-        select: { stage: true },
-      });
-
-      return next({ ctx: { stage } });
-    },
-  );
-
-export const forkedInstanceProcedure = protectedProcedure
-  .input(z.object({ params: instanceParamsSchema }))
-  .use(
-    async ({
-      ctx,
-      input: {
-        params: { group, subGroup, instance },
+        tagOnProject: {
+          select: { tag: { select: { id: true, title: true } } },
+        },
       },
-      next,
-    }) => {
-      const { parentInstanceId } =
-        await ctx.db.allocationInstance.findFirstOrThrow({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-          },
-          select: { parentInstanceId: true },
-        });
+    });
 
-      return next({ ctx: { parentInstanceId } });
-    },
-  );
+    if (!projectData) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found",
+      });
+    }
+
+    const { flagOnProjects, tagOnProject, ...rest } = projectData;
+    const project = {
+      ...rest,
+      flags: flagOnProjects.map((f) => f.flag),
+      tags: tagOnProject.map((t) => t.tag),
+    };
+
+    return next({ ctx: { project } });
+  });

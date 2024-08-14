@@ -1,5 +1,6 @@
-import { Role } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 
+import { AccessControl } from "@/components/access-control";
 import { Heading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Card } from "@/components/ui/card";
@@ -20,8 +21,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
-  const stage = await api.institution.instance.currentStage({ params });
-
   const { submissionTarget, rowProjects } = await api.user.supervisor.projects({
     params,
   });
@@ -32,28 +31,33 @@ export default async function Page({ params }: { params: InstanceParams }) {
     <>
       <Heading>My Projects</Heading>
       <PanelWrapper className="pt-6">
-        <Card className="flex justify-between px-10 py-5">
-          <h2
-            className={cn(
-              "text-lg font-medium",
-              submissionTarget <= 0 && "text-muted-foreground line-through",
-            )}
-          >
-            Submission Target
-          </h2>
-          {submissionTarget > 0 && (
-            <p
+        <AccessControl
+          allowedStages={[Stage.PROJECT_SUBMISSION, Stage.PROJECT_SELECTION]}
+        >
+          <Card className="flex justify-between px-10 py-5">
+            <h2
               className={cn(
                 "text-lg font-medium",
-                uniqueProjectIds.size < submissionTarget && "text-destructive",
-                uniqueProjectIds.size >= submissionTarget && "text-green-500",
+                submissionTarget <= 0 && "text-muted-foreground",
               )}
             >
-              {uniqueProjectIds.size} / {submissionTarget}
-            </p>
-          )}
-        </Card>
-        <MyProjectsDataTable stage={stage} projects={rowProjects} />
+              Submission Target
+            </h2>
+            {submissionTarget > 0 && (
+              <p
+                className={cn(
+                  "text-lg font-medium",
+                  uniqueProjectIds.size < submissionTarget &&
+                    "text-destructive",
+                  uniqueProjectIds.size >= submissionTarget && "text-green-500",
+                )}
+              >
+                {uniqueProjectIds.size} / {submissionTarget}
+              </p>
+            )}
+          </Card>
+        </AccessControl>
+        <MyProjectsDataTable projects={rowProjects} />
       </PanelWrapper>
     </>
   );

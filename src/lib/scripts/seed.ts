@@ -1,12 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 
 import {
-  adminsInSpaces,
   algorithms,
   allUsers,
   allUsersInInstance,
   capacities,
-  EVALUATORS,
   flags,
   flagsOnProjects,
   invites,
@@ -15,70 +13,53 @@ import {
   sampleGroup,
   sampleInstance,
   sampleSubGroup,
+  savedPreferences,
   studentDetails,
-  superAdmin,
-  superAdminInSpace,
+  superAdmin_levels,
+  superAdmin_users,
   tags,
   tagsOnProjects,
-  to_ID,
 } from "@/lib/db/data";
-import { dbg } from "@/lib/utils/general/console-debug";
 
 const db = new PrismaClient();
 
 async function main() {
-  console.log("------------>> SEEDING\n");
-
   await db.$transaction(async (tx) => {
-    await tx.user.create({ data: superAdmin });
-    await tx.adminInSpace.create({ data: superAdminInSpace });
-    dbg("super-admin\n");
+    await tx.user.createMany({ data: superAdmin_users });
+    await tx.adminInSpace.createMany({ data: superAdmin_levels });
+    // create and invite users
+    const ID = "000";
+    await tx.user.createMany({ data: allUsers(ID) });
+    await tx.invitation.createMany({ data: invites(ID) });
 
-    for (let idx = 1; idx <= EVALUATORS; idx++) {
-      const ID = to_ID(idx);
+    // create spaces
+    await tx.allocationGroup.create({ data: sampleGroup(ID) });
+    await tx.allocationSubGroup.create({ data: sampleSubGroup(ID) });
+    await tx.allocationInstance.create({ data: sampleInstance(ID) });
 
-      // create and invite users
-      await tx.user.createMany({ data: allUsers(ID) });
-      await tx.invitation.createMany({ data: invites(ID) });
-      dbg("users + invites");
+    // add users to spaces
+    await tx.userInInstance.createMany({ data: allUsersInInstance(ID) });
 
-      // create spaces
-      await tx.allocationGroup.create({ data: sampleGroup(ID) });
-      await tx.allocationSubGroup.create({ data: sampleSubGroup(ID) });
-      await tx.allocationInstance.create({ data: sampleInstance(ID) });
-      dbg("allocation spaces");
+    // add algorithms, flags, and tags to instance
+    await tx.algorithm.createMany({ data: algorithms(ID) });
+    await tx.tag.createMany({ data: tags(ID) });
+    await tx.flag.createMany({ data: flags(ID) });
 
-      // add users to spaces
-      await tx.adminInSpace.createMany({ data: adminsInSpaces(ID) });
-      await tx.userInInstance.createMany({ data: allUsersInInstance(ID) });
-      dbg("users in spaces");
+    // add student details
+    await tx.studentDetails.createMany({ data: studentDetails(ID) });
 
-      // add algorithms, flags, and tags to instance
-      await tx.algorithm.createMany({ data: algorithms(ID) });
-      await tx.tag.createMany({ data: tags(ID) });
-      await tx.flag.createMany({ data: flags(ID) });
-      dbg("instance details");
+    // add supervisor capacity details
+    await tx.supervisorInstanceDetails.createMany({ data: capacities(ID) });
 
-      // add student details
-      await tx.studentDetails.createMany({ data: studentDetails(ID) });
-      dbg("student instance details");
-
-      // add supervisor capacity details
-      await tx.supervisorInstanceDetails.createMany({ data: capacities(ID) });
-      dbg("supervisor instance details");
-
-      // create projects and preferences
-      await tx.project.createMany({ data: projects(ID) });
-      await tx.tagOnProject.createMany({ data: tagsOnProjects(ID) });
-      await tx.flagOnProject.createMany({ data: flagsOnProjects(ID) });
-      await tx.preference.createMany({ data: preferences(ID) });
-      dbg("projects + preferences");
-
-      dbg(`instance ${idx}/${EVALUATORS} complete\n`);
-    }
+    // create projects and preferences
+    await tx.project.createMany({ data: projects(ID) });
+    await tx.tagOnProject.createMany({ data: tagsOnProjects(ID) });
+    await tx.flagOnProject.createMany({ data: flagsOnProjects(ID) });
+    await tx.preference.createMany({ data: preferences(ID) });
+    await tx.savedPreference.createMany({ data: savedPreferences(ID) });
   });
 
-  console.log("<<------------ SEEDING COMPLETE");
+  console.log("SEEDING COMPLETE");
 }
 
 main()

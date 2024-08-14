@@ -1,3 +1,5 @@
+import { adminPanelTabs } from "./admin-panel-tabs";
+
 export const instanceTabs = {
   instanceHome: {
     title: "Instance Home",
@@ -7,11 +9,11 @@ export const instanceTabs = {
     title: "All Projects",
     href: "projects",
   },
-  supervisors: {
+  allSupervisors: {
     title: "All Supervisors",
     href: "supervisors",
   },
-  students: {
+  allStudents: {
     title: "All Students",
     href: "students",
   },
@@ -36,3 +38,31 @@ export const instanceTabs = {
     href: "my-allocation",
   },
 } as const;
+
+export const supervisorTabs = [
+  instanceTabs.allProjects,
+  instanceTabs.myProjects,
+  instanceTabs.newProject,
+  instanceTabs.myAllocations,
+];
+
+export const studentTabs = [
+  instanceTabs.allProjects,
+  instanceTabs.myPreferences,
+  instanceTabs.myAllocation,
+];
+
+export const supervisorRoutes: string[] = Object.values(supervisorTabs).map(
+  (tab) => tab.href,
+);
+
+export const studentRoutes: string[] = Object.values(studentTabs).map(
+  (tab) => tab.href,
+);
+
+export const adminRoutes: string[] = [
+  ...Object.values(adminPanelTabs).map((tab) => tab.href),
+  instanceTabs.allProjects.href,
+  instanceTabs.allSupervisors.href,
+  instanceTabs.allStudents.href,
+];

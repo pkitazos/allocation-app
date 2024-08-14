@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,9 +18,7 @@ export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter((segment) => segment !== "");
 
-  const { status, data: access } = api.user.canAccessAllSegments.useQuery({
-    segments,
-  });
+  const { status, data } = api.user.breadcrumbs.useQuery({ segments });
 
   if (segments.length === 0) return <></>;
 
@@ -39,12 +38,14 @@ export function Breadcrumbs() {
             </BreadcrumbLink>
           </BreadcrumbItem>
           {segments.map((segment) => (
-            <>
+            <React.Fragment key={segment}>
               <BreadcrumbSeparator />
-              <BreadcrumbItem key={segment}>
-                <BreadcrumbPage>{segment}</BreadcrumbPage>
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-muted-foreground">
+                  {segment}
+                </BreadcrumbPage>
               </BreadcrumbItem>
-            </>
+            </React.Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
@@ -65,10 +66,10 @@ export function Breadcrumbs() {
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
-        {segments.map((segment, index) => (
-          <>
+        {data.map(({ segment, access }, index) => (
+          <React.Fragment key={segment}>
             <BreadcrumbSeparator />
-            <BreadcrumbItem key={segment}>
+            <BreadcrumbItem>
               {index < segments.length - 1 && access ? (
                 <BreadcrumbLink asChild>
                   <Link
@@ -80,12 +81,12 @@ export function Breadcrumbs() {
                   </Link>
                 </BreadcrumbLink>
               ) : (
-                <BreadcrumbPage className={"text-muted-foreground"}>
+                <BreadcrumbPage className="text-muted-foreground">
                   {segment}
                 </BreadcrumbPage>
               )}
             </BreadcrumbItem>
-          </>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

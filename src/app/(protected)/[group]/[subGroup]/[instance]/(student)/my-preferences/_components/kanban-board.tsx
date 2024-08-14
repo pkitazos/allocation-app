@@ -90,9 +90,9 @@ export function KanbanBoard({
         },
       ),
       {
-        loading: `Removing project ${projectId} from preferences...`,
+        loading: `Removing project from preferences...`,
         error: "Something went wrong",
-        success: `Successfully removed project ${projectId} from preferences`,
+        success: `Successfully removed project from preferences`,
       },
     );
   }

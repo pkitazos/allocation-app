@@ -1,5 +1,4 @@
 "use client";
-import { PreferenceType, Role, Stage } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -8,16 +7,16 @@ import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-import { SearchableColumn } from "@/lib/validations/table";
 
-import { PreferenceData, constructColumns } from "./student-preference-columns";
+import {
+  PreferenceData,
+  useStudentPreferencesColumns,
+} from "./student-preference-columns";
 
 export function StudentPreferenceDataTable({
-  role,
   data,
   studentId,
 }: {
-  role: Role;
   data: PreferenceData[];
   studentId: string;
 }) {
@@ -63,25 +62,21 @@ export function StudentPreferenceDataTable({
       {
         loading: "Updating all project preferences...",
         error: "Something went wrong",
-        success: "All project preferences updated successfully",
+        success: `Successfully updated ${projectIds.length} project preferences`,
       },
     );
   }
 
-  const primaryColumn: SearchableColumn = {
-    id: "Project Title",
-    displayName: "Project Title",
-  };
+  const columns = useStudentPreferencesColumns({
+    changePreference,
+    changeSelectedPreferences,
+  });
 
   return (
     <DataTable
-      searchableColumn={primaryColumn}
+      searchableColumn={{ id: "Title", displayName: "Project Title" }}
       className="w-full"
-      columns={constructColumns({
-        role,
-        changePreference,
-        changeSelectedPreferences,
-      })}
+      columns={columns}
       data={data}
     />
   );

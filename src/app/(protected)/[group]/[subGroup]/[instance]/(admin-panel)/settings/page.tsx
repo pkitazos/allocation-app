@@ -6,11 +6,15 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { api } from "@/lib/trpc/server";
+import { InstanceParams } from "@/lib/validations/params";
+
 import { spacesLabels } from "@/content/spaces";
 
-import { DangerZone } from "./_components/danger-zone";
+import { DeleteConfirmation } from "./_components/delete-confirmation";
 
-export default async function Page() {
+export default async function Page({ params }: { params: InstanceParams }) {
+  const instance = await api.institution.instance.get({ params });
   return (
     <PanelWrapper className="gap-10 pt-16">
       <SubHeading>Settings</SubHeading>
@@ -28,7 +32,10 @@ export default async function Page() {
           <p>Modify {spacesLabels.instance.short}-specific details.</p>
         </CardContent>
       </Card>
-      <DangerZone spaceLabel={spacesLabels.instance.short} />
+      <DeleteConfirmation
+        spaceLabel={spacesLabels.instance.short}
+        name={instance.displayName}
+      />
     </PanelWrapper>
   );
 }

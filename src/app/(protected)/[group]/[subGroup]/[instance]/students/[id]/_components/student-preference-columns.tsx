@@ -1,21 +1,31 @@
 "use client";
-import { PreferenceType, Role, Stage } from "@prisma/client";
+import { PreferenceType, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
+import {
+  CornerDownRightIcon,
+  MoreHorizontalIcon as MoreIcon,
+} from "lucide-react";
 import Link from "next/link";
 
-import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { useInstanceStage } from "@/components/params-context";
+import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-
-import { StudentPreferenceActionMenu } from "./student-preference-action-menu";
 
 export type PreferenceData = {
   project: {
@@ -23,26 +33,24 @@ export type PreferenceData = {
     title: string;
   };
   supervisor: {
-    name: string | null;
+    name: string;
     id: string;
   };
   type: PreferenceType;
   rank: number;
 };
 
-export function constructColumns({
-  role,
+export function useStudentPreferencesColumns({
   changePreference,
   changeSelectedPreferences,
 }: {
-  role: Role;
   changePreference: (
-    newPreferenceType: StudentPreferenceType,
-    projectId: string,
+    newType: StudentPreferenceType,
+    id: string,
   ) => Promise<void>;
   changeSelectedPreferences: (
-    newPreferenceType: StudentPreferenceType,
-    projectIds: string[],
+    newType: StudentPreferenceType,
+    ids: string[],
   ) => Promise<void>;
 }): ColumnDef<PreferenceData>[] {
   const stage = useInstanceStage();
@@ -50,7 +58,7 @@ export function constructColumns({
 
   const userCols: ColumnDef<PreferenceData>[] = [
     {
-      id: "Project ID",
+      id: "ID",
       accessorFn: ({ project }) => project.id,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" canFilter />
@@ -70,7 +78,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "Project Title",
+      id: "Title",
       accessorFn: ({ project }) => project.title,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Title" />
@@ -80,13 +88,16 @@ export function constructColumns({
           original: { project },
         },
       }) => (
-        <Button variant="link" className="cursor-default" asChild>
-          <Link href={`../projects/${project.id}`}>{project.title}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../projects/${project.id}`}
+        >
+          {project.title}
+        </Link>
       ),
     },
     {
-      id: "Supervisor Name",
+      id: "Supervisor",
       accessorFn: ({ supervisor }) => supervisor.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Supervisor" />
@@ -98,13 +109,16 @@ export function constructColumns({
           },
         },
       }) => (
-        <Button variant="link" asChild>
-          <Link href={`../supervisors/${id}`}>{name}</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`../supervisors/${id}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {
-      id: "type",
+      id: "Type",
       accessorFn: ({ type }) => type,
       header: ({ column }) => (
         <DataTableColumnHeader title="Type" column={column} />
@@ -126,7 +140,7 @@ export function constructColumns({
       },
     },
     {
-      id: "rank",
+      id: "Rank",
       accessorFn: ({ rank }) => rank,
       header: ({ column }) => (
         <DataTableColumnHeader title="Rank" column={column} />
@@ -135,7 +149,11 @@ export function constructColumns({
         row: {
           original: { rank },
         },
-      }) => <div className="text-center font-semibold">{rank}</div>,
+      }) => (
+        <div className="text-center font-semibold">
+          {Number.isNaN(rank) ? "-" : rank}
+        </div>
+      ),
     },
   ];
 
@@ -150,20 +168,47 @@ export function constructColumns({
         .getSelectedRowModel()
         .rows.map((e) => e.original.project.id);
 
-      if (
-        someSelected &&
-        role === Role.ADMIN &&
-        !stageGte(stage, Stage.PROJECT_ALLOCATION)
+      const rowTypes = table.getRowModel().rows.map((r) => r.original.type);
+      const defaultType = rowTypes.reduce(
+        (acc, val) => (acc === val ? acc : undefined),
+        rowTypes.at(0),
+      );
+
+      async function handleSelectedPreferenceChange(
+        newPreferenceType: StudentPreferenceType,
       ) {
+        void changeSelectedPreferences(
+          newPreferenceType,
+          selectedProjectIds,
+        ).then(() => {
+          table.toggleAllRowsSelected(false);
+        });
+      }
+
+      if (someSelected && stageLt(stage, Stage.PROJECT_ALLOCATION)) {
         return (
-          <ChangePreferenceButton
-            className="w-24 text-xs"
-            dropdownLabel="Change Type to:"
-            defaultStatus="None"
-            changeFunction={async (newPreference) => {
-              changeSelectedPreferences(newPreference, selectedProjectIds);
-            }}
-          />
+          <div className="flex w-full items-center justify-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-68"
+                align="center"
+                side="bottom"
+              >
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <StudentPreferenceActionSubMenu
+                  defaultType={defaultType}
+                  changePreference={handleSelectedPreferenceChange}
+                />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       }
       return <ActionColumnLabel className="w-24" />;
@@ -172,23 +217,37 @@ export function constructColumns({
       row: {
         original: { project, type },
       },
-    }) => {
-      async function handleChangePreference(
-        newPreferenceType: StudentPreferenceType,
-      ) {
-        changePreference(newPreferenceType, project.id);
-      }
-
-      return (
-        <div className="flex w-full items-center justify-center">
-          <StudentPreferenceActionMenu
-            defaultType={type}
-            projectId={project.id}
-            changePreference={handleChangePreference}
-          />
-        </div>
-      );
-    },
+    }) => (
+      <div className="flex w-full items-center justify-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon" variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-68" align="center" side="bottom">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="group/item">
+              <Link
+                className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                href={`../projects/${project.id}`}
+              >
+                <CornerDownRightIcon className="h-4 w-4" />
+                <span>View Project details</span>
+              </Link>
+            </DropdownMenuItem>
+            <StudentPreferenceActionSubMenu
+              defaultType={type}
+              changePreference={async (newPreferenceType) =>
+                void changePreference(newPreferenceType, project.id)
+              }
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ),
   };
 
   return [selectCol, ...userCols, actionsCol];

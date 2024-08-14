@@ -22,20 +22,24 @@ export function getSelectColumn<T>() {
       }
 
       return (
-        <Checkbox
-          checked={checkedState}
-          onCheckedChange={handleCheck}
-          aria-label="Select all"
-        />
+        <div className="grid place-items-center">
+          <Checkbox
+            checked={checkedState}
+            onCheckedChange={handleCheck}
+            aria-label="Select all"
+          />
+        </div>
       );
     },
     cell: ({ row }) => {
       return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
+        <div className="grid place-items-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
       );
     },
     enableSorting: false,

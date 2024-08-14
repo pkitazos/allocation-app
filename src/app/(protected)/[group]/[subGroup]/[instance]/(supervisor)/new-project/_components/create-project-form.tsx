@@ -18,9 +18,11 @@ import {
 export function CreateProjectForm({
   formInternalData,
   supervisor,
+  requiredFlags,
 }: {
   formInternalData: FormInternalData;
   supervisor: User;
+  requiredFlags: string[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -51,6 +53,7 @@ export function CreateProjectForm({
       formInternalData={formInternalData}
       submissionButtonLabel="Create New Project"
       onSubmit={onSubmit}
+      requiredFlags={requiredFlags}
     >
       <Button variant="outline" size="lg" type="button" asChild>
         <Link className="w-32" href={`${instancePath}/my-projects`}>

@@ -11,7 +11,7 @@ import { api } from "@/lib/trpc/server";
 import { spacesLabels } from "@/content/spaces";
 
 export default async function Page() {
-  const { superAdmin, groups } = await api.institution.groupManagement();
+  const { superAdmins, groups } = await api.institution.groupManagement();
 
   return (
     <div className="mt-6 flex h-max w-full max-w-5xl flex-col gap-10 px-6 pb-20">
@@ -23,14 +23,16 @@ export default async function Page() {
         <CardContent>
           <Table className="flex items-center gap-5">
             <TableBody className="w-full text-base">
-              <TableRow className="flex w-full items-center">
-                <TableCell className="w-full font-medium">
-                  {superAdmin.name}
-                </TableCell>
-                <TableCell className="w-full text-start">
-                  {superAdmin.email}
-                </TableCell>
-              </TableRow>
+              {superAdmins.map((admin) => (
+                <TableRow className="flex w-full items-center" key={admin.id}>
+                  <TableCell className="w-full font-medium">
+                    {admin.name}
+                  </TableCell>
+                  <TableCell className="w-full text-start">
+                    {admin.email}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>

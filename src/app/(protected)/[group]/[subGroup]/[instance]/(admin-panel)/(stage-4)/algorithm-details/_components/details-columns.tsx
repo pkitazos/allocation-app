@@ -8,7 +8,7 @@ import { MatchingDetailsDto } from "@/lib/validations/matching";
 
 export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
   {
-    id: "guid",
+    id: "GUID",
     accessorFn: ({ studentId }) => studentId,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="GUID" canFilter />
@@ -20,7 +20,7 @@ export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
     }) => <div>{studentId}</div>,
   },
   {
-    id: "student name",
+    id: "Student Name",
     accessorFn: ({ studentName }) => studentName,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" canFilter />
@@ -32,7 +32,7 @@ export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
     }) => <div>{studentName}</div>,
   },
   {
-    id: "project ID",
+    id: "Project ID",
     accessorFn: ({ projectId }) => projectId,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project ID" canFilter />
@@ -51,7 +51,7 @@ export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
     ),
   },
   {
-    id: "project title",
+    id: "Project title",
     accessorFn: ({ projectTitle }) => projectTitle,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Project Title" canFilter />
@@ -63,7 +63,7 @@ export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
     }) => <div>{projectTitle}</div>,
   },
   {
-    id: "student rank",
+    id: "Student rank",
     accessorFn: ({ studentRank }) => studentRank,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Rank" />
@@ -72,6 +72,10 @@ export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
       row: {
         original: { studentRank },
       },
-    }) => <div className="w-full text-center">{studentRank}</div>,
+    }) => (
+      <div className="w-full text-center">
+        {Number.isNaN(studentRank) ? "-" : studentRank}
+      </div>
+    ),
   },
 ];

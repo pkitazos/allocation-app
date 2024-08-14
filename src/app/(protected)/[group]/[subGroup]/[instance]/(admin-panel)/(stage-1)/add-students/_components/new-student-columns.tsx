@@ -1,9 +1,8 @@
 "use client";
-import { Stage } from "@prisma/client";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal as MoreIcon, Trash2Icon } from "lucide-react";
 
-import { useInstanceStage } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -11,12 +10,15 @@ import { getSelectColumn } from "@/components/ui/data-table/select-column";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 import { NewStudent } from "@/lib/validations/add-users/new-user";
 
@@ -31,7 +33,7 @@ export function constructColumns({
 
   const userCols: ColumnDef<NewStudent>[] = [
     {
-      id: "full Name",
+      id: "Full Name",
       accessorFn: ({ fullName }) => fullName,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Full Name" />
@@ -50,7 +52,7 @@ export function constructColumns({
       ),
     },
     {
-      id: "guid",
+      id: "GUID",
       accessorFn: ({ institutionId: guid }) => guid,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="GUID" canFilter />
@@ -66,14 +68,14 @@ export function constructColumns({
       ),
     },
     {
-      id: "email",
+      id: "Email",
       accessorFn: ({ email }) => email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
       ),
     },
     {
-      id: "level",
+      id: "Student Level",
       accessorFn: ({ level }) => level,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Student Level" />
@@ -95,8 +97,10 @@ export function constructColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.institutionId);
 
-        function handleRemoveStudents() {
-          void removeSelectedStudents(selectedStudentIds);
+        function handleRemoveSelectedStudents() {
+          void removeSelectedStudents(selectedStudentIds).then(() =>
+            table.toggleAllRowsSelected(false),
+          );
         }
 
         if (someSelected)
@@ -109,19 +113,30 @@ export function constructColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={handleRemoveStudents}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Remove Selected Students</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <YesNoActionContainer
+                  action={handleRemoveSelectedStudents}
+                  title="Remove Students?"
+                  description={
+                    selectedStudentIds.length === 1
+                      ? `You are about to remove 1 student from the list. Do you wish to proceed?`
+                      : `You are about to remove ${selectedStudentIds.length} students from the list. Do you wish to proceed?`
+                  }
+                >
+                  <DropdownMenuContent align="center" side="bottom">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="m-0 flex items-center gap-2 p-1.5 text-sm">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Remove selected Students</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -132,36 +147,38 @@ export function constructColumns({
         row: {
           original: { fullName, institutionId },
         },
-      }) => {
-        function handleRemoveStudent() {
-          void removeStudent(institutionId);
-        }
-        return (
-          <div className="flex w-14 items-center justify-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <span className="sr-only">Open menu</span>
-                  <MoreIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
+      }) => (
+        <div className="flex w-14 items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <YesNoActionContainer
+              action={() => void removeStudent(institutionId)}
+              title="Remove Student?"
+              description={`You are about to remove "${fullName}" from the student list. Do you wish to proceed?`}
+            >
               <DropdownMenuContent align="center" side="bottom">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={handleRemoveStudent}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Remove Student {fullName}</span>
-                  </button>
+                <DropdownMenuItem className="bg-background text-destructive focus:bg-red-100/40 focus:text-destructive">
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="m-0 flex items-center gap-2 p-1.5 text-sm">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Student {fullName}</span>
+                      </button>
+                    }
+                  />
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
+            </YesNoActionContainer>
+          </DropdownMenu>
+        </div>
+      ),
     },
   ];
 

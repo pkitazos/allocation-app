@@ -39,12 +39,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
           <RunAlgorithmButton algorithm={GreedyAlgorithm} />
           <RunAlgorithmButton algorithm={GreedyGenAlgorithm} />
           <RunAlgorithmButton algorithm={MinCostAlgorithm} />
-          {/* // TODO: add back in once matching validation bug is fixed */}
-          {/* {customAlgs.map((alg, i) => (
+          {customAlgs.map((alg, i) => (
             // TODO: add ability to delete custom algorithms
             <RunAlgorithmButton key={i} algorithm={alg} custom />
           ))}
-          <NewAlgorithmButton takenNames={takenNames} /> */}
+          <NewAlgorithmButton takenNames={takenNames} />
           <SubHeading className="mb-6 mt-16 text-2xl ">
             Results Summary
           </SubHeading>

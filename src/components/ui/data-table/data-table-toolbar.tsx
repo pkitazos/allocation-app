@@ -50,16 +50,16 @@ export function DataTableToolbar<TData>({
             className="h-8 w-[150px] lg:w-[250px]"
           />
         )}
-        {table.getColumn("flags") && (
+        {table.getAllColumns().some((c) => c.id === "Flags") && (
           <DataTableFacetedFilter
-            column={table.getColumn("flags")}
+            column={table.getColumn("Flags")}
             title="Flags"
             options={tableFlags}
           />
         )}
-        {table.getColumn("tags") && (
+        {table.getAllColumns().some((c) => c.id === "Keywords") && (
           <DataTableFacetedFilter
-            column={table.getColumn("tags")}
+            column={table.getColumn("Keywords")}
             title="Keywords"
             options={tableTags}
           />

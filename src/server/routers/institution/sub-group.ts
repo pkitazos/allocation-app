@@ -1,7 +1,9 @@
-import { AdminLevel } from "@prisma/client";
+import { AdminLevel, Role } from "@prisma/client";
+import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
+import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
 import { createdInstanceSchema } from "@/lib/validations/instance-form";
 import {
   instanceParamsSchema,
@@ -13,10 +15,25 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
-import { adminAccess } from "@/server/utils/admin-access";
+import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
+import { isAdminInSubGroup_v2 } from "@/server/utils/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
+  exists: protectedProcedure
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup },
+        },
+      }) => {
+        return await ctx.db.allocationSubGroup.findFirst({
+          where: { id: subGroup, allocationGroupId: group },
+        });
+      },
+    ),
   access: protectedProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(
@@ -128,36 +145,59 @@ export const subGroupRouter = createTRPCRouter({
       }) => {
         const instance = slugify(instanceName);
 
-        await ctx.db.allocationInstance.create({
-          data: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            id: instance,
-            displayName: instanceName,
-            minPreferences,
-            maxPreferences,
-            maxPreferencesPerSupervisor,
-            preferenceSubmissionDeadline,
-            projectSubmissionDeadline,
-          },
-        });
+        await ctx.db.$transaction(async (tx) => {
+          await tx.allocationInstance.create({
+            data: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              id: instance,
+              displayName: instanceName,
+              minPreferences,
+              maxPreferences,
+              maxPreferencesPerSupervisor,
+              preferenceSubmissionDeadline,
+              projectSubmissionDeadline,
+            },
+          });
 
-        await ctx.db.flag.createMany({
-          data: flags.map(({ title }) => ({
-            title,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          })),
-        });
+          await tx.flag.createMany({
+            data: flags.map(({ title }) => ({
+              title,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            })),
+          });
 
-        await ctx.db.tag.createMany({
-          data: tags.map(({ title }) => ({
-            title,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          })),
+          await tx.tag.createMany({
+            data: tags.map(({ title }) => ({
+              title,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            })),
+          });
+
+          const admins = await tx.adminInSpace.findMany({
+            where: {
+              OR: [
+                { allocationGroupId: group, allocationSubGroupId: null },
+                { allocationGroupId: group, allocationSubGroupId: subGroup },
+              ],
+            },
+            select: { userId: true },
+          });
+
+          await tx.userInInstance.createMany({
+            data: admins.map(({ userId }) => ({
+              userId,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              role: Role.ADMIN,
+            })),
+            skipDuplicates: true,
+          });
         });
       },
     ),
@@ -184,15 +224,29 @@ export const subGroupRouter = createTRPCRouter({
     ),
 
   // TODO: refactor after auth is implemented
+  /**
+   * Handles the form submission to add a new admin to a specified Sub-Group.
+   *
+   * @description
+   * 1. Checks if the user (identified by `institutionId`) is already an admin in the specified Sub-Group.
+   *    - If so, throws a `TRPCClientError` with the message "User is already an admin".
+   *
+   * 2. If the user is not already an admin:
+   *    - Attempts to find the user in the database based on `institutionId` and `email`.
+   *    - If the user is not found:
+   *      - Tries to create a new user with the provided `institutionId`, `name`, and `email`.
+   *      - If the user creation fails (e.g., due to a GUID/email mismatch), throws a `TRPCClientError` with the message "GUID and email do not match".
+   *
+   * 3. Finally, if the user exists (either found or newly created):
+   *    - Creates an `adminInSpace` record associating the user with the specified Sub-Group and admin level.
+   *
+   * @throws {TRPCClientError} If the user is already an admin or if there's a GUID/email mismatch during user creation.
+   */
   addAdmin: adminProcedure
     .input(
       z.object({
         params: subGroupParamsSchema,
-        newAdmin: z.object({
-          schoolId: z.string(),
-          name: z.string(),
-          email: z.string(),
-        }),
+        newAdmin: newAdminSchema,
       }),
     )
     .mutation(
@@ -200,46 +254,32 @@ export const subGroupRouter = createTRPCRouter({
         ctx,
         input: {
           params: { group, subGroup },
-          newAdmin: { schoolId, name, email },
+          newAdmin: { institutionId, name, email },
         },
       }) => {
-        /**
-         * check if user is already an admin in this group
-         *  -> do nothing
-         *
-         * if user exists but is not an admin in this group
-         *  -> make them an admin in this group
-         *
-         * if the user does not exist
-         *  -> invite them
-         *  -> make them an admin in this group
-         *
-         * */
+        await ctx.db.$transaction(async (tx) => {
+          const exists = await isAdminInSubGroup_v2(
+            tx,
+            { group, subGroup },
+            institutionId,
+          );
+          if (exists) throw new TRPCClientError("User is already an admin");
 
-        const alreadyAdmin = await adminAccess(ctx.db, schoolId, { group });
-        if (alreadyAdmin) return;
+          const user = await validateEmailGUIDMatch(
+            tx,
+            institutionId,
+            email,
+            name,
+          );
 
-        let user = await ctx.db.user.findFirst({
-          where: { id: schoolId },
-        });
-
-        if (!user) {
-          // TODO: if user does not exist
-          user = await ctx.db.user.create({
-            data: { id: schoolId, name, email },
+          await tx.adminInSpace.create({
+            data: {
+              userId: user.id,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              adminLevel: AdminLevel.SUB_GROUP,
+            },
           });
-          // -> add them to invitation list
-          // -> send them an email
-          // -> make them an admin in this group
-        }
-
-        await ctx.db.adminInSpace.create({
-          data: {
-            userId: user.id,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            adminLevel: AdminLevel.GROUP,
-          },
         });
       },
     ),

@@ -1,4 +1,3 @@
-import { projectFlags } from "@/content/config/flags";
 import { isAfter } from "date-fns";
 import { z } from "zod";
 
@@ -12,7 +11,9 @@ const baseSchema = z.object({
   flags: z.array(
     z.object({ title: z.string().min(3, "Please enter a valid title") }),
   ),
-  tags: z.array(z.object({ title: z.string() })),
+  tags: z.array(
+    z.object({ title: z.string().min(3, "Please enter a valid title") }),
+  ),
 });
 
 export const createdInstanceSchema = baseSchema;
@@ -89,7 +90,7 @@ export function buildInstanceFormSchema(takenNames: string[]) {
     )
     .refine(
       ({ flags }) => {
-        const flagSet = new Set(flags);
+        const flagSet = new Set(flags.map(({ title }) => title));
         return flags.length === flagSet.size;
       },
       {

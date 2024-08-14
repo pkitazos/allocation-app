@@ -1,3 +1,3 @@
-export function slugify(label: string): string {
-  return label.replaceAll("&", "and").replaceAll(" ", "-").toLowerCase();
-}
+export const slugify = encodeURIComponent;
+
+export const unSlugify = decodeURIComponent;

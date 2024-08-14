@@ -5,11 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import {
-  ByProjectDataTable,
-  ByStudentDataTable,
-  BySupervisorDataTable,
-} from "./_components";
+import { ByProjectDataTable } from "./_components/by-project-data-table";
+import { ByStudentDataTable } from "./_components/by-student-data-table";
+import { BySupervisorDataTable } from "./_components/by-supervisor-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { byStudent, byProject, bySupervisor } =

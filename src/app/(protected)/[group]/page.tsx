@@ -14,10 +14,15 @@ import { api } from "@/lib/trpc/server";
 import { spacesLabels } from "@/content/spaces";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
-import { DangerZone } from "./_components/danger-zone";
+import { DeleteConfirmation } from "./_components/delete-confirmation";
 import { FormButton } from "./_components/form-button";
+import { notFound } from "next/navigation";
+import { GroupParams } from "@/lib/validations/params";
 
-export default async function Page({ params }: { params: { group: string } }) {
+export default async function Page({ params }: { params: GroupParams }) {
+  const allocationGroup = await api.institution.group.exists({ params });
+  if (!allocationGroup) notFound();
+
   const access = await api.institution.group.access({ params });
 
   if (!access) {
@@ -52,9 +57,11 @@ export default async function Page({ params }: { params: { group: string } }) {
               ))}
             </TableBody>
           </Table>
-          <div className="mt-2">
-            <FormButton params={params} />
-          </div>
+          <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
+            <div className="mt-2">
+              <FormButton params={params} />
+            </div>
+          </AdminLevelAC>
         </CardContent>
       </Card>
       <SubHeading>Manage {spacesLabels.subGroup.full}s</SubHeading>
@@ -89,7 +96,11 @@ export default async function Page({ params }: { params: { group: string } }) {
       </div>
       <AdminLevelAC minimumAdminLevel={AdminLevel.SUPER}>
         <div className="mt-16">
-          <DangerZone spaceLabel={spacesLabels.group.full} params={params} />
+          <DeleteConfirmation
+            spaceLabel={spacesLabels.group.full}
+            params={params}
+            name={displayName}
+          />
         </div>
       </AdminLevelAC>
     </div>

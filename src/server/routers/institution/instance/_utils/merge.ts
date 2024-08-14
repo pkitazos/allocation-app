@@ -367,5 +367,6 @@ function extractProjectAttributes<T extends Project>(p: T) {
     supervisorId: p.supervisorId,
     capacityLowerBound: p.capacityLowerBound,
     capacityUpperBound: p.capacityUpperBound,
+    latestEditDateTime: p.latestEditDateTime,
   };
 }

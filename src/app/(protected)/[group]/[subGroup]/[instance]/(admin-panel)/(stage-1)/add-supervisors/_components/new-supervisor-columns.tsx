@@ -15,6 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
@@ -29,7 +33,7 @@ export function constructColumns({
 
   const userCols: ColumnDef<NewSupervisor>[] = [
     {
-      id: "full Name",
+      id: "Full Name",
       accessorFn: ({ fullName }) => fullName,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Full Name" />
@@ -64,14 +68,14 @@ export function constructColumns({
       ),
     },
     {
-      id: "email",
+      id: "Email",
       accessorFn: ({ email }) => email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
       ),
     },
     {
-      id: "Project Target",
+      id: "Target",
       accessorFn: ({ projectTarget }) => projectTarget,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Target" />
@@ -83,7 +87,7 @@ export function constructColumns({
       }) => <div className="text-center">{projectTarget}</div>,
     },
     {
-      id: "Project Upper Quota",
+      id: "Upper Quota",
       accessorFn: ({ projectUpperQuota }) => projectUpperQuota,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Upper Quota" />
@@ -105,8 +109,10 @@ export function constructColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.institutionId);
 
-        function handleRemoveSupervisors() {
-          void removeSelectedSupervisors(selectedSupervisorIds);
+        function handleRemoveSelectedSupervisors() {
+          void removeSelectedSupervisors(selectedSupervisorIds).then(() =>
+            table.toggleAllRowsSelected(false),
+          );
         }
 
         if (someSelected)
@@ -119,19 +125,30 @@ export function constructColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={handleRemoveSupervisors}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Remove Selected Supervisors</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <YesNoActionContainer
+                  action={handleRemoveSelectedSupervisors}
+                  title="Remove Supervisors?"
+                  description={
+                    selectedSupervisorIds.length === 1
+                      ? `you are about to remove 1 supervisor from the list. Do you wish to proceed?`
+                      : `You are about to remove ${selectedSupervisorIds.length} supervisors from the list. Do you wish to proceed?`
+                  }
+                >
+                  <DropdownMenuContent align="center" side="bottom">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="flex items-center gap-2">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Remove selected Supervisors</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -142,36 +159,38 @@ export function constructColumns({
         row: {
           original: { fullName, institutionId },
         },
-      }) => {
-        function handleRemoveSupervisor() {
-          void removeSupervisor(institutionId);
-        }
-        return (
-          <div className="flex w-14 items-center justify-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost">
-                  <span className="sr-only">Open menu</span>
-                  <MoreIcon className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
+      }) => (
+        <div className="flex w-14 items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <YesNoActionContainer
+              action={async () => void removeSupervisor(institutionId)}
+              title="Remove Supervisor?"
+              description={`You are about to remove "${fullName}" from the supervisor list. Do you wish to proceed?`}
+            >
               <DropdownMenuContent align="center" side="bottom">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <button
-                    className="flex items-center gap-2"
-                    onClick={handleRemoveSupervisor}
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                    <span>Remove Supervisor {fullName}</span>
-                  </button>
+                  <YesNoActionTrigger
+                    trigger={
+                      <button className="flex items-center gap-2">
+                        <Trash2Icon className="h-4 w-4" />
+                        <span>Remove Supervisor {fullName}</span>
+                      </button>
+                    }
+                  />
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
+            </YesNoActionContainer>
+          </DropdownMenu>
+        </div>
+      ),
     },
   ];
 

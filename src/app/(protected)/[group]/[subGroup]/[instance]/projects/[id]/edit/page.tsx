@@ -5,6 +5,7 @@ import { PageWrapper } from "@/components/page-wrapper";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { makeRequiredFlags } from "@/lib/utils/general/make-required-flags";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
@@ -33,7 +34,10 @@ export default async function Page({ params }: { params: PageParams }) {
     );
   }
 
-  const { takenTitles, ...rest } = await api.project.getFormDetails({ params });
+  const { takenTitles, ...rest } = await api.project.getFormDetails({
+    params,
+    projectId,
+  });
   const availableTitles = takenTitles.filter((t) => t !== project.title);
   const formInternalData = { takenTitles: availableTitles, ...rest };
 
@@ -48,6 +52,9 @@ export default async function Page({ params }: { params: PageParams }) {
 
   const isForked = await api.project.getIsForked({ params, projectId });
 
+  const instanceFlags = await api.institution.instance.getFlags({ params });
+  const requiredFlags = makeRequiredFlags(instanceFlags);
+
   return (
     <PageWrapper>
       <Heading>Edit Project</Heading>
@@ -55,6 +62,7 @@ export default async function Page({ params }: { params: PageParams }) {
         formInternalData={formInternalData}
         project={projectDetails}
         isForked={isForked}
+        requiredFlags={requiredFlags}
       />
     </PageWrapper>
   );

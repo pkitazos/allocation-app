@@ -13,9 +13,9 @@ import { createTRPCContext } from "@/server/trpc";
 const createContext = cache(async () => {
   const heads = new Headers(headers());
   heads.set("x-trpc-source", "rsc");
-
+  const user = await auth();
   return createTRPCContext({
-    session: await auth(),
+    session: { user },
     headers: heads,
   });
 });

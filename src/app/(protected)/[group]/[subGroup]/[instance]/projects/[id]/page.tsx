@@ -16,13 +16,20 @@ import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceButton } from "./_components/student-preference-button";
+import { notFound } from "next/navigation";
 
 interface pageParams extends InstanceParams {
   id: string;
 }
 
 export default async function Project({ params }: { params: pageParams }) {
-  const { id: projectId } = params;
+  const projectId = params.id;
+  const exists = await api.project.exists({
+    params,
+    projectId: params.id,
+  });
+  if (!exists) notFound();
+
   const instancePath = formatParamsAsPath(params);
 
   const { access, studentFlagLabel } = await api.project.getUserAccess({

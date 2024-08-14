@@ -21,7 +21,7 @@ export function StageControl({ stage }: { stage: Stage }) {
   const [confirmedIdx, setConfirmedIdx] = useState(stages.indexOf(stage) + 1);
 
   const utils = api.useUtils();
-  const refetchTabs = utils.institution.instance.headerTabs.refetch;
+  const refetchTabs = utils.institution.instance.getHeaderTabs.refetch;
 
   const { mutateAsync } = api.institution.instance.setStage.useMutation();
 

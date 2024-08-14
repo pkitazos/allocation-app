@@ -26,7 +26,7 @@ export const projectData = (ID: string) => [
       "An analytics dashboard to track key social media metrics and engagement",
     supervisorId: 0,
     tags: [test__tagTitles[3], test__tagTitles[9], test__tagTitles[10]],
-    flags: [test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-004-${ID}`,
@@ -44,7 +44,7 @@ export const projectData = (ID: string) => [
       "A content management system that allows easy customization and extensibility",
     supervisorId: 1,
     tags: [test__tagTitles[5], test__tagTitles[10], test__tagTitles[13]],
-    flags: [test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-006-${ID}`,
@@ -62,7 +62,7 @@ export const projectData = (ID: string) => [
       "Real-time weather forecasts and predictive weather alerts for any location",
     supervisorId: 1,
     tags: [test__tagTitles[0], test__tagTitles[9]],
-    flags: [test__flagTitles[2], test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1], test__flagTitles[2]],
   },
   {
     id: `prjkt-008-${ID}`,
@@ -89,7 +89,7 @@ export const projectData = (ID: string) => [
       "A platform for users to discover, save, and share their favourite recipes.",
     supervisorId: 2,
     tags: [test__tagTitles[4], test__tagTitles[10]],
-    flags: [test__flagTitles[2], test__flagTitles[0], test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1], test__flagTitles[2]],
   },
   {
     id: `prjkt-011-${ID}`,
@@ -100,7 +100,7 @@ export const projectData = (ID: string) => [
       "Experience with WebRTC or similar real-time communication protocols",
     supervisorId: 2,
     tags: [test__tagTitles[3], test__tagTitles[15], test__tagTitles[14]],
-    flags: [test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-012-${ID}`,
@@ -155,7 +155,7 @@ export const projectData = (ID: string) => [
       "Strong scripting skills (Python, Bash, etc.) and understanding of automation tools",
     supervisorId: 3,
     tags: [test__tagTitles[0], test__tagTitles[15]],
-    flags: [test__flagTitles[1], test__flagTitles[2]],
+    flags: [test__flagTitles[1]],
   },
   {
     id: `prjkt-017-${ID}`,
@@ -188,7 +188,7 @@ export const projectData = (ID: string) => [
       "Understanding of encryption algorithms and secure file transfer protocols",
     supervisorId: 4,
     tags: [test__tagTitles[1], test__tagTitles[12]],
-    flags: [test__flagTitles[1]],
+    flags: [test__flagTitles[0], test__flagTitles[1]],
   },
   {
     id: `prjkt-020-${ID}`,
