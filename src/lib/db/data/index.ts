@@ -254,7 +254,7 @@ const allocationSubGroup = {
 };
 
 const allocationGroup = (ID: string) => ({
-  id: `socs-${ID}`,
+  id: `socs`,
   displayName: `School of Computing Science ${ID}`,
 });
 
