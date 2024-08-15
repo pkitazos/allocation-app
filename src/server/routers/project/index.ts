@@ -536,7 +536,7 @@ export const projectRouter = createTRPCRouter({
     ),
 
   getFormDetails: projectProcedure
-    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string().optional() }))
     .query(
       async ({
         ctx,
@@ -580,12 +580,9 @@ export const projectRouter = createTRPCRouter({
           },
           select: { title: true },
         });
-
-        return {
-          takenTitles: projectTitles.map(({ title }) => title),
-          flags,
-          tags,
-          students: studentData
+        var sd = studentData;
+        if (ctx.project) {
+            sd = sd
             .filter((s) => {
               if (requiredFlags.length === 0) return true;
               return ctx.project.flags.some((f) => {
@@ -595,10 +592,17 @@ export const projectRouter = createTRPCRouter({
                 );
               });
             })
+        }
+        sd = sd
             .map(({ studentDetails }) => ({
               id: studentDetails[0].userId,
               studentLevel: studentDetails[0].studentLevel,
-            })),
+            }));
+        return {
+          takenTitles: projectTitles.map(({ title }) => title),
+          flags,
+          tags,
+          students: sd,
         };
       },
     ),
