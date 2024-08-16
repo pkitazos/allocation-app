@@ -806,7 +806,7 @@ export const instanceRouter = createTRPCRouter({
 
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
       const parentInstanceId = ctx.instance.parentInstanceId;
       const stage = ctx.instance.stage;
 
@@ -820,8 +820,24 @@ export const instanceRouter = createTRPCRouter({
           ? [...base, adminPanelTabs.forkInstance]
           : [...base, adminPanelTabs.mergeInstance];
       }
-
-      return adminPanelTabsByStage[stage];
+      let tabs = adminPanelTabsByStage[stage];
+      const role = await getUserRole(ctx.db, ctx.session.user, input.params);
+      if (role === Role.SUPERVISOR) {
+        if (stage === Stage.PROJECT_SUBMISSION) {
+          tabs.push(instanceTabs.myProjects);
+          tabs.push(instanceTabs.newProject);
+        }
+        if (stage === Stage.PROJECT_SELECTION) {
+          tabs.push(instanceTabs.myProjects);
+        }
+        if (stage === Stage.PROJECT_ALLOCATION) {
+          tabs.push(instanceTabs.myProjects);
+        }
+        if (stage === Stage.ALLOCATION_PUBLICATION) {
+          tabs.push(instanceTabs.myProjects);
+        }
+      }
+      return tabs;
     }),
 
   fork: instanceAdminProcedure
