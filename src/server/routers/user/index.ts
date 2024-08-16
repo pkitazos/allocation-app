@@ -30,7 +30,7 @@ export const userRouter = createTRPCRouter({
 
   role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
 
-  adminLevel: adminProcedure.query(async ({ ctx }) => {
+  adminLevel: protectedProcedure.query(async ({ ctx }) => {
     const user = ctx.session.user;
 
     const data = await ctx.db.adminInSpace.findMany({
@@ -44,7 +44,7 @@ export const userRouter = createTRPCRouter({
     return highestLevel;
   }),
 
-  adminLevelInGroup: adminProcedure
+  adminLevelInGroup: protectedProcedure
     .input(z.object({ group: z.string() }))
     .query(async ({ ctx, input: { group } }) => {
       const user = ctx.session.user;
@@ -60,7 +60,7 @@ export const userRouter = createTRPCRouter({
       return highestLevel;
     }),
 
-  adminLevelInSubGroup: adminProcedure
+  adminLevelInSubGroup: protectedProcedure
     .input(z.object({ group: z.string(), subGroup: z.string() }))
     .query(async ({ ctx, input: { group, subGroup } }) => {
       const user = ctx.session.user;
@@ -226,6 +226,6 @@ export const userRouter = createTRPCRouter({
 function getHighestAdminLevel(adminLevels: AdminLevel[]) {
   return adminLevels.reduce(
     (acc, val) => (permissionCheck(acc, val) ? acc : val),
-    AdminLevel.SUB_GROUP,
+    AdminLevel.NONE,
   );
 }
