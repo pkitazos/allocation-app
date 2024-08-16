@@ -25,6 +25,13 @@ export default async function Page({ params }: { params: InstanceParams }) {
   }
 
   const user = await api.user.get();
+  const preAllocatedTitle = await api.user.student.isPreAllocated({ params });
+  if (preAllocatedTitle !== null) {
+    return (
+      <Unauthorised message="You have a self-defined project and may not submit any other preferences" />
+    );
+  }
+
 
   const { initialColumns, initialProjects } =
     await api.user.student.preference.initialBoardState({ params });
