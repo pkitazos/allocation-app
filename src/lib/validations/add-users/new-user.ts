@@ -58,7 +58,7 @@ export const newSupervisorSchema = z
         invalid_type_error: "Invalid integer",
       })
       .int("Please enter an integer for the project target")
-      .positive("Project target must be a positive integer"),
+      .nonnegative("Project target must be a non-negative integer"),
     projectUpperQuota: z.coerce
       .number({
         required_error: "Required",

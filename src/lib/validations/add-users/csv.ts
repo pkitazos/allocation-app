@@ -64,7 +64,7 @@ export const addSupervisorsCsvRowSchema = z
         invalid_type_error: "a valid Target",
       })
       .int({ message: "an integer Target value" })
-      .positive({ message: "a positive Target value" }),
+      .nonnegative({ message: "a non-negative Target value" }),
     project_upper_quota: z
       .number({
         required_error: "a valid Upper Quota",
