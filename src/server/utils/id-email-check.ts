@@ -1,6 +1,7 @@
 import { TRPCClientError } from "@trpc/client";
 
 import { PrismaTransactionClient } from "@/lib/db";
+import { blankEmail } from "@/lib/utils/general/blank-email";
 
 export async function validateEmailGUIDMatch(
   tx: PrismaTransactionClient,
@@ -18,17 +19,15 @@ export async function validateEmailGUIDMatch(
   }
   // See if this user exists with no/empty email address
   user = await tx.user.findFirst({
-    where: { id: institutionId, email: "" },
+    where: { id: institutionId, email: blankEmail(institutionId) },
   });
   if (user) {
     // We found the user with a blank email, but the function
     // parameter email isn't empty (else the earlier return would
     // fire) so update the email address
     user = await tx.user.update({
-      where: {id: institutionId},
-      data: {
-        email: email
-      },
+      where: { id: institutionId },
+      data: { email: email },
     });
     return user;
   }
