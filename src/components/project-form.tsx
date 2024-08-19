@@ -406,7 +406,7 @@ export function ProjectForm({
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
-                        <CommandGroup>
+                        <CommandGroup className="max-h-60 overflow-y-auto">
                           {availableStudents.map((student) => (
                             <CommandItem
                               className="overflow-hidden"
