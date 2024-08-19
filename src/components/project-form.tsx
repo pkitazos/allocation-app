@@ -406,12 +406,7 @@ export function ProjectForm({
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
-                        <CommandInput
-                          placeholder="Search student..."
-                          disabled={!preAllocatedSwitchControl}
-                        />
-                        <CommandEmpty>No Student found.</CommandEmpty>
-                        <CommandGroup>
+                        <CommandGroup className="max-h-60 overflow-y-auto">
                           {availableStudents.map((student) => (
                             <CommandItem
                               className="overflow-hidden"
@@ -437,6 +432,11 @@ export function ProjectForm({
                             </CommandItem>
                           ))}
                         </CommandGroup>
+                        <CommandInput
+                          placeholder="Search student..."
+                          disabled={!preAllocatedSwitchControl}
+                        />
+                        <CommandEmpty>No Student found.</CommandEmpty>
                       </Command>
                     </PopoverContent>
                   </Popover>
