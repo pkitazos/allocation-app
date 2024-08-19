@@ -16,11 +16,8 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
-  projectProcedure,
   protectedProcedure,
 } from "@/server/trpc";
-
-import { requiredFlags } from "@/content/config/flags";
 
 export const projectRouter = createTRPCRouter({
   exists: instanceProcedure
@@ -535,13 +532,19 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  getFormDetails: projectProcedure
-    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+  getFormDetails: instanceProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        projectId: z.string().optional(),
+      }),
+    )
     .query(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
+          projectId,
         },
       }) => {
         const { flags, tags } =
@@ -572,6 +575,15 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
+        let projectFlags: Set<string> = new Set();
+        if (projectId) {
+          const projectData = await ctx.db.flagOnProject.findMany({
+            where: { projectId },
+            select: { flag: true },
+          });
+          projectFlags = new Set(projectData.map(({ flag }) => flag.title));
+        }
+
         const projectTitles = await ctx.db.project.findMany({
           where: {
             allocationGroupId: group,
@@ -581,24 +593,22 @@ export const projectRouter = createTRPCRouter({
           select: { title: true },
         });
 
+        const students = studentData
+          .map(({ studentDetails }) => ({
+            id: studentDetails[0].userId,
+            studentLevel: studentDetails[0].studentLevel,
+          }))
+          .filter((s) =>
+            projectId
+              ? projectFlags.has(getFlagFromStudentLevel(s.studentLevel))
+              : true,
+          );
+
         return {
           takenTitles: projectTitles.map(({ title }) => title),
           flags,
           tags,
-          students: studentData
-            .filter((s) => {
-              if (requiredFlags.length === 0) return true;
-              return ctx.project.flags.some((f) => {
-                return (
-                  getStudentLevelFromFlag(f) ===
-                  s.studentDetails[0].studentLevel
-                );
-              });
-            })
-            .map(({ studentDetails }) => ({
-              id: studentDetails[0].userId,
-              studentLevel: studentDetails[0].studentLevel,
-            })),
+          students,
         };
       },
     ),

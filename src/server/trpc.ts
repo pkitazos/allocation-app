@@ -253,33 +253,35 @@ export const superAdminProcedure = protectedProcedure.use(
 );
 
 export const projectProcedure = instanceProcedure
-  .input(z.object({ projectId: z.string() }))
+  .input(z.object({ projectId: z.string().optional() }))
   .use(async ({ ctx, next, input }) => {
-    const projectData = await ctx.db.project.findFirstOrThrow({
-      where: { id: input.projectId },
-      include: {
-        flagOnProjects: {
-          select: { flag: { select: { id: true, title: true } } },
+    if (input.projectId) {
+      const projectData = await ctx.db.project.findFirstOrThrow({
+        where: { id: input.projectId },
+        include: {
+          flagOnProjects: {
+            select: { flag: { select: { id: true, title: true } } },
+          },
+          tagOnProject: {
+            select: { tag: { select: { id: true, title: true } } },
+          },
         },
-        tagOnProject: {
-          select: { tag: { select: { id: true, title: true } } },
-        },
-      },
-    });
-
-    if (!projectData) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Project not found",
       });
+
+      if (!projectData) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+      const { flagOnProjects, tagOnProject, ...rest } = projectData;
+      const project = {
+        ...rest,
+        flags: flagOnProjects.map((f) => f.flag),
+        tags: tagOnProject.map((t) => t.tag),
+      };
+
+      return next({ ctx: { project } });
     }
-
-    const { flagOnProjects, tagOnProject, ...rest } = projectData;
-    const project = {
-      ...rest,
-      flags: flagOnProjects.map((f) => f.flag),
-      tags: tagOnProject.map((t) => t.tag),
-    };
-
-    return next({ ctx: { project } });
+    return next();
   });
