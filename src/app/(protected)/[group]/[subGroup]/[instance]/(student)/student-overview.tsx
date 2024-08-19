@@ -1,14 +1,17 @@
+import { ReactNode } from "react";
 import { Stage } from "@prisma/client";
 import { format } from "date-fns";
-import { ReactNode } from "react";
+import Link from "next/link";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
+import { buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-
+import { cn } from "@/lib/utils";
+import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { InstanceParams } from "@/lib/validations/params";
 
 import Layout from "./layout";
@@ -28,16 +31,34 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     await api.user.student.preferenceRestrictions({
       params,
     });
+
   if (stage === Stage.PROJECT_SELECTION) {
-    const preAllocatedTitle = await api.user.student.isPreAllocated({ params });
-    if (preAllocatedTitle !== null) {
+    const preAllocatedProject = await api.user.student.isPreAllocated({
+      params,
+    });
+    const instancePath = formatParamsAsPath(params);
+    if (preAllocatedProject) {
       return (
         <ThinLayout pageName={displayName} params={params}>
           <div className="mt-9 flex justify-between">
             <div className="flex flex-col justify-start">
               <div className="flex flex-col gap-4">
-                <p className="flex gap-2">
-                You are allocated to your self-defined project titled "{preAllocatedTitle}" and do not need to submit preferences.
+                <SubHeading>Task List</SubHeading>
+                <p>
+                  You are allocated to your self-defined project and do not need
+                  to submit preferences.
+                </p>
+                <p className="flex items-center justify-start gap-2">
+                  View your project:
+                  <Link
+                    href={`${instancePath}/projects/${preAllocatedProject.id}`}
+                    className={cn(
+                      buttonVariants({ variant: "link" }),
+                      "text-base",
+                    )}
+                  >
+                    {preAllocatedProject.title}
+                  </Link>
                 </p>
               </div>
             </div>
@@ -51,6 +72,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
         </ThinLayout>
       );
     }
+
     return (
       <ThinLayout pageName={displayName} params={params}>
         <div className="mt-9 flex justify-between">
