@@ -13,6 +13,8 @@ import {
   studentProcedure,
 } from "@/server/trpc";
 
+import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
+
 import { preferenceRouter } from "./preference";
 
 export const studentRouter = createTRPCRouter({
@@ -65,10 +67,17 @@ export const studentRouter = createTRPCRouter({
           },
         });
 
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          studentId,
+        );
+
         return {
           name: data.userInInstance.user.name,
           email: data.userInInstance.user.email,
           level: data.studentLevel,
+          selfDefinedProjectId: selfDefinedProject?.id,
         };
       },
     ),
@@ -115,16 +124,11 @@ export const studentRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const project = await ctx.db.project.findFirst({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            preAllocatedStudentId: ctx.session.user.id,
-          },
-          select: { id: true, title: true },
-        });
-        return project;
+        return await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          ctx.session.user.id,
+        );
       },
     ),
 

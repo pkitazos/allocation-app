@@ -15,6 +15,10 @@ export default async function Projects({ params }: { params: InstanceParams }) {
     params,
   });
 
+  const hasSelfDefinedProject = await api.user.hasSelfDefinedProject({
+    params,
+  });
+
   return (
     <PageWrapper>
       <Heading>All Projects</Heading>
@@ -23,6 +27,7 @@ export default async function Projects({ params }: { params: InstanceParams }) {
         role={role}
         data={projects}
         projectPreferences={preferencesByProject}
+        hasSelfDefinedProject={hasSelfDefinedProject}
       />
     </PageWrapper>
   );
