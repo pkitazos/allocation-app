@@ -4,10 +4,11 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { instanceTabs } from "@/lib/validations/instance-tabs";
@@ -35,6 +36,8 @@ export default async function Layout({
     );
   }
 
+  const preAllocatedProject = await api.user.student.isPreAllocated({ params });
+
   const instancePath = formatParamsAsPath(params);
 
   return (
@@ -47,24 +50,40 @@ export default async function Layout({
               <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link
-              className="w-full"
+          {!preAllocatedProject && (
+            <SideButton
               href={`${instancePath}/${instanceTabs.myPreferences.href}`}
             >
               {instanceTabs.myPreferences.title}
-            </Link>
-          </Button>
+            </SideButton>
+          )}
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/${instanceTabs.myAllocation.href}`}>
-                {instanceTabs.myAllocation.title}
-              </Link>
-            </Button>
+            <SideButton
+              href={`${instancePath}/${instanceTabs.myAllocation.href}`}
+            >
+              {instanceTabs.myAllocation.title}
+            </SideButton>
           </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>
     </div>
+  );
+}
+
+function SideButton({
+  href,
+  children: title,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+      href={href}
+    >
+      {title}
+    </Link>
   );
 }

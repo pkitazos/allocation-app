@@ -27,9 +27,7 @@ export async function validateEmailGUIDMatch(
     // fire) so update the email address
     user = await tx.user.update({
       where: { id: institutionId },
-      data: {
-        email: email,
-      },
+      data: { email: email },
     });
     return user;
   }

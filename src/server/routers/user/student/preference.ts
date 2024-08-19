@@ -14,6 +14,8 @@ import {
   studentProcedure,
 } from "@/server/trpc";
 
+import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
+
 import { updateManyPreferenceTransaction } from "./_utils/update-many-preferences";
 import { updatePreferenceTransaction } from "./_utils/update-preference";
 
@@ -172,10 +174,17 @@ export const preferenceRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input: { params, projectId, preferenceType } }) => {
       if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
+      const student = ctx.session.user;
+      const selfDefinedProject = await getSelfDefinedProject(
+        ctx.db,
+        params,
+        student.id,
+      );
+      if (selfDefinedProject) return;
 
       await updatePreferenceTransaction({
         db: ctx.db,
-        student: ctx.session.user,
+        student,
         params,
         projectId,
         preferenceType,
@@ -193,10 +202,17 @@ export const preferenceRouter = createTRPCRouter({
     .mutation(
       async ({ ctx, input: { params, projectIds, preferenceType } }) => {
         if (ctx.instance.stage !== Stage.PROJECT_SELECTION) return;
+        const student = ctx.session.user;
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          params,
+          student.id,
+        );
+        if (selfDefinedProject) return;
 
         await updateManyPreferenceTransaction({
           db: ctx.db,
-          student: ctx.session.user,
+          student,
           params,
           projectIds,
           preferenceType,
@@ -224,6 +240,13 @@ export const preferenceRouter = createTRPCRouter({
         },
       }) => {
         if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) return;
+        const student = ctx.session.user;
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          student.id,
+        );
+        if (selfDefinedProject) return;
 
         await ctx.db.preference.update({
           where: {
@@ -285,6 +308,14 @@ export const preferenceRouter = createTRPCRouter({
         if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) {
           throw new Error("Cannot submit at this stage");
         }
+
+        const student = ctx.session.user;
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          student.id,
+        );
+        if (selfDefinedProject) return;
 
         const newSubmissionDateTime = new Date();
 

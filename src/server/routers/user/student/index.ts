@@ -13,6 +13,8 @@ import {
   studentProcedure,
 } from "@/server/trpc";
 
+import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
+
 import { preferenceRouter } from "./preference";
 
 export const studentRouter = createTRPCRouter({
@@ -65,10 +67,17 @@ export const studentRouter = createTRPCRouter({
           },
         });
 
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          studentId,
+        );
+
         return {
           name: data.userInInstance.user.name,
           email: data.userInInstance.user.email,
           level: data.studentLevel,
+          selfDefinedProjectId: selfDefinedProject?.id,
         };
       },
     ),
@@ -103,6 +112,23 @@ export const studentRouter = createTRPCRouter({
           ),
           deadlineTimeZoneOffset: getGMTOffset(preferenceSubmissionDeadline),
         };
+      },
+    ),
+
+  isPreAllocated: studentProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        return await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          ctx.session.user.id,
+        );
       },
     ),
 

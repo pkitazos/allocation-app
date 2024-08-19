@@ -10,6 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { cn } from "@/lib/utils";
+
 type SubmissionsInfo = {
   userId: string;
   submittedPreferences: boolean;
@@ -51,8 +53,16 @@ export function SubmissionsTable({
       <TableFooter>
         <TableRow>
           <TableCell colSpan={2}>Total Submitted Preference Lists</TableCell>
-          <TableCell colSpan={1} className="text-center">
-            {totalSubmitted}
+          <TableCell
+            colSpan={1}
+            className={cn(
+              "text-center",
+              totalSubmitted === preferences.length
+                ? "text-green-500"
+                : "text-destructive",
+            )}
+          >
+            {totalSubmitted} / {preferences.length}
           </TableCell>
         </TableRow>
       </TableFooter>
