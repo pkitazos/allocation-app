@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
+import { blankEmail } from "@/lib/utils/general/blank-email";
 import { ShibUser } from "@/lib/validations/auth";
 
 import { env } from "@/env";
@@ -38,7 +39,7 @@ export async function retrieveUser(user: ShibUser) {
       data: {
         id: user.guid,
         name: user.displayName,
-        email: "",
+        email: blankEmail(user.guid),
       },
     });
     return newUser;
