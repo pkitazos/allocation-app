@@ -115,20 +115,16 @@ export const studentRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const result =
-          await ctx.db.project.findFirst({
-            where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              preAllocatedStudentId: ctx.session.user.id,
-            },
-            select: {
-              title: true,
-            },
-          });
-        if (result) return result.title;
-        return null;
+        const project = await ctx.db.project.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            preAllocatedStudentId: ctx.session.user.id,
+          },
+          select: { id: true, title: true },
+        });
+        return project;
       },
     ),
 
