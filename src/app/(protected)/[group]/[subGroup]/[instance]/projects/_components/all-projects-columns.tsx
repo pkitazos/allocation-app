@@ -37,6 +37,7 @@ export function useAllProjectsColumns({
   user,
   role,
   projectPreferences,
+  hasSelfDefinedProject,
   deleteProject,
   deleteSelectedProjects,
   changePreference,
@@ -45,6 +46,7 @@ export function useAllProjectsColumns({
   user: User;
   role: Role;
   projectPreferences: Map<string, PreferenceType>;
+  hasSelfDefinedProject: boolean;
   deleteProject: (id: string) => Promise<void>;
   deleteSelectedProjects: (ids: string[]) => Promise<void>;
   changePreference: (
@@ -213,7 +215,7 @@ export function useAllProjectsColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.id);
 
-        if (someSelected)
+        if (someSelected && !hasSelfDefinedProject)
           return (
             <div className="flex w-14 items-center justify-center">
               <DropdownMenu>
@@ -295,6 +297,7 @@ export function useAllProjectsColumns({
                 <AccessControl
                   allowedRoles={[Role.STUDENT]}
                   allowedStages={[Stage.PROJECT_SELECTION]}
+                  extraConditions={{ RBAC: { AND: !hasSelfDefinedProject } }}
                 >
                   <StudentPreferenceActionSubMenu
                     defaultType={projectPreferences.get(project.id) ?? "None"}
@@ -339,7 +342,7 @@ export function useAllProjectsColumns({
   ];
 
   if (role === Role.STUDENT && stage === Stage.PROJECT_SELECTION) {
-    return [selectCol, ...baseCols];
+    return !hasSelfDefinedProject ? [selectCol, ...baseCols] : baseCols;
   }
 
   if (

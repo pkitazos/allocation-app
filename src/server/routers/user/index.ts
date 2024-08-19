@@ -1,4 +1,4 @@
-import { AdminLevel, AllocationInstance } from "@prisma/client";
+import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -12,6 +12,7 @@ import {
   roleAwareProcedure,
 } from "@/server/trpc";
 
+import { getSelfDefinedProject } from "./_utils/get-self-defined-project";
 import { validateSegments } from "./_utils/user-breadcrumbs";
 import {
   formatInstanceData,
@@ -29,6 +30,14 @@ export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => ctx.session.user),
 
   role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
+
+  hasSelfDefinedProject: roleAwareProcedure.query(
+    async ({ ctx, input: { params } }) => {
+      if (ctx.session.user.role !== Role.STUDENT) return false;
+      const studentId = ctx.session.user.id;
+      return !!(await getSelfDefinedProject(ctx.db, params, studentId));
+    },
+  ),
 
   adminLevel: adminProcedure.query(async ({ ctx }) => {
     const user = ctx.session.user;

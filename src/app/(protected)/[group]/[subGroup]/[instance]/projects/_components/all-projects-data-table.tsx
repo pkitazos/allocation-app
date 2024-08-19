@@ -25,11 +25,13 @@ export function AllProjectsDataTable({
   user,
   role,
   projectPreferences,
+  hasSelfDefinedProject,
 }: {
   data: ProjectTableDataDto[];
   user: User;
   role: Role;
   projectPreferences: Map<string, PreferenceType>;
+  hasSelfDefinedProject: boolean;
 }) {
   const params = useInstanceParams();
   const instancePath = useInstancePath();
@@ -137,6 +139,7 @@ export function AllProjectsDataTable({
     user,
     role,
     projectPreferences,
+    hasSelfDefinedProject,
     deleteProject: handleDelete,
     deleteSelectedProjects: handleDeleteSelected,
     changePreference: handleChangePreference,

@@ -1,5 +1,6 @@
 import { Role, Stage } from "@prisma/client";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { AccessControl } from "@/components/access-control";
 import { Heading, SubHeading } from "@/components/heading";
@@ -16,13 +17,10 @@ import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceButton } from "./_components/student-preference-button";
-import { notFound } from "next/navigation";
 
-interface pageParams extends InstanceParams {
-  id: string;
-}
+type PageParams = InstanceParams & { id: string };
 
-export default async function Project({ params }: { params: pageParams }) {
+export default async function Project({ params }: { params: PageParams }) {
   const projectId = params.id;
   const exists = await api.project.exists({
     params,
@@ -47,6 +45,12 @@ export default async function Project({ params }: { params: pageParams }) {
 
   const project = await api.project.getById({ projectId });
   const user = await api.user.get();
+  const role = await api.user.role({ params });
+
+  let preAllocated = false;
+  if (role === Role.STUDENT) {
+    preAllocated = !!(await api.user.student.isPreAllocated({ params }));
+  }
 
   const preferenceStatus = await api.user.student.preference.getForProject({
     params,
@@ -60,6 +64,7 @@ export default async function Project({ params }: { params: pageParams }) {
         <AccessControl
           allowedRoles={[Role.STUDENT]}
           allowedStages={[Stage.PROJECT_SELECTION]}
+          extraConditions={{ RBAC: { AND: !preAllocated } }}
         >
           <StudentPreferenceButton
             projectId={projectId}
