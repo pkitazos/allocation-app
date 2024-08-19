@@ -28,8 +28,29 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     await api.user.student.preferenceRestrictions({
       params,
     });
-
   if (stage === Stage.PROJECT_SELECTION) {
+    const preAllocatedTitle = await api.user.student.isPreAllocated({ params });
+    if (preAllocatedTitle !== null) {
+      return (
+        <ThinLayout pageName={displayName} params={params}>
+          <div className="mt-9 flex justify-between">
+            <div className="flex flex-col justify-start">
+              <div className="flex flex-col gap-4">
+                <p className="flex gap-2">
+                You are allocated to your self-defined project titled "{preAllocatedTitle}" and do not need to submit preferences.
+                </p>
+              </div>
+            </div>
+            <Calendar
+              className="rounded-md border"
+              mode="single"
+              selected={deadline}
+              defaultMonth={deadline}
+            />
+          </div>
+        </ThinLayout>
+      );
+    }
     return (
       <ThinLayout pageName={displayName} params={params}>
         <div className="mt-9 flex justify-between">

@@ -106,6 +106,32 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
+  isPreAllocated: studentProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const result =
+          await ctx.db.project.findFirst({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              preAllocatedStudentId: ctx.session.user.id,
+            },
+            select: {
+              title: true,
+            },
+          });
+        if (result) return result.title;
+        return null;
+      },
+    ),
+
   preferenceRestrictions: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

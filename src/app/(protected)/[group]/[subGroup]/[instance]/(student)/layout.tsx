@@ -35,6 +35,9 @@ export default async function Layout({
     );
   }
 
+  const preAllocatedTitle = await api.user.student.isPreAllocated({ params });
+  const showPrefs = (preAllocatedTitle === null);
+
   const instancePath = formatParamsAsPath(params);
 
   return (
@@ -47,24 +50,33 @@ export default async function Layout({
               <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link
-              className="w-full"
-              href={`${instancePath}/${instanceTabs.myPreferences.href}`}
-            >
-              {instanceTabs.myPreferences.title}
-            </Link>
-          </Button>
+          <SideButton
+            title={instanceTabs.myPreferences.title}
+            href={`${instancePath}/${instanceTabs.myPreferences.href}`}
+            show={showPrefs}
+          />
           <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
-            <Button variant="outline" className="w-full" asChild>
-              <Link href={`${instancePath}/${instanceTabs.myAllocation.href}`}>
-                {instanceTabs.myAllocation.title}
-              </Link>
-            </Button>
+            <SideButton
+              title={instanceTabs.myAllocation.title}
+              href={`${instancePath}/${instanceTabs.myAllocation.href}`}
+            />
           </AccessControl>
         </div>
       </div>
       <section className="col-span-5 max-w-6xl pb-32">{children}</section>
     </div>
   );
+}
+
+function SideButton({ title, href, show }) {
+  if (show) {
+    return (
+      <Button variant="outline" className="w-full" asChild>
+        <Link href={href}>
+          {title}
+        </Link>
+      </Button>
+    )
+  }
+  return
 }
