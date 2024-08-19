@@ -36,8 +36,7 @@ export default async function Layout({
     );
   }
 
-  const preAllocatedTitle = await api.user.student.isPreAllocated({ params });
-  const showPreferences = preAllocatedTitle === null;
+  const preAllocatedProject = await api.user.student.isPreAllocated({ params });
 
   const instancePath = formatParamsAsPath(params);
 
@@ -51,7 +50,7 @@ export default async function Layout({
               <p>{instanceTabs.instanceHome.title}</p>
             </Link>
           </Button>
-          {showPreferences && (
+          {!preAllocatedProject && (
             <SideButton
               href={`${instancePath}/${instanceTabs.myPreferences.href}`}
             >
