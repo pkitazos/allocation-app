@@ -1,6 +1,7 @@
 import { AdminLevel } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
 import { Heading, SubHeading } from "@/components/heading";
@@ -10,14 +11,13 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-
-import { spacesLabels } from "@/content/spaces";
+import { GroupParams } from "@/lib/validations/params";
 
 import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DeleteConfirmation } from "./_components/delete-confirmation";
 import { FormButton } from "./_components/form-button";
-import { notFound } from "next/navigation";
-import { GroupParams } from "@/lib/validations/params";
+
+import { spacesLabels } from "@/content/spaces";
 
 export default async function Page({ params }: { params: GroupParams }) {
   const allocationGroup = await api.institution.group.exists({ params });
@@ -44,7 +44,7 @@ export default async function Page({ params }: { params: GroupParams }) {
         <CardContent>
           <Table className="flex items-center gap-5">
             <TableBody className="w-full text-base">
-              {groupAdmins.map(({ user: { id, name, email } }, i) => (
+              {groupAdmins.map(({ id, name, email }, i) => (
                 <TableRow className="flex w-full items-center" key={i}>
                   <TableCell className="w-1/3 font-medium">{name}</TableCell>
                   <TableCell className="w-1/3 text-start">{email}</TableCell>
