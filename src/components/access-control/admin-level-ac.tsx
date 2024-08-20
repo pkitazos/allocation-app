@@ -1,7 +1,7 @@
 "use client";
+import { ReactNode } from "react";
 import { AdminLevel } from "@prisma/client";
 import { useParams } from "next/navigation";
-import { ReactNode } from "react";
 
 import { api } from "@/lib/trpc/client";
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -15,13 +15,10 @@ export function AdminLevelAC({
   minimumAdminLevel?: AdminLevel;
 }) {
   const params = useParams<RefinedSpaceParams>();
-  // TODO: check if this still works
-  const { data: adminLevel, isSuccess } = api.user.adminLevel.useQuery({
-    params,
-  });
+  const { data, status } = api.ac.getAdminLevelInSpace.useQuery({ params });
 
-  if (!isSuccess) return <></>;
-  if (permissionCheck(adminLevel, minimumAdminLevel)) return <>{children}</>;
+  if (status !== "success") return <></>;
+  if (permissionCheck(data, minimumAdminLevel)) return <>{children}</>;
 
   return <></>;
 }

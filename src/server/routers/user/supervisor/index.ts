@@ -12,7 +12,7 @@ import {
   instanceProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
-import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
 import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
 

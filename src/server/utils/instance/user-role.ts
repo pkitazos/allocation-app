@@ -3,13 +3,17 @@ import { User } from "next-auth";
 
 import { InstanceParams } from "@/lib/validations/params";
 
-// TODO: check where this is used, figure out how we currently store and handle admins
+import { checkAdminPermissions } from "../admin/access";
+
 export async function getUserRole(
   db: PrismaClient,
   user: User,
   params: InstanceParams,
 ) {
-  const userInInstance = await db.userInInstance.findFirst({
+  const isAdmin = await checkAdminPermissions(db, params, user.id);
+  if (isAdmin) return Role.ADMIN;
+
+  const userInInstance = await db.userInInstance.findFirstOrThrow({
     where: {
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
@@ -18,6 +22,5 @@ export async function getUserRole(
     },
   });
 
-  if (!userInInstance) return Role.ADMIN;
   return userInInstance.role;
 }

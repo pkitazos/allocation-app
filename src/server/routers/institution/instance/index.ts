@@ -33,11 +33,10 @@ import {
   protectedProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
-import { adminAccess } from "@/server/utils/admin-access";
-import { getInstance } from "@/server/utils/get-instance";
+import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { getUserRole } from "@/server/utils/user-role";
+import { getInstance } from "@/server/utils/instance";
+import { getUserRole } from "@/server/utils/instance/user-role";
 
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
@@ -79,18 +78,14 @@ export const instanceRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => getInstance(ctx.db, params)),
 
-  // TODO: refactor as it potentially doesn't need the adminAccess function
   access: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
       const stage = ctx.instance.stage;
 
-      const superAdmin = await isSuperAdmin(ctx.db, user.id);
-      if (superAdmin) return true;
-
-      const adminInSpace = await adminAccess(ctx.db, user.id, params);
-      if (adminInSpace) return true;
+      const adminExists = await checkAdminPermissions(ctx.db, params, user.id);
+      if (adminExists) return true;
 
       if (user.role === Role.SUPERVISOR) {
         return !supervisorStages.includes(stage);
@@ -804,6 +799,7 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
+  // TODO: replace when new admin panel button is added
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input }) => {
@@ -820,21 +816,22 @@ export const instanceRouter = createTRPCRouter({
           ? [...base, adminPanelTabs.forkInstance]
           : [...base, adminPanelTabs.mergeInstance];
       }
-      let tabs = adminPanelTabsByStage[stage];
+
+      const tabs = adminPanelTabsByStage[stage];
       const role = await getUserRole(ctx.db, ctx.session.user, input.params);
       if (role === Role.SUPERVISOR) {
         if (stage === Stage.PROJECT_SUBMISSION) {
-          tabs.push(instanceTabs.myProjects);
-          tabs.push(instanceTabs.newProject);
+          tabs.push({ ...instanceTabs.myProjects, action: false });
+          tabs.push({ ...instanceTabs.newProject, action: false });
         }
         if (stage === Stage.PROJECT_SELECTION) {
-          tabs.push(instanceTabs.myProjects);
+          tabs.push({ ...instanceTabs.myProjects, action: false });
         }
         if (stage === Stage.PROJECT_ALLOCATION) {
-          tabs.push(instanceTabs.myProjects);
+          tabs.push({ ...instanceTabs.myProjects, action: false });
         }
         if (stage === Stage.ALLOCATION_PUBLICATION) {
-          tabs.push(instanceTabs.myProjects);
+          tabs.push({ ...instanceTabs.myProjects, action: false });
         }
       }
       return tabs;

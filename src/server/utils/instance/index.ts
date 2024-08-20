@@ -1,5 +1,6 @@
-import { InstanceParams } from "@/lib/validations/params";
 import { PrismaClient } from "@prisma/client";
+
+import { InstanceParams } from "@/lib/validations/params";
 
 export async function getInstance(db: PrismaClient, params: InstanceParams) {
   return await db.allocationInstance.findFirstOrThrow({

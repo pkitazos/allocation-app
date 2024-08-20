@@ -20,10 +20,10 @@ import {
   refinedSpaceParamsSchema,
 } from "@/lib/validations/params";
 
-import { checkAdminPermissions } from "./utils/admin-access";
-import { getInstance } from "./utils/get-instance";
-import { isSuperAdmin } from "./utils/is-super-admin";
-import { getUserRole } from "./utils/user-role";
+import { checkAdminPermissions } from "./utils/admin/access";
+import { isSuperAdmin } from "./utils/admin/is-super-admin";
+import { getInstance } from "./utils/instance";
+import { getUserRole } from "./utils/instance/user-role";
 
 /**
  * 1. CONTEXT

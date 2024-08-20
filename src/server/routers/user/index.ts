@@ -1,8 +1,9 @@
-import { AdminLevel, AllocationInstance, Role } from "@prisma/client";
+import { AdminLevel, Role } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 import { validatedSegmentsSchema } from "@/lib/validations/breadcrumbs";
+import { instanceDisplayDataSchema } from "@/lib/validations/spaces";
 
 import {
   createTRPCRouter,
@@ -10,15 +11,17 @@ import {
   publicProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
+
+import { partitionSpaces } from "../../utils/space/partition";
 
 import { getSelfDefinedProject } from "./_utils/get-self-defined-project";
-import { validateSegments } from "./_utils/user-breadcrumbs";
 import {
-  formatInstanceData,
-  getGroupInstances,
-  getSubGroupInstances,
-  getUserInstances,
-} from "./_utils/user-instances";
+  getDisplayNameMap,
+  getInstancesForGroups,
+  getInstancesForSubGroups,
+} from "./_utils/instance";
+import { validateSegments } from "./_utils/user-breadcrumbs";
 import { studentRouter } from "./student";
 import { supervisorRouter } from "./supervisor";
 
@@ -38,6 +41,9 @@ export const userRouter = createTRPCRouter({
     },
   ),
 
+  /**
+   * @deprecated
+   */
   adminLevel: protectedProcedure.query(async ({ ctx }) => {
     const user = ctx.session.user;
 
@@ -52,13 +58,20 @@ export const userRouter = createTRPCRouter({
     return highestLevel;
   }),
 
+  /**
+   * @deprecated
+   */
   adminLevelInGroup: protectedProcedure
     .input(z.object({ group: z.string() }))
     .query(async ({ ctx, input: { group } }) => {
       const user = ctx.session.user;
 
       const data = await ctx.db.adminInSpace.findMany({
-        where: { userId: user.id, allocationGroupId: group },
+        where: {
+          userId: user.id,
+          allocationGroupId: group,
+          allocationSubGroupId: null,
+        },
         select: { adminLevel: true },
       });
 
@@ -68,6 +81,9 @@ export const userRouter = createTRPCRouter({
       return highestLevel;
     }),
 
+  /**
+   * @deprecated
+   */
   adminLevelInSubGroup: protectedProcedure
     .input(z.object({ group: z.string(), subGroup: z.string() }))
     .query(async ({ ctx, input: { group, subGroup } }) => {
@@ -125,7 +141,9 @@ export const userRouter = createTRPCRouter({
     return;
   }),
 
-  // ! deprecated
+  /**
+   * @deprecated
+   */
   adminPanelRoute: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session || !ctx.session.user) return;
 
@@ -157,69 +175,84 @@ export const userRouter = createTRPCRouter({
     return;
   }),
 
-  instances: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.session || !ctx.session.user) return [];
+  instances: publicProcedure
+    .output(z.array(instanceDisplayDataSchema))
+    .query(async ({ ctx }) => {
+      if (!ctx.session || !ctx.session.user) return [];
 
-    const user = ctx.session.user;
+      const user = ctx.session.user;
 
-    const allGroups = await ctx.db.allocationGroup.findMany({
-      include: { allocationSubGroups: true },
-    });
+      const getDisplayData = await getDisplayNameMap(ctx.db);
 
-    const adminSpaces = await ctx.db.adminInSpace.findMany({
-      where: { userId: user.id },
-      include: {
-        allocationSubGroup: { include: { allocationInstances: true } },
-        allocationGroup: {
-          include: {
-            allocationSubGroups: { include: { allocationInstances: true } },
-          },
+      // if the user is a super-admin return all instances
+      const superAdmin = await isSuperAdmin(ctx.db, user.id);
+      if (superAdmin) {
+        const allInstances = await ctx.db.allocationInstance.findMany({});
+        return allInstances.map((e) =>
+          getDisplayData({
+            group: e.allocationGroupId,
+            subGroup: e.allocationSubGroupId,
+            instance: e.id,
+          }),
+        );
+      }
+
+      // can safely assert that the user is not a super-admin
+
+      // user has some role in these instances (student or supervisor)
+      const allocationInstances = await ctx.db.userInInstance.findMany({
+        where: { userId: user.id },
+        select: {
+          allocationGroupId: true,
+          allocationSubGroupId: true,
+          allocationInstanceId: true,
         },
-      },
-    });
+      });
 
-    if (adminSpaces.length === 0) {
-      // you are not an admin anywhere
-      // you are a supervisor or student
-      const userInstances = await getUserInstances(ctx.db, user.id);
-      return userInstances.map((instance) =>
-        formatInstanceData(allGroups, instance),
-      );
-    }
+      // user is an admin in these spaces
+      const nonInstanceSpaces = await ctx.db.adminInSpace.findMany({
+        where: { userId: user.id },
+        select: {
+          allocationGroupId: true,
+          allocationSubGroupId: true,
+        },
+      });
 
-    if (
-      adminSpaces.length === 1 &&
-      adminSpaces[0].adminLevel === AdminLevel.SUPER
-    ) {
-      // you are a super-admin
-      const allInstances = await ctx.db.allocationInstance.findMany({});
-      return allInstances.map((instance) =>
-        formatInstanceData(allGroups, instance),
-      );
-    }
+      // user might be a group admin and a sub-group admin
+      // in that case we don't need to check the sub-group instances, since we will get them from the group instances
+      const { groups, subGroups } = partitionSpaces(nonInstanceSpaces);
 
-    // otherwise your adminSpaces array is made up of some combination of groupIds and subGroupIds
-    // regardless, for each of those, I must get all its instances
+      // now I just need to collect and format all the instances that:
+      // - the user is a group admin in
+      // - the user is a sub-group admin in
+      // - the user is not an admin in (student or supervisor)
 
-    const adminInstances: AllocationInstance[] = [];
+      const g_instances = await getInstancesForGroups(ctx.db, groups);
 
-    for (const s of adminSpaces) {
-      if (s.allocationGroup) {
-        const instances = getGroupInstances(s.allocationGroup);
-        adminInstances.push(...instances);
-        continue;
-      }
-      if (s.allocationSubGroup) {
-        const instances = getSubGroupInstances(s.allocationSubGroup);
-        adminInstances.push(...instances);
-        continue;
-      }
-    }
+      const s_instances = await getInstancesForSubGroups(ctx.db, subGroups);
 
-    return adminInstances.map((instance) =>
-      formatInstanceData(allGroups, instance),
-    );
-  }),
+      // these are all the instances that the user is not also an admin in
+      const u_instances = allocationInstances
+        .filter((e) => {
+          const coveredByGroups = groups
+            .map((g) => g.group)
+            .includes(e.allocationGroupId);
+          if (coveredByGroups) return false;
+
+          const coveredBySubGroups = subGroups
+            .map((s) => s.subGroup)
+            .includes(e.allocationSubGroupId);
+          return !coveredBySubGroups;
+        })
+        .map((e) => ({
+          group: e.allocationGroupId,
+          subGroup: e.allocationSubGroupId,
+          instance: e.allocationInstanceId,
+        }));
+
+      const allInstances = [...g_instances, ...s_instances, ...u_instances];
+      return allInstances.map(getDisplayData);
+    }),
 
   breadcrumbs: publicProcedure
     .input(z.object({ segments: z.array(z.string()) }))
@@ -231,6 +264,7 @@ export const userRouter = createTRPCRouter({
     }),
 });
 
+// TODO: remove once all references are removed
 function getHighestAdminLevel(adminLevels: AdminLevel[]) {
   return adminLevels.reduce(
     (acc, val) => (permissionCheck(acc, val) ? acc : val),

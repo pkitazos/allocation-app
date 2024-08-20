@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
@@ -17,6 +18,14 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
+  const access = await api.ac.adminInInstance({ params });
+  if (!access) {
+    // could potentially throw error as this should be caught by the layout one level up
+    return (
+      <Unauthorised message="You need to be an admin to access this page" />
+    );
+  }
+
   const instancePath = formatParamsAsPath(params);
   const instance = await api.institution.instance.get({ params });
   const tabs = await api.institution.instance.adminPanelTabs({ params });

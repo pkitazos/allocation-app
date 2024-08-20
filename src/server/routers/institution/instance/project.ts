@@ -12,7 +12,7 @@ import {
   instanceAdminProcedure,
   instanceMiddleware,
 } from "@/server/trpc";
-import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
 import { computeSubmissionDetails } from "./_utils/submission-details";
 

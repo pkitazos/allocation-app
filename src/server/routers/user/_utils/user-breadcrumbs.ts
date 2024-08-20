@@ -10,9 +10,9 @@ import {
 } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { isGroupAdmin } from "@/server/utils/is-group-admin";
-import { isSubGroupAdmin } from "@/server/utils/is-sub-group-admin";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
+import { isSubGroupAdmin } from "@/server/utils/admin/is-sub-group-admin";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 
 export async function validateSegments(
   db: PrismaClient,

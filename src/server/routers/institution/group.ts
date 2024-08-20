@@ -14,9 +14,9 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
+import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
-import { isGroupAdmin } from "@/server/utils/is-group-admin";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const groupRouter = createTRPCRouter({
   exists: protectedProcedure

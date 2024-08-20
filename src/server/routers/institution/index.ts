@@ -9,7 +9,7 @@ import {
   protectedProcedure,
   superAdminProcedure,
 } from "@/server/trpc";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 
 import { groupRouter } from "./group";
 import { instanceRouter } from "./instance";
