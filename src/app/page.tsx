@@ -3,6 +3,8 @@ import { UserInstances } from "@/components/user-instances";
 
 import { auth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const user = await auth();
 

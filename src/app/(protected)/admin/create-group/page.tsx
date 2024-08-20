@@ -1,12 +1,14 @@
+import { Heading } from "@/components/heading";
+
 import { api } from "@/lib/trpc/server";
 
 import { FormSection } from "./_components/form-section";
-import { Heading } from "@/components/heading";
 
 import { spacesLabels } from "@/content/spaces";
 
-export default async function Page() {
+export const dynamic = "force-dynamic";
 
+export default async function Page() {
   const takenGroupNames = await api.institution.takenGroupNames();
 
   return (

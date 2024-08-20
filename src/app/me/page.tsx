@@ -2,6 +2,8 @@ import { PageWrapper } from "@/components/page-wrapper";
 
 import { auth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const user = await auth();
   return (
