@@ -177,27 +177,6 @@ export const subGroupRouter = createTRPCRouter({
               allocationInstanceId: instance,
             })),
           });
-
-          const admins = await tx.adminInSpace.findMany({
-            where: {
-              OR: [
-                { allocationGroupId: group, allocationSubGroupId: null },
-                { allocationGroupId: group, allocationSubGroupId: subGroup },
-              ],
-            },
-            select: { userId: true },
-          });
-
-          await tx.userInInstance.createMany({
-            data: admins.map(({ userId }) => ({
-              userId,
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              role: Role.ADMIN,
-            })),
-            skipDuplicates: true,
-          });
         });
       },
     ),
