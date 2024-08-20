@@ -5,7 +5,6 @@ import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 import { validatedSegmentsSchema } from "@/lib/validations/breadcrumbs";
 
 import {
-  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,

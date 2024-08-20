@@ -17,6 +17,7 @@ enum AdminLevel {
     SUPER
     GROUP
     SUB_GROUP
+    NONE
 }
 
 enum Stage {
