@@ -13,8 +13,8 @@ import {
   publicProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
-import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
+import { getAllUserRoles } from "@/server/utils/instance/user-role";
 
 import { partitionSpaces } from "../../utils/space/partition";
 
@@ -40,18 +40,7 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
-
-      const roles: Role[] = [];
-
-      const admin = await checkAdminPermissions(ctx.db, params, user.id);
-      if (admin) roles.push(Role.ADMIN);
-
-      const userInInstance = await ctx.db.userInInstance.findFirst({
-        where: { userId: user.id },
-        select: { role: true },
-      });
-      if (userInInstance) roles.push(userInInstance.role);
-
+      const roles = await getAllUserRoles(ctx.db, user, params);
       return roles;
     }),
 

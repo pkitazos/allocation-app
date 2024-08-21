@@ -24,3 +24,22 @@ export async function getUserRole(
 
   return userInInstance.role;
 }
+
+export async function getAllUserRoles(
+  db: PrismaClient,
+  user: User,
+  params: InstanceParams,
+) {
+  const roles: Role[] = [];
+
+  const admin = await checkAdminPermissions(db, params, user.id);
+  if (admin) roles.push(Role.ADMIN);
+
+  const userInInstance = await db.userInInstance.findFirst({
+    where: { userId: user.id },
+    select: { role: true },
+  });
+  if (userInInstance) roles.push(userInInstance.role);
+
+  return roles;
+}

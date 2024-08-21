@@ -33,7 +33,10 @@ import {
 import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { getInstance } from "@/server/utils/instance";
-import { getUserRole } from "@/server/utils/instance/user-role";
+import {
+  getAllUserRoles,
+  getUserRole,
+} from "@/server/utils/instance/user-role";
 
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
@@ -796,26 +799,13 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
-  adminPanelTabs: instanceAdminProcedure
+  getSidePanelTabs: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
-      const parentInstanceId = ctx.instance.parentInstanceId;
-      const stage = ctx.instance.stage;
-
-      const userInInstance = await ctx.db.userInInstance.findFirst({
-        where: {
-          allocationGroupId: params.group,
-          allocationSubGroupId: params.subGroup,
-          allocationInstanceId: params.instance,
-          userId: user.id,
-        },
-      });
-
-      const additionalRole = userInInstance ? userInInstance.role : Role.ADMIN;
-      const tabs = getTabs({ additionalRole, parentInstanceId });
-
-      return tabs[stage];
+      const roles = await getAllUserRoles(ctx.db, user, params);
+      const tabs = getTabs({ roles, instance: ctx.instance });
+      return tabs;
     }),
 
   fork: instanceAdminProcedure
