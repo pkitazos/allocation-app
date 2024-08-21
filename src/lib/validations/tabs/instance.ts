@@ -19,7 +19,7 @@ export const instanceTabs = {
   myProjects: {
     title: "My Projects",
     href: "my-projects",
-    icon: "folder-pen",
+    icon: "folder",
   },
   newProject: {
     title: "New Project",
@@ -29,17 +29,17 @@ export const instanceTabs = {
   myAllocations: {
     title: "My Allocations",
     href: "my-allocations",
-    icon: "folder",
+    icon: "folder-check",
   },
   myPreferences: {
     title: "My Preferences",
     href: "my-preferences",
-    icon: "files",
+    icon: "folder-heart",
   },
   myAllocation: {
     title: "My Allocation",
     href: "my-allocation",
-    icon: "file-badge",
+    icon: "file-check-2",
   },
 };
 

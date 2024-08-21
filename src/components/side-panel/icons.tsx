@@ -1,23 +1,19 @@
 import {
-  ArrowRightIcon,
-  BookmarkCheckIcon,
-  FileBadgeIcon,
   FileCheck2Icon,
-  FileClockIcon,
   FilePlus2Icon,
-  FilesIcon,
   FileSpreadsheetIcon,
+  FolderCheckIcon,
+  FolderClockIcon,
+  FolderHeartIcon,
   FolderIcon,
+  FolderLockIcon,
   FolderOutputIcon,
-  FolderPenIcon,
   HomeIcon,
   LayersIcon,
   ListChecksIcon,
   MergeIcon,
-  MonitorIcon,
   MousePointerSquareIcon,
-  PlusIcon,
-  ServerCogIcon,
+  ServerIcon,
   SettingsIcon,
   SplitIcon,
   SquareKanbanIcon,
@@ -36,14 +32,23 @@ export function Icon({ type }: { type: string }) {
     case "merge":
       return <MergeIcon className="mr-2 h-4 w-4" />;
 
-    case "plus":
-      return <PlusIcon className="mr-2 h-4 w-4" />;
-
-    case "arrow-right":
-      return <ArrowRightIcon className="mr-2 h-4 w-4" />;
+    case "file-check-2":
+      return <FileCheck2Icon className="mr-2 h-4 w-4" />;
 
     case "folder":
       return <FolderIcon className="mr-2 h-4 w-4" />;
+
+    case "folder-clock":
+      return <FolderClockIcon className="mr-2 h-4 w-4" />;
+
+    case "folder-check":
+      return <FolderCheckIcon className="mr-2 h-4 w-4" />;
+
+    case "folder-heart":
+      return <FolderHeartIcon className="mr-2 h-4 w-4" />;
+
+    case "folder-lock":
+      return <FolderLockIcon className="mr-2 h-4 w-4" />;
 
     case "layers":
       return <LayersIcon className="mr-2 h-4 w-4" />;
@@ -54,26 +59,14 @@ export function Icon({ type }: { type: string }) {
     case "user-plus":
       return <UserPlusIcon className="mr-2 h-4 w-4" />;
 
-    case "file-check-2":
-      return <FileCheck2Icon className="mr-2 h-4 w-4" />;
-
-    case "bookmark-check":
-      return <BookmarkCheckIcon className="mr-2 h-4 w-4" />;
-
-    case "file-clock":
-      return <FileClockIcon className="mr-2 h-4 w-4" />;
-
-    case "server-cog":
-      return <ServerCogIcon className="mr-2 h-4 w-4" />;
+    case "server":
+      return <ServerIcon className="mr-2 h-4 w-4" />;
 
     case "square-kanban":
       return <SquareKanbanIcon className="mr-2 h-4 w-4" />;
 
     case "square-mouse-pointer":
       return <MousePointerSquareIcon className="mr-2 h-4 w-4" />;
-
-    case "monitor":
-      return <MonitorIcon className="mr-2 h-4 w-4" />;
 
     case "file-spreadsheet":
       return <FileSpreadsheetIcon className="mr-2 h-4 w-4" />;
@@ -87,17 +80,8 @@ export function Icon({ type }: { type: string }) {
     case "home":
       return <HomeIcon className="mr-2 h-4 w-4" />;
 
-    case "folder-pen":
-      return <FolderPenIcon className="mr-2 h-4 w-4" />;
-
-    case "files":
-      return <FilesIcon className="mr-2 h-4 w-4" />;
-
     case "file-plus-2":
       return <FilePlus2Icon className="mr-2 h-4 w-4" />;
-
-    case "file-badge":
-      return <FileBadgeIcon className="mr-2 h-4 w-4" />;
 
     default:
       return null;

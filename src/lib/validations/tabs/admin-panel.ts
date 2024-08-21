@@ -32,7 +32,7 @@ export const adminTabs = {
   projectSubmissions: {
     title: "Project Submissions",
     href: "project-submissions",
-    icon: "file-check-2", // or the folder variant
+    icon: "folder",
   },
   studentInvites: {
     title: "Student Invites",
@@ -42,20 +42,20 @@ export const adminTabs = {
   preferenceSubmissions: {
     title: "Preference Submissions",
     href: "preference-submissions",
-    icon: "bookmark-check",
+    icon: "folder-heart",
   },
   lateProposals: {
     title: "Late Proposals",
     href: "late-proposals",
-    icon: "file-clock", // or the folder variant
+    icon: "folder-clock",
   },
   algorithmsOverview: {
-    title: "Algorithms Overview",
+    title: "Algorithms",
     href: "algorithms-overview",
-    icon: "server-cog",
+    icon: "server",
   },
   algorithmDetails: {
-    title: "Algorithm Details",
+    title: "Results",
     href: "algorithm-details",
     icon: "square-kanban", // or some file variant
   },
@@ -67,7 +67,7 @@ export const adminTabs = {
   allocationOverview: {
     title: "Allocation Overview",
     href: "allocation-overview",
-    icon: "monitor",
+    icon: "folder-lock",
   },
   forkInstance: {
     title: "Fork Instance",
