@@ -4,6 +4,7 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const { supervisors } = await api.institution.instance.invitedSupervisors({
@@ -12,7 +13,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">
-      <SubHeading className="text-2xl">Supervisor Invites</SubHeading>
+      <SubHeading className="text-2xl">
+        {adminTabs.supervisorInvites.title}
+      </SubHeading>
       <InviteTable users={supervisors} />
     </PanelWrapper>
   );

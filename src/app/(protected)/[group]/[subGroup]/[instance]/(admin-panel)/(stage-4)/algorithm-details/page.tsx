@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { api } from "@/lib/trpc/client";
 import { InstanceParams } from "@/lib/validations/params";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { DetailsDataTable } from "./_components/details-data-table";
 
@@ -19,7 +20,9 @@ export default function Page({ params }: { params: InstanceParams }) {
   return (
     <PanelWrapper className="mt-20 flex flex-col items-center">
       <div className="flex w-full flex-col gap-3">
-        <SubHeading className="mb-6 text-2xl">Algorithm Results</SubHeading>
+        <SubHeading className="mb-6 text-2xl">
+          {adminTabs.algorithmDetails.title}
+        </SubHeading>
         {status === "success" ? (
           <Tabs defaultValue={data.firstNonEmpty}>
             <TabsList className="w-full">

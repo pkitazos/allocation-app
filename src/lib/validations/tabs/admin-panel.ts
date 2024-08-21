@@ -80,7 +80,7 @@ export const adminTabs = {
     icon: "merge",
   },
   exportToCSV: {
-    title: "Export Data to CSV",
+    title: "Export to CSV",
     href: "export-to-csv",
     icon: "file-spreadsheet",
   },
@@ -90,7 +90,7 @@ export const adminTabs = {
     icon: "folder-output",
   },
   supervisorTasks: {
-    title: "Supervisor Tasks",
+    title: "Tasks",
     href: "supervisor-tasks",
     icon: "list-checks",
   },
@@ -154,11 +154,7 @@ export function getTabs({
   if (roles.includes(Role.ADMIN)) {
     tabs.push({
       title: "Admin tabs",
-      tabs: [
-        adminTabs.stageControl,
-        adminTabs.settings,
-        adminTabs.supervisorTasks,
-      ],
+      tabs: [adminTabs.stageControl, adminTabs.settings],
     });
     tabs.push({
       title: "Stage-specific",
@@ -172,7 +168,11 @@ export function getTabs({
 
     tabs.push({
       title: isSecondRole ? "Supervisor tabs" : "Instance tabs",
-      tabs: isSecondRole ? base : [userTabs.instanceHome, ...base],
+      tabs: !isSecondRole
+        ? [userTabs.instanceHome, ...base]
+        : instance.stage === Stage.SETUP
+          ? base
+          : [adminTabs.supervisorTasks, ...base],
     });
   }
 
