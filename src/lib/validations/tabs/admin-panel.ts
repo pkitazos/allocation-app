@@ -1,8 +1,7 @@
 import { Role, Stage } from "@prisma/client";
 
-import { instanceTabs } from "../instance-tabs";
-
 import { adminPanelTabs as tabs } from "./index";
+import { instanceTabs } from "./instance";
 
 export function getTabs({
   additionalRole = Role.ADMIN,
@@ -10,7 +9,7 @@ export function getTabs({
 }: {
   additionalRole?: Role;
   parentInstanceId: string | null;
-}): Record<Stage, { title: string; href: string; action: boolean }[]> {
+}): Record<Stage, { title: string; href: string; actionType?: string }[]> {
   return {
     [Stage.SETUP]: [tabs.addStudents, tabs.addSupervisors],
 
@@ -50,12 +49,6 @@ export function getTabs({
   };
 }
 
-function addTabs(
-  role: Role,
-  tabs: { title: string; href: string; action: boolean }[],
-  conditionalTabs: { title: string; href: string }[],
-) {
-  return role === Role.SUPERVISOR
-    ? [...tabs, ...conditionalTabs.map((tab) => ({ ...tab, action: false }))]
-    : tabs;
+function addTabs<T>(role: Role, tabs: T[], conditionalTabs: T[]) {
+  return role === Role.SUPERVISOR ? [...tabs, ...conditionalTabs] : tabs;
 }

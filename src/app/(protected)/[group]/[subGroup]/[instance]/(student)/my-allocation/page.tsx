@@ -5,8 +5,8 @@ import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/server";
 import { toPositional } from "@/lib/utils/general/to-positional";
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
+import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const allocatedProject = await api.user.student.allocatedProject({ params });

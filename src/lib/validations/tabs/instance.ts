@@ -1,4 +1,4 @@
-import { adminPanelTabs } from "./tabs/index";
+import { adminPanelTabs } from "./index";
 
 export const instanceTabs = {
   instanceHome: {
@@ -24,6 +24,7 @@ export const instanceTabs = {
   newProject: {
     title: "New Project",
     href: "new-project",
+    actionType: "plus",
   },
   myAllocations: {
     title: "My Allocations",
@@ -37,7 +38,7 @@ export const instanceTabs = {
     title: "My Allocation",
     href: "my-allocation",
   },
-} as const;
+};
 
 export const supervisorTabs = [
   instanceTabs.allProjects,

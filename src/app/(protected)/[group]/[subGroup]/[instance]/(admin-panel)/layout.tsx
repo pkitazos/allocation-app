@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
-import { MergeIcon, Settings, SplitIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Heading } from "@/components/heading";
+import { Icon } from "@/components/icons/sidebar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
@@ -39,7 +39,7 @@ export default async function Layout({
               href={`${instancePath}/settings`}
               className="flex w-full items-center gap-2"
             >
-              <Settings className="h-4 w-4" />
+              <Icon type="settings" />
               <p>Settings</p>
             </Link>
           </Button>
@@ -49,18 +49,17 @@ export default async function Layout({
             </Link>
           </Button>
           <Separator className="my-1 w-3/4" />
-          {tabs.map(({ title, href, action }, i) => (
-            <Button key={i} variant={action ? "secondary" : "outline"} asChild>
+          {tabs.map(({ title, href, actionType }, i) => (
+            <Button
+              key={i}
+              variant={actionType ? "secondary" : "outline"}
+              asChild
+            >
               <Link
                 href={`${instancePath}/${href}`}
                 className="flex w-full items-center gap-2 py-3 text-center"
               >
-                {action &&
-                  (href.startsWith("fork") ? (
-                    <SplitIcon className="h-4 w-4" />
-                  ) : (
-                    <MergeIcon className="h-4 w-4" />
-                  ))}
+                {actionType && <Icon type={actionType} />}
                 {title}
               </Link>
             </Button>

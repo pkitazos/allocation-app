@@ -1,6 +1,6 @@
+import { ReactNode } from "react";
 import { Stage } from "@prisma/client";
 import { format } from "date-fns";
-import { ReactNode } from "react";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";

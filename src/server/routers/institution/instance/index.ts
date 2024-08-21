@@ -17,11 +17,11 @@ import {
   forkedInstanceSchema,
   updatedInstanceSchema,
 } from "@/lib/validations/instance-form";
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { studentLevelSchema } from "@/lib/validations/student-level";
 import { getTabs } from "@/lib/validations/tabs/admin-panel";
+import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 import {
   createTRPCRouter,
@@ -796,7 +796,6 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
-  // TODO: replace when new admin panel button is added
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {

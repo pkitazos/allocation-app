@@ -8,8 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
+import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 import { KanbanBoard } from "./_components/kanban-board";
 import { SubmissionArea } from "./_components/submission-area";
@@ -31,7 +31,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
       <Unauthorised message="You have a self-defined project and may not submit any other preferences" />
     );
   }
-
 
   const { initialColumns, initialProjects } =
     await api.user.student.preference.initialBoardState({ params });
