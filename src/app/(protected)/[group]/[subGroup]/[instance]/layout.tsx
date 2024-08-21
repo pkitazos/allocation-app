@@ -22,8 +22,7 @@ export default async function Layout({
   // check if this user has access to this instance
   // user might could be a student, supervisor, or admin
   // if they are an admin in this instance, they should have access
-  // if they are not an admin in this instance, they should have access if they are a supervisor or student
-  // if they are a supervisor or student they should only have access depending on the stage of the instance
+  // if they are not an admin in this instance, they should have access if they are a supervisor or student in this instance
 
   const memberAccess = await api.ac.memberAccess({ params });
   if (!memberAccess) {
@@ -34,6 +33,8 @@ export default async function Layout({
       />
     );
   }
+
+  // if they are a supervisor or student they should only have access depending on the stage of the instance
 
   const stageAccess = await api.ac.stageAccess({ params });
   if (!stageAccess) {

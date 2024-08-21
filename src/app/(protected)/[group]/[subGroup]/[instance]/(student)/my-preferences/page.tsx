@@ -16,9 +16,9 @@ import { SubmissionArea } from "./_components/submission-area";
 import { LatestSubmissionDataTable } from "./latest-submission-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const role = await api.user.role({ params });
+  const roles = await api.user.roles({ params });
 
-  if (role !== Role.STUDENT) {
+  if (!roles.includes(Role.STUDENT)) {
     return (
       <Unauthorised message="You need to be a Student to access this page" />
     );
