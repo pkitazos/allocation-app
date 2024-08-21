@@ -38,6 +38,8 @@ import {
   getUserRole,
 } from "@/server/utils/instance/user-role";
 
+import { hasSelfDefinedProject } from "../../user/_utils/get-self-defined-project";
+
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
 import { getAllocationData } from "./_utils/allocation-data";
@@ -804,7 +806,19 @@ export const instanceRouter = createTRPCRouter({
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
       const roles = await getAllUserRoles(ctx.db, user, params);
-      const tabs = getTabs({ roles, instance: ctx.instance });
+
+      const preAllocatedProject = await hasSelfDefinedProject(
+        ctx.db,
+        params,
+        user,
+        roles,
+      );
+
+      const tabs = getTabs({
+        roles,
+        instance: ctx.instance,
+        preAllocatedProject,
+      });
       return tabs;
     }),
 

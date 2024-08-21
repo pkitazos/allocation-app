@@ -38,7 +38,7 @@ export function ColumnContainer({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex h-full w-full flex-col gap-4 rounded-md bg-accent/50 px-3.5 pb-10 shadow-sm",
+        "flex h-full min-h-60 w-full flex-col gap-4 rounded-md bg-accent/50 px-3.5 pb-10 shadow-sm",
         isOver && "outline outline-4 outline-muted-foreground/50",
       )}
     >

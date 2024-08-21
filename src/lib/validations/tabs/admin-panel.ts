@@ -128,21 +128,26 @@ const superVisorOnlyTabs = {
   [Stage.ALLOCATION_PUBLICATION]: [userTabs.myProjects, userTabs.myAllocations],
 };
 
-const studentOnlyTabs = {
-  [Stage.SETUP]: [],
-  [Stage.PROJECT_SUBMISSION]: [],
-  [Stage.PROJECT_SELECTION]: [userTabs.myPreferences],
-  [Stage.PROJECT_ALLOCATION]: [userTabs.myPreferences],
-  [Stage.ALLOCATION_ADJUSTMENT]: [userTabs.myPreferences],
-  [Stage.ALLOCATION_PUBLICATION]: [userTabs.myAllocation],
+const studentOnlyTabs = (preAllocatedProject: boolean) => {
+  const base = preAllocatedProject ? [] : [userTabs.myPreferences];
+  return {
+    [Stage.SETUP]: [],
+    [Stage.PROJECT_SUBMISSION]: [],
+    [Stage.PROJECT_SELECTION]: base,
+    [Stage.PROJECT_ALLOCATION]: base,
+    [Stage.ALLOCATION_ADJUSTMENT]: base,
+    [Stage.ALLOCATION_PUBLICATION]: [userTabs.myAllocation],
+  };
 };
 
 export function getTabs({
   roles,
   instance,
+  preAllocatedProject,
 }: {
   roles: $Enums.Role[];
   instance: AllocationInstance;
+  preAllocatedProject: boolean;
 }): TabGroup[] {
   const tabs = [];
 
@@ -173,7 +178,7 @@ export function getTabs({
 
   if (roles.includes(Role.STUDENT)) {
     const isSecondRole = roles.length > 1;
-    const base = studentOnlyTabs[instance.stage];
+    const base = studentOnlyTabs(preAllocatedProject)[instance.stage];
 
     tabs.push({
       title: isSecondRole ? "Student tabs" : "Instance tabs",

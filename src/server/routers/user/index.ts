@@ -1,4 +1,4 @@
-import { AdminLevel, Role } from "@prisma/client";
+import { AdminLevel } from "@prisma/client";
 import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
@@ -15,10 +15,9 @@ import {
 } from "@/server/trpc";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 import { getAllUserRoles } from "@/server/utils/instance/user-role";
+import { partitionSpaces } from "@/server/utils/space/partition";
 
-import { partitionSpaces } from "../../utils/space/partition";
-
-import { getSelfDefinedProject } from "./_utils/get-self-defined-project";
+import { hasSelfDefinedProject } from "./_utils/get-self-defined-project";
 import {
   getDisplayNameMap,
   getInstancesForGroups,
@@ -46,9 +45,9 @@ export const userRouter = createTRPCRouter({
 
   hasSelfDefinedProject: roleAwareProcedure.query(
     async ({ ctx, input: { params } }) => {
-      if (ctx.session.user.role !== Role.STUDENT) return false;
-      const studentId = ctx.session.user.id;
-      return !!(await getSelfDefinedProject(ctx.db, params, studentId));
+      const user = ctx.session.user;
+      const roles = await getAllUserRoles(ctx.db, user, params);
+      return await hasSelfDefinedProject(ctx.db, params, user, roles);
     },
   ),
 
