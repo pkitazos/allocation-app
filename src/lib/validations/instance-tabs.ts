@@ -1,4 +1,4 @@
-import { adminPanelTabs } from "./admin-panel-tabs";
+import { adminPanelTabs } from "./tabs/index";
 
 export const instanceTabs = {
   instanceHome: {

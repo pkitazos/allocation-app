@@ -8,7 +8,6 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import { type User } from "next-auth";
 
 import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
@@ -30,6 +29,7 @@ import {
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { cn } from "@/lib/utils";
+import { User } from "@/lib/validations/auth";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 

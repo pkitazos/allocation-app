@@ -1,5 +1,3 @@
-import { Stage } from "@prisma/client";
-
 export const adminPanelTabs = {
   addSupervisors: {
     title: "Add Supervisors",
@@ -76,32 +74,4 @@ export const adminPanelTabs = {
     href: "export-to-external-system",
     action: false,
   },
-} as const;
-
-export const adminPanelTabsByStage: Record<
-  Stage,
-  { title: string; href: string; action: boolean }[]
-> = {
-  SETUP: [adminPanelTabs.addStudents, adminPanelTabs.addSupervisors],
-  PROJECT_SUBMISSION: [
-    adminPanelTabs.supervisorInvites,
-    adminPanelTabs.projectSubmissions,
-  ],
-  PROJECT_SELECTION: [
-    adminPanelTabs.studentInvites,
-    adminPanelTabs.preferenceSubmissions,
-    adminPanelTabs.lateProposals,
-  ],
-  PROJECT_ALLOCATION: [
-    adminPanelTabs.algorithmsOverview,
-    adminPanelTabs.algorithmDetails,
-  ],
-  ALLOCATION_ADJUSTMENT: [adminPanelTabs.manualChanges],
-  ALLOCATION_PUBLICATION: [
-    adminPanelTabs.allocationOverview,
-    adminPanelTabs.exportToCSV,
-    // adminPanelTabs.exportToExternalSystem,
-    adminPanelTabs.forkInstance,
-    adminPanelTabs.mergeInstance,
-  ],
-} as const;
+};

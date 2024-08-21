@@ -19,9 +19,9 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
-  const role = await api.user.role({ params });
+  const roles = await api.user.roles({ params });
 
-  if (role !== Role.SUPERVISOR) {
+  if (!roles.includes(Role.SUPERVISOR)) {
     return (
       <Unauthorised message="You need to be a Supervisor to access this page" />
     );

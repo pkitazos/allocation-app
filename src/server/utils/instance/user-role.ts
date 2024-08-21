@@ -1,6 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client";
-import { User } from "next-auth";
 
+import { User } from "@/lib/validations/auth";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { checkAdminPermissions } from "../admin/access";

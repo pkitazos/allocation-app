@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User } from "next-auth";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { User } from "@/lib/validations/auth";
 import {
   FormInternalData,
   UpdatedProject,

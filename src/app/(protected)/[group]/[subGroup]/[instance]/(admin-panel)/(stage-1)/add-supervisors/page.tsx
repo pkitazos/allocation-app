@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/trpc/client";
 import { addSupervisorsCsvHeaders } from "@/lib/validations/add-users/csv";
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
-import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
+import { adminPanelTabs } from "@/lib/validations/tabs/index";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { FormSection } from "./_components/form-section";

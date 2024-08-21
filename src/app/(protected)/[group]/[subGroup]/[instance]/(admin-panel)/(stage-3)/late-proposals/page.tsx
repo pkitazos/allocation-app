@@ -1,9 +1,11 @@
+import { SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
+
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+import { adminPanelTabs } from "@/lib/validations/tabs/index";
+
 import { LateProjectDataTable } from "./_components/late-project-data-table";
-import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
-import { SubHeading } from "@/components/heading";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const projects = await api.project.getAllLateProposals({ params });

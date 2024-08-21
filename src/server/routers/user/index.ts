@@ -3,14 +3,17 @@ import { z } from "zod";
 
 import { permissionCheck } from "@/lib/utils/permissions/permission-check";
 import { validatedSegmentsSchema } from "@/lib/validations/breadcrumbs";
+import { instanceParamsSchema } from "@/lib/validations/params";
 import { instanceDisplayDataSchema } from "@/lib/validations/spaces";
 
 import {
   createTRPCRouter,
+  instanceProcedure,
   protectedProcedure,
   publicProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
+import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 
 import { partitionSpaces } from "../../utils/space/partition";
@@ -32,6 +35,25 @@ export const userRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => ctx.session.user),
 
   role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
+
+  roles: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const user = ctx.session.user;
+
+      const roles: Role[] = [];
+
+      const admin = await checkAdminPermissions(ctx.db, params, user.id);
+      if (admin) roles.push(Role.ADMIN);
+
+      const userInInstance = await ctx.db.userInInstance.findFirst({
+        where: { userId: user.id },
+        select: { role: true },
+      });
+      if (userInInstance) roles.push(userInInstance.role);
+
+      return roles;
+    }),
 
   hasSelfDefinedProject: roleAwareProcedure.query(
     async ({ ctx, input: { params } }) => {
@@ -104,6 +126,7 @@ export const userRouter = createTRPCRouter({
       return highestLevel;
     }),
 
+  // TODO: replace with new implementation that returns list of admin panels
   getAdminPanel: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.session || !ctx.session.user) return;
 

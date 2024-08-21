@@ -9,10 +9,6 @@ import {
   newSupervisorSchema,
 } from "@/lib/validations/add-users/new-user";
 import {
-  adminPanelTabs,
-  adminPanelTabsByStage,
-} from "@/lib/validations/admin-panel-tabs";
-import {
   allocationByProjectDtoSchema,
   allocationByStudentDtoSchema,
   allocationBySupervisorDtoSchema,
@@ -25,6 +21,7 @@ import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { studentLevelSchema } from "@/lib/validations/student-level";
+import { getTabs } from "@/lib/validations/tabs/admin-panel";
 
 import {
   createTRPCRouter,
@@ -802,39 +799,24 @@ export const instanceRouter = createTRPCRouter({
   // TODO: replace when new admin panel button is added
   adminPanelTabs: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx, input: { params } }) => {
+      const user = ctx.session.user;
       const parentInstanceId = ctx.instance.parentInstanceId;
       const stage = ctx.instance.stage;
 
-      if (stage === Stage.ALLOCATION_PUBLICATION) {
-        const base = [
-          adminPanelTabs.allocationOverview,
-          adminPanelTabs.exportToCSV,
-          // adminPanelTabs.exportToExternalSystem,
-        ];
-        return !parentInstanceId
-          ? [...base, adminPanelTabs.forkInstance]
-          : [...base, adminPanelTabs.mergeInstance];
-      }
+      const userInInstance = await ctx.db.userInInstance.findFirst({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          allocationInstanceId: params.instance,
+          userId: user.id,
+        },
+      });
 
-      const tabs = adminPanelTabsByStage[stage];
-      const role = await getUserRole(ctx.db, ctx.session.user, input.params);
-      if (role === Role.SUPERVISOR) {
-        if (stage === Stage.PROJECT_SUBMISSION) {
-          tabs.push({ ...instanceTabs.myProjects, action: false });
-          tabs.push({ ...instanceTabs.newProject, action: false });
-        }
-        if (stage === Stage.PROJECT_SELECTION) {
-          tabs.push({ ...instanceTabs.myProjects, action: false });
-        }
-        if (stage === Stage.PROJECT_ALLOCATION) {
-          tabs.push({ ...instanceTabs.myProjects, action: false });
-        }
-        if (stage === Stage.ALLOCATION_PUBLICATION) {
-          tabs.push({ ...instanceTabs.myProjects, action: false });
-        }
-      }
-      return tabs;
+      const additionalRole = userInInstance ? userInInstance.role : Role.ADMIN;
+      const tabs = getTabs({ additionalRole, parentInstanceId });
+
+      return tabs[stage];
     }),
 
   fork: instanceAdminProcedure
