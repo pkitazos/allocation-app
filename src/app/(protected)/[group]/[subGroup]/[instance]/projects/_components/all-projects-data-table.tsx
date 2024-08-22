@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { useDataTableProjectFilters } from "@/components/data-table-context";
 import {
   useInstanceParams,
   useInstancePath,
@@ -135,6 +136,8 @@ export function AllProjectsDataTable({
     );
   }
 
+  const filters = useDataTableProjectFilters();
+
   const columns = useAllProjectsColumns({
     user,
     role,
@@ -151,6 +154,7 @@ export function AllProjectsDataTable({
       searchableColumn={{ id: "Title", displayName: "Project Titles" }}
       className="w-full"
       columns={columns}
+      filters={filters}
       data={data}
     />
   );
