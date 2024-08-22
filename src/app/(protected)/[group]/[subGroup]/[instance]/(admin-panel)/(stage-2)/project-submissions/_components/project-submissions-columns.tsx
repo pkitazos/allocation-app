@@ -1,12 +1,12 @@
 import { ColumnDef, Table } from "@tanstack/react-table";
 import {
-  CheckIcon,
   CopyIcon,
   DownloadIcon,
-  MinusIcon,
   MoreHorizontalIcon as MoreIcon,
 } from "lucide-react";
 
+import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
+import { CircleXIcon } from "@/components/icons/circle-x";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -136,9 +136,9 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
       }) => (
         <div className="flex items-center justify-center">
           {targetMet ? (
-            <CheckIcon className="h-4 w-4 text-green-500" />
+            <CircleCheckSolidIcon className="h-4 w-4 fill-green-500" />
           ) : (
-            <MinusIcon className="h-4 w-4 text-destructive" />
+            <CircleXIcon className="h-4 w-4 fill-destructive" />
           )}
         </div>
       ),
