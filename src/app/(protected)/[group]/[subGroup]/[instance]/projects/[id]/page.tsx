@@ -1,4 +1,5 @@
 import { Role, Stage } from "@prisma/client";
+import { FlagIcon, TagIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -8,12 +9,14 @@ import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
+import { ProjectDto } from "@/lib/validations/dto/project";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceButton } from "./_components/student-preference-button";
@@ -61,7 +64,7 @@ export default async function Project({ params }: { params: PageParams }) {
     <PageWrapper>
       <Heading
         className={cn(
-          "flex items-center justify-between gap-2",
+          "flex items-center justify-between gap-2 text-4xl",
           project.title.length > 30 && "text-3xl",
         )}
       >
@@ -107,58 +110,74 @@ export default async function Project({ params }: { params: PageParams }) {
             <p className="mt-6">{project.specialTechnicalRequirements}</p>
           </div>
         </div>
-        <div className="flex w-1/4 flex-col gap-5 rounded-md bg-accent px-5 py-3">
+        <div className="w-1/4">
+          <ProjectDetailsCard project={project} role={role} />
+        </div>
+      </div>
+    </PageWrapper>
+  );
+}
+
+function ProjectDetailsCard({
+  role,
+  project,
+}: {
+  role: Role;
+  project: ProjectDto;
+}) {
+  return (
+    <Card className="w-full max-w-sm border-none bg-accent">
+      <CardContent className="flex flex-col gap-10 pt-5">
+        <div className="flex items-center space-x-4">
+          <UserIcon className="h-6 w-6 text-blue-500" />
           <div>
-            <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
-              Supervisor:
-            </h2>
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Supervisor
+            </h3>
             {role === Role.ADMIN ? (
               <Link
-                className={cn(buttonVariants({ variant: "link" }), "text-lg")}
+                className={cn(
+                  buttonVariants({ variant: "link" }),
+                  "p-0 text-lg",
+                )}
                 href={`../supervisors/${project.supervisor.id}`}
               >
                 {project.supervisor.name}
               </Link>
             ) : (
-              <p className="p-2 text-lg">{project.supervisor.name}</p>
+              <p className="text-lg font-semibold">{project.supervisor.name}</p>
             )}
           </div>
-          <div>
-            <h2
-              className={cn(
-                "mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2",
-                project.flags.length === 0 && "hidden",
-              )}
-            >
-              Flags:
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {project.flags.map((flag, i) => (
-                <Badge key={i} variant="outline">
-                  {flag.title}
-                </Badge>
-              ))}
-            </div>
+        </div>
+        <div className={cn(project.flags.length === 0 && "hidden")}>
+          <div className="mb-2 flex items-center space-x-4">
+            <FlagIcon className="h-6 w-6 text-fuchsia-500" />
+            <h3 className="text-sm font-medium text-muted-foreground">Flags</h3>
           </div>
-          <div>
-            <h2
-              className={cn(
-                "mb-2 text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2",
-                project.tags.length === 0 && "hidden",
-              )}
-            >
-              Keywords:
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map((tag, i) => (
-                <Badge key={i} variant="outline">
-                  {tag.title}
-                </Badge>
-              ))}
-            </div>
+          <div className="flex space-x-2">
+            {project.flags.map((flag, i) => (
+              <Badge variant="outline" key={i}>
+                {flag.title}
+              </Badge>
+            ))}
           </div>
         </div>
-      </div>
-    </PageWrapper>
+        <div className={cn(project.tags.length === 0 && "hidden")}>
+          <div className="mb-2 flex items-center space-x-4">
+            <TagIcon className="h-6 w-6 text-purple-500" />
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Keywords
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag, i) => (
+              <Badge key={i} variant="outline">
+                {tag.title}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
