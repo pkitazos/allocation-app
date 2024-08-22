@@ -1,12 +1,15 @@
 "use client";
-
-import DataTable from "@/components/ui/data-table/data-table";
-import { useLateProjectColumns } from "./late-projects-columns";
-import { LateProjectDto } from "@/lib/validations/dto/project";
-import { api } from "@/lib/trpc/client";
-import { useInstanceParams } from "@/components/params-context";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+import { useDataTableProjectFilters } from "@/components/data-table-context";
+import { useInstanceParams } from "@/components/params-context";
+import DataTable from "@/components/ui/data-table/data-table";
+
+import { api } from "@/lib/trpc/client";
+import { LateProjectDto } from "@/lib/validations/dto/project";
+
+import { useLateProjectColumns } from "./late-projects-columns";
 
 export function LateProjectDataTable({ data }: { data: LateProjectDto[] }) {
   const params = useInstanceParams();
@@ -38,6 +41,8 @@ export function LateProjectDataTable({ data }: { data: LateProjectDto[] }) {
     );
   }
 
+  const filters = useDataTableProjectFilters();
+
   const columns = useLateProjectColumns({
     deleteProject: handleDelete,
     deleteSelectedProjects: handleDeleteSelected,
@@ -47,6 +52,7 @@ export function LateProjectDataTable({ data }: { data: LateProjectDto[] }) {
     <DataTable
       searchableColumn={{ id: "Project Title", displayName: "Project Titles" }}
       columns={columns}
+      filters={filters}
       data={data}
     />
   );

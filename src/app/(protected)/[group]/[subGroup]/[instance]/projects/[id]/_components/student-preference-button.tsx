@@ -1,11 +1,12 @@
 "use client";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { ChangePreferenceButton } from "@/components/change-preference-button";
 import { useInstanceParams } from "@/components/params-context";
+
 import { api } from "@/lib/trpc/client";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
-import { useRouter } from "next/navigation";
-
-import { toast } from "sonner";
 
 export function StudentPreferenceButton({
   projectId,

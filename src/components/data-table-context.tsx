@@ -31,3 +31,12 @@ export function useDataTableTags() {
   if (!details) throw new Error("Missing DataTableProvider in the tree");
   return details.tags;
 }
+
+export function useDataTableProjectFilters() {
+  const flags = useDataTableFlags();
+  const tags = useDataTableTags();
+  return [
+    { columnId: "Flags", options: flags },
+    { columnId: "Keywords", options: tags },
+  ];
+}

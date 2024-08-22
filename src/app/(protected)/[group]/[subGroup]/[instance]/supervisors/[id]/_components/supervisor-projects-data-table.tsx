@@ -2,14 +2,15 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { useDataTableProjectFilters } from "@/components/data-table-context";
 import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 
 import {
-  useSupervisorProjectsColumns,
   SupervisorProjectDto,
+  useSupervisorProjectsColumns,
 } from "./supervisor-projects-columns";
 
 export function SupervisorProjectsDataTable({
@@ -46,6 +47,8 @@ export function SupervisorProjectsDataTable({
     );
   }
 
+  const filters = useDataTableProjectFilters();
+
   const columns = useSupervisorProjectsColumns({
     deleteProject: handleDelete,
     deleteSelectedProjects: handleDeleteSelected,
@@ -56,6 +59,7 @@ export function SupervisorProjectsDataTable({
       className="w-full"
       searchableColumn={{ id: "Title", displayName: "Project Titles" }}
       columns={columns}
+      filters={filters}
       data={data}
     />
   );
