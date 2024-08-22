@@ -1,4 +1,5 @@
 import { Heading } from "@/components/heading";
+import { JoinInstance } from "@/components/join-instance";
 import { SupervisorInstanceHome } from "@/components/pages/supervisor-instance-home";
 import { PanelWrapper } from "@/components/panel-wrapper";
 
@@ -19,6 +20,7 @@ export async function SupervisorOverview({
       <PanelWrapper className="pt-6">
         <SupervisorInstanceHome params={params} />
       </PanelWrapper>
+      <JoinInstance />
     </Layout>
   );
 }

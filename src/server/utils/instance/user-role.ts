@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client";
 
+import { PrismaTransactionClient } from "@/lib/db";
 import { User } from "@/lib/validations/auth";
 import { InstanceParams } from "@/lib/validations/params";
 
@@ -26,7 +27,7 @@ export async function getUserRole(
 }
 
 export async function getAllUserRoles(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   user: User,
   params: InstanceParams,
 ) {
@@ -41,5 +42,5 @@ export async function getAllUserRoles(
   });
   if (userInInstance) roles.push(userInInstance.role);
 
-  return roles;
+  return new Set(roles);
 }

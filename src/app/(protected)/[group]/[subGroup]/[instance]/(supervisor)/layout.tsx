@@ -16,7 +16,7 @@ export default async function Layout({
 }) {
   const roles = await api.user.roles({ params });
 
-  if (!roles.includes(Role.SUPERVISOR)) {
+  if (!roles.has(Role.SUPERVISOR)) {
     return (
       <Unauthorised message="You need to be a Supervisor to access this page" />
     );

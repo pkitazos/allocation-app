@@ -1,4 +1,4 @@
-import { $Enums, AllocationInstance, Role, Stage } from "@prisma/client";
+import { AllocationInstance, Role, Stage } from "@prisma/client";
 
 import { TabGroup } from "./index";
 import { instanceTabs as userTabs } from "./instance";
@@ -145,13 +145,13 @@ export function getTabs({
   instance,
   preAllocatedProject,
 }: {
-  roles: $Enums.Role[];
+  roles: Set<Role>;
   instance: AllocationInstance;
   preAllocatedProject: boolean;
 }): TabGroup[] {
   const tabs = [];
 
-  if (roles.includes(Role.ADMIN)) {
+  if (roles.has(Role.ADMIN)) {
     tabs.push({
       title: "Admin",
       tabs: [adminTabs.stageControl, adminTabs.settings],
@@ -162,8 +162,8 @@ export function getTabs({
     });
   }
 
-  if (roles.includes(Role.SUPERVISOR)) {
-    const isSecondRole = roles.length > 1;
+  if (roles.has(Role.SUPERVISOR)) {
+    const isSecondRole = roles.size > 1;
     const base = superVisorOnlyTabs[instance.stage];
 
     tabs.push({
@@ -176,8 +176,8 @@ export function getTabs({
     });
   }
 
-  if (roles.includes(Role.STUDENT)) {
-    const isSecondRole = roles.length > 1;
+  if (roles.has(Role.STUDENT)) {
+    const isSecondRole = roles.size > 1;
     const base = studentOnlyTabs(preAllocatedProject)[instance.stage];
 
     tabs.push({

@@ -15,7 +15,7 @@ export default async function Layout({
 }) {
   const roles = await api.user.roles({ params });
 
-  if (!roles.includes(Role.ADMIN)) {
+  if (!roles.has(Role.ADMIN)) {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );

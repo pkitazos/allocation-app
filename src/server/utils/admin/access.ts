@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
+import { PrismaTransactionClient } from "@/lib/db";
 import {
   GroupParams,
   groupParamsSchema,
@@ -53,7 +54,7 @@ export async function adminAccess(
 
 // TODO: check if function can be substituted with subGroupAdmin check
 async function isAdminInInstance(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   { group, subGroup }: InstanceParams,
   userId: string,
 ) {
@@ -92,7 +93,7 @@ async function isAdminInInstance(
  *
  */
 export async function checkAdminPermissions(
-  db: PrismaClient,
+  db: PrismaTransactionClient,
   params: RefinedSpaceParams,
   userId: string,
 ) {

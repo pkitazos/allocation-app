@@ -1,6 +1,11 @@
-import { AdminLevel, PrismaClient } from "@prisma/client";
+import { AdminLevel } from "@prisma/client";
 
-export async function isSuperAdmin(db: PrismaClient, userId: string) {
+import { PrismaTransactionClient } from "@/lib/db";
+
+export async function isSuperAdmin(
+  db: PrismaTransactionClient,
+  userId: string,
+) {
   const superAdmin = await db.adminInSpace.findFirst({
     where: { userId, adminLevel: AdminLevel.SUPER },
     select: { adminLevel: true },
