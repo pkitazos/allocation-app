@@ -16,6 +16,11 @@ export const instanceTabs = {
     href: "",
     icon: "home",
   },
+  instanceTasks: {
+    title: "Tasks",
+    href: "",
+    icon: "list-checks",
+  },
   myProjects: {
     title: "My Projects",
     href: "my-projects",

@@ -57,12 +57,12 @@ export const adminTabs = {
   algorithmDetails: {
     title: "Results",
     href: "algorithm-details",
-    icon: "square-kanban", // or some file variant
+    icon: "square-kanban",
   },
   manualChanges: {
     title: "Manual Changes",
     href: "manual-changes",
-    icon: "square-mouse-pointer", // or square-pen or combine
+    icon: "mouse-pointer",
   },
   allocationOverview: {
     title: "Allocation Overview",
@@ -153,7 +153,7 @@ export function getTabs({
 
   if (roles.includes(Role.ADMIN)) {
     tabs.push({
-      title: "Admin tabs",
+      title: "Admin",
       tabs: [adminTabs.stageControl, adminTabs.settings],
     });
     tabs.push({
@@ -167,9 +167,9 @@ export function getTabs({
     const base = superVisorOnlyTabs[instance.stage];
 
     tabs.push({
-      title: isSecondRole ? "Supervisor tabs" : "Instance tabs",
+      title: "Supervisor",
       tabs: !isSecondRole
-        ? [userTabs.instanceHome, ...base]
+        ? [userTabs.instanceTasks, ...base]
         : instance.stage === Stage.SETUP
           ? base
           : [adminTabs.supervisorTasks, ...base],
@@ -181,8 +181,8 @@ export function getTabs({
     const base = studentOnlyTabs(preAllocatedProject)[instance.stage];
 
     tabs.push({
-      title: isSecondRole ? "Student tabs" : "Instance tabs",
-      tabs: isSecondRole ? base : [userTabs.instanceHome, ...base],
+      title: "Student",
+      tabs: isSecondRole ? base : [userTabs.instanceTasks, ...base],
     });
   }
 
