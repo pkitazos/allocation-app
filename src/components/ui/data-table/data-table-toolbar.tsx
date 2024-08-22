@@ -3,11 +3,6 @@
 import { Table } from "@tanstack/react-table";
 import { XCircleIcon } from "lucide-react";
 
-import {
-  useDataTableFlags,
-  useDataTableTags,
-} from "@/components/data-table-context";
-
 import { SearchableColumn } from "@/lib/validations/table";
 
 import { Button } from "../button";
@@ -16,20 +11,27 @@ import { Input } from "../input";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableViewOptions } from "./data-table-view-options";
 
+export type TableFilterOption = { id: string; title: string };
+
+export type TableFilter = {
+  columnId: string;
+  title?: string;
+  options?: TableFilterOption[];
+};
+
 interface DataTableToolbarProps<TData> {
   searchableColumn?: SearchableColumn;
   data: TData[];
   table: Table<TData>;
+  filters: TableFilter[];
 }
 
 export function DataTableToolbar<TData>({
+  filters,
   searchableColumn,
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
-
-  const tableFlags = useDataTableFlags();
-  const tableTags = useDataTableTags();
 
   return (
     <div className="flex w-full items-center justify-between">
@@ -50,7 +52,27 @@ export function DataTableToolbar<TData>({
             className="h-8 w-[150px] lg:w-[250px]"
           />
         )}
-        {table.getAllColumns().some((c) => c.id === "Flags") && (
+        {filters.map((filter) => {
+          const column = table.getColumn(filter.columnId);
+          if (!column) return null; // Handle potential invalid columnId
+
+          const filterValues = filter.options
+            ? filter.options
+            : table.getCoreRowModel().rows.map((row) => ({
+                id: row.id,
+                title: row.original[filter.columnId as keyof TData] as string,
+              }));
+
+          return (
+            <DataTableFacetedFilter
+              key={filter.columnId}
+              column={column}
+              title={filter?.title ?? (column.columnDef.id as string)} // Assuming header is a string
+              options={filterValues}
+            />
+          );
+        })}
+        {/* {table.getAllColumns().some((c) => c.id === "Flags") && (
           <DataTableFacetedFilter
             column={table.getColumn("Flags")}
             title="Flags"
@@ -63,7 +85,7 @@ export function DataTableToolbar<TData>({
             title="Keywords"
             options={tableTags}
           />
-        )}
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

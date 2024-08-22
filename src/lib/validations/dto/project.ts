@@ -34,3 +34,14 @@ export const lateProjectDtoSchema = z.object({
 });
 
 export type LateProjectDto = z.infer<typeof lateProjectDtoSchema>;
+
+export const projectSubmissionDtoSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  userId: z.string(),
+  submittedProjectsCount: z.number(),
+  submissionTarget: z.number(),
+  targetMet: z.boolean(),
+});
+
+export type ProjectSubmissionDto = z.infer<typeof projectSubmissionDtoSchema>;

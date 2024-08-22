@@ -5,7 +5,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
-import { SubmissionsTable } from "./_components/submissions-table";
+import { ProjectSubmissionsDataTable } from "./_components/project-submissions-data-table";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const data = await api.institution.instance.project.submissionInfo({
@@ -13,11 +13,11 @@ export default async function Page({ params }: { params: InstanceParams }) {
   });
 
   return (
-    <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">
+    <PanelWrapper className="mt-10 flex w-full flex-col items-start gap-8 px-12">
       <SubHeading className="text-2xl">
         {adminTabs.projectSubmissions.title}
       </SubHeading>
-      <SubmissionsTable capacities={data} />
+      <ProjectSubmissionsDataTable data={data} />
     </PanelWrapper>
   );
 }

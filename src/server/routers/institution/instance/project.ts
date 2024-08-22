@@ -2,10 +2,7 @@ import { z } from "zod";
 
 import { findByUserId } from "@/lib/utils/general/find-by-user-id";
 import { instanceParamsSchema } from "@/lib/validations/params";
-import {
-  SupervisorProjectSubmissionDetails,
-  supervisorProjectSubmissionDetailsSchema,
-} from "@/lib/validations/supervisor-project-submission-details";
+import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
 import {
   createTRPCRouter,
@@ -20,7 +17,6 @@ export const projectRouter = createTRPCRouter({
   submissionInfo: instanceAdminProcedure
     .use(instanceMiddleware)
     .input(z.object({ params: instanceParamsSchema }))
-    .output(z.array(supervisorProjectSubmissionDetailsSchema))
     .query(
       async ({
         ctx,
@@ -91,7 +87,10 @@ export const projectRouter = createTRPCRouter({
           submissionDetails.push(...currentInstanceSubmissionDetails);
         }
 
-        return submissionDetails;
+        return submissionDetails.map((c) => ({
+          ...c,
+          targetMet: c.submittedProjectsCount >= c.submissionTarget,
+        }));
       },
     ),
 
