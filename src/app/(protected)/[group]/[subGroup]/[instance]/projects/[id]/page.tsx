@@ -7,7 +7,7 @@ import { Heading, SubHeading } from "@/components/heading";
 import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
@@ -59,7 +59,12 @@ export default async function Project({ params }: { params: PageParams }) {
 
   return (
     <PageWrapper>
-      <Heading className="flex items-center justify-between">
+      <Heading
+        className={cn(
+          "flex items-center justify-between gap-2",
+          project.title.length > 30 && "text-3xl",
+        )}
+      >
         {project.title}
         <AccessControl
           allowedRoles={[Role.STUDENT]}
@@ -76,11 +81,12 @@ export default async function Project({ params }: { params: PageParams }) {
           allowedStages={previousStages(Stage.PROJECT_SELECTION)}
           extraConditions={{ RBAC: { OR: project.supervisor.id === user.id } }}
         >
-          <Button asChild>
-            <Link href={`${instancePath}/projects/${projectId}/edit`}>
-              Edit or Delete
-            </Link>
-          </Button>
+          <Link
+            className={cn(buttonVariants(), "min-w-32 text-nowrap")}
+            href={`${instancePath}/projects/${projectId}/edit`}
+          >
+            Edit or Delete
+          </Link>
         </AccessControl>
       </Heading>
       <div className="mt-6 flex gap-6">

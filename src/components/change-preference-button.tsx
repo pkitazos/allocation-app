@@ -1,6 +1,8 @@
 "use client";
-import { PreferenceType } from "@prisma/client";
 import { useState } from "react";
+import { PreferenceType } from "@prisma/client";
+import { ClassValue } from "clsx";
+import { BookmarkIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,13 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import {
-  StudentPreferenceType,
-  studentPreferenceSchema,
-} from "@/lib/validations/student-preference";
 import { cn } from "@/lib/utils";
-import { ClassValue } from "clsx";
-import { BookmarkIcon } from "lucide-react";
+import {
+  studentPreferenceSchema,
+  StudentPreferenceType,
+} from "@/lib/validations/student-preference";
 
 export function ChangePreferenceButton({
   buttonLabelType = "static",
@@ -57,11 +57,15 @@ export function ChangePreferenceButton({
       "Select"
     );
 
+  // TODO: add icon to action button
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className={cn(className)}>
+          <Button
+            variant="secondary"
+            className={cn(className, "min-w-32 text-nowrap")}
+          >
             {buttonLabel}
           </Button>
         </DropdownMenuTrigger>
