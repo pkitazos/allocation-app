@@ -7,7 +7,7 @@ import { Heading, SubHeading } from "@/components/heading";
 import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PageWrapper } from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
@@ -106,11 +106,16 @@ export default async function Project({ params }: { params: PageParams }) {
             <h2 className="text-lg font-bold text-primary underline decoration-secondary decoration-[3px] underline-offset-2">
               Supervisor:
             </h2>
-            <Link href={`../supervisors/${project.supervisor.id}`}>
-              <Button className="text-lg" variant="link">
+            {role === Role.ADMIN ? (
+              <Link
+                className={cn(buttonVariants({ variant: "link" }), "text-lg")}
+                href={`../supervisors/${project.supervisor.id}`}
+              >
                 {project.supervisor.name}
-              </Button>
-            </Link>
+              </Link>
+            ) : (
+              <p className="p-2 text-lg">{project.supervisor.name}</p>
+            )}
           </div>
           <div>
             <h2
@@ -121,11 +126,13 @@ export default async function Project({ params }: { params: PageParams }) {
             >
               Flags:
             </h2>
-            {project.flags.map((flag, i) => (
-              <Badge key={i} variant="outline">
-                {flag.title}
-              </Badge>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {project.flags.map((flag, i) => (
+                <Badge key={i} variant="outline">
+                  {flag.title}
+                </Badge>
+              ))}
+            </div>
           </div>
           <div>
             <h2
@@ -136,11 +143,13 @@ export default async function Project({ params }: { params: PageParams }) {
             >
               Keywords:
             </h2>
-            {project.tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
-                {tag.title}
-              </Badge>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {project.tags.map((tag, i) => (
+                <Badge key={i} variant="outline">
+                  {tag.title}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
       </div>

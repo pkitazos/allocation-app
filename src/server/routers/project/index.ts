@@ -171,6 +171,8 @@ export const projectRouter = createTRPCRouter({
   getAllForUser: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
+      const user = ctx.session.user;
+
       const projectData = await ctx.db.project.findMany({
         where: {
           allocationGroupId: params.group,
@@ -183,6 +185,7 @@ export const projectRouter = createTRPCRouter({
           supervisor: { select: { user: true } },
           tagOnProject: { select: { tag: true } },
           flagOnProjects: { select: { flag: true } },
+          preAllocatedStudentId: true,
         },
       });
 
@@ -192,6 +195,7 @@ export const projectRouter = createTRPCRouter({
         supervisor: { id: p.supervisor.user.id, name: p.supervisor.user.name! },
         flags: p.flagOnProjects.map(({ flag }) => flag),
         tags: p.tagOnProject.map(({ tag }) => tag),
+        preAllocatedStudentId: p.preAllocatedStudentId,
       }));
 
       const student = await ctx.db.studentDetails.findFirst({
@@ -199,7 +203,7 @@ export const projectRouter = createTRPCRouter({
           allocationGroupId: params.group,
           allocationSubGroupId: params.subGroup,
           allocationInstanceId: params.instance,
-          userId: ctx.session.user.id,
+          userId: user.id,
         },
         select: {
           studentLevel: true,
@@ -209,9 +213,12 @@ export const projectRouter = createTRPCRouter({
 
       if (!student) return allProjects;
 
-      return allProjects.filter(({ flags }) =>
-        flags.some((f) => getStudentLevelFromFlag(f) === student.studentLevel),
-      );
+      return allProjects.filter(({ flags, preAllocatedStudentId }) => {
+        if (preAllocatedStudentId) return preAllocatedStudentId === user.id;
+        return flags.some(
+          (f) => getStudentLevelFromFlag(f) === student.studentLevel,
+        );
+      });
     }),
 
   getAllLateProposals: instanceAdminProcedure
@@ -309,9 +316,32 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
+  // TODO: convert output to discriminated union
   getUserAccess: protectedProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .query(async ({ ctx, input: { params, projectId } }) => {
+      const user = ctx.session.user;
+      const { flagOnProjects, preAllocatedStudentId } =
+        await ctx.db.project.findFirstOrThrow({
+          where: {
+            id: projectId,
+            allocationGroupId: params.group,
+            allocationSubGroupId: params.subGroup,
+            allocationInstanceId: params.instance,
+          },
+          select: {
+            preAllocatedStudentId: true,
+            flagOnProjects: { select: { flag: true } },
+          },
+        });
+
+      if (preAllocatedStudentId) {
+        return {
+          access: preAllocatedStudentId === user.id,
+          studentFlagLabel: "",
+        };
+      }
+
       const student = await ctx.db.studentDetails.findFirst({
         where: {
           allocationGroupId: params.group,
@@ -322,16 +352,6 @@ export const projectRouter = createTRPCRouter({
       });
 
       if (!student) return { access: true, studentFlagLabel: "" };
-
-      const { flagOnProjects } = await ctx.db.project.findFirstOrThrow({
-        where: {
-          id: projectId,
-          allocationGroupId: params.group,
-          allocationSubGroupId: params.subGroup,
-          allocationInstanceId: params.instance,
-        },
-        select: { flagOnProjects: { select: { flag: true } } },
-      });
 
       const access = flagOnProjects.some(
         ({ flag }) => getStudentLevelFromFlag(flag) === student.studentLevel,

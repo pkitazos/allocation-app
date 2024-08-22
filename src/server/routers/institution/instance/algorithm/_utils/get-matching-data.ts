@@ -19,6 +19,7 @@ export async function getMatchingData(
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
         submittedPreferences: true,
+        userInInstance: { studentAllocation: { is: null } },
       },
       select: {
         userId: true,
@@ -51,6 +52,7 @@ export async function getMatchingData(
         allocationGroupId: group,
         allocationSubGroupId: subGroup,
         allocationInstanceId: instance,
+        preAllocatedStudentId: null,
       },
       select: {
         id: true,

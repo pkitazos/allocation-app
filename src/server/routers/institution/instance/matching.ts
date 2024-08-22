@@ -33,62 +33,64 @@ export const matchingRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const { selectedAlgName } =
-          await ctx.db.allocationInstance.findFirstOrThrow({
+        await ctx.db.$transaction(async (tx) => {
+          const { selectedAlgName } =
+            await tx.allocationInstance.findFirstOrThrow({
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                id: instance,
+              },
+              select: { selectedAlgName: true },
+            });
+
+          const { matchingResultData } = await tx.algorithm.findFirstOrThrow({
             where: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
-            },
-            select: { selectedAlgName: true },
-          });
-
-        const { matchingResultData } = await ctx.db.algorithm.findFirstOrThrow({
-          where: {
-            algName,
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: { matchingResultData: true },
-        });
-
-        const { matching } = matchingResultSchema.parse(
-          JSON.parse(matchingResultData as string),
-        );
-
-        if (selectedAlgName) {
-          await ctx.db.projectAllocation.deleteMany({
-            where: {
+              algName,
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
             },
+            select: { matchingResultData: true },
           });
-        }
 
-        await ctx.db.projectAllocation.createMany({
-          data: matching
-            .filter((e) => e.project_id !== "0")
-            .map(({ student_id, project_id, preference_rank }) => ({
-              userId: student_id,
-              projectId: project_id,
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              studentRanking: preference_rank,
-            })),
-        });
+          const { matching } = matchingResultSchema.parse(
+            JSON.parse(matchingResultData as string),
+          );
 
-        await ctx.db.allocationInstance.update({
-          where: {
-            instanceId: {
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              id: instance,
+          if (selectedAlgName) {
+            await tx.projectAllocation.deleteMany({
+              where: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+            });
+          }
+
+          await tx.projectAllocation.createMany({
+            data: matching
+              .filter((e) => e.project_id !== "0")
+              .map(({ student_id, project_id, preference_rank }) => ({
+                userId: student_id,
+                projectId: project_id,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                studentRanking: preference_rank,
+              })),
+          });
+
+          await tx.allocationInstance.update({
+            where: {
+              instanceId: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                id: instance,
+              },
             },
-          },
-          data: { selectedAlgName: algName },
+            data: { selectedAlgName: algName },
+          });
         });
       },
     ),
