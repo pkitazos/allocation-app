@@ -18,7 +18,7 @@ import { LatestSubmissionDataTable } from "./latest-submission-data-table";
 export default async function Page({ params }: { params: InstanceParams }) {
   const roles = await api.user.roles({ params });
 
-  if (!roles.includes(Role.STUDENT)) {
+  if (!roles.has(Role.STUDENT)) {
     return (
       <Unauthorised message="You need to be a Student to access this page" />
     );

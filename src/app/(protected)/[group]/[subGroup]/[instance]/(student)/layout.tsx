@@ -18,7 +18,7 @@ export default async function Layout({
   const roles = await api.user.roles({ params });
   const stage = await api.institution.instance.currentStage({ params });
 
-  if (!roles.includes(Role.STUDENT)) {
+  if (!roles.has(Role.STUDENT)) {
     return (
       <Unauthorised message="You need to be a Student to access this page" />
     );

@@ -22,9 +22,9 @@ export async function hasSelfDefinedProject(
   db: PrismaClient,
   params: InstanceParams,
   user: User,
-  roles: Role[],
+  roles: Set<Role>,
 ) {
-  if (!roles.includes(Role.STUDENT)) return false;
+  if (!roles.has(Role.STUDENT)) return false;
   const studentId = user.id;
   return !!(await getSelfDefinedProject(db, params, studentId));
 }

@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 import { Heading, SubHeading } from "@/components/heading";
+import { JoinInstance } from "@/components/join-instance";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -153,6 +154,7 @@ function ThinLayout({
     <Layout params={params}>
       <Heading>{pageName}</Heading>
       <PanelWrapper className="pt-6">{children}</PanelWrapper>
+      <JoinInstance />
     </Layout>
   );
 }
