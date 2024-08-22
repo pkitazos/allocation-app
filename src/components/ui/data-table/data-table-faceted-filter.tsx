@@ -17,13 +17,12 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { Separator } from "../separator";
 
+import { TableFilterOption } from "./data-table-toolbar";
+
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
-  options: {
-    title: string;
-    id: string;
-  }[];
+  options: TableFilterOption[];
 }
 
 export function DataTableFacetedFilter<TData, TValue>({

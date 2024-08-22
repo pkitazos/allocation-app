@@ -19,6 +19,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -28,13 +29,14 @@ import { cn } from "@/lib/utils";
 import { SearchableColumn } from "@/lib/validations/table";
 
 import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
+import { DataTableToolbar, TableFilter } from "./data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   className?: string;
   searchableColumn?: SearchableColumn;
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filters?: TableFilter[];
   removeRow?: () => void;
 }
 
@@ -43,6 +45,7 @@ export default function DataTable<TData, TValue>({
   searchableColumn,
   columns,
   data,
+  filters = [],
   removeRow,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,6 +74,7 @@ export default function DataTable<TData, TValue>({
         <DataTableToolbar
           searchableColumn={searchableColumn}
           data={data}
+          filters={filters}
           table={table}
         />
       </div>
@@ -120,6 +124,24 @@ export default function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {table.getFooterGroups().length !== 0 && (
+            <TableFooter>
+              {table.getFooterGroups().map((footerGroup) => (
+                <TableRow key={footerGroup.id}>
+                  {footerGroup.headers.map((header) => (
+                    <TableCell key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.footer,
+                            header.getContext(),
+                          )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableFooter>
+          )}
         </Table>
       </div>
       <div className="flex w-full items-center justify-end space-x-2 py-4">

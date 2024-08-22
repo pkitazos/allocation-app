@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";
+
+import { cn } from "@/lib/utils";
 
 export function ActionColumnLabel({ className }: { className?: ClassValue }) {
   return (
