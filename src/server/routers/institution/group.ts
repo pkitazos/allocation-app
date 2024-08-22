@@ -14,9 +14,9 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
+import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
-import { isAdminInGroup_v2 } from "@/server/utils/is-group-admin";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const groupRouter = createTRPCRouter({
   exists: protectedProcedure
@@ -68,14 +68,13 @@ export const groupRouter = createTRPCRouter({
           params: { group },
         },
       }) => {
-        const userId = ctx.session.user.id;
+        const { displayName, allocationSubGroups } =
+          await ctx.db.allocationGroup.findFirstOrThrow({
+            where: { id: group },
+            select: { displayName: true, allocationSubGroups: true },
+          });
 
-        const data = await ctx.db.allocationGroup.findFirstOrThrow({
-          where: { id: group },
-          select: { displayName: true, allocationSubGroups: true },
-        });
-
-        const groupAdmins = await ctx.db.adminInSpace.findMany({
+        const data = await ctx.db.adminInSpace.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: null,
@@ -84,13 +83,11 @@ export const groupRouter = createTRPCRouter({
           select: { user: { select: { id: true, name: true, email: true } } },
         });
 
-        const superAdmin = await isSuperAdmin(ctx.db, userId);
-        if (superAdmin) {
-          const adminLevel = AdminLevel.SUPER;
-          return { adminLevel, groupAdmins, ...data };
-        }
-
-        return { groupAdmins, ...data };
+        return {
+          displayName,
+          allocationSubGroups,
+          groupAdmins: data.map(({ user }) => user),
+        };
       },
     ),
 
@@ -186,7 +183,7 @@ export const groupRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const exists = await isAdminInGroup_v2(tx, { group }, institutionId);
+          const exists = await isGroupAdmin(tx, { group }, institutionId);
           if (exists) throw new TRPCClientError("User is already an admin");
 
           const user = await validateEmailGUIDMatch(

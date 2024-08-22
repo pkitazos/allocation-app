@@ -5,7 +5,7 @@ import { setDiff } from "@/lib/utils/general/set-difference";
 import { setIntersection } from "@/lib/utils/general/set-intersection";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { changeInstanceId } from "@/server/utils/change-instance-id";
+import { changeInstanceId } from "@/server/utils/instance/change-instance-id";
 
 import { updateCapacityUpperBound } from "./update-capacity-upper-bound";
 

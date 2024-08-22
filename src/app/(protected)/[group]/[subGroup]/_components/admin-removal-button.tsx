@@ -4,22 +4,23 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { YesNoAction } from "@/components/yes-no-action";
 
 import { api } from "@/lib/trpc/client";
-import { GroupParams } from "@/lib/validations/params";
-import { YesNoAction } from "@/components/yes-no-action";
+import { SubGroupParams } from "@/lib/validations/params";
+
 import { spacesLabels } from "@/content/spaces";
 
 export function AdminRemovalButton({
   params,
   userId,
 }: {
-  params: GroupParams;
+  params: SubGroupParams;
   userId: string;
 }) {
   const router = useRouter();
 
-  const { mutateAsync } = api.institution.group.removeAdmin.useMutation();
+  const { mutateAsync } = api.institution.subGroup.removeAdmin.useMutation();
 
   function handleRemoval() {
     void toast.promise(

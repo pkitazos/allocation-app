@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 
+import { User } from "@/lib/validations/auth";
 import { InstanceParams } from "@/lib/validations/params";
 
 export async function getSelfDefinedProject(
@@ -15,4 +16,15 @@ export async function getSelfDefinedProject(
       preAllocatedStudentId: studentId,
     },
   });
+}
+
+export async function hasSelfDefinedProject(
+  db: PrismaClient,
+  params: InstanceParams,
+  user: User,
+  roles: Role[],
+) {
+  if (!roles.includes(Role.STUDENT)) return false;
+  const studentId = user.id;
+  return !!(await getSelfDefinedProject(db, params, studentId));
 }

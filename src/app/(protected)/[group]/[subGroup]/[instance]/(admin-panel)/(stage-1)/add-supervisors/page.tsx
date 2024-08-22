@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/trpc/client";
 import { addSupervisorsCsvHeaders } from "@/lib/validations/add-users/csv";
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
-import { adminPanelTabs } from "@/lib/validations/admin-panel-tabs";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { CSVUploadButton } from "./_components/csv-upload-button";
 import { FormSection } from "./_components/form-section";
@@ -133,7 +133,7 @@ export default function Page() {
 
   return (
     <PanelWrapper className="mt-10">
-      <SubHeading>{adminPanelTabs.addSupervisors.title}</SubHeading>
+      <SubHeading>{adminTabs.addSupervisors.title}</SubHeading>
       <div className="mt-6 flex flex-col gap-6">
         <h3 className="text-xl">Upload using CSV</h3>
         <div className="flex items-center gap-6">

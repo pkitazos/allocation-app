@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { InstanceParams } from "@/lib/validations/params";
 import { SupervisorProjectSubmissionDetails } from "@/lib/validations/supervisor-project-submission-details";
 
-import { computeProjectSubmissionTarget } from "@/server/utils/submission-target";
+import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
 export async function computeSubmissionDetails(
   db: PrismaClient,

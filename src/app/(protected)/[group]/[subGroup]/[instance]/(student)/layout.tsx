@@ -1,17 +1,11 @@
 import { ReactNode } from "react";
 import { Role, Stage } from "@prisma/client";
-import { Home } from "lucide-react";
-import Link from "next/link";
 
-import { AccessControl } from "@/components/access-control";
-import { Button, buttonVariants } from "@/components/ui/button";
+import SidePanel from "@/components/side-panel";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
-import { cn } from "@/lib/utils";
-import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { stageLt } from "@/lib/utils/permissions/stage-check";
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -21,10 +15,10 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
-  const role = await api.user.role({ params });
+  const roles = await api.user.roles({ params });
   const stage = await api.institution.instance.currentStage({ params });
 
-  if (role !== Role.STUDENT) {
+  if (!roles.includes(Role.STUDENT)) {
     return (
       <Unauthorised message="You need to be a Student to access this page" />
     );
@@ -36,54 +30,14 @@ export default async function Layout({
     );
   }
 
-  const preAllocatedProject = await api.user.student.isPreAllocated({ params });
-
-  const instancePath = formatParamsAsPath(params);
+  const tabGroups = await api.institution.instance.getSidePanelTabs({ params });
 
   return (
-    <div className="grid w-full grid-cols-6">
-      <div className="col-span-1 mt-28 flex justify-center border-r">
-        <div className="flex h-max w-fit flex-col items-center gap-2 bg-transparent">
-          <Button variant="outline" asChild>
-            <Link className="flex items-center gap-2" href={instancePath}>
-              <Home className="h-4 w-4" />
-              <p>{instanceTabs.instanceHome.title}</p>
-            </Link>
-          </Button>
-          {!preAllocatedProject && (
-            <SideButton
-              href={`${instancePath}/${instanceTabs.myPreferences.href}`}
-            >
-              {instanceTabs.myPreferences.title}
-            </SideButton>
-          )}
-          <AccessControl allowedStages={[Stage.ALLOCATION_PUBLICATION]}>
-            <SideButton
-              href={`${instancePath}/${instanceTabs.myAllocation.href}`}
-            >
-              {instanceTabs.myAllocation.title}
-            </SideButton>
-          </AccessControl>
-        </div>
+    <div className="grid w-full grid-cols-11">
+      <div className="col-span-2 mt-28 flex justify-center border-r pr-2.5">
+        <SidePanel tabGroups={tabGroups} />
       </div>
-      <section className="col-span-5 max-w-6xl pb-32">{children}</section>
+      <section className="col-span-9 max-w-6xl pb-32">{children}</section>
     </div>
-  );
-}
-
-function SideButton({
-  href,
-  children: title,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-      href={href}
-    >
-      {title}
-    </Link>
   );
 }

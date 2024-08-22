@@ -10,6 +10,8 @@ import { api } from "@/lib/trpc/server";
 
 import { spacesLabels } from "@/content/spaces";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const { superAdmins, groups } = await api.institution.groupManagement();
 

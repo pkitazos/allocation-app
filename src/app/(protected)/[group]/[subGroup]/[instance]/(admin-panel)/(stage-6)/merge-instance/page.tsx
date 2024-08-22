@@ -11,6 +11,7 @@ import { InstanceParams } from "@/lib/validations/params";
 import { MergeButton } from "./_components/merge-button";
 
 import { spacesLabels } from "@/content/spaces";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const forkedInstance = await api.institution.instance.get({ params });
@@ -26,7 +27,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <PanelWrapper className="mb-10 mt-6 flex h-max w-full flex-col gap-8 px-6 pb-10">
-      <SubHeading>Merge Instance</SubHeading>
+      <SubHeading>{adminTabs.mergeInstance.title}</SubHeading>
       <p>
         You are about to merge {spacesLabels.instance.short}{" "}
         <span className="font-semibold">{forkedInstance.displayName}</span> into{" "}

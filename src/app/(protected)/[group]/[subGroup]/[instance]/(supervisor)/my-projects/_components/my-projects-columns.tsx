@@ -56,25 +56,32 @@ export function useMyProjectColumns({
           align="start"
           tip={<div className="max-w-xs">{project.id}</div>}
         >
-          <p className="w-28 truncate">{project.id}</p>
+          <p className="max-w-28 truncate">{project.id}</p>
         </WithTooltip>
       ),
     },
     {
       id: "Project Title",
       accessorFn: ({ title }) => title,
-      header: () => <div className="min-w-60 py-1 pl-4">Project Title</div>,
+      header: () => (
+        <div className="min-w-52 max-w-56 py-1 pl-4">Project Title</div>
+      ),
       cell: ({
         row: {
           original: { id, title },
         },
       }) => (
-        <div className="flex min-w-60 items-center justify-start">
+        <div className="flex min-w-52 max-w-56 items-center justify-start">
           <Link
             className={buttonVariants({ variant: "link" })}
             href={`projects/${id}`}
           >
-            {title}
+            <WithTooltip
+              align="start"
+              tip={<div className="max-w-xs">{title}</div>}
+            >
+              <p className="max-w-56 truncate">{title}</p>
+            </WithTooltip>
           </Link>
         </div>
       ),

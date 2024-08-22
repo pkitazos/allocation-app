@@ -9,10 +9,6 @@ import {
   newSupervisorSchema,
 } from "@/lib/validations/add-users/new-user";
 import {
-  adminPanelTabs,
-  adminPanelTabsByStage,
-} from "@/lib/validations/admin-panel-tabs";
-import {
   allocationByProjectDtoSchema,
   allocationByStudentDtoSchema,
   allocationBySupervisorDtoSchema,
@@ -21,10 +17,11 @@ import {
   forkedInstanceSchema,
   updatedInstanceSchema,
 } from "@/lib/validations/instance-form";
-import { instanceTabs } from "@/lib/validations/instance-tabs";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { studentLevelSchema } from "@/lib/validations/student-level";
+import { getTabs } from "@/lib/validations/tabs/admin-panel";
+import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 import {
   createTRPCRouter,
@@ -33,11 +30,15 @@ import {
   protectedProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
-import { adminAccess } from "@/server/utils/admin-access";
-import { getInstance } from "@/server/utils/get-instance";
+import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
-import { getUserRole } from "@/server/utils/user-role";
+import { getInstance } from "@/server/utils/instance";
+import {
+  getAllUserRoles,
+  getUserRole,
+} from "@/server/utils/instance/user-role";
+
+import { hasSelfDefinedProject } from "../../user/_utils/get-self-defined-project";
 
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
@@ -79,18 +80,14 @@ export const instanceRouter = createTRPCRouter({
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => getInstance(ctx.db, params)),
 
-  // TODO: refactor as it potentially doesn't need the adminAccess function
   access: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
       const stage = ctx.instance.stage;
 
-      const superAdmin = await isSuperAdmin(ctx.db, user.id);
-      if (superAdmin) return true;
-
-      const adminInSpace = await adminAccess(ctx.db, user.id, params);
-      if (adminInSpace) return true;
+      const adminExists = await checkAdminPermissions(ctx.db, params, user.id);
+      if (adminExists) return true;
 
       if (user.role === Role.SUPERVISOR) {
         return !supervisorStages.includes(stage);
@@ -804,24 +801,25 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
-  adminPanelTabs: instanceAdminProcedure
+  getSidePanelTabs: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx }) => {
-      const parentInstanceId = ctx.instance.parentInstanceId;
-      const stage = ctx.instance.stage;
+    .query(async ({ ctx, input: { params } }) => {
+      const user = ctx.session.user;
+      const roles = await getAllUserRoles(ctx.db, user, params);
 
-      if (stage === Stage.ALLOCATION_PUBLICATION) {
-        const base = [
-          adminPanelTabs.allocationOverview,
-          adminPanelTabs.exportToCSV,
-          // adminPanelTabs.exportToExternalSystem,
-        ];
-        return !parentInstanceId
-          ? [...base, adminPanelTabs.forkInstance]
-          : [...base, adminPanelTabs.mergeInstance];
-      }
+      const preAllocatedProject = await hasSelfDefinedProject(
+        ctx.db,
+        params,
+        user,
+        roles,
+      );
 
-      return adminPanelTabsByStage[stage];
+      const tabs = getTabs({
+        roles,
+        instance: ctx.instance,
+        preAllocatedProject,
+      });
+      return tabs;
     }),
 
   fork: instanceAdminProcedure

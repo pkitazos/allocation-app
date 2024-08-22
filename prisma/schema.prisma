@@ -17,6 +17,7 @@ enum AdminLevel {
     SUPER
     GROUP
     SUB_GROUP
+    NONE
 }
 
 enum Stage {
@@ -73,34 +74,29 @@ model UserInInstance {
 }
 
 model AdminInSpace {
-    systemId             String              @id @default(uuid()) @map("system_id")
-    user                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId               String              @map("user_id")
-    adminLevel           AdminLevel          @map("admin_level")
+    systemId             String     @id @default(uuid()) @map("system_id")
+    user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId               String     @map("user_id")
+    adminLevel           AdminLevel @map("admin_level")
     // ---
-    allocationGroupId    String?             @map("allocation_group_id")
-    allocationSubGroupId String?             @map("allocation_sub_group_id")
-    // ---
-    allocationGroup      AllocationGroup?    @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
-    allocationSubGroup   AllocationSubGroup? @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
+    allocationGroupId    String?    @map("allocation_group_id")
+    allocationSubGroupId String?    @map("allocation_sub_group_id")
 }
 
 model AllocationGroup {
     id                  String               @id
     displayName         String               @unique @map("display_name")
     allocationSubGroups AllocationSubGroup[]
-    groupAdmins         AdminInSpace[]
 }
 
 model AllocationSubGroup {
     id                  String
     displayName         String               @map("display_name")
     // ---
-    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
     allocationGroupId   String               @map("allocation_group_id")
+    allocationGroup     AllocationGroup      @relation(fields: [allocationGroupId], references: [id], onDelete: Cascade)
     // ---
     allocationInstances AllocationInstance[]
-    subGroupAdmins      AdminInSpace[]
 
     @@id(name: "subGroupId", [allocationGroupId, id])
 }

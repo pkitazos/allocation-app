@@ -2,7 +2,6 @@
 import { PreferenceType, Role } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User } from "next-auth";
 import { toast } from "sonner";
 
 import {
@@ -15,6 +14,7 @@ import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { User } from "@/lib/validations/auth";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 

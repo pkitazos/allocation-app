@@ -4,15 +4,21 @@ import {
   GroupParams,
   groupParamsSchema,
   InstanceParams,
-  instanceParamsSchema,
   RefinedSpaceParams,
   SpaceParams,
   SubGroupParams,
   subGroupParamsSchema,
 } from "@/lib/validations/params";
+
+import { dispatchBySpace } from "../space/dispatch";
+
+import { isGroupAdmin } from "./is-group-admin";
+import { isSubGroupAdmin } from "./is-sub-group-admin";
 import { isSuperAdmin } from "./is-super-admin";
 
-// TODO: eventually deprecate
+/**
+ * @deprecated
+ */
 export async function adminAccess(
   db: PrismaClient,
   userId: string,
@@ -45,6 +51,7 @@ export async function adminAccess(
   return !!access;
 }
 
+// TODO: check if function can be substituted with subGroupAdmin check
 async function isAdminInInstance(
   db: PrismaClient,
   { group, subGroup }: InstanceParams,
@@ -57,36 +64,6 @@ async function isAdminInInstance(
         { allocationGroupId: group, allocationSubGroupId: subGroup },
         { allocationGroupId: group, allocationSubGroupId: null },
       ],
-    },
-  });
-  return !!admin;
-}
-
-async function isAdminInSubgroup(
-  db: PrismaClient,
-  params: SubGroupParams,
-  userId: string,
-) {
-  const admin = await db.adminInSpace.findFirst({
-    where: {
-      allocationGroupId: params.group,
-      allocationSubGroupId: params.subGroup,
-      userId,
-    },
-  });
-  return !!admin;
-}
-
-async function isAdminInGroup(
-  db: PrismaClient,
-  params: GroupParams,
-  userId: string,
-) {
-  const admin = await db.adminInSpace.findFirst({
-    where: {
-      allocationGroupId: params.group,
-      allocationSubGroupId: null,
-      userId,
     },
   });
   return !!admin;
@@ -122,21 +99,19 @@ export async function checkAdminPermissions(
   const superAdmin = await isSuperAdmin(db, userId);
   if (superAdmin) return true;
 
-  const instanceResult = instanceParamsSchema.safeParse(params);
-
-  if (instanceResult.success) {
-    return isAdminInInstance(db, instanceResult.data, userId);
+  function handleGroup(p: GroupParams) {
+    return isGroupAdmin(db, p, userId);
   }
 
-  const subGroupResult = subGroupParamsSchema.safeParse(params);
-
-  if (subGroupResult.success) {
-    const inGroup = await isAdminInGroup(db, subGroupResult.data, userId);
+  async function handleSubGroup(p: SubGroupParams) {
+    const inGroup = await isGroupAdmin(db, p, userId);
     if (inGroup) return true;
-
-    const inSubGroup = await isAdminInSubgroup(db, subGroupResult.data, userId);
-    return inSubGroup;
+    return isSubGroupAdmin(db, p, userId);
   }
 
-  return isAdminInGroup(db, params, userId);
+  async function handleInstance(p: InstanceParams) {
+    return isAdminInInstance(db, p, userId);
+  }
+
+  return dispatchBySpace(params, handleGroup, handleSubGroup, handleInstance);
 }

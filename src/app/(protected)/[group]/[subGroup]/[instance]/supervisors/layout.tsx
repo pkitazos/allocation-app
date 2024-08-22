@@ -13,9 +13,9 @@ export default async function Layout({
   params: InstanceParams;
   children: ReactNode;
 }) {
-  const role = await api.user.role({ params });
+  const roles = await api.user.roles({ params });
 
-  if (role !== Role.ADMIN) {
+  if (!roles.includes(Role.ADMIN)) {
     return (
       <Unauthorised message="You need to be an admin to access this page" />
     );

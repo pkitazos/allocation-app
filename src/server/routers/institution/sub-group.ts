@@ -1,4 +1,4 @@
-import { AdminLevel, Role } from "@prisma/client";
+import { AdminLevel } from "@prisma/client";
 import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
@@ -15,9 +15,9 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/trpc";
+import { isSubGroupAdmin } from "@/server/utils/admin/is-sub-group-admin";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
-import { isAdminInSubGroup_v2 } from "@/server/utils/is-sub-group-admin";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
 
 export const subGroupRouter = createTRPCRouter({
   exists: protectedProcedure
@@ -77,28 +77,31 @@ export const subGroupRouter = createTRPCRouter({
           params: { group, subGroup },
         },
       }) => {
-        const userId = ctx.session.user.id;
-        const data = await ctx.db.allocationSubGroup.findFirstOrThrow({
+        const { displayName, allocationInstances } =
+          await ctx.db.allocationSubGroup.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              id: subGroup,
+            },
+            select: {
+              displayName: true,
+              allocationInstances: true,
+            },
+          });
+
+        const data = await ctx.db.adminInSpace.findMany({
           where: {
             allocationGroupId: group,
-            id: subGroup,
+            allocationSubGroupId: subGroup,
           },
-          select: {
-            displayName: true,
-            allocationInstances: true,
-            subGroupAdmins: {
-              select: {
-                user: { select: { id: true, name: true, email: true } },
-              },
-            },
-          },
+          select: { user: { select: { id: true, name: true, email: true } } },
         });
 
-        const superAdmin = await isSuperAdmin(ctx.db, userId);
-        if (superAdmin) return { adminLevel: AdminLevel.SUPER, ...data };
-
-        // TODO: decouple data from db before sending to client
-        return data;
+        return {
+          displayName,
+          allocationInstances,
+          subGroupAdmins: data.map(({ user }) => user),
+        };
       },
     ),
 
@@ -177,27 +180,6 @@ export const subGroupRouter = createTRPCRouter({
               allocationInstanceId: instance,
             })),
           });
-
-          const admins = await tx.adminInSpace.findMany({
-            where: {
-              OR: [
-                { allocationGroupId: group, allocationSubGroupId: null },
-                { allocationGroupId: group, allocationSubGroupId: subGroup },
-              ],
-            },
-            select: { userId: true },
-          });
-
-          await tx.userInInstance.createMany({
-            data: admins.map(({ userId }) => ({
-              userId,
-              allocationGroupId: group,
-              allocationSubGroupId: subGroup,
-              allocationInstanceId: instance,
-              role: Role.ADMIN,
-            })),
-            skipDuplicates: true,
-          });
         });
       },
     ),
@@ -258,7 +240,7 @@ export const subGroupRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const exists = await isAdminInSubGroup_v2(
+          const exists = await isSubGroupAdmin(
             tx,
             { group, subGroup },
             institutionId,
