@@ -51,12 +51,12 @@ export const adminTabs = {
   },
   algorithmsOverview: {
     title: "Algorithms",
-    href: "algorithms-overview",
+    href: "algorithms",
     icon: "server",
   },
   algorithmDetails: {
     title: "Results",
-    href: "algorithm-details",
+    href: "results",
     icon: "square-kanban",
   },
   manualChanges: {

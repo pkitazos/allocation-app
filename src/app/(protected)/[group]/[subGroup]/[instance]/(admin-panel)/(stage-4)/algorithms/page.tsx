@@ -15,6 +15,17 @@ import {
   RunAlgorithmButton,
 } from "./_components";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.algorithms.title, displayName, app.name]),
+  };
+}
+
 export default async function Page({ params }: { params: InstanceParams }) {
   const selectedAlgName = await api.institution.instance.selectedAlgName({
     params,
