@@ -7,17 +7,18 @@ import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 
 import { api } from "@/lib/trpc/client";
+import { SupervisorDto } from "@/lib/validations/dto/supervisor";
+
+import { useAllSupervisorsColumns } from "./all-supervisors-columns";
 
 import { spacesLabels } from "@/content/spaces";
-
-import { constructColumns, SupervisorData } from "./all-supervisors-columns";
 
 export function SupervisorsDataTable({
   role,
   data,
 }: {
   role: Role;
-  data: SupervisorData[];
+  data: SupervisorDto[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -50,7 +51,7 @@ export function SupervisorsDataTable({
     );
   }
 
-  const columns = constructColumns({
+  const columns = useAllSupervisorsColumns({
     role: role,
     deleteSupervisor: handleDelete,
     deleteSelectedSupervisors: handleDeleteSelected,

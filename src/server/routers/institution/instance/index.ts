@@ -247,22 +247,25 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const supervisors = await ctx.db.userInInstance.findMany({
+        const supervisors = await ctx.db.supervisorInstanceDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.SUPERVISOR,
           },
           select: {
-            user: { select: { id: true, name: true, email: true } },
+            userInInstance: { select: { user: true } },
+            projectAllocationTarget: true,
+            projectAllocationUpperBound: true,
           },
         });
 
-        return supervisors.map(({ user }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
+        return supervisors.map(({ userInInstance, ...s }) => ({
+          id: userInInstance.user.id,
+          name: userInInstance.user.name,
+          email: userInInstance.user.email,
+          projectTarget: s.projectAllocationTarget,
+          projectUpperQuota: s.projectAllocationUpperBound,
         }));
       },
     ),
