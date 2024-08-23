@@ -2,9 +2,8 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { DangerZone } from "@/components/danger-zone";
+
 import { api } from "@/lib/trpc/client";
 import { SubGroupParams } from "@/lib/validations/params";
 

@@ -3,17 +3,11 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { getStudent } from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from ".";
-import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function StudentCard({ studentId }: { studentId: string }) {
   const allStudents = useAllocDetails((s) => s.students);
