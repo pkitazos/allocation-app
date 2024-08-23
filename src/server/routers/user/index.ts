@@ -33,6 +33,12 @@ export const userRouter = createTRPCRouter({
 
   get: protectedProcedure.query(async ({ ctx }) => ctx.session.user),
 
+  getById: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input: { userId } }) => {
+      return await ctx.db.user.findFirstOrThrow({ where: { id: userId } });
+    }),
+
   role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
 
   roles: instanceProcedure

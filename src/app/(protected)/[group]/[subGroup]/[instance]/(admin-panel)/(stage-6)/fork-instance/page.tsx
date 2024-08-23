@@ -3,11 +3,21 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { ForkedInstanceForm } from "./_components/forked-instance-form";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 import { spacesLabels } from "@/content/spaces";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.forkInstance.title, displayName, app.name]),
+  };
+}
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const instance = await api.institution.instance.get({ params });

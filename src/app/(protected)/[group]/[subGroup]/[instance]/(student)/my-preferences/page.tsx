@@ -15,6 +15,17 @@ import { KanbanBoard } from "./_components/kanban-board";
 import { SubmissionArea } from "./_components/submission-area";
 import { LatestSubmissionDataTable } from "./latest-submission-data-table";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.myPreferences.title, displayName, app.name]),
+  };
+}
+
 export default async function Page({ params }: { params: InstanceParams }) {
   const roles = await api.user.roles({ params });
 

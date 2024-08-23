@@ -6,6 +6,21 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([
+      pages.supervisorInvites.title,
+      displayName,
+      app.name,
+    ]),
+  };
+}
+
 export default async function Page({ params }: { params: InstanceParams }) {
   const { supervisors } = await api.institution.instance.invitedSupervisors({
     params,

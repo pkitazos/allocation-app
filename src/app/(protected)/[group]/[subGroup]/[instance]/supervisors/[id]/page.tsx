@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 import { Heading, SubHeading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
 
@@ -5,9 +7,25 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { SupervisorProjectsDataTable } from "./_components/supervisor-projects-data-table";
-import { notFound } from "next/navigation";
+
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 
 type PageParams = InstanceParams & { id: string };
+
+export async function generateMetadata({ params }: { params: PageParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+  const { name } = await api.user.getById({ userId: params.id });
+
+  return {
+    title: metadataTitle([
+      name,
+      pages.allSupervisors.title,
+      displayName,
+      app.name,
+    ]),
+  };
+}
 
 export default async function Page({ params }: { params: PageParams }) {
   const supervisorId = params.id;

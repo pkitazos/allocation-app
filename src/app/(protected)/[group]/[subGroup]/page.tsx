@@ -17,7 +17,14 @@ import { AdminRemovalButton } from "./_components/admin-removal-button";
 import { DeleteConfirmation } from "./_components/delete-confirmation";
 import { FormButton } from "./_components/form-button";
 
+import { app, metadataTitle } from "@/content/config/app";
 import { spacesLabels } from "@/content/spaces";
+
+export async function generateMetadata({ params }: { params: SubGroupParams }) {
+  const { displayName } = await api.institution.subGroup.get({ params });
+
+  return { title: metadataTitle([displayName, app.name]) };
+}
 
 export default async function Page({ params }: { params: SubGroupParams }) {
   const allocationSubGroup = await api.institution.subGroup.exists({ params });
