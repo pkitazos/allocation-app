@@ -8,7 +8,6 @@ import { ProjectForm } from "@/components/project-form";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/lib/trpc/client";
-import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { User } from "@/lib/validations/auth";
 import {
   FormInternalData,
@@ -19,14 +18,15 @@ export function CreateProjectForm({
   formInternalData,
   supervisor,
   requiredFlags,
+  createdByAdmin = false,
 }: {
   formInternalData: FormInternalData;
   supervisor: User;
   requiredFlags: string[];
+  createdByAdmin?: boolean;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
-  const instancePath = formatParamsAsPath(params);
 
   const { mutateAsync } = api.project.create.useMutation();
 
@@ -37,7 +37,7 @@ export function CreateProjectForm({
         supervisorId: supervisor.id,
         newProject: data,
       }).then(() => {
-        router.push(`${instancePath}/my-projects`);
+        router.push(createdByAdmin ? "." : "./my-projects");
         router.refresh();
       }),
       {
@@ -56,7 +56,7 @@ export function CreateProjectForm({
       requiredFlags={requiredFlags}
     >
       <Button variant="outline" size="lg" type="button" asChild>
-        <Link className="w-32" href={`${instancePath}/my-projects`}>
+        <Link className="w-32" href={`./my-projects`}>
           Cancel
         </Link>
       </Button>

@@ -1,9 +1,12 @@
 import { ColumnDef, Table } from "@tanstack/react-table";
 import {
   CopyIcon,
+  CornerDownRightIcon,
   DownloadIcon,
   MoreHorizontalIcon as MoreIcon,
+  PenIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
 import { CircleXIcon } from "@/components/icons/circle-x";
@@ -24,6 +27,8 @@ import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 import { useCsvExport } from "@/lib/utils/csv/use-csv-download";
 import { copyToClipboard } from "@/lib/utils/general/copy-to-clipboard";
 import { ProjectSubmissionDto } from "@/lib/validations/dto/project";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[] {
   const selectCol = getSelectColumn<ProjectSubmissionDto>();
@@ -181,7 +186,7 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
       },
       cell: ({
         row: {
-          original: { email },
+          original: { userId, name, email },
         },
       }) => (
         <div className="flex w-14 items-center justify-center">
@@ -206,6 +211,26 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
                     <span className="group-hover/item:underline">{email}</span>
                   </p>
                 </button>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./supervisors/${userId}`}
+                >
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <span>View {name} Details</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./supervisors/${userId}/edit`}
+                >
+                  <PenIcon className="h-4 w-4" />
+                  <span>
+                    Edit {name} {spacesLabels.instance.short} details
+                  </span>
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

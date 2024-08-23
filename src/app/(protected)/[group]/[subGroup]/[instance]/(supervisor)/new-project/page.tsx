@@ -1,14 +1,13 @@
 import { Stage } from "@prisma/client";
 
 import { Heading } from "@/components/heading";
+import { CreateProjectForm } from "@/components/pages/create-project-form";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { makeRequiredFlags } from "@/lib/utils/general/make-required-flags";
 import { stageGt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
-
-import { CreateProjectForm } from "./_components/create-project-form";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -22,8 +21,6 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const formDetails = await api.project.getFormDetails({ params });
-
   const stage = await api.institution.instance.currentStage({ params });
 
   if (stageGt(stage, Stage.PROJECT_SELECTION)) {
@@ -33,7 +30,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   }
 
   const supervisor = await api.user.get();
-
+  const formDetails = await api.project.getFormDetails({ params });
   const instanceFlags = await api.institution.instance.getFlags({ params });
   const requiredFlags = makeRequiredFlags(instanceFlags);
 
