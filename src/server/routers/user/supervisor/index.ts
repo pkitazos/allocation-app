@@ -15,6 +15,7 @@ import {
 import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
 import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
+import { supervisorInstanceCapacitiesSchema } from "@/lib/validations/supervisor-project-submission-details";
 
 export const supervisorRouter = createTRPCRouter({
   exists: instanceProcedure
@@ -96,6 +97,8 @@ export const supervisorRouter = createTRPCRouter({
               userId: supervisorId,
             },
             select: {
+              projectAllocationTarget: true,
+              projectAllocationUpperBound: true,
               userInInstance: {
                 select: {
                   user: { select: { id: true, name: true, email: true } },
@@ -115,8 +118,10 @@ export const supervisorRouter = createTRPCRouter({
 
         const supervisor = {
           id: supervisorData.userInInstance.user.id,
-          name: supervisorData.userInInstance.user.name!,
-          email: supervisorData.userInInstance.user.email!,
+          name: supervisorData.userInInstance.user.name,
+          email: supervisorData.userInInstance.user.email,
+          projectTarget: supervisorData.projectAllocationTarget,
+          projectUpperQuota: supervisorData.projectAllocationUpperBound,
         };
 
         const projects = supervisorData.userInInstance.supervisorProjects.map(
@@ -218,6 +223,42 @@ export const supervisorRouter = createTRPCRouter({
           ),
           rowProjects: formatSupervisorRowProjects(allProjects),
         };
+      },
+    ),
+
+  updateInstanceCapacities: instanceAdminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        supervisorId: z.string(),
+        capacities: supervisorInstanceCapacitiesSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          supervisorId,
+          capacities: { projectTarget, projectUpperQuota },
+        },
+      }) => {
+        await ctx.db.supervisorInstanceDetails.update({
+          where: {
+            detailsId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: supervisorId,
+            },
+          },
+          data: {
+            projectAllocationTarget: projectTarget,
+            projectAllocationUpperBound: projectUpperQuota,
+          },
+        });
+
+        return { projectTarget, projectUpperQuota };
       },
     ),
 
