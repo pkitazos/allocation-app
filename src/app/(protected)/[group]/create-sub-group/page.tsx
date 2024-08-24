@@ -1,11 +1,22 @@
+import { Heading } from "@/components/heading";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
+import { GroupParams } from "@/lib/validations/params";
 
 import { FormSection } from "./_components/form-section";
+
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 import { spacesLabels } from "@/content/spaces";
-import { Heading } from "@/components/heading";
-import { GroupParams } from "@/lib/validations/params";
+
+export async function generateMetadata({ params }: { params: GroupParams }) {
+  const { displayName } = await api.institution.group.get({ params });
+
+  return {
+    title: metadataTitle([pages.newSubGroup.title, displayName, app.name]),
+  };
+}
 
 export default async function Page({ params }: { params: GroupParams }) {
   const access = await api.institution.group.access({ params });

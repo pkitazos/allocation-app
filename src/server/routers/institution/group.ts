@@ -34,6 +34,14 @@ export const groupRouter = createTRPCRouter({
       },
     ),
 
+  get: protectedProcedure
+    .input(z.object({ params: groupParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      return await ctx.db.allocationGroup.findFirstOrThrow({
+        where: { id: params.group },
+      });
+    }),
+
   access: protectedProcedure
     .input(z.object({ params: groupParamsSchema }))
     .query(

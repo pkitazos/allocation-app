@@ -5,6 +5,16 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { AdjustmentSpace, AllocDetailsProvider } from "./_components";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.manualChanges.title, displayName, app.name]),
+  };
+}
 export default async function Page({ params }: { params: InstanceParams }) {
   const { students, projects, supervisors } =
     await api.institution.instance.matching.rowData({

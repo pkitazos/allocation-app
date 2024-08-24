@@ -11,7 +11,24 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceDataTable } from "./_components/student-preference-data-table";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
 type PageParams = InstanceParams & { id: string };
+
+export async function generateMetadata({ params }: { params: PageParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+  const { name } = await api.user.getById({ userId: params.id });
+
+  return {
+    title: metadataTitle([
+      name,
+      pages.allStudents.title,
+      displayName,
+      app.name,
+    ]),
+  };
+}
 
 export default async function Page({ params }: { params: PageParams }) {
   const studentId = params.id;

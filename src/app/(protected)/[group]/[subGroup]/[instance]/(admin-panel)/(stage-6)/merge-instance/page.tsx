@@ -7,11 +7,21 @@ import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { MergeButton } from "./_components/merge-button";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 import { spacesLabels } from "@/content/spaces";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.mergeInstance.title, displayName, app.name]),
+  };
+}
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const forkedInstance = await api.institution.instance.get({ params });

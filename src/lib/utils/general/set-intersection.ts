@@ -10,6 +10,6 @@
  * const intersection = setIntersection(a, b, (x) => x.id);
  * console.log(intersection); // Output: [{ id: 2, name: 'B' }]
  */
-export function setIntersection<T>(a: T[], b: T[], getKey: (a: T) => any) {
+export function setIntersection<T>(a: T[], b: T[], getKey: (a: T) => string) {
   return a.filter((x) => b.some((y) => getKey(x) === getKey(y)));
 }

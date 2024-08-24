@@ -11,6 +11,17 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { MyProjectsDataTable } from "./_components/my-projects-data-table";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.myProjects.title, displayName, app.name]),
+  };
+}
+
 export default async function Page({ params }: { params: InstanceParams }) {
   const { submissionTarget, rowProjects } = await api.user.supervisor.projects({
     params,

@@ -10,6 +10,17 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { CreateProjectForm } from "./_components/create-project-form";
 
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.newProject.title, displayName, app.name]),
+  };
+}
+
 export default async function Page({ params }: { params: InstanceParams }) {
   const formDetails = await api.project.getFormDetails({ params });
 

@@ -3,9 +3,19 @@ import { SubHeading } from "@/components/heading";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
+import { EditInstanceForm } from "./_components/edit-instance-form";
+
+import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 import { spacesLabels } from "@/content/spaces";
 
-import { EditInstanceForm } from "./_components/edit-instance-form";
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([pages.instanceEdit.title, displayName, app.name]),
+  };
+}
 
 export default async function Page({ params }: { params: InstanceParams }) {
   const currentInstance = await api.institution.instance.getEditFormDetails({

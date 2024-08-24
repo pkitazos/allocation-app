@@ -34,6 +34,15 @@ export const subGroupRouter = createTRPCRouter({
         });
       },
     ),
+
+  get: protectedProcedure
+    .input(z.object({ params: subGroupParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      return await ctx.db.allocationSubGroup.findFirstOrThrow({
+        where: { allocationGroupId: params.group, id: params.subGroup },
+      });
+    }),
+
   access: protectedProcedure
     .input(z.object({ params: subGroupParamsSchema }))
     .query(

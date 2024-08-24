@@ -1,9 +1,15 @@
+import { Metadata } from "next";
+
 import { Separator } from "@/components/ui/separator";
 import { UserInstances } from "@/components/user-instances";
 
 import { auth } from "@/lib/auth";
 
+import { app, metadataTitle } from "@/content/config/app";
+
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: metadataTitle(["Home", app.name]) };
 
 export default async function Home() {
   const user = await auth();

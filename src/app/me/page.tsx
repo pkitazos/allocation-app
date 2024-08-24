@@ -1,8 +1,16 @@
+import { Metadata } from "next";
+
 import { PageWrapper } from "@/components/page-wrapper";
 
 import { auth } from "@/lib/auth";
 
+import { app, metadataTitle } from "@/content/config/app";
+
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: metadataTitle(["me", app.institution.name, app.name]),
+};
 
 export default async function Page() {
   const user = await auth();

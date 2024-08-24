@@ -1,10 +1,11 @@
 import { SubHeading } from "@/components/heading";
-import { InviteTable } from "@/components/invite-table";
 import { PanelWrapper } from "@/components/panel-wrapper";
+import { NoteCard } from "@/components/ui/note-card";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
+
+import { CreateProjectsSection } from "./_components/send-allocations";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 
   return {
     title: metadataTitle([
-      pages.supervisorInvites.title,
+      pages.exportToExternalSystem.title,
       displayName,
       app.name,
     ]),
@@ -22,16 +23,19 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { supervisors } = await api.institution.instance.invitedSupervisors({
-    params,
-  });
-
+  console.log(params);
   return (
-    <PanelWrapper className="mt-10 flex flex-col items-start gap-8 px-12">
-      <SubHeading className="text-2xl">
-        {adminTabs.supervisorInvites.title}
+    <PanelWrapper className="flex flex-col items-center justify-center gap-5 pt-8">
+      <NoteCard>
+        Include note card here explaining the steps/what will happen?
+      </NoteCard>
+      <SubHeading className="mt-3">
+        Check users exist on Assessment System
       </SubHeading>
-      <InviteTable users={supervisors} />
+      <SubHeading className="mt-16">
+        Create Projects on Assessment System
+      </SubHeading>
+      <CreateProjectsSection />
     </PanelWrapper>
   );
 }

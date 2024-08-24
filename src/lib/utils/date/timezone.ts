@@ -5,7 +5,7 @@
  */
 function getLastSunday(year: number, month: number) {
   // Create date for last day in month
-  var d = new Date(year, month, 0);
+  const d = new Date(year, month, 0);
   // Adjust to previous Sunday
   d.setDate(d.getDate() - d.getDay());
   return d;
@@ -27,9 +27,9 @@ function formatDate(d: Date, offset: number) {
   // Default offset to 0
   offset = offset || 0;
   // Generate offset string
-  var offSign = offset < 0 ? "-" : "+";
+  const offSign = offset < 0 ? "-" : "+";
   offset = Math.abs(offset);
-  var offString =
+  const offString =
     offSign +
     ("0" + ((offset / 60) | 0)).slice(-2) +
     ":" +
@@ -62,8 +62,8 @@ function formatDate(d: Date, offset: number) {
 function getLondonTime(d: Date) {
   // Get start and end dates for daylight saving for supplied date's year
   // Set UTC date values and time to 01:00
-  var dstS = getLastSunday(d.getFullYear(), 3);
-  var dstE = getLastSunday(d.getFullYear(), 10);
+  let dstS = getLastSunday(d.getFullYear(), 3);
+  let dstE = getLastSunday(d.getFullYear(), 10);
   dstS = new Date(
     Date.UTC(dstS.getFullYear(), dstS.getMonth(), dstS.getDate(), 1),
   );

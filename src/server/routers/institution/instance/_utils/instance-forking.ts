@@ -1,4 +1,4 @@
-import { Flag, Role, Tag, UserInInstance } from "@prisma/client";
+import { Flag, Role, Tag } from "@prisma/client";
 
 import { PrismaTransactionClient } from "@/lib/db";
 import { findItemFromTitle } from "@/lib/utils/general/find-item-from-title";

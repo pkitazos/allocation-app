@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
 
 import { Heading, SubHeading } from "@/components/heading";
@@ -8,9 +9,14 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import { api } from "@/lib/trpc/server";
 
+import { app, metadataTitle } from "@/content/config/app";
 import { spacesLabels } from "@/content/spaces";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: metadataTitle(["Admin Panel", app.institution.name, app.name]),
+};
 
 export default async function Page() {
   const { superAdmins, groups } = await api.institution.groupManagement();
