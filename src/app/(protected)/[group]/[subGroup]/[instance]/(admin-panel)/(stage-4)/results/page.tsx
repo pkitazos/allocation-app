@@ -3,7 +3,6 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { ResultsSection } from "./_components/results-section";
 
@@ -22,9 +21,7 @@ export default function Page() {
   return (
     <PanelWrapper className="mt-20 flex flex-col items-center">
       <div className="flex w-full flex-col gap-3">
-        <SubHeading className="mb-6 text-2xl">
-          {adminTabs.algorithmDetails.title}
-        </SubHeading>
+        <SubHeading className="mb-6 text-2xl">{pages.results.title}</SubHeading>
         <ResultsSection />
       </div>
     </PanelWrapper>
