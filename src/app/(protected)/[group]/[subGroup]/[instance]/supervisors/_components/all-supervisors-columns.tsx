@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
+  PenIcon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -195,7 +196,12 @@ export function useAllSupervisorsColumns({
             description={`You are about to remove "${supervisor.name}" from the supervisor list. Do you wish to proceed?`}
           >
             <DropdownMenuContent align="center" side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                Actions
+                <span className="ml-2 text-muted-foreground">
+                  for {supervisor.name}
+                </span>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link
@@ -203,7 +209,16 @@ export function useAllSupervisorsColumns({
                   href={`./supervisors/${supervisor.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
-                  <span>View Supervisor Details</span>
+                  <span>View supervisor details</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./supervisors/${supervisor.id}?edit=true`}
+                >
+                  <PenIcon className="h-4 w-4" />
+                  <span>Edit supervisor details</span>
                 </Link>
               </DropdownMenuItem>
               <AccessControl
@@ -215,7 +230,7 @@ export function useAllSupervisorsColumns({
                     trigger={
                       <button className="flex items-center gap-2">
                         <Trash2Icon className="h-4 w-4" />
-                        <span>Remove Supervisor {supervisor.name}</span>
+                        <span>Remove from Instance</span>
                       </button>
                     }
                   />

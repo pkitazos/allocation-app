@@ -1,6 +1,12 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal as MoreIcon, Trash2Icon } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  MoreHorizontal as MoreIcon,
+  PenIcon,
+  Trash2Icon,
+} from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
@@ -174,14 +180,37 @@ export function constructColumns({
               description={`You are about to remove "${fullName}" from the supervisor list. Do you wish to proceed?`}
             >
               <DropdownMenuContent align="center" side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  Actions
+                  <span className="ml-2 text-muted-foreground">
+                    for {fullName}
+                  </span>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem className="group/item">
+                  <Link
+                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                    href={`./supervisors/${institutionId}`}
+                  >
+                    <CornerDownRightIcon className="h-4 w-4" />
+                    <span>View supervisor details</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="group/item">
+                  <Link
+                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                    href={`./supervisors/${institutionId}?edit=true`}
+                  >
+                    <PenIcon className="h-4 w-4" />
+                    <span>Edit supervisor details</span>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
                   <YesNoActionTrigger
                     trigger={
                       <button className="flex items-center gap-2">
                         <Trash2Icon className="h-4 w-4" />
-                        <span>Remove Supervisor {fullName}</span>
+                        <span>Remove from Instance</span>
                       </button>
                     }
                   />

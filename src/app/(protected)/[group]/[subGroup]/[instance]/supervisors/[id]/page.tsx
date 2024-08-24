@@ -9,15 +9,13 @@ import { UserDetailsCard } from "@/components/user-details-card";
 
 import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
-import { InstanceParams } from "@/lib/validations/params";
+import { PageParams } from "@/lib/validations/params";
 
 import { InstanceDetailsCard } from "./_components/instance-details-card";
 import { SupervisorProjectsDataTable } from "./_components/supervisor-projects-data-table";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
-
-type PageParams = InstanceParams & { id: string };
 
 export async function generateMetadata({ params }: { params: PageParams }) {
   const { displayName } = await api.institution.instance.get({ params });

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpToLineIcon, PenIcon, TargetIcon } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -33,15 +34,24 @@ export function InstanceDetailsCard({
 }: {
   supervisor: User & SupervisorInstanceCapacities;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const editMode = searchParams.get("edit") ?? false;
+
   const params = useInstanceParams();
   const [capacities, setCapacities] =
     useState<SupervisorInstanceCapacities>(supervisor);
-  const [editMode, setEditMode] = useState(false);
 
   const form = useForm<SupervisorInstanceCapacities>({
     resolver: zodResolver(supervisorInstanceCapacitiesSchema),
     defaultValues: capacities,
   });
+
+  function changeEditMode(newMode: boolean) {
+    if (!newMode) router.push(pathname);
+    else router.push(`${pathname}?edit=true`);
+  }
 
   const { mutateAsync } =
     api.user.supervisor.updateInstanceCapacities.useMutation();
@@ -52,14 +62,16 @@ export function InstanceDetailsCard({
         params,
         supervisorId: supervisor.id,
         capacities: data,
-      }).then((newCapacities) => setCapacities(newCapacities)),
+      }).then((newCapacities) => {
+        setCapacities(newCapacities);
+        changeEditMode(false);
+      }),
       {
         loading: `Updating supervisor ${spacesLabels.instance.short} capacities...`,
         success: `Successfully updated supervisor ${spacesLabels.instance.short} capacities!`,
         error: "Something went wrong",
       },
     );
-    setEditMode(false);
   }
 
   return (
@@ -69,7 +81,7 @@ export function InstanceDetailsCard({
           <WithTooltip tip="Edit Target and Upper Quota">
             <button
               className="flex items-center gap-3 "
-              onClick={() => setEditMode((prev) => !prev)}
+              onClick={() => changeEditMode(!editMode)}
             >
               <p className="group-hover:underline group-hover:underline-offset-2">
                 Supervisor capacities
@@ -132,7 +144,7 @@ export function InstanceDetailsCard({
                   className="w-full"
                   variant="outline"
                   type="button"
-                  onClick={() => setEditMode(false)}
+                  onClick={() => changeEditMode(false)}
                 >
                   Cancel
                 </Button>

@@ -2,15 +2,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CopyIcon,
   CornerDownRightIcon,
-  FilePlus2,
   MoreHorizontalIcon as MoreIcon,
   PenIcon,
 } from "lucide-react";
 import Link from "next/link";
 
 import { ExportCSVButton } from "@/components/export-csv";
-import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
-import { CircleXIcon } from "@/components/icons/circle-x";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -26,17 +24,24 @@ import {
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { copyToClipboard } from "@/lib/utils/general/copy-to-clipboard";
-import { ProjectSubmissionDto } from "@/lib/validations/dto/project";
+import { SupervisorInviteDto } from "@/lib/validations/dto/supervisor";
 
-export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[] {
-  const selectCol = getSelectColumn<ProjectSubmissionDto>();
+export function useSupervisorInvitesColumns(): ColumnDef<SupervisorInviteDto>[] {
+  const selectCol = getSelectColumn<SupervisorInviteDto>();
 
-  const baseCols: ColumnDef<ProjectSubmissionDto>[] = [
+  const baseCols: ColumnDef<SupervisorInviteDto>[] = [
     {
       id: "Name",
       accessorFn: (s) => s.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
+      ),
+    },
+    {
+      id: "GUID",
+      accessorFn: (s) => s.id,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="GUID" canFilter />
       ),
     },
     {
@@ -47,109 +52,50 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
       ),
     },
     {
-      id: "Already Submitted",
-      accessorFn: (s) => s.submittedProjectsCount,
+      id: "Status",
+      accessorFn: (s) => s.joined,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          className="w-28"
-          column={column}
-          title="Already Submitted"
-        />
+        <DataTableColumnHeader column={column} title="Email" />
       ),
       cell: ({
         row: {
-          original: { submittedProjectsCount },
+          original: { joined },
         },
-      }) => <p className="w-full text-center">{submittedProjectsCount}</p>,
-      footer: ({ table }) => {
-        const rows = table.getCoreRowModel().rows;
-
-        const count = rows.reduce(
-          (acc, { original: r }) => acc + r.submittedProjectsCount,
-          0,
-        );
-        return (
-          <WithTooltip
-            tip={
-              <p>
-                {count} projects have been submitted by {rows.length}{" "}
-                supervisors
-              </p>
-            }
-          >
-            <p className="w-full text-center">
-              Total:{" "}
-              <span className="underline decoration-slate-400 decoration-dotted underline-offset-2">
-                {count}
-              </span>
-            </p>
-          </WithTooltip>
-        );
+      }) =>
+        joined ? (
+          <Badge className="bg-green-700">joined</Badge>
+        ) : (
+          <Badge className="bg-muted-foreground">invited</Badge>
+        ),
+      filterFn: (row, columnId, value) => {
+        const selectedFilters = value as ("joined" | "invited")[];
+        const rowValue = row.getValue(columnId) as boolean;
+        const joined = rowValue ? "joined" : "invited";
+        return selectedFilters.includes(joined);
       },
-    },
-    {
-      id: "Submission Target",
-      accessorFn: (s) => s.submissionTarget,
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          className="w-28"
-          column={column}
-          title="Submission Target"
-        />
-      ),
-      cell: ({
-        row: {
-          original: { submissionTarget },
-        },
-      }) => <p className="w-full text-center">{submissionTarget}</p>,
       footer: ({ table }) => {
         const rows = table.getCoreRowModel().rows;
         const count = rows.reduce(
-          (acc, { original: r }) =>
-            r.submittedProjectsCount >= r.submissionTarget ? acc + 1 : acc,
+          (acc, { original: r }) => (r.joined ? acc + 1 : acc),
           0,
         );
         return (
           <WithTooltip
             tip={
               <p>
-                {count} of {rows.length} supervisors have met their submission
-                target
+                {count} of {rows.length} supervisors have joined the platform at
+                least once
               </p>
             }
           >
             <p className="w-full text-center">
-              Met Target:{" "}
+              Joined:{" "}
               <span className="underline decoration-slate-400 decoration-dotted underline-offset-2">
                 {count} / {rows.length}
               </span>
             </p>
           </WithTooltip>
         );
-      },
-    },
-    {
-      id: "Target Met",
-      accessorFn: (s) => s.targetMet,
-      header: "Target Met",
-      cell: ({
-        row: {
-          original: { targetMet },
-        },
-      }) => (
-        <div className="flex items-center justify-center">
-          {targetMet ? (
-            <CircleCheckSolidIcon className="h-4 w-4 fill-green-500" />
-          ) : (
-            <CircleXIcon className="h-4 w-4 fill-destructive" />
-          )}
-        </div>
-      ),
-      filterFn: (row, columnId, value) => {
-        const selectedFilters = value as ("yes" | "no")[];
-        const rowValue = row.getValue(columnId) as boolean;
-        const targetMet = rowValue ? "yes" : "no";
-        return selectedFilters.includes(targetMet);
       },
     },
     {
@@ -163,10 +109,9 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
           .getSelectedRowModel()
           .rows.map(({ original: r }) => [
             r.name,
+            r.id,
             r.email,
-            r.submittedProjectsCount,
-            r.submissionTarget,
-            r.targetMet ? 1 : 0,
+            r.joined ? 1 : 0,
           ]);
 
         if (someSelected)
@@ -184,13 +129,7 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="flex items-center gap-2 text-primary">
                     <ExportCSVButton
-                      header={[
-                        "Name",
-                        "Email",
-                        "Already Submitted",
-                        "Submission Target",
-                        "Target Met",
-                      ]}
+                      header={["Name", "GUID", "Email", "Joined"]}
                       data={data}
                     />
                   </DropdownMenuItem>
@@ -203,7 +142,7 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
       },
       cell: ({
         row: {
-          original: { userId, name, email },
+          original: { id, name, email },
         },
       }) => (
         <div className="flex w-14 items-center justify-center">
@@ -223,7 +162,7 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
               <DropdownMenuItem className="group/item">
                 <Link
                   className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`./supervisors/${userId}`}
+                  href={`./supervisors/${id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
                   <span>View supervisor details</span>
@@ -232,7 +171,7 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
               <DropdownMenuItem className="group/item">
                 <Link
                   className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`./supervisors/${userId}?edit=true`}
+                  href={`./supervisors/${id}?edit=true`}
                 >
                   <PenIcon className="h-4 w-4" />
                   <span>Edit supervisor details</span>
@@ -247,20 +186,12 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
                   <span>Copy email</span>
                 </button>
               </DropdownMenuItem>
-              <DropdownMenuItem className="group/item">
-                <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`./supervisors/${userId}/new-project`}
-                >
-                  <FilePlus2 className="h-4 w-4" />
-                  <span>Create new project</span>
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       ),
     },
   ];
+
   return [selectCol, ...baseCols];
 }

@@ -34,3 +34,7 @@ export const refinedSpaceParamsSchema = z.object({
 });
 
 export type RefinedSpaceParams = z.infer<typeof refinedSpaceParamsSchema>;
+
+export type PageParams = InstanceParams & { id: string };
+
+export type SearchParams = { [key: string]: string | string[] | undefined };

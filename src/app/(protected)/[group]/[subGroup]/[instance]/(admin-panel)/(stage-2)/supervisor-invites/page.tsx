@@ -1,10 +1,11 @@
 import { SubHeading } from "@/components/heading";
-import { InviteTable } from "@/components/invite-table";
 import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { adminTabs } from "@/lib/validations/tabs/admin-panel";
+
+import { SupervisorInvitesDataTable } from "./_components/supervisor-invites-data-table";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -31,7 +32,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
       <SubHeading className="text-2xl">
         {adminTabs.supervisorInvites.title}
       </SubHeading>
-      <InviteTable users={supervisors} />
+      <SupervisorInvitesDataTable data={supervisors} />
     </PanelWrapper>
   );
 }
