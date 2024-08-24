@@ -8,8 +8,8 @@ import { ShibUser } from "@/lib/validations/auth";
 import { env } from "@/env";
 
 export async function getShibUserFromHeaders() {
-  let shib_guid: string | null = null;
-  let shib_displayName: string | null = null;
+  let shib_guid: string | null = "pk150z";
+  let shib_displayName: string | null = "Petros";
 
   if (env.DEV_ENV !== "LOCAL") {
     shib_guid = headers().get("DH75HDYT76");

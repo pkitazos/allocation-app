@@ -68,12 +68,19 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
           (acc, { original: r }) => acc + r.submittedProjectsCount,
           0,
         );
+
+        const supervisorsWithSubmissions = rows.reduce(
+          (acc, { original: r }) =>
+            r.submittedProjectsCount > 0 ? acc + 1 : acc,
+          0,
+        );
+
         return (
           <WithTooltip
             tip={
               <p>
-                {count} projects have been submitted by {rows.length}{" "}
-                supervisors
+                {count} projects have been submitted by{" "}
+                {supervisorsWithSubmissions} supervisors
               </p>
             }
           >
