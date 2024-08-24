@@ -85,10 +85,22 @@ export const serverResponseSchema = z.object({
   data: matchingResultSchema.optional(),
 });
 
-export interface MatchingDetailsDto {
+export type MatchingDetailsDto = {
   studentId: string;
   studentName: string;
   projectId: string;
   projectTitle: string;
   studentRank: number;
-}
+};
+
+export const supervisorMatchingDetailsDtoSchema = z.object({
+  supervisorId: z.string(),
+  supervisorName: z.string(),
+  projectTarget: z.number(),
+  projectUpperQuota: z.number(),
+  allocationCount: z.number(),
+});
+
+export type SupervisorMatchingDetailsDto = z.infer<
+  typeof supervisorMatchingDetailsDtoSchema
+>;

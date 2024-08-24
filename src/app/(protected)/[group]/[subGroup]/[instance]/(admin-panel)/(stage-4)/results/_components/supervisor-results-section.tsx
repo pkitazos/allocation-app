@@ -8,12 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { api } from "@/lib/trpc/client";
 
-import { detailsColumns } from "./details-columns";
+import { supervisorResultsColumns } from "./supervisor-results-columns";
 
-export function ResultsSection() {
+export function SupervisorResultsSection() {
   const params = useInstanceParams();
   const { status, data } =
-    api.institution.instance.algorithm.allStudentResults.useQuery({
+    api.institution.instance.algorithm.allSupervisorResults.useQuery({
       params,
     });
 
@@ -36,7 +36,7 @@ export function ResultsSection() {
       <Separator className="my-4" />
       {data.results.map((result, i) => (
         <TabsContent key={i} value={result.algName}>
-          <DataTable columns={detailsColumns} data={result.data} />
+          <DataTable columns={supervisorResultsColumns} data={result.data} />
         </TabsContent>
       ))}
     </Tabs>

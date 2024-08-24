@@ -1,5 +1,6 @@
+import { Prisma } from "@prisma/client";
+
 import { blankResult, matchingResultSchema } from "@/lib/validations/matching";
-import { JsonValue } from "@prisma/client/runtime/library";
 
 export function extractMatchingDetails(
   allStudents: { id: string; name: string | null }[],
@@ -40,7 +41,7 @@ export function extractMatchingDetails(
   };
 }
 
-export function parseMatchingResult(data: JsonValue) {
+export function parseMatchingResult(data: Prisma.JsonValue) {
   const res = matchingResultSchema.safeParse(JSON.parse(data as string));
   return res.success ? res.data : blankResult;
 }
