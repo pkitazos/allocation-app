@@ -55,7 +55,7 @@ export function useSupervisorInvitesColumns(): ColumnDef<SupervisorInviteDto>[] 
       id: "Status",
       accessorFn: (s) => s.joined,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Email" />
+        <DataTableColumnHeader column={column} title="Status" />
       ),
       cell: ({
         row: {
