@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
+  PenIcon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -22,24 +23,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 import {
   previousStages,
   stageLt,
   stageLte,
 } from "@/lib/utils/permissions/stage-check";
-import {
-  YesNoActionContainer,
-  YesNoActionTrigger,
-} from "@/components/yes-no-action";
+import { SupervisorDto } from "@/lib/validations/dto/supervisor";
 
-export type SupervisorData = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-export function constructColumns({
+export function useAllSupervisorsColumns({
   role,
   deleteSupervisor,
   deleteSelectedSupervisors,
@@ -47,15 +43,15 @@ export function constructColumns({
   role: Role;
   deleteSupervisor: (id: string) => Promise<void>;
   deleteSelectedSupervisors: (ids: string[]) => Promise<void>;
-}): ColumnDef<SupervisorData>[] {
+}): ColumnDef<SupervisorDto>[] {
   const stage = useInstanceStage();
 
-  const selectCol = getSelectColumn<SupervisorData>();
+  const selectCol = getSelectColumn<SupervisorDto>();
 
-  const userCols: ColumnDef<SupervisorData>[] = [
+  const userCols: ColumnDef<SupervisorDto>[] = [
     {
       id: "GUID",
-      accessorFn: ({ id }) => id,
+      accessorFn: (s) => s.id,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="GUID" canFilter />
       ),
@@ -70,7 +66,7 @@ export function constructColumns({
     },
     {
       id: "Name",
-      accessorFn: ({ name }) => name,
+      accessorFn: (s) => s.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
       ),
@@ -89,14 +85,42 @@ export function constructColumns({
     },
     {
       id: "Email",
-      accessorFn: ({ email }) => email,
+      accessorFn: (s) => s.email,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
       ),
     },
+    {
+      id: "Target",
+      accessorFn: (s) => s.projectTarget,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          className="w-24"
+          column={column}
+          title="Target"
+        />
+      ),
+      cell: ({ row: { original: s } }) => (
+        <p className="w-24 text-center">{s.projectTarget}</p>
+      ),
+    },
+    {
+      id: "Upper Quota",
+      accessorFn: (s) => s.projectUpperQuota,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          className="w-28"
+          column={column}
+          title="Upper Quota"
+        />
+      ),
+      cell: ({ row: { original: s } }) => (
+        <p className="w-28 text-center">{s.projectUpperQuota}</p>
+      ),
+    },
   ];
 
-  const actionsCol: ColumnDef<SupervisorData> = {
+  const actionsCol: ColumnDef<SupervisorDto> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
@@ -172,7 +196,12 @@ export function constructColumns({
             description={`You are about to remove "${supervisor.name}" from the supervisor list. Do you wish to proceed?`}
           >
             <DropdownMenuContent align="center" side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                Actions
+                <span className="ml-2 text-muted-foreground">
+                  for {supervisor.name}
+                </span>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link
@@ -180,7 +209,16 @@ export function constructColumns({
                   href={`./supervisors/${supervisor.id}`}
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
-                  <span>View Supervisor Details</span>
+                  <span>View supervisor details</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./supervisors/${supervisor.id}?edit=true`}
+                >
+                  <PenIcon className="h-4 w-4" />
+                  <span>Edit supervisor details</span>
                 </Link>
               </DropdownMenuItem>
               <AccessControl
@@ -192,7 +230,7 @@ export function constructColumns({
                     trigger={
                       <button className="flex items-center gap-2">
                         <Trash2Icon className="h-4 w-4" />
-                        <span>Remove Supervisor {supervisor.name}</span>
+                        <span>Remove from Instance</span>
                       </button>
                     }
                   />
