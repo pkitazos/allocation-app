@@ -8,9 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { api } from "@/lib/trpc/client";
 
-import { detailsColumns } from "./details-columns";
+import { studentResultsColumns } from "./student-results-columns";
 
-export function ResultsSection() {
+export function StudentResultsSection() {
   const params = useInstanceParams();
   const { status, data } =
     api.institution.instance.algorithm.allStudentResults.useQuery({
@@ -36,7 +36,7 @@ export function ResultsSection() {
       <Separator className="my-4" />
       {data.results.map((result, i) => (
         <TabsContent key={i} value={result.algName}>
-          <DataTable columns={detailsColumns} data={result.data} />
+          <DataTable columns={studentResultsColumns} data={result.data} />
         </TabsContent>
       ))}
     </Tabs>

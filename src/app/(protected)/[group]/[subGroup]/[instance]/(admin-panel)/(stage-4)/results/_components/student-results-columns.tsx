@@ -6,7 +6,7 @@ import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { MatchingDetailsDto } from "@/lib/validations/matching";
 
-export const detailsColumns: ColumnDef<MatchingDetailsDto>[] = [
+export const studentResultsColumns: ColumnDef<MatchingDetailsDto>[] = [
   {
     id: "GUID",
     accessorFn: ({ studentId }) => studentId,

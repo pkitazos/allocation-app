@@ -10,7 +10,7 @@ import {
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
-import { ResultsSection } from "./_components/results-section";
+import { StudentResultsSection } from "./_components/student-results-section";
 import { SupervisorResultsSection } from "./_components/supervisor-results-section";
 
 import { app, metadataTitle } from "@/content/config/app";
@@ -33,7 +33,7 @@ export default function Page() {
           <AccordionItem value="item-1">
             <AccordionTrigger>By Students</AccordionTrigger>
             <AccordionContent>
-              <ResultsSection />
+              <StudentResultsSection />
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
