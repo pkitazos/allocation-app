@@ -23,7 +23,7 @@ import {
 import { checkAdminPermissions } from "./utils/admin/access";
 import { isSuperAdmin } from "./utils/admin/is-super-admin";
 import { getInstance } from "./utils/instance";
-import { getUserRole } from "./utils/instance/user-role";
+import { getAllUserRoles, getUserRole } from "./utils/instance/user-role";
 
 /**
  * 1. CONTEXT
@@ -170,6 +170,14 @@ export const instanceProcedure = protectedProcedure
  * Procedure aware of the current user's role.
  */
 export const roleAwareProcedure = instanceProcedure.use(userRoleMiddleware);
+
+export const multiRoleAwareProcedure = instanceProcedure.use(
+  async ({ ctx, next }) => {
+    const user = ctx.session.user;
+    const roles = await getAllUserRoles(ctx.db, user, ctx.instance.params);
+    return next({ ctx: { session: { user: { ...user, roles } } } });
+  },
+);
 
 /**
  * Procedure that enforces the user is a student.

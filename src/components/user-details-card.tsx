@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { ClassValue } from "clsx";
 import { HashIcon, UserIcon } from "lucide-react";
 
@@ -11,10 +12,12 @@ export function UserDetailsCard({
   user,
   className,
   full = false,
+  children: additionalRows,
 }: {
   user: User;
   className?: ClassValue;
   full?: boolean;
+  children?: ReactNode;
 }) {
   return (
     <Card className={cn("w-full", className)}>
@@ -48,6 +51,7 @@ export function UserDetailsCard({
             <span className="mr-2 font-semibold">Email:</span>
             {user.email}
           </div>
+          {additionalRows}
         </div>
       </CardContent>
     </Card>
