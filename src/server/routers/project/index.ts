@@ -16,6 +16,7 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  multiRoleAwareProcedure,
   protectedProcedure,
 } from "@/server/trpc";
 
@@ -321,10 +322,20 @@ export const projectRouter = createTRPCRouter({
     ),
 
   // TODO: convert output to discriminated union
-  getUserAccess: protectedProcedure
+
+  getUserAccess: multiRoleAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .query(async ({ ctx, input: { params, projectId } }) => {
       const user = ctx.session.user;
+
+      // ! set operations seem to be broken
+      // const allowedRoles = new Set([Role.ADMIN, Role.SUPERVISOR]);
+      // if (user.roles.isSubsetOf(allowedRoles))
+
+      if (user.roles.has(Role.ADMIN) || user.roles.has(Role.SUPERVISOR)) {
+        return { access: true, studentFlagLabel: "" };
+      }
+
       const { flagOnProjects, preAllocatedStudentId } =
         await ctx.db.project.findFirstOrThrow({
           where: {

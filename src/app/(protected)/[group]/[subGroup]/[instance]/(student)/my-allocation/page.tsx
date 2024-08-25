@@ -1,10 +1,15 @@
+import { Stage } from "@prisma/client";
+
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Unauthorised } from "@/components/unauthorised";
 
+import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { toPositional } from "@/lib/utils/general/to-positional";
+import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 import { instanceTabs } from "@/lib/validations/tabs/instance";
 
@@ -20,7 +25,20 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocatedProject = await api.user.student.allocatedProject({ params });
+  const stage = await api.institution.instance.currentStage({ params });
+
+  if (stageLt(stage, Stage.ALLOCATION_PUBLICATION)) {
+    return (
+      <Unauthorised message="You are not allowed to access this page at this time" />
+    );
+  }
+
+  const user = await auth();
+
+  const allocatedProject = await api.user.student.getAllocatedProject({
+    params,
+    studentId: user.id,
+  });
 
   return (
     <>
