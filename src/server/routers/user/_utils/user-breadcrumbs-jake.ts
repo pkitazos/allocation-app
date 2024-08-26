@@ -5,7 +5,9 @@ import {
   makePermission,
   PERMISSIONS,
 } from "./breadcrumbs-v2";
-import { isSuperAdmin } from "@/server/utils/is-super-admin";
+
+import { partitionSpaces } from "@/server/utils/space/partition";
+import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 
 export async function validateSegments(
   db: PrismaClient,
@@ -14,7 +16,7 @@ export async function validateSegments(
 ) {
   if (segments.length === 0) return [];
 
-  const userPermsSet = getUserPerms(db, userId);
+  const userPermsSet = await getUserPerms(db, userId);
 
   return segments.map((segment, i) => ({
     segment,
@@ -27,13 +29,20 @@ export async function validateSegments(
 }
 
 // TODO implement this.
-async function getUserPerms(db: PrismaClient, userId: string): Set<string> {
-  if (await isSuperAdmin(db, userId)) return PERMISSIONS.superAdmin;
+async function getUserPerms(
+  db: PrismaClient,
+  userId: string,
+): Promise<Set<string>> {
+  const superAdmin = await isSuperAdmin(db, userId);
+  if (superAdmin) return new Set([PERMISSIONS.superAdmin]);
 
-  // @ts-expect-error TODO
-  const groupAdminGroups: { "[group]": string }[] = getGroupAdminGroups();
+  const spaces = await db.adminInSpace.findMany({ where: { userId } });
 
-  const subgroupAdminGroups: [];
+  const { groups, subGroups } = partitionSpaces(spaces);
+
+  const adminGroups = groups.map((g) => ({ "[group]": g.group }));
+
+  const adminSubGroups = subGroups.map((s) => ({ "[subgroup]": s.subGroup }));
 
   const segmentMapping = {
     "[group]": "groupwow",
