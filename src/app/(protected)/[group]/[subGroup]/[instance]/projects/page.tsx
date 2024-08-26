@@ -8,6 +8,7 @@ import { instanceTabs as tabs } from "@/lib/validations/tabs/instance";
 import { AllProjectsDataTable } from "./_components/all-projects-data-table";
 
 import { app, metadataTitle } from "@/content/config/app";
+import { auth } from "@/lib/auth";
 
 export async function generateMetadata({ params }: { params: InstanceParams }) {
   const { displayName } = await api.institution.instance.get({ params });
@@ -18,9 +19,9 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Projects({ params }: { params: InstanceParams }) {
-  const user = await api.user.get();
+  const user = await auth();
   const role = await api.user.role({ params });
-  const projects = await api.project.getAllForUser({ params });
+  const projects = await api.project.getAllForUser({ params, userId: user.id });
 
   const preferencesByProject = await api.user.student.preference.getByProject({
     params,

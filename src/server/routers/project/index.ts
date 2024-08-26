@@ -170,10 +170,8 @@ export const projectRouter = createTRPCRouter({
     ),
 
   getAllForUser: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
-      const user = ctx.session.user;
-
+    .input(z.object({ params: instanceParamsSchema, userId: z.string() }))
+    .query(async ({ ctx, input: { params, userId } }) => {
       const projectData = await ctx.db.project.findMany({
         where: {
           allocationGroupId: params.group,
@@ -208,7 +206,7 @@ export const projectRouter = createTRPCRouter({
           allocationGroupId: params.group,
           allocationSubGroupId: params.subGroup,
           allocationInstanceId: params.instance,
-          userId: user.id,
+          userId,
         },
         select: {
           studentLevel: true,
@@ -219,7 +217,7 @@ export const projectRouter = createTRPCRouter({
       if (!student) return allProjects;
 
       return allProjects.filter(({ flags, preAllocatedStudentId }) => {
-        if (preAllocatedStudentId) return preAllocatedStudentId === user.id;
+        if (preAllocatedStudentId) return preAllocatedStudentId === userId;
         return flags.some(
           (f) => getStudentLevelFromFlag(f) === student.studentLevel,
         );

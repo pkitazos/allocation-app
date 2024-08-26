@@ -1,8 +1,8 @@
-import { BookmarkPlusIcon } from "lucide-react";
+import { PenIcon } from "lucide-react";
 
 import { SubHeading } from "@/components/heading";
 import { StudentSavedPreferenceDataTable } from "@/components/student-saved-preferences/data-table";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -10,6 +10,7 @@ import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { PageParams } from "@/lib/validations/params";
 
+import Link from "next/link";
 import { StudentPreferenceDataTable } from "./student-preference-data-table";
 
 export async function StudentPreferencesSection({
@@ -33,15 +34,16 @@ export async function StudentPreferencesSection({
     <>
       <div className="-mb-2 mt-6 flex items-center justify-between">
         <SubHeading>Preferences</SubHeading>
-        <Button
+        <Link
           className={cn(
-            buttonVariants({ variant: "secondary" }),
+            buttonVariants({ variant: "outline" }),
             "flex items-center justify-center gap-2 text-nowrap",
           )}
+          href={`./${studentId}/preferences`}
         >
-          <BookmarkPlusIcon className="h-4 w-4" />
-          <p>Add Project to Preferences</p>
-        </Button>
+          <PenIcon className="h-4 w-4" />
+          <p>Edit Student Preferences</p>
+        </Link>
       </div>
 
       <Tabs defaultValue="current-board-state" className="w-full">
