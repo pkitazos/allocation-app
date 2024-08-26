@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
     await api.institution.instance.projectAllocations({ params });
 
   return (
-    <PanelWrapper className="mt-20 flex w-full flex-col items-start gap-3">
+    <PanelWrapper className="mt-10 flex w-full flex-col items-start gap-3 px-12">
       <SubHeading className="mb-6">Final Allocation</SubHeading>
       <Tabs defaultValue="student" className="w-full">
         <TabsList className="w-full">

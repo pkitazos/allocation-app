@@ -4,9 +4,11 @@ import { DownloadIcon } from "lucide-react";
 import { useCsvExport } from "@/lib/utils/csv/use-csv-download";
 
 export function ExportCSVButton<T>({
+  text,
   header,
   data,
 }: {
+  text: string;
   header: string[];
   data: T[];
 }) {
@@ -20,7 +22,7 @@ export function ExportCSVButton<T>({
     <>
       <button className="flex items-center gap-2 text-sm" onClick={downloadCsv}>
         <DownloadIcon className="h-4 w-4" />
-        <span>Download selected rows</span>
+        <span>{text}</span>
       </button>
       <a ref={downloadLinkRef} className="hidden" />
     </>

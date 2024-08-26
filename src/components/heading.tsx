@@ -40,3 +40,22 @@ export function SubHeading({
     </h2>
   );
 }
+
+export function SectionHeading({
+  children: text,
+  className,
+}: {
+  className?: ClassValue;
+  children: ReactNode;
+}) {
+  return (
+    <h3
+      className={cn(
+        "text-2xl font-medium leading-none tracking-tight",
+        className,
+      )}
+    >
+      {text}
+    </h3>
+  );
+}

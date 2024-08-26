@@ -13,6 +13,7 @@ import {
   blankResult,
   MatchingDetailsDto,
   matchingResultSchema,
+  SupervisorMatchingDetailsDto,
 } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
@@ -193,7 +194,7 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  allResults: instanceAdminProcedure
+  allStudentResults: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -232,10 +233,7 @@ export const algorithmRouter = createTRPCRouter({
             },
           });
 
-        const students = users.map((u) => ({
-          name: u.user.name!,
-          id: u.user.id,
-        }));
+        const students = users.map((u) => u.user);
 
         const resultsByAlgName = new Map<string, MatchingDetailsDto[]>();
 
@@ -253,6 +251,107 @@ export const algorithmRouter = createTRPCRouter({
           );
 
           resultsByAlgName.set(algName, details);
+        }
+
+        const builtInAlgs = [
+          GenerousAlgorithm,
+          GreedyAlgorithm,
+          GreedyGenAlgorithm,
+          MinCostAlgorithm,
+        ];
+
+        const customAlgs = relativeComplement(
+          algorithmData,
+          builtInAlgs,
+          (a, b) => a.algName === b.algName,
+        );
+
+        const allAlgorithms = [...builtInAlgs, ...customAlgs];
+
+        const results = allAlgorithms.map(({ algName, displayName }) => ({
+          algName,
+          displayName,
+          data: resultsByAlgName.get(algName) ?? [],
+        }));
+
+        const firstNonEmptyIdx = results.findIndex((r) => r.data.length > 0);
+
+        return {
+          results,
+          firstNonEmpty: results.at(firstNonEmptyIdx)?.algName,
+        };
+      },
+    ),
+
+  allSupervisorResults: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const algorithmData = await ctx.db.algorithm.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            algName: true,
+            displayName: true,
+            matchingResultData: true,
+          },
+          orderBy: { algName: "asc" },
+        });
+
+        const supervisorData = await ctx.db.supervisorInstanceDetails.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            userInInstance: {
+              select: { user: { select: { id: true, name: true } } },
+            },
+          },
+        });
+
+        const supervisors = supervisorData.map((u) => u.userInInstance.user);
+
+        const resultsByAlgName = new Map<
+          string,
+          SupervisorMatchingDetailsDto[]
+        >();
+
+        for (const { algName, matchingResultData: data } of algorithmData) {
+          const matching = parseMatchingResult(data).matching;
+
+          const details = matching.reduce(
+            (acc, m) => {
+              const s = supervisors.find((s) => s.id === m.supervisor_id);
+              if (!s) {
+                throw new Error(`Supervisor ${m.supervisor_id} not found`);
+              }
+
+              return {
+                ...acc,
+                [m.supervisor_id]: {
+                  supervisorId: m.supervisor_id,
+                  supervisorName: s.name,
+                  projectTarget: m.supervisor_capacities.target,
+                  projectUpperQuota: m.supervisor_capacities.upper_bound,
+                  allocationCount:
+                    (acc[m.supervisor_id]?.allocationCount ?? 0) + 1,
+                },
+              };
+            },
+            {} as Record<string, SupervisorMatchingDetailsDto>,
+          );
+
+          resultsByAlgName.set(algName, Object.values(details));
         }
 
         const builtInAlgs = [

@@ -31,7 +31,7 @@ export function RunAlgorithmButton({
     });
 
   const refetchAllResults = () =>
-    utils.institution.instance.algorithm.allResults.refetch({ params });
+    utils.institution.instance.algorithm.allStudentResults.refetch({ params });
 
   const { isPending, mutateAsync: runAlgAsync } =
     api.institution.instance.algorithm.run.useMutation();

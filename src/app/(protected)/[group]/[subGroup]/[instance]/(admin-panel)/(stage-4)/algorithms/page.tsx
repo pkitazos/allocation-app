@@ -42,9 +42,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <div className="mt-20 flex flex-col items-center">
       <div className="flex min-w-[50%] flex-col gap-3">
-        <SubHeading className="mb-6 text-2xl">
-          Select Algorithms to run
-        </SubHeading>
+        <SubHeading className="mb-6">Select Algorithms to run</SubHeading>
         <div className="flex w-[45rem] flex-col gap-5">
           <RunAlgorithmButton algorithm={GenerousAlgorithm} />
           <RunAlgorithmButton algorithm={GreedyAlgorithm} />

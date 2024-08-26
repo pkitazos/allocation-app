@@ -1,18 +1,19 @@
 "use client";
 
 import { useInstanceParams } from "@/components/params-context";
+import DataTable from "@/components/ui/data-table/data-table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { api } from "@/lib/trpc/client";
 
-import { DetailsDataTable } from "./details-data-table";
+import { supervisorResultsColumns } from "./supervisor-results-columns";
 
-export function ResultsSection() {
+export function SupervisorResultsSection() {
   const params = useInstanceParams();
   const { status, data } =
-    api.institution.instance.algorithm.allResults.useQuery({
+    api.institution.instance.algorithm.allSupervisorResults.useQuery({
       params,
     });
 
@@ -35,7 +36,7 @@ export function ResultsSection() {
       <Separator className="my-4" />
       {data.results.map((result, i) => (
         <TabsContent key={i} value={result.algName}>
-          <DetailsDataTable data={result.data} />
+          <DataTable columns={supervisorResultsColumns} data={result.data} />
         </TabsContent>
       ))}
     </Tabs>

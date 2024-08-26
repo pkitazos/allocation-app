@@ -5,6 +5,8 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
+import { AddStudentsSection } from "./_components/add-students-section";
+
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
 
@@ -20,6 +22,7 @@ export default function Page() {
   return (
     <PanelWrapper className="mt-10">
       <SubHeading>{adminTabs.addStudents.title}</SubHeading>
+      <AddStudentsSection />
     </PanelWrapper>
   );
 }

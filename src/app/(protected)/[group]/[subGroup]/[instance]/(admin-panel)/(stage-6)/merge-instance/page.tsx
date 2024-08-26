@@ -36,7 +36,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   });
 
   return (
-    <PanelWrapper className="mb-10 mt-6 flex h-max w-full flex-col gap-8 px-6 pb-10">
+    <PanelWrapper className="mb-10 mt-10 flex h-max w-full flex-col gap-8 px-12 pb-10">
       <SubHeading>{adminTabs.mergeInstance.title}</SubHeading>
       <p>
         You are about to merge {spacesLabels.instance.short}{" "}

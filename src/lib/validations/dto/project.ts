@@ -18,9 +18,12 @@ export type ProjectDto = z.infer<typeof projectDtoSchema>;
 export const projectTableDataDtoSchema = z.object({
   id: z.string(),
   title: z.string(),
+  description: z.string(),
+  specialTechnicalRequirements: z.string(),
   supervisor: z.object({
     id: z.string(),
     name: z.string(),
+    email: z.string(),
   }),
   flags: z.array(
     z.object({
