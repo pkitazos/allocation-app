@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
+import { ExportCSVButton } from "@/components/export-csv";
 import { useInstanceStage } from "@/components/params-context";
 import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { TagType } from "@/components/tag/tag-input";
@@ -215,6 +216,18 @@ export function useAllProjectsColumns({
           .getSelectedRowModel()
           .rows.map((e) => e.original.id);
 
+        const data = table
+          .getSelectedRowModel()
+          .rows.map((e) => [
+            e.original.title,
+            e.original.description,
+            e.original.specialTechnicalRequirements,
+            e.original.supervisor.name,
+            e.original.supervisor.email,
+            e.original.flags.map((f) => f.title).join("; "),
+            e.original.tags.map((t) => t.title).join("; "),
+          ]);
+
         if (someSelected && !hasSelfDefinedProject)
           return (
             <div className="flex w-14 items-center justify-center">
@@ -228,6 +241,21 @@ export function useAllProjectsColumns({
                 <DropdownMenuContent align="center" side="bottom">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <ExportCSVButton
+                      text="Download selected rows"
+                      header={[
+                        "Title",
+                        "Description",
+                        "Special Technical Requirements",
+                        "Supervisor Name",
+                        "Supervisor Email",
+                        "Flags",
+                        "Keywords",
+                      ]}
+                      data={data}
+                    />
+                  </DropdownMenuItem>
                   <AccessControl
                     allowedRoles={[Role.STUDENT]}
                     allowedStages={[Stage.PROJECT_SELECTION]}

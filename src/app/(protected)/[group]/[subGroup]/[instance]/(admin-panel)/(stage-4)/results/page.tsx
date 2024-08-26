@@ -26,9 +26,9 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 
 export default function Page() {
   return (
-    <PanelWrapper className="mt-20 flex flex-col items-center">
+    <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">
       <div className="flex w-full flex-col gap-3">
-        <SubHeading className="mb-6 text-2xl">{pages.results.title}</SubHeading>
+        <SubHeading className="mb-6">{pages.results.title}</SubHeading>
         <Accordion type="multiple">
           <AccordionItem value="item-1">
             <AccordionTrigger>By Students</AccordionTrigger>

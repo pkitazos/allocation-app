@@ -116,18 +116,22 @@ export const projectRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
           select: {
-            userId: true,
             submittedPreferences: true,
-            userInInstance: { select: { studentPreferences: true } },
+            userInInstance: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+                studentPreferences: true,
+              },
+            },
           },
         });
 
         const studentData = data.map(
-          ({ userId, userInInstance, submittedPreferences }) => {
+          ({ userInInstance, submittedPreferences }) => {
             return {
-              userId,
+              ...userInInstance.user,
               submissionCount: userInInstance.studentPreferences.length,
-              submittedPreferences,
+              submitted: submittedPreferences,
             };
           },
         );

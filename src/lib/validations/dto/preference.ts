@@ -11,3 +11,13 @@ export const savedPreferenceDto = z.object({
 });
 
 export type SavedPreferenceDto = z.infer<typeof savedPreferenceDto>;
+
+export const preferenceSubmissionDto = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  submissionCount: z.number(),
+  submitted: z.boolean(),
+});
+
+export type PreferenceSubmissionDto = z.infer<typeof preferenceSubmissionDto>;

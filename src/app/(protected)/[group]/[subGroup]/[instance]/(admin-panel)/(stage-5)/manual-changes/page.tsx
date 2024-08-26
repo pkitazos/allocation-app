@@ -1,3 +1,4 @@
+import { SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
@@ -22,7 +23,8 @@ export default async function Page({ params }: { params: InstanceParams }) {
     });
 
   return (
-    <PanelWrapper className="mt-10 flex h-full justify-center">
+    <PanelWrapper className="mt-10 flex h-full">
+      <SubHeading className="mb-4">{pages.manualChanges.title}</SubHeading>
       <AllocDetailsProvider
         students={students}
         projects={projects}

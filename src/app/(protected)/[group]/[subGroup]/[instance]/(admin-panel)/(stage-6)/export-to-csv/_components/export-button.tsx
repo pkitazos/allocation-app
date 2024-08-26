@@ -4,7 +4,6 @@ import { DownloadIcon } from "lucide-react";
 import { unparse } from "papaparse";
 
 import { Button } from "@/components/ui/button";
-import { NoteCard } from "@/components/ui/note-card";
 
 import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
 
@@ -49,7 +48,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   return (
     <div className="flex flex-col items-start gap-3">
       <Button
-        variant="secondary"
+        variant="outline"
         className="flex cursor-pointer items-center gap-2"
         onClick={() => downloadLinkRef.current?.click()}
       >
@@ -57,9 +56,6 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
         <p>Export Data to CSV</p>
         <a ref={downloadLinkRef} className="hidden" />
       </Button>
-      <NoteCard>
-        This will export all columns even if they are not in view
-      </NoteCard>
     </div>
   );
 }

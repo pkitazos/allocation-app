@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 export default async function Page({ params }: { params: InstanceParams }) {
   const instance = await api.institution.instance.get({ params });
   return (
-    <PanelWrapper className="gap-10 pt-16">
-      <SubHeading>Settings</SubHeading>
+    <PanelWrapper className="mt-10 flex flex-col items-start gap-10 px-12">
+      <SubHeading className="mb-4">Settings</SubHeading>
       <Card>
         <CardHeader>
           <CardTitle>Details</CardTitle>

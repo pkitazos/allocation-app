@@ -2,6 +2,7 @@ import { Role, Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
+  FilePlus2,
   LucideMoreHorizontal as MoreIcon,
   PenIcon,
   Trash2Icon,
@@ -221,6 +222,19 @@ export function useAllSupervisorsColumns({
                   <span>Edit supervisor details</span>
                 </Link>
               </DropdownMenuItem>
+              <AccessControl
+                allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+              >
+                <DropdownMenuItem className="group/item">
+                  <Link
+                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                    href={`./supervisors/${supervisor.id}/new-project`}
+                  >
+                    <FilePlus2 className="h-4 w-4" />
+                    <span>Create new project</span>
+                  </Link>
+                </DropdownMenuItem>
+              </AccessControl>
               <AccessControl
                 allowedRoles={[Role.ADMIN]}
                 allowedStages={previousStages(Stage.PROJECT_SELECTION)}

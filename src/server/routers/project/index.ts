@@ -182,6 +182,8 @@ export const projectRouter = createTRPCRouter({
         select: {
           id: true,
           title: true,
+          description: true,
+          specialTechnicalRequirements: true,
           supervisor: { select: { user: true } },
           tagOnProject: { select: { tag: true } },
           flagOnProjects: { select: { flag: true } },
@@ -192,7 +194,9 @@ export const projectRouter = createTRPCRouter({
       const allProjects = projectData.map((p) => ({
         id: p.id,
         title: p.title,
-        supervisor: { id: p.supervisor.user.id, name: p.supervisor.user.name! },
+        description: p.description,
+        specialTechnicalRequirements: p.specialTechnicalRequirements ?? "",
+        supervisor: p.supervisor.user,
         flags: p.flagOnProjects.map(({ flag }) => flag),
         tags: p.tagOnProject.map(({ tag }) => tag),
         preAllocatedStudentId: p.preAllocatedStudentId,
