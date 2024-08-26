@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 import { api } from "@/lib/trpc/client";
+import { unSlugify } from "@/lib/utils/general/slugify";
 
 export function Breadcrumbs() {
   const pathname = usePathname();
@@ -42,7 +43,7 @@ export function Breadcrumbs() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-muted-foreground">
-                  {segment}
+                  {unSlugify(segment)}
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </React.Fragment>

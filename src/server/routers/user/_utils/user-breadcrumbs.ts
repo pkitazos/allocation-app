@@ -23,9 +23,8 @@ export async function validateSegments(
 
   const access = await isSuperAdmin(db, userId);
   if (access) {
-    // TODO: fix super-admin breadcrumbs
     return segments.map((segment) => ({
-      segment,
+      segment: unSlugify(segment),
       access: true,
     }));
   }
