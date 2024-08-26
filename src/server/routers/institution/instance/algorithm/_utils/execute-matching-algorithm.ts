@@ -8,9 +8,9 @@ import {
   serverResponseSchema,
 } from "@/lib/validations/matching";
 
-import { env } from "@/env";
-
 import { generateArgs } from "./generate-args";
+
+import { env } from "@/env";
 
 export async function executeMatchingAlgorithm({
   algorithm: { algName, flag1, flag2, flag3 },

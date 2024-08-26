@@ -4,13 +4,13 @@ import React from "react";
 import { type VariantProps } from "class-variance-authority";
 import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
+import { z } from "zod";
 
 import { CommandInput } from "@/components/ui/command";
 
 import { Autocomplete } from "./autocomplete";
 import { tagVariants } from "./tag";
 import { TagList } from "./tag-list";
-import { z } from "zod";
 
 export enum Delimiter {
   Comma = ",",

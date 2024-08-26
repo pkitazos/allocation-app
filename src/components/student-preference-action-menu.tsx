@@ -1,7 +1,7 @@
 "use client";
+import { useState } from "react";
 import { PreferenceType } from "@prisma/client";
 import { BookmarkIcon } from "lucide-react";
-import { useState } from "react";
 
 import {
   DropdownMenuPortal,
@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import {
-  StudentPreferenceType,
   studentPreferenceSchema,
+  StudentPreferenceType,
 } from "@/lib/validations/student-preference";
 
 export function StudentPreferenceActionSubMenu({

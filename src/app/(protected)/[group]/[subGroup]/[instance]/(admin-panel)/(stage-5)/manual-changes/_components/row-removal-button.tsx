@@ -2,6 +2,7 @@
 import { MinusCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import {
   addToAllocations,
@@ -12,7 +13,6 @@ import {
 } from "@/lib/utils/allocation-adjustment";
 
 import { useAllocDetails } from "./allocation-store";
-import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function RowRemovalButton({ rowIdx }: { rowIdx: number }) {
   const studentsBackup = useAllocDetails((s) => s.studentsBackup);

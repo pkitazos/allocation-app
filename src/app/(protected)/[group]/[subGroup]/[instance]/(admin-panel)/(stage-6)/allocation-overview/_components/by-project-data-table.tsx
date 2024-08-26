@@ -2,8 +2,9 @@
 
 import DataTable from "@/components/ui/data-table/data-table";
 
-import { byProjectColumns } from "./by-project-columns";
 import { AllocationByProjectDto } from "@/lib/validations/allocation/data-table-dto";
+
+import { byProjectColumns } from "./by-project-columns";
 
 export function ByProjectDataTable({
   data,

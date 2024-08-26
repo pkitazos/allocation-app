@@ -1,6 +1,6 @@
 "use client";
-import { DownloadIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { DownloadIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +19,7 @@ export function DownloadCSVButton({
       link.href = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`);
       link.download = `${itemName}_check_result.csv`;
     }
-  }, [csvContent]);
+  }, [csvContent, itemName]);
 
   return (
     <Button

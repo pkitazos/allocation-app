@@ -1,11 +1,11 @@
 "use client";
 import { createContext, ReactNode, useContext } from "react";
 import { Stage } from "@prisma/client";
+import { ArrowUpLeft } from "lucide-react";
+import Link from "next/link";
 
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { InstanceParams } from "@/lib/validations/params";
-import Link from "next/link";
-import { ArrowUpLeft } from "lucide-react";
 
 const InstanceContext = createContext<Instance | undefined>(undefined);
 

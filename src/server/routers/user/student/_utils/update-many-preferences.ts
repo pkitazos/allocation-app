@@ -1,11 +1,11 @@
 import { PreferenceType, PrismaClient } from "@prisma/client";
 
+import { relativeComplement } from "@/lib/utils/general/set-difference";
 import {
   getFlagFromStudentLevel,
   getStudentLevelFromFlag,
 } from "@/lib/utils/permissions/get-student-level";
 import { InstanceParams } from "@/lib/validations/params";
-import { relativeComplement } from "@/lib/utils/general/set-difference";
 
 export async function updateManyPreferenceTransaction({
   db,

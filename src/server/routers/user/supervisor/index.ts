@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getGMTOffset } from "@/lib/utils/date/timezone";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { instanceParamsSchema } from "@/lib/validations/params";
+import { supervisorInstanceCapacitiesSchema } from "@/lib/validations/supervisor-project-submission-details";
 
 import {
   createTRPCRouter,
@@ -15,7 +16,6 @@ import {
 import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
 import { formatSupervisorRowProjects } from "./_utils/supervisor-row-projects";
-import { supervisorInstanceCapacitiesSchema } from "@/lib/validations/supervisor-project-submission-details";
 
 export const supervisorRouter = createTRPCRouter({
   exists: instanceProcedure
