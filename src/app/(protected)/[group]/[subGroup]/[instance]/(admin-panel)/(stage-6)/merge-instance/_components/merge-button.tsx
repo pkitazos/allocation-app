@@ -6,10 +6,6 @@ import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
-
-import { api } from "@/lib/trpc/client";
-
-import { spacesLabels } from "@/content/spaces";
 import {
   DestructiveAction,
   DestructiveActionCancel,
@@ -21,6 +17,10 @@ import {
   DestructiveActionTrigger,
   DestructiveActionVerificationTypeIn,
 } from "@/components/ui/destructive-action";
+
+import { api } from "@/lib/trpc/client";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function MergeButton({
   forkedInstance,

@@ -1,6 +1,6 @@
+import { ReactNode } from "react";
 import { ClassValue } from "clsx";
 import { InfoIcon } from "lucide-react";
-import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 

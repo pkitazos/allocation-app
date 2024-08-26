@@ -9,8 +9,8 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { api } from "@/lib/trpc/client";
 
 import {
-  useMyProjectColumns,
   SupervisorProjectDataDto,
+  useMyProjectColumns,
 } from "./my-projects-columns";
 
 export function MyProjectsDataTable({

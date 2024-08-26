@@ -1,13 +1,15 @@
 "use client";
 
+import { AdminLevel } from "@prisma/client";
+
+import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
+
 import { withinBounds } from "@/lib/utils/allocation-adjustment/project";
 import { withinCapacity } from "@/lib/utils/allocation-adjustment/supervisor";
 
-import { AdminLevelAC } from "@/components/access-control/admin-level-ac";
-import { AdminLevel } from "@prisma/client";
-import { useAllocDetails } from ".";
 import { ConflictBanner } from "./conflict-banner";
 import { DebugComponent } from "./debug-component";
+import { useAllocDetails } from ".";
 
 export function ConflictToaster() {
   const allProjects = useAllocDetails((s) => s.projects);

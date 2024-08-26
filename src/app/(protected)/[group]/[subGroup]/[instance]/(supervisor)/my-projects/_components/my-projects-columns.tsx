@@ -16,13 +16,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-import { stageGt } from "@/lib/utils/permissions/stage-check";
 import {
   YesNoActionContainer,
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
+
+import { stageGt } from "@/lib/utils/permissions/stage-check";
 
 export type SupervisorProjectDataDto = {
   id: string;

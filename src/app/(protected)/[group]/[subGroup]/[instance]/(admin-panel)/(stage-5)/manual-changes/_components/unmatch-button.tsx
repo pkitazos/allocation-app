@@ -1,6 +1,7 @@
 import { TrashIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { replaceUpdated } from "@/lib/utils/allocation-adjustment/project";
 import {
@@ -9,7 +10,6 @@ import {
 } from "@/lib/utils/allocation-adjustment/student";
 
 import { useAllocDetails } from "./allocation-store";
-import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 export function UnmatchButton({ rowIdx }: { rowIdx: number }) {
   const selectedStudentIds = useAllocDetails((s) => s.selectedStudentIds);
