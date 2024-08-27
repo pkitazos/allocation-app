@@ -1,4 +1,3 @@
-import { GraduationCapIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { Heading, SubHeading } from "@/components/heading";

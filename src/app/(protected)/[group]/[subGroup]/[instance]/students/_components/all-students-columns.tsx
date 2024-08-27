@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
   LucideMoreHorizontal as MoreIcon,
+  PenIcon,
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
@@ -191,6 +192,15 @@ export function useAllStudentsColumns({
                 >
                   <CornerDownRightIcon className="h-4 w-4" />
                   <span>View Student Details</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`./students/${student.id}?edit=true`}
+                >
+                  <PenIcon className="h-4 w-4" />
+                  <span>Edit student details</span>
                 </Link>
               </DropdownMenuItem>
               <AccessControl
