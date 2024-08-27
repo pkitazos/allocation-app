@@ -1,4 +1,5 @@
 import { PenIcon } from "lucide-react";
+import Link from "next/link";
 
 import { SubHeading } from "@/components/heading";
 import { StudentSavedPreferenceDataTable } from "@/components/student-saved-preferences/data-table";
@@ -10,7 +11,6 @@ import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { PageParams } from "@/lib/validations/params";
 
-import Link from "next/link";
 import { StudentPreferenceDataTable } from "./student-preference-data-table";
 
 export async function StudentPreferencesSection({
