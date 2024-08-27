@@ -277,19 +277,23 @@ export function useSupervisorProjectsColumns({
                     href={`../projects/${project.id}`}
                   >
                     <CornerDownRightIcon className="h-4 w-4" />
-                    <span>View Project Details</span>
+                    <p className="flex items-center">
+                      View &quot;
+                      <p className="max-w-40 truncate">{project.title}</p>
+                      &quot;
+                    </p>
                   </Link>
                 </DropdownMenuItem>
                 <AccessControl
                   allowedStages={previousStages(Stage.PROJECT_SELECTION)}
                 >
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="group/item">
                     <Link
                       className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                       href={`${instancePath}/projects/${project.id}/edit`}
                     >
                       <PenIcon className="h-4 w-4" />
-                      <span>Edit Project {project.title}</span>
+                      <span>Edit Project details</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="group/item2 text-destructive focus:bg-red-100/40 focus:text-destructive">
@@ -297,7 +301,7 @@ export function useSupervisorProjectsColumns({
                       trigger={
                         <button className="flex items-center gap-2">
                           <Trash2Icon className="h-4 w-4" />
-                          <span>Delete Project {project.title}</span>
+                          <span>Delete Project</span>
                         </button>
                       }
                     />

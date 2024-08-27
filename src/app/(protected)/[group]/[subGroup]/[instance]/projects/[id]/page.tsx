@@ -171,9 +171,9 @@ function ProjectDetailsCard({
             <FlagIcon className="h-6 w-6 text-fuchsia-500" />
             <h3 className="text-sm font-medium text-muted-foreground">Flags</h3>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             {project.flags.map((flag, i) => (
-              <Badge variant="outline" key={i}>
+              <Badge className="w-max" variant="outline" key={i}>
                 {flag.title}
               </Badge>
             ))}
@@ -188,7 +188,7 @@ function ProjectDetailsCard({
           </div>
           <div className="flex flex-wrap gap-2">
             {project.tags.map((tag, i) => (
-              <Badge key={i} variant="outline">
+              <Badge className="w-max" key={i} variant="outline">
                 {tag.title}
               </Badge>
             ))}

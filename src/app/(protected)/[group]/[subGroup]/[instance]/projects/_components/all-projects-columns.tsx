@@ -95,14 +95,17 @@ export function useAllProjectsColumns({
             supervisor: { id, name },
           },
         },
-      }) => (
-        <Link
-          className={buttonVariants({ variant: "link" })}
-          href={`./supervisors/${id}`}
-        >
-          {name}
-        </Link>
-      ),
+      }) =>
+        role === Role.ADMIN ? (
+          <Link
+            className={buttonVariants({ variant: "link" })}
+            href={`./supervisors/${id}`}
+          >
+            {name}
+          </Link>
+        ) : (
+          <p className="font-medium">{name}</p>
+        ),
     },
     {
       id: "Flags",
@@ -311,7 +314,9 @@ export function useAllProjectsColumns({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="bottom">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel className="gap- flex items-center">
+                  Actions
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="group/item">
                   <Link
@@ -319,7 +324,11 @@ export function useAllProjectsColumns({
                     href={`./projects/${project.id}`}
                   >
                     <CornerDownRightIcon className="h-4 w-4" />
-                    <span>View &quot;{project.title}&quot; details</span>
+                    <p className="flex items-center">
+                      View &quot;
+                      <p className="max-w-40 truncate">{project.title}</p>
+                      &quot;
+                    </p>
                   </Link>
                 </DropdownMenuItem>
                 <AccessControl
@@ -342,13 +351,13 @@ export function useAllProjectsColumns({
                   ]}
                   extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
                 >
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="group/item">
                     <Link
                       className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                       href={`./projects/${project.id}/edit`}
                     >
                       <PenIcon className="h-4 w-4" />
-                      <span>Edit Project {project.title}</span>
+                      <span>Edit Project details</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
@@ -357,7 +366,7 @@ export function useAllProjectsColumns({
                       onClick={handleDelete}
                     >
                       <Trash2Icon className="h-4 w-4" />
-                      <span>Delete Project {project.title}</span>
+                      <span>Delete Project</span>
                     </button>
                   </DropdownMenuItem>
                 </AccessControl>

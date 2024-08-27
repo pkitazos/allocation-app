@@ -183,7 +183,12 @@ export function useAllStudentsColumns({
             description={`You are about to remove "${student.name}" from the student list. Do you wish to proceed?`}
           >
             <DropdownMenuContent align="start" side="bottom">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                Actions
+                <span className="ml-2 text-muted-foreground">
+                  for {student.name}
+                </span>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="group/item">
                 <Link

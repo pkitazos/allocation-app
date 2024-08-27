@@ -1,6 +1,11 @@
 import { Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal as MoreIcon, PenIcon, Trash2Icon } from "lucide-react";
+import {
+  CornerDownRightIcon,
+  MoreHorizontal as MoreIcon,
+  PenIcon,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 
 import { useInstancePath, useInstanceStage } from "@/components/params-context";
@@ -196,7 +201,7 @@ export function useMyProjectColumns({
     },
     cell: ({
       row: {
-        original: { id },
+        original: { id, title },
       },
     }) => (
       <div className="flex w-24 items-center justify-center">
@@ -215,13 +220,26 @@ export function useMyProjectColumns({
             <DropdownMenuContent align="center" side="bottom">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
+                <Link
+                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                  href={`${instancePath}/projects/${id}`}
+                >
+                  <CornerDownRightIcon className="h-4 w-4" />
+                  <p className="flex items-center">
+                    View &quot;
+                    <p className="max-w-40 truncate">{title}</p>
+                    &quot;
+                  </p>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="group/item">
                 <Link
                   className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                   href={`${instancePath}/projects/${id}/edit`}
                 >
                   <PenIcon className="h-4 w-4" />
-                  <span>Edit Project {id}</span>
+                  <span>Edit Project details</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
@@ -229,7 +247,7 @@ export function useMyProjectColumns({
                   trigger={
                     <button className="flex items-center gap-2">
                       <Trash2Icon className="h-4 w-4" />
-                      <span>Delete Project {id}</span>
+                      <span>Delete Project</span>
                     </button>
                   }
                 />
@@ -241,6 +259,6 @@ export function useMyProjectColumns({
     ),
   };
 
-  if (stageGt(stage, Stage.PROJECT_SUBMISSION)) return userCols;
+  if (stageGt(stage, Stage.PROJECT_SELECTION)) return userCols;
   return [selectCol, ...userCols, actionCol];
 }
