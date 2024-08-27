@@ -1,13 +1,12 @@
-import { GraduationCapIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { Heading, SubHeading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
-import { UserDetailsCard } from "@/components/user-details-card";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
+import { StudentDetailsCard } from "./_components/student-details-card";
 import { StudentPreferencesSection } from "./_components/student-preferences-section";
 import { StudentProjectSection } from "./_components/student-project-section";
 
@@ -47,13 +46,7 @@ export default async function Page({ params }: { params: PageParams }) {
     <PageWrapper>
       <Heading>{student.name}</Heading>
       <SubHeading>Details</SubHeading>
-      <UserDetailsCard user={student}>
-        <div className="flex items-center">
-          <GraduationCapIcon className="mr-2 h-4 w-4 opacity-70" />
-          <span className="mr-2 font-semibold">Level:</span>
-          {student.level}
-        </div>
-      </UserDetailsCard>
+      <StudentDetailsCard student={student} />
       {!student.selfDefinedProjectId ? (
         <StudentPreferencesSection params={params} />
       ) : (
