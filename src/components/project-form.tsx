@@ -154,7 +154,6 @@ export function ProjectForm({
                   textareaProps={{
                     placeholder: "Type the project description here.",
                   }}
-                  {...field}
                 />
               </FormControl>
               <FormDescription>
