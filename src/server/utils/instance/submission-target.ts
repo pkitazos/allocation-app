@@ -11,5 +11,5 @@ export function computeProjectSubmissionTarget(
   const projectSubmissionTarget =
     2 * (supervisorProjectAllocationTarget - supervisorAllocatedProjectCount);
 
-  return projectSubmissionTarget;
+  return projectSubmissionTarget < 0 ? 0 : projectSubmissionTarget;
 }
