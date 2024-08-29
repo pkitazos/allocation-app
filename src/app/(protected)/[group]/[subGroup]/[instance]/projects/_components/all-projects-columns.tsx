@@ -11,7 +11,7 @@ import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
 import { ExportCSVButton } from "@/components/export-csv";
-import { useInstanceStage } from "@/components/params-context";
+import { useInstancePath, useInstanceStage } from "@/components/params-context";
 import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
@@ -59,6 +59,7 @@ export function useAllProjectsColumns({
     projectIds: string[],
   ) => Promise<void>;
 }): ColumnDef<ProjectTableDataDto>[] {
+  const instancePath = useInstancePath();
   const stage = useInstanceStage();
 
   const selectCol = getSelectColumn<ProjectTableDataDto>();
@@ -77,7 +78,7 @@ export function useAllProjectsColumns({
       }) => (
         <Link
           className={buttonVariants({ variant: "link" })}
-          href={`./projects/${id}`}
+          href={`${instancePath}/projects/${id}`}
         >
           {title}
         </Link>
@@ -99,7 +100,7 @@ export function useAllProjectsColumns({
         role === Role.ADMIN ? (
           <Link
             className={buttonVariants({ variant: "link" })}
-            href={`./supervisors/${id}`}
+            href={`${instancePath}/supervisors/${id}`}
           >
             {name}
           </Link>
@@ -321,7 +322,7 @@ export function useAllProjectsColumns({
                 <DropdownMenuItem className="group/item">
                   <Link
                     className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                    href={`./projects/${project.id}`}
+                    href={`${instancePath}/projects/${project.id}`}
                   >
                     <CornerDownRightIcon className="h-4 w-4" />
                     <p className="flex items-center">
@@ -354,7 +355,7 @@ export function useAllProjectsColumns({
                   <DropdownMenuItem className="group/item">
                     <Link
                       className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                      href={`./projects/${project.id}/edit`}
+                      href={`${instancePath}/projects/${project.id}/edit`}
                     >
                       <PenIcon className="h-4 w-4" />
                       <span>Edit Project details</span>

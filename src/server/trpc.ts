@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { Role } from "@prisma/client";
+import { AllocationInstance, PrismaClient, Role, User } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
@@ -178,6 +178,12 @@ export const multiRoleAwareProcedure = instanceProcedure.use(
     return next({ ctx: { session: { user: { ...user, roles } } } });
   },
 );
+
+export type MultiRoleAwareContext = {
+  session: { user: User & { roles: Set<Role> } };
+  db: PrismaClient;
+  instance: AllocationInstance;
+};
 
 /**
  * Procedure that enforces the user is a student.

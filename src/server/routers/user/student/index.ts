@@ -166,7 +166,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  preferenceRestrictions: studentProcedure
+  preferenceRestrictions: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -190,10 +190,33 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  latestSubmission: studentProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  latestSubmission: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(
-      async ({ ctx }) => ctx.session.user.latestSubmissionDateTime ?? undefined,
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const { latestSubmissionDateTime } =
+          await ctx.db.studentDetails.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+            select: { latestSubmissionDateTime: true },
+          });
+
+        // TODO: check if toZonedTime is necessary
+
+        return latestSubmissionDateTime
+          ? toZonedTime(latestSubmissionDateTime, "Europe/London")
+          : undefined;
+      },
     ),
 
   /**

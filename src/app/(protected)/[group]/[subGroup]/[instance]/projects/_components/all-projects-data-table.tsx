@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useDataTableProjectFilters } from "@/components/data-table-context";
 import {
   useInstanceParams,
   useInstancePath,
@@ -12,6 +11,7 @@ import {
 import { ToastSuccessCard } from "@/components/toast-success-card";
 import { buttonVariants } from "@/components/ui/button";
 import DataTable from "@/components/ui/data-table/data-table";
+import { useDataTableProjectFilters } from "@/components/ui/data-table/data-table-context";
 
 import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";

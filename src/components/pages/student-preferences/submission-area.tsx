@@ -15,10 +15,14 @@ import { getSubmissionErrors } from "@/lib/utils/preferences/get-errors";
 import { ProjectPreference } from "@/lib/validations/board";
 
 export function SubmissionArea({
+  title,
+  studentId,
   initialProjects,
   latestSubmissionDateTime,
   restrictions,
 }: {
+  title: string;
+  studentId: string;
   initialProjects: ProjectPreference[];
   latestSubmissionDateTime: Date | undefined;
   restrictions: {
@@ -41,14 +45,16 @@ export function SubmissionArea({
     getSubmissionErrors(preferenceList, restrictions);
 
   const utils = api.useUtils();
+
   const invalidateLatestSubmission = () =>
     utils.user.student.preference.getAllSaved.invalidate();
+
   const { mutateAsync: submitAsync } =
     api.user.student.preference.submit.useMutation();
 
   async function handleSubmission() {
     void toast.promise(
-      submitAsync({ params }).then(async (date) => {
+      submitAsync({ params, studentId }).then(async (date) => {
         await invalidateLatestSubmission();
         setSubmissionDate(date);
       }),
@@ -64,9 +70,7 @@ export function SubmissionArea({
     <>
       <Card className="mb-4">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-xl font-medium">
-            Submit your preference list
-          </CardTitle>
+          <CardTitle className="text-xl font-medium">{title}</CardTitle>
           <Button
             disabled={isOver || isUnder || hasOverSelectedSupervisor}
             variant="secondary"

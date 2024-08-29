@@ -2,7 +2,6 @@ import { PreferenceType, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageGte } from "@/lib/utils/permissions/stage-check";
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
@@ -10,12 +9,16 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  MultiRoleAwareContext,
+  multiRoleAwareProcedure,
   roleAwareProcedure,
   studentProcedure,
 } from "@/server/trpc";
 
 import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
+import { getStudent } from "../_utils/get-student";
 
+import { getBoardState } from "./_utils/get-board-state";
 import { updateManyPreferenceTransaction } from "./_utils/update-many-preferences";
 import { updatePreferenceTransaction } from "./_utils/update-preference";
 
@@ -164,6 +167,51 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
+  makeUpdate: multiRoleAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        projectId: z.string(),
+        preferenceType: studentPreferenceSchema,
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: { params, studentId, projectId, preferenceType },
+      }) => {
+        const { ok, message } = accessControl({
+          ctx,
+          allowedRoles: [Role.ADMIN, Role.STUDENT],
+          stageCheck: (s) => s === Stage.PROJECT_SELECTION,
+        });
+        if (!ok) throw new Error(message);
+
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          params,
+          studentId,
+        );
+        if (selfDefinedProject) {
+          throw new Error("Student has self-defined a project");
+        }
+
+        const student = await getStudent(ctx.db, params, studentId);
+
+        await updatePreferenceTransaction({
+          db: ctx.db,
+          student,
+          params,
+          projectId,
+          preferenceType,
+        });
+
+        const board = await getBoardState(ctx.db, params, studentId);
+        return board.projects;
+      },
+    ),
+
   update: studentProcedure
     .input(
       z.object({
@@ -216,6 +264,59 @@ export const preferenceRouter = createTRPCRouter({
           params,
           projectIds,
           preferenceType,
+        });
+      },
+    ),
+
+  makeReorder: multiRoleAwareProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        projectId: z.string(),
+        preferenceType: z.nativeEnum(PreferenceType),
+        updatedRank: z.number(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          projectId,
+          preferenceType,
+          updatedRank,
+        },
+      }) => {
+        const { ok, message } = accessControl({
+          ctx,
+          allowedRoles: [Role.ADMIN, Role.STUDENT],
+          stageCheck: (s) => s === Stage.PROJECT_SELECTION,
+        });
+        if (!ok) throw new Error(message);
+
+        const selfDefinedProject = await getSelfDefinedProject(
+          ctx.db,
+          { group, subGroup, instance },
+          studentId,
+        );
+        if (selfDefinedProject) return;
+
+        await ctx.db.preference.update({
+          where: {
+            preferenceId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              projectId,
+              userId: studentId,
+            },
+          },
+          data: {
+            type: preferenceType,
+            rank: updatedRank,
+          },
         });
       },
     ),
@@ -296,24 +397,30 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  submit: studentProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  /**
+   * TODO: check all references
+   */
+  submit: multiRoleAwareProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
+          studentId,
         },
       }) => {
-        if (stageGte(ctx.instance.stage, Stage.PROJECT_ALLOCATION)) {
-          throw new Error("Cannot submit at this stage");
-        }
+        const { ok, message } = accessControl({
+          ctx,
+          allowedRoles: [Role.ADMIN, Role.STUDENT],
+          stageCheck: (s) => s === Stage.PROJECT_SELECTION,
+        });
+        if (!ok) throw new Error(message);
 
-        const student = ctx.session.user;
         const selfDefinedProject = await getSelfDefinedProject(
           ctx.db,
           { group, subGroup, instance },
-          student.id,
+          studentId,
         );
         if (selfDefinedProject) return;
 
@@ -325,7 +432,7 @@ export const preferenceRouter = createTRPCRouter({
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
-              userId: ctx.session.user.id,
+              userId: studentId,
               type: PreferenceType.PREFERENCE,
             },
             select: { projectId: true, rank: true },
@@ -337,7 +444,7 @@ export const preferenceRouter = createTRPCRouter({
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
-              userId: ctx.session.user.id,
+              userId: studentId,
             },
           });
 
@@ -348,7 +455,7 @@ export const preferenceRouter = createTRPCRouter({
               allocationInstanceId: instance,
               projectId,
               rank: i + 1,
-              userId: ctx.session.user.id,
+              userId: studentId,
             })),
           });
 
@@ -358,7 +465,7 @@ export const preferenceRouter = createTRPCRouter({
                 allocationGroupId: group,
                 allocationSubGroupId: subGroup,
                 allocationInstanceId: instance,
-                userId: ctx.session.user.id,
+                userId: studentId,
               },
             },
             data: {
@@ -372,56 +479,22 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  initialBoardState: studentProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
+  /**
+   * TODO: check all references
+   */
+  initialBoardState: multiRoleAwareProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(async ({ ctx, input: { params, studentId } }) => {
+      const { ok, message } = accessControl({
         ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const res = await ctx.db.preference.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: ctx.session.user.id,
-          },
-          select: {
-            project: {
-              select: {
-                id: true,
-                title: true,
-                supervisor: {
-                  select: { user: { select: { id: true, name: true } } },
-                },
-              },
-            },
-            rank: true,
-            type: true,
-          },
-          orderBy: { rank: "asc" },
-        });
+        allowedRoles: [Role.ADMIN, Role.STUDENT],
+        stageCheck: (s) => s === Stage.PROJECT_SELECTION,
+      });
+      if (!ok) throw new Error(message);
 
-        const initialColumns: BoardColumn[] = [
-          { id: PreferenceType.PREFERENCE, displayName: "Preference List" },
-          { id: PreferenceType.SHORTLIST, displayName: "Shortlist" },
-        ];
-
-        const initialProjects: ProjectPreference[] = res.map((e) => ({
-          id: e.project.id,
-          title: e.project.title,
-          columnId: e.type,
-          rank: e.rank,
-          supervisorId: e.project.supervisor.user.id,
-          supervisorName: e.project.supervisor.user.name!,
-          changed: false,
-        }));
-
-        return { initialColumns, initialProjects };
-      },
-    ),
+      const board = await getBoardState(ctx.db, params, studentId);
+      return { initialColumns: board.columns, initialProjects: board.projects };
+    }),
 
   change: instanceAdminProcedure
     .input(
@@ -501,3 +574,37 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 });
+
+function accessControl({
+  ctx,
+  allowedRoles,
+  stageCheck,
+}: {
+  ctx: MultiRoleAwareContext;
+  allowedRoles: Role[];
+  stageCheck: (s: Stage) => boolean;
+}) {
+  const user = ctx.session.user;
+
+  const roles = user.roles;
+  const roleOk = Array.from(roles).some((role) => allowedRoles.includes(role));
+
+  if (!roleOk) {
+    return {
+      ok: false,
+      message: `User ${user.id} does not have permission to access this resource, as ${Array.from(roles)} does not sufficiently overlap with ${allowedRoles}.`,
+    };
+  }
+
+  const stage = ctx.instance.stage;
+  const stageOk = stageCheck(stage);
+
+  if (!stageOk) {
+    return {
+      ok: false,
+      message: `User ${user.id} cannot access this resource at this stage.`,
+    };
+  }
+
+  return { ok: true, message: "User can access this resource." };
+}

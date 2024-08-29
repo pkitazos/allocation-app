@@ -1,3 +1,4 @@
+import { PreferenceType } from "@prisma/client";
 import { z } from "zod";
 
 export const savedPreferenceDto = z.object({
@@ -21,3 +22,12 @@ export const preferenceSubmissionDto = z.object({
 });
 
 export type PreferenceSubmissionDto = z.infer<typeof preferenceSubmissionDto>;
+
+export const newProjectPreferenceDtoSchema = z.object({
+  projectId: z.string(),
+  preferenceType: z.nativeEnum(PreferenceType),
+});
+
+export type NewProjectPreferenceDto = z.infer<
+  typeof newProjectPreferenceDtoSchema
+>;

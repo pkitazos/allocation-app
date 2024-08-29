@@ -12,31 +12,38 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { PreferenceType } from "@prisma/client";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { z } from "zod";
 
-import { useInstanceParams } from "@/components/params-context";
-
-import { api } from "@/lib/trpc/client";
 import { getUpdatedRank } from "@/lib/utils/sorting/get-updated-rank";
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { ProjectPreference } from "@/lib/validations/board";
 
 import { ColumnContainer } from "./column-container";
 import { ProjectPreferenceCard } from "./project-preference-card";
+import { StateSetter, useBoardDetails } from "./store";
+
+type ReorderFunction = (
+  projectId: string,
+  updatedRank: number,
+  preferenceType: PreferenceType,
+) => Promise<void>;
+
+type DeleteFunction = (
+  projectId: string,
+  updateProjects: StateSetter<ProjectPreference[]>,
+) => Promise<void>;
 
 export function KanbanBoard({
-  initialColumns,
-  initialProjects,
+  reorderPreference,
+  deletePreference,
 }: {
-  initialColumns: BoardColumn[];
-  initialProjects: ProjectPreference[];
+  reorderPreference: ReorderFunction;
+  deletePreference: DeleteFunction;
 }) {
-  const params = useInstanceParams();
-  const router = useRouter();
-
+  const initialColumns = useBoardDetails((s) => s.columns);
   const columns = useMemo(() => initialColumns, [initialColumns]);
-  const [projects, setProjects] = useState(initialProjects);
+
+  const projects = useBoardDetails((s) => s.projects);
+  const setProjects = useBoardDetails((s) => s.updateProjects);
   const [activeProject, setActiveProject] = useState<ProjectPreference | null>(
     null,
   );
@@ -48,54 +55,6 @@ export function KanbanBoard({
       },
     }),
   );
-
-  const utils = api.useUtils();
-
-  const refetch = () =>
-    utils.user.student.preference.initialBoardState.refetch();
-
-  const { mutateAsync: reorderAsync } =
-    api.user.student.preference.reorder.useMutation();
-
-  const { mutateAsync: updatePreferenceAsync } =
-    api.user.student.preference.update.useMutation();
-
-  async function reorderPreference(
-    projectId: string,
-    updatedRank: number,
-    preferenceType: PreferenceType,
-  ) {
-    void toast.promise(
-      reorderAsync({ params, projectId, updatedRank, preferenceType }).then(
-        () => {
-          router.refresh();
-          refetch();
-        },
-      ),
-      {
-        loading: "Reordering...",
-        error: "Something went wrong",
-        success: "Successfully reordered preferences",
-      },
-    );
-  }
-
-  async function deletePreference(projectId: string) {
-    void toast.promise(
-      updatePreferenceAsync({ params, projectId, preferenceType: "None" }).then(
-        () => {
-          router.refresh();
-          refetch();
-          setProjects((prev) => prev.filter((e) => e.id !== projectId));
-        },
-      ),
-      {
-        loading: `Removing project from preferences...`,
-        error: "Something went wrong",
-        success: `Successfully removed project from preferences`,
-      },
-    );
-  }
 
   function onDragStart({ active }: DragStartEvent) {
     if (active.data.current?.type === "ProjectPreference") {
@@ -173,7 +132,7 @@ export function KanbanBoard({
             key={column.id}
             column={column}
             projects={projects.filter((e) => e.columnId === column.id)}
-            deletePreference={deletePreference}
+            deletePreference={(p) => deletePreference(p, setProjects)}
           />
         ))}
         {createPortal(
@@ -181,7 +140,7 @@ export function KanbanBoard({
             {activeProject && (
               <ProjectPreferenceCard
                 project={activeProject}
-                deletePreference={deletePreference}
+                deletePreference={(p) => deletePreference(p, setProjects)}
               />
             )}
           </DragOverlay>,
