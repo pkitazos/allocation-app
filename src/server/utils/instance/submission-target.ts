@@ -1,3 +1,5 @@
+import { clamp } from "@/lib/utils/general/clamp";
+
 /**
  *
  * @param supervisorProjectAllocationTarget the number of students a supervisor wishes to supervise
@@ -11,5 +13,5 @@ export function computeProjectSubmissionTarget(
   const projectSubmissionTarget =
     2 * (supervisorProjectAllocationTarget - supervisorAllocatedProjectCount);
 
-  return projectSubmissionTarget < 0 ? 0 : projectSubmissionTarget;
+  return clamp(projectSubmissionTarget, [0, 12]);
 }
