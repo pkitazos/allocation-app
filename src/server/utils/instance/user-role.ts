@@ -37,7 +37,12 @@ export async function getAllUserRoles(
   if (admin) roles.push(Role.ADMIN);
 
   const userInInstance = await db.userInInstance.findFirst({
-    where: { userId: user.id },
+    where: {
+      allocationGroupId: params.group,
+      allocationSubGroupId: params.subGroup,
+      allocationInstanceId: params.instance,
+      userId: user.id,
+    },
     select: { role: true },
   });
   if (userInInstance) roles.push(userInInstance.role);
