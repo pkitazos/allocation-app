@@ -4,10 +4,18 @@ import { tagTypeSchema } from "@/components/tag/tag-input";
 
 import { projectFlags } from "@/content/config/flags";
 
+// eslint-disable-next-line no-control-regex
+const ascii_pattern = /^[\x00-\x7F]+$/;
+
 function isAscii(str: string) {
-  // eslint-disable-next-line no-control-regex
-  const ascii = /^[\x00-\x7F]+$/;
-  return ascii.test(str);
+  return ascii_pattern.test(str);
+}
+
+function findNonAscii(text: string) {
+  const nonAsciiSet = new Set(
+    text.split("").filter((char) => char.charCodeAt(0) > 127),
+  );
+  return Array.from(nonAsciiSet);
 }
 
 const baseProjectFormSchema = z.object({
@@ -19,7 +27,9 @@ const baseProjectFormSchema = z.object({
     .string()
     .min(10, "Please enter a longer description")
     .max(2048, "Description must be 2048 characters or less")
-    .refine(isAscii, "Project description must be ASCII"),
+    .refine(isAscii, (val) => ({
+      message: `Please remove non-ASCII characters: ${findNonAscii(val).join(", ")}`,
+    })),
   flagTitles: z
     .array(z.string())
     .refine((value) => value.some((item) => item), {
