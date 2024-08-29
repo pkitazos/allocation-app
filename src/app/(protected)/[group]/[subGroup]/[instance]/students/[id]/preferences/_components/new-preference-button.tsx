@@ -47,14 +47,14 @@ import {
   NewProjectPreferenceDto,
   newProjectPreferenceDtoSchema,
 } from "@/lib/validations/dto/preference";
-import { ProjectTableDataDto } from "@/lib/validations/dto/project";
+import { NewStudentProjectDto } from "@/lib/validations/dto/project";
 import { PageParams } from "@/lib/validations/params";
 
 export function NewPreferenceButton({
   availableProjects,
   className,
 }: {
-  availableProjects: ProjectTableDataDto[];
+  availableProjects: NewStudentProjectDto[];
   className?: ClassValue;
 }) {
   const params = useParams<PageParams>();
@@ -115,13 +115,13 @@ export function NewPreferenceButton({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex justify-start gap-10">
+            <div className="flex justify-start gap-6">
               <FormField
                 control={form.control}
                 name="projectId"
                 render={({ field }) => (
                   <FormItem className="flex w-96 flex-col">
-                    <FormLabel>Project ID</FormLabel>
+                    <FormLabel>Choose a Project</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -129,12 +129,12 @@ export function NewPreferenceButton({
                             variant="outline"
                             role="combobox"
                             className={cn(
-                              "w-[200px] justify-between overflow-hidden",
+                              "w-[250px] justify-between overflow-hidden",
                               !field.value && "text-slate-400",
                             )}
                           >
                             {field.value === "" || !field.value
-                              ? "Enter Project ID"
+                              ? "Enter Project ID or Title"
                               : field.value}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -142,11 +142,12 @@ export function NewPreferenceButton({
                       </PopoverTrigger>
                       <PopoverContent className="w-[250px] p-0">
                         <Command>
+                          <CommandInput placeholder="Search Project..." />
                           <CommandGroup className="max-h-60 overflow-y-auto">
                             {availableProjects.map((project) => (
                               <CommandItem
                                 className="overflow-hidden"
-                                value={project.id}
+                                value={`${project.id} - ${project.title}`}
                                 key={project.id}
                                 onSelect={() => {
                                   form.setValue("projectId", project.id);
@@ -160,11 +161,15 @@ export function NewPreferenceButton({
                                       : "opacity-0",
                                   )}
                                 />
-                                <p> {project.id}</p>
+                                <p>
+                                  {project.title}{" "}
+                                  <span className="text-muted-foreground">
+                                    [{project.id}]
+                                  </span>
+                                </p>
                               </CommandItem>
                             ))}
                           </CommandGroup>
-                          <CommandInput placeholder="Search Project Id..." />
                           <CommandEmpty>No Project found.</CommandEmpty>
                         </Command>
                       </PopoverContent>
@@ -214,13 +219,16 @@ export function NewPreferenceButton({
             </div>
             <DialogFooter>
               <Button
+                className="w-32"
                 variant="outline"
                 type="button"
                 onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit">Submit</Button>
+              <Button className="w-32" type="submit">
+                Submit
+              </Button>
             </DialogFooter>
           </form>
         </Form>

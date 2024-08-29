@@ -15,29 +15,23 @@ import { CurrentBoardState } from "./_components/current-board-state";
 
 export default async function Page({ params }: { params: PageParams }) {
   const studentId = params.id;
-  const student = await api.user.student.getById({
-    params,
-    studentId: studentId,
-  });
+  const student = await api.user.student.getById({ params, studentId });
 
   const { initialColumns, initialProjects } =
-    await api.user.student.preference.initialBoardState({
-      params,
-      studentId: studentId,
-    });
+    await api.user.student.preference.initialBoardState({ params, studentId });
 
   const latestSubmissionDateTime = await api.user.student.latestSubmission({
     params,
-    studentId: studentId,
+    studentId,
   });
 
   const restrictions = await api.user.student.preferenceRestrictions({
     params,
   });
 
-  const availableProjects = await api.project.getAllForUser({
+  const availableProjects = await api.project.getAllForStudentPreferences({
     params,
-    userId: studentId,
+    studentId,
   });
 
   return (

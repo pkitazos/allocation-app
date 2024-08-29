@@ -7,7 +7,7 @@ import { BoardDetailsProvider } from "@/components/kanban-board/store";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
-import { ProjectTableDataDto } from "@/lib/validations/dto/project";
+import { NewStudentProjectDto } from "@/lib/validations/dto/project";
 import { PageParams } from "@/lib/validations/params";
 
 import { KanbanBoardSection } from "./kanban-board-section";
@@ -18,7 +18,7 @@ export function CurrentBoardState({
   initialColumns,
   initialProjects,
 }: {
-  availableProjects: ProjectTableDataDto[];
+  availableProjects: NewStudentProjectDto[];
   initialColumns: BoardColumn[];
   initialProjects: ProjectPreference[];
 }) {

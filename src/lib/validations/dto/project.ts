@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { tagTypeSchema } from "@/components/tag/tag-input";
+import { title } from "process";
 
 export const projectDtoSchema = z.object({
   title: z.string(),
@@ -61,3 +62,11 @@ export const projectSubmissionDtoSchema = z.object({
 });
 
 export type ProjectSubmissionDto = z.infer<typeof projectSubmissionDtoSchema>;
+
+export const newStudentProjectDtoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  flags: z.array(tagTypeSchema),
+});
+
+export type NewStudentProjectDto = z.infer<typeof newStudentProjectDtoSchema>;

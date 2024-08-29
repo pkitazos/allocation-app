@@ -30,7 +30,7 @@ export function CreateProjectForm({
 
   const { mutateAsync } = api.project.create.useMutation();
 
-  const onSubmit = (data: UpdatedProject) => {
+  function onSubmit(data: UpdatedProject) {
     void toast.promise(
       mutateAsync({
         params,
@@ -46,7 +46,7 @@ export function CreateProjectForm({
         success: "Successfully created new project",
       },
     );
-  };
+  }
 
   return (
     <ProjectForm
