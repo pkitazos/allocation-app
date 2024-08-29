@@ -390,7 +390,8 @@ export const projectRouter = createTRPCRouter({
     .query(async ({ ctx, input: { params, projectId } }) => {
       const user = ctx.session.user;
 
-      if (user.roles.has(Role.ADMIN) || user.roles.has(Role.SUPERVISOR)) {
+      const allowedRoles = new Set([Role.ADMIN, Role.SUPERVISOR]);
+      if (user.roles.isSubsetOf(allowedRoles)) {
         return { access: true, studentFlagLabel: "" };
       }
 
