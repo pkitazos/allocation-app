@@ -247,6 +247,7 @@ export function useAllProjectsColumns({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <ExportCSVButton
+                      filename="all-projects"
                       text="Download selected rows"
                       header={[
                         "Title",
