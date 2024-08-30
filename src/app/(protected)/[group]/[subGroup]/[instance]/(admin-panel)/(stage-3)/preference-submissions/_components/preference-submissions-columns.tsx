@@ -119,6 +119,7 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="flex items-center gap-2 text-primary">
                     <ExportCSVButton
+                      filename="preference-submissions"
                       text="Download selected rows"
                       header={["GUID", "Name", "Email", "Count", "Submitted"]}
                       data={data}

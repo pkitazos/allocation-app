@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
 import { StudentPreferenceActionSubMenu } from "@/components/student-preference-action-menu";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
-import { stageLt } from "@/lib/utils/permissions/stage-check";
+import { previousStages, stageLt } from "@/lib/utils/permissions/stage-check";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
 
 export type PreferenceData = {
@@ -238,12 +239,16 @@ export function useStudentPreferencesColumns({
                 <span>View Project details</span>
               </Link>
             </DropdownMenuItem>
-            <StudentPreferenceActionSubMenu
-              defaultType={type}
-              changePreference={async (newPreferenceType) =>
-                void changePreference(newPreferenceType, project.id)
-              }
-            />
+            <AccessControl
+              allowedStages={previousStages(Stage.PROJECT_SELECTION)}
+            >
+              <StudentPreferenceActionSubMenu
+                defaultType={type}
+                changePreference={async (newPreferenceType) =>
+                  void changePreference(newPreferenceType, project.id)
+                }
+              />
+            </AccessControl>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

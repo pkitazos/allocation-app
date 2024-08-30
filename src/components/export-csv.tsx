@@ -7,15 +7,17 @@ export function ExportCSVButton<T>({
   text,
   header,
   data,
+  filename,
 }: {
   text: string;
   header: string[];
   data: T[];
+  filename: string;
 }) {
   const { downloadLinkRef, downloadCsv } = useCsvExport({
     header: header,
     rows: data,
-    filename: "project-submissions.csv",
+    filename: `${filename}.csv`,
   });
 
   return (

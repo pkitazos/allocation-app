@@ -26,7 +26,7 @@ const baseProjectFormSchema = z.object({
   description: z
     .string()
     .min(10, "Please enter a longer description")
-    .max(2048, "Description must be 2048 characters or less")
+    // .max(2048, "Description must be 2048 characters or less")
     .refine(isAscii, (val) => ({
       message: `Please remove non-ASCII characters: ${findNonAscii(val).join(", ")}`,
     })),

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 
 import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
 
+// TODO: replace with hook and component
+
 export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const downloadLinkRef = useRef<HTMLAnchorElement>(null);
 

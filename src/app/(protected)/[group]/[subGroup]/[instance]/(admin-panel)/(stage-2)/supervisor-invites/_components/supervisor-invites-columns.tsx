@@ -129,6 +129,7 @@ export function useSupervisorInvitesColumns(): ColumnDef<SupervisorInviteDto>[] 
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="flex items-center gap-2 text-primary">
                     <ExportCSVButton
+                      filename="supervisor-invites"
                       text="Download selected rows"
                       header={["Name", "GUID", "Email", "Joined"]}
                       data={data}

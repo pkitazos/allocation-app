@@ -50,7 +50,7 @@ export function ProjectCard({
           currentlySelected && overworked && "bg-orange-500",
         )}
       >
-        <p className="truncate text-wrap text-xs">{projectInfo.title}</p>
+        <p className="w-40 truncate text-wrap text-xs">{projectInfo.title}</p>
       </Card>
     </WithTooltip>
   );

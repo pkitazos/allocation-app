@@ -129,6 +129,7 @@ export function useStudentInvitesColumns(): ColumnDef<StudentInviteDto>[] {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="flex items-center gap-2 text-primary">
                     <ExportCSVButton
+                      filename="student-invites"
                       text="Download selected rows"
                       header={["Name", "GUID", "Email", "Joined"]}
                       data={data}

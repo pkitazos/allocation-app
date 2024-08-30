@@ -28,11 +28,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+import {
+  YesNoActionContainer,
+  YesNoActionTrigger,
+} from "@/components/yes-no-action";
 
 import { cn } from "@/lib/utils";
 import { User } from "@/lib/validations/auth";
 import { ProjectTableDataDto } from "@/lib/validations/dto/project";
 import { StudentPreferenceType } from "@/lib/validations/student-preference";
+
+import { spacesLabels } from "@/content/spaces";
 
 export function useAllProjectsColumns({
   user,
@@ -242,54 +248,62 @@ export function useAllProjectsColumns({
                     <MoreIcon className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" side="bottom">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <ExportCSVButton
-                      text="Download selected rows"
-                      header={[
-                        "Title",
-                        "Description",
-                        "Special Technical Requirements",
-                        "Supervisor Name",
-                        "Supervisor Email",
-                        "Flags",
-                        "Keywords",
-                      ]}
-                      data={data}
-                    />
-                  </DropdownMenuItem>
-                  <AccessControl
-                    allowedRoles={[Role.STUDENT]}
-                    allowedStages={[Stage.PROJECT_SELECTION]}
-                  >
-                    <StudentPreferenceActionSubMenu
-                      changePreference={async (t) =>
-                        void changeSelectedPreferences(t, selectedProjectIds)
-                      }
-                    />
-                  </AccessControl>
-                  <AccessControl
-                    allowedRoles={[Role.ADMIN]}
-                    allowedStages={[
-                      Stage.PROJECT_SUBMISSION,
-                      Stage.PROJECT_SELECTION,
-                    ]}
-                  >
-                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                      <button
-                        className="flex items-center gap-2"
-                        onClick={async () =>
-                          void deleteSelectedProjects(selectedProjectIds)
-                        }
-                      >
-                        <Trash2Icon className="h-4 w-4" />
-                        <span>Delete Selected Projects</span>
-                      </button>
+                <YesNoActionContainer
+                  action={async () =>
+                    void deleteSelectedProjects(selectedProjectIds)
+                  }
+                  title={`Delete ${selectedProjectIds.length} Projects`}
+                  description={`You are about to delete ${selectedProjectIds.length} projects from the ${spacesLabels.instance.short}. Do you wish to proceed?`}
+                >
+                  <DropdownMenuContent align="center" side="bottom">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <ExportCSVButton
+                        filename="all-projects"
+                        text="Download selected rows"
+                        header={[
+                          "Title",
+                          "Description",
+                          "Special Technical Requirements",
+                          "Supervisor Name",
+                          "Supervisor Email",
+                          "Flags",
+                          "Keywords",
+                        ]}
+                        data={data}
+                      />
                     </DropdownMenuItem>
-                  </AccessControl>
-                </DropdownMenuContent>
+                    <AccessControl
+                      allowedRoles={[Role.STUDENT]}
+                      allowedStages={[Stage.PROJECT_SELECTION]}
+                    >
+                      <StudentPreferenceActionSubMenu
+                        changePreference={async (t) =>
+                          void changeSelectedPreferences(t, selectedProjectIds)
+                        }
+                      />
+                    </AccessControl>
+                    <AccessControl
+                      allowedRoles={[Role.ADMIN]}
+                      allowedStages={[
+                        Stage.PROJECT_SUBMISSION,
+                        Stage.PROJECT_SELECTION,
+                      ]}
+                    >
+                      <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                        <YesNoActionTrigger
+                          trigger={
+                            <button className="flex items-center gap-2">
+                              <Trash2Icon className="h-4 w-4" />
+                              <span>Delete Selected Projects</span>
+                            </button>
+                          }
+                        />
+                      </DropdownMenuItem>
+                    </AccessControl>
+                  </DropdownMenuContent>
+                </YesNoActionContainer>
               </DropdownMenu>
             </div>
           );
@@ -314,64 +328,73 @@ export function useAllProjectsColumns({
                   <MoreIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="bottom">
-                <DropdownMenuLabel className="gap- flex items-center">
-                  Actions
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="group/item">
-                  <Link
-                    className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                    href={`${instancePath}/projects/${project.id}`}
-                  >
-                    <CornerDownRightIcon className="h-4 w-4" />
-                    <p className="flex items-center">
-                      View &quot;
-                      <p className="max-w-40 truncate">{project.title}</p>
-                      &quot;
-                    </p>
-                  </Link>
-                </DropdownMenuItem>
-                <AccessControl
-                  allowedRoles={[Role.STUDENT]}
-                  allowedStages={[Stage.PROJECT_SELECTION]}
-                  extraConditions={{ RBAC: { AND: !hasSelfDefinedProject } }}
-                >
-                  <StudentPreferenceActionSubMenu
-                    defaultType={projectPreferences.get(project.id) ?? "None"}
-                    changePreference={async (t) =>
-                      void changePreference(t, project.id)
-                    }
-                  />
-                </AccessControl>
-                <AccessControl
-                  allowedRoles={[Role.ADMIN]}
-                  allowedStages={[
-                    Stage.PROJECT_SUBMISSION,
-                    Stage.PROJECT_SELECTION,
-                  ]}
-                  extraConditions={{ RBAC: { OR: supervisor.id === user.id } }}
-                >
+              <YesNoActionContainer
+                action={handleDelete}
+                title={`Delete Project?`}
+                description={`You are about to delete project "${project.title}" from the ${spacesLabels.instance.short}. Do you wish to proceed?`}
+              >
+                <DropdownMenuContent side="bottom">
+                  <DropdownMenuLabel className="gap- flex items-center">
+                    Actions
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem className="group/item">
                     <Link
                       className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                      href={`${instancePath}/projects/${project.id}/edit`}
+                      href={`${instancePath}/projects/${project.id}`}
                     >
-                      <PenIcon className="h-4 w-4" />
-                      <span>Edit Project details</span>
+                      <CornerDownRightIcon className="h-4 w-4" />
+                      <p className="flex items-center">
+                        View &quot;
+                        <p className="max-w-40 truncate">{project.title}</p>
+                        &quot;
+                      </p>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                    <button
-                      className="flex items-center gap-2"
-                      onClick={handleDelete}
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                      <span>Delete Project</span>
-                    </button>
-                  </DropdownMenuItem>
-                </AccessControl>
-              </DropdownMenuContent>
+                  <AccessControl
+                    allowedRoles={[Role.STUDENT]}
+                    allowedStages={[Stage.PROJECT_SELECTION]}
+                    extraConditions={{ RBAC: { AND: !hasSelfDefinedProject } }}
+                  >
+                    <StudentPreferenceActionSubMenu
+                      defaultType={projectPreferences.get(project.id) ?? "None"}
+                      changePreference={async (t) =>
+                        void changePreference(t, project.id)
+                      }
+                    />
+                  </AccessControl>
+                  <AccessControl
+                    allowedRoles={[Role.ADMIN]}
+                    allowedStages={[
+                      Stage.PROJECT_SUBMISSION,
+                      Stage.PROJECT_SELECTION,
+                    ]}
+                    extraConditions={{
+                      RBAC: { OR: supervisor.id === user.id },
+                    }}
+                  >
+                    <DropdownMenuItem className="group/item">
+                      <Link
+                        className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
+                        href={`${instancePath}/projects/${project.id}/edit`}
+                      >
+                        <PenIcon className="h-4 w-4" />
+                        <span>Edit Project details</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                      <YesNoActionTrigger
+                        trigger={
+                          <button className="flex items-center gap-2">
+                            <Trash2Icon className="h-4 w-4" />
+                            <span>Delete Project</span>
+                          </button>
+                        }
+                      />
+                    </DropdownMenuItem>
+                  </AccessControl>
+                </DropdownMenuContent>
+              </YesNoActionContainer>
             </DropdownMenu>
           </div>
         );

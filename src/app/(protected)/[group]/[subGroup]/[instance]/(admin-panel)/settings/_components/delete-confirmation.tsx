@@ -1,4 +1,5 @@
 "use client";
+import { ClassValue } from "clsx";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -10,9 +11,11 @@ import { api } from "@/lib/trpc/client";
 export function DeleteConfirmation({
   spaceLabel,
   name,
+  className,
 }: {
   spaceLabel: string;
   name: string;
+  className?: ClassValue;
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -38,6 +41,7 @@ export function DeleteConfirmation({
 
   return (
     <DangerZone
+      className={className}
       action={destructiveAction}
       spaceLabel={spaceLabel}
       name={name}

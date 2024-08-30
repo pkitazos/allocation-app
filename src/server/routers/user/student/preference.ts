@@ -585,20 +585,16 @@ function accessControl({
   stageCheck: (s: Stage) => boolean;
 }) {
   const user = ctx.session.user;
-
-  const roles = user.roles;
-  const roleOk = Array.from(roles).some((role) => allowedRoles.includes(role));
+  const roleOk = user.roles.isSubsetOf(new Set(allowedRoles));
 
   if (!roleOk) {
     return {
       ok: false,
-      message: `User ${user.id} does not have permission to access this resource, as ${Array.from(roles)} does not sufficiently overlap with ${allowedRoles}.`,
+      message: `User ${user.id} does not have permission to access this resource, as ${Array.from(user.roles)} does not sufficiently overlap with ${allowedRoles}.`,
     };
   }
 
-  const stage = ctx.instance.stage;
-  const stageOk = stageCheck(stage);
-
+  const stageOk = stageCheck(ctx.instance.stage);
   if (!stageOk) {
     return {
       ok: false,

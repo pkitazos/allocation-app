@@ -600,15 +600,33 @@ export const instanceRouter = createTRPCRouter({
           studentId,
         },
       }) => {
-        await ctx.db.userInInstance.delete({
-          where: {
-            instanceMembership: {
+        await ctx.db.$transaction(async (tx) => {
+          const project = await tx.project.findFirst({
+            where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
-              userId: studentId,
+              preAllocatedStudentId: studentId,
             },
-          },
+          });
+
+          if (project) {
+            await tx.project.update({
+              where: { id: project.id },
+              data: { preAllocatedStudentId: null },
+            });
+          }
+
+          await tx.userInInstance.delete({
+            where: {
+              instanceMembership: {
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+                userId: studentId,
+              },
+            },
+          });
         });
       },
     ),
@@ -628,13 +646,31 @@ export const instanceRouter = createTRPCRouter({
           studentIds,
         },
       }) => {
-        await ctx.db.userInInstance.deleteMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-            userId: { in: studentIds },
-          },
+        await ctx.db.$transaction(async (tx) => {
+          const projects = await tx.project.findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              preAllocatedStudentId: { in: studentIds },
+            },
+          });
+
+          if (projects.length > 0) {
+            await tx.project.updateMany({
+              where: { id: { in: projects.map((p) => p.id) } },
+              data: { preAllocatedStudentId: null },
+            });
+          }
+
+          await tx.userInInstance.deleteMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: { in: studentIds },
+            },
+          });
         });
       },
     ),
