@@ -14,10 +14,20 @@ export function formatSupervisorRowProjects(
   return supervisorProjects.flatMap((project) => {
     const { allocations, preAllocatedStudentId, ...rest } = project;
 
+    // ! breaks if pre-allocated student is removed
     if (preAllocatedStudentId) {
       const idx = allocations.findIndex(
         (a) => a.student.user.id === preAllocatedStudentId,
       );
+
+      if (idx === -1) {
+        return {
+          ...rest,
+          allocatedStudentId: undefined,
+          allocatedStudentName: undefined,
+        };
+      }
+
       return {
         ...rest,
         allocatedStudentId: preAllocatedStudentId,

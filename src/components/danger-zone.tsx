@@ -1,6 +1,9 @@
 "use client";
+import { ClassValue } from "clsx";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { cn } from "@/lib/utils";
 
 import { Button } from "./ui/button";
 import {
@@ -21,13 +24,15 @@ export function DangerZone({
   spaceLabel,
   name,
   action,
+  className,
 }: {
   spaceLabel: string;
   name: string;
   action: () => void;
+  className?: ClassValue;
 }) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle className="text-red-600">Danger Zone</CardTitle>
       </CardHeader>

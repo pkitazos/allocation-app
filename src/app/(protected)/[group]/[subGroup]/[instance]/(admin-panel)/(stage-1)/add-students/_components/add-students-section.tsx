@@ -35,6 +35,7 @@ export function AddStudentsSection() {
   const { mutateAsync: addStudentAsync } =
     api.institution.instance.addStudent.useMutation();
 
+  // TODO: handle error messages properly (add status codes or something)
   async function handleAddStudent(newStudent: NewStudent) {
     void toast.promise(
       addStudentAsync({

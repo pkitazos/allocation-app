@@ -157,20 +157,12 @@ async function handle_in_instance(
   userId: string,
 ) {
   const remainingSegments = segments.slice(3);
+
   // user is in an instance
   // if this instance does not exist, i.e. if we're at the not-found page
   // then no route segment should be clickable
   // if this instance does exist
   // then users should be able to click stuff based on their role
-  const { role } = await db.userInInstance.findFirstOrThrow({
-    where: {
-      allocationGroupId: group,
-      allocationSubGroupId: subGroup,
-      allocationInstanceId: instance,
-      userId,
-    },
-    select: { role: true },
-  });
 
   const groupAdmin = await isGroupAdmin(db, { group }, userId);
   const subGroupAdmin = await isSubGroupAdmin(db, { group, subGroup }, userId);
@@ -182,6 +174,19 @@ async function handle_in_instance(
   ];
 
   if (remainingSegments.length === 0) return baseSegments;
+
+  // ! currently errors when a user does not also have a userInInstance account (i.e. is just an admin)
+  // TODO: update to handle multiple roles
+
+  const { role } = await db.userInInstance.findFirstOrThrow({
+    where: {
+      allocationGroupId: group,
+      allocationSubGroupId: subGroup,
+      allocationInstanceId: instance,
+      userId,
+    },
+    select: { role: true },
+  });
 
   const allSegments = (rest: ValidatedSegments[]) => [...baseSegments, ...rest];
 

@@ -11,4 +11,6 @@ export const allocationCsvDataSchema = z.object({
   studentRanking: z.number(),
 });
 
+// TODO: add supervisor to export data
+
 export type AllocationCsvData = z.infer<typeof allocationCsvDataSchema>;

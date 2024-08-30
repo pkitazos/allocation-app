@@ -1,4 +1,5 @@
 import { Stage } from "@prisma/client";
+import { notFound } from "next/navigation";
 
 import { AccessControl } from "@/components/access-control";
 import { Heading } from "@/components/heading";
@@ -7,6 +8,7 @@ import { LatestSubmissionDataTable } from "@/components/pages/student-preference
 import { SubmissionArea } from "@/components/pages/student-preferences/submission-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { PageParams } from "@/lib/validations/params";
@@ -15,6 +17,18 @@ import { CurrentBoardState } from "./_components/current-board-state";
 
 export default async function Page({ params }: { params: PageParams }) {
   const studentId = params.id;
+  const exists = await api.user.student.exists({
+    params,
+    studentId,
+  });
+  if (!exists) notFound();
+
+  const stage = await api.institution.instance.currentStage({ params });
+  if (stage !== Stage.PROJECT_SELECTION) {
+    return (
+      <Unauthorised message="You are not allowed to access this resource at this time" />
+    );
+  }
   const student = await api.user.student.getById({ params, studentId });
 
   const { initialColumns, initialProjects } =

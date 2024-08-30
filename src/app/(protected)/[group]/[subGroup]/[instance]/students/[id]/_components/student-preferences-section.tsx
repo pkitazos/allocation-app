@@ -1,6 +1,8 @@
+import { Stage } from "@prisma/client";
 import { PenIcon } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
 import { SubHeading } from "@/components/heading";
 import { StudentSavedPreferenceDataTable } from "@/components/student-saved-preferences/data-table";
 import { buttonVariants } from "@/components/ui/button";
@@ -34,16 +36,18 @@ export async function StudentPreferencesSection({
     <>
       <div className="-mb-2 mt-6 flex items-center justify-between">
         <SubHeading>Preferences</SubHeading>
-        <Link
-          className={cn(
-            buttonVariants({ variant: "outline" }),
-            "flex items-center justify-center gap-2 text-nowrap",
-          )}
-          href={`./${studentId}/preferences`}
-        >
-          <PenIcon className="h-4 w-4" />
-          <p>Edit Student Preferences</p>
-        </Link>
+        <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
+          <Link
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "flex items-center justify-center gap-2 text-nowrap",
+            )}
+            href={`./${studentId}/preferences`}
+          >
+            <PenIcon className="h-4 w-4" />
+            <p>Edit Student Preferences</p>
+          </Link>
+        </AccessControl>
       </div>
 
       <Tabs defaultValue="current-board-state" className="w-full">

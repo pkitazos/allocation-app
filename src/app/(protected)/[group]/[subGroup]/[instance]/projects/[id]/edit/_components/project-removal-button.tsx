@@ -19,10 +19,11 @@ export function ProjectRemovalButton({ projectId }: { projectId: string }) {
 
   const { mutateAsync: deleteAsync } = api.project.delete.useMutation();
 
+  // TODO: change redirect based on role
   function handleDelete() {
     void toast.promise(
       deleteAsync({ params, projectId }).then(() => {
-        router.push(`${instancePath}/my-projects`);
+        router.push(`${instancePath}/projects`);
         router.refresh();
       }),
       {

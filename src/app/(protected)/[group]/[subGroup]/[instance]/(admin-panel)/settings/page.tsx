@@ -28,7 +28,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-10 px-12">
       <SubHeading className="mb-4">Settings</SubHeading>
-      <Card>
+      <Card className="w-full max-w-[40rem]">
         <CardHeader>
           <CardTitle>Details</CardTitle>
         </CardHeader>
@@ -43,6 +43,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
         </CardContent>
       </Card>
       <DeleteConfirmation
+        className="w-full max-w-[40rem]"
         spaceLabel={spacesLabels.instance.short}
         name={instance.displayName}
       />
