@@ -16,6 +16,7 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  multiRoleAwareProcedure,
   protectedProcedure,
 } from "@/server/trpc";
 
@@ -168,11 +169,73 @@ export const projectRouter = createTRPCRouter({
       },
     ),
 
-  getAllForUser: protectedProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
-      const user = ctx.session.user;
+  getAllForStudentPreferences: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const projectData = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            preAllocatedStudentId: null,
+          },
+          select: {
+            id: true,
+            title: true,
+            preAllocatedStudentId: true,
+            flagOnProjects: { select: { flag: true } },
+          },
+        });
 
+        const allProjects = projectData.map((p) => ({
+          id: p.id,
+          title: p.title,
+          flags: p.flagOnProjects.map(({ flag }) => flag),
+        }));
+
+        const student = await ctx.db.studentDetails.findFirstOrThrow({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          select: { studentLevel: true },
+        });
+
+        const preferences = await ctx.db.preference.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
+          },
+          select: { projectId: true },
+        });
+
+        const preferenceIds = new Set(
+          preferences.map(({ projectId }) => projectId),
+        );
+
+        return allProjects.filter(({ id, flags }) => {
+          if (preferenceIds.has(id)) return false;
+          return flags.some(
+            (f) => getStudentLevelFromFlag(f) === student.studentLevel,
+          );
+        });
+      },
+    ),
+
+  getAllForUser: protectedProcedure
+    .input(z.object({ params: instanceParamsSchema, userId: z.string() }))
+    .query(async ({ ctx, input: { params, userId } }) => {
       const projectData = await ctx.db.project.findMany({
         where: {
           allocationGroupId: params.group,
@@ -207,7 +270,7 @@ export const projectRouter = createTRPCRouter({
           allocationGroupId: params.group,
           allocationSubGroupId: params.subGroup,
           allocationInstanceId: params.instance,
-          userId: user.id,
+          userId,
         },
         select: {
           studentLevel: true,
@@ -218,7 +281,7 @@ export const projectRouter = createTRPCRouter({
       if (!student) return allProjects;
 
       return allProjects.filter(({ flags, preAllocatedStudentId }) => {
-        if (preAllocatedStudentId) return preAllocatedStudentId === user.id;
+        if (preAllocatedStudentId) return preAllocatedStudentId === userId;
         return flags.some(
           (f) => getStudentLevelFromFlag(f) === student.studentLevel,
         );
@@ -321,10 +384,17 @@ export const projectRouter = createTRPCRouter({
     ),
 
   // TODO: convert output to discriminated union
-  getUserAccess: protectedProcedure
+
+  getUserAccess: multiRoleAwareProcedure
     .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
     .query(async ({ ctx, input: { params, projectId } }) => {
       const user = ctx.session.user;
+
+      const allowedRoles = new Set([Role.ADMIN, Role.SUPERVISOR]);
+      if (user.roles.isSubsetOf(allowedRoles)) {
+        return { access: true, studentFlagLabel: "" };
+      }
+
       const { flagOnProjects, preAllocatedStudentId } =
         await ctx.db.project.findFirstOrThrow({
           where: {

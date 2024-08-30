@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { Role } from "@prisma/client";
+import { AllocationInstance, PrismaClient, Role, User } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { z, ZodError } from "zod";
@@ -23,7 +23,7 @@ import {
 import { checkAdminPermissions } from "./utils/admin/access";
 import { isSuperAdmin } from "./utils/admin/is-super-admin";
 import { getInstance } from "./utils/instance";
-import { getUserRole } from "./utils/instance/user-role";
+import { getAllUserRoles, getUserRole } from "./utils/instance/user-role";
 
 /**
  * 1. CONTEXT
@@ -170,6 +170,20 @@ export const instanceProcedure = protectedProcedure
  * Procedure aware of the current user's role.
  */
 export const roleAwareProcedure = instanceProcedure.use(userRoleMiddleware);
+
+export const multiRoleAwareProcedure = instanceProcedure.use(
+  async ({ ctx, next }) => {
+    const user = ctx.session.user;
+    const roles = await getAllUserRoles(ctx.db, user, ctx.instance.params);
+    return next({ ctx: { session: { user: { ...user, roles } } } });
+  },
+);
+
+export type MultiRoleAwareContext = {
+  session: { user: User & { roles: Set<Role> } };
+  db: PrismaClient;
+  instance: AllocationInstance;
+};
 
 /**
  * Procedure that enforces the user is a student.

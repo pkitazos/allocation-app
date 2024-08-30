@@ -9,12 +9,12 @@ import { instanceDisplayDataSchema } from "@/lib/validations/spaces";
 import {
   createTRPCRouter,
   instanceProcedure,
+  multiRoleAwareProcedure,
   protectedProcedure,
   publicProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
-import { getAllUserRoles } from "@/server/utils/instance/user-role";
 import { partitionSpaces } from "@/server/utils/space/partition";
 
 import { hasSelfDefinedProject } from "./_utils/get-self-defined-project";
@@ -39,21 +39,18 @@ export const userRouter = createTRPCRouter({
       return await ctx.db.user.findFirstOrThrow({ where: { id: userId } });
     }),
 
-  role: roleAwareProcedure.query(async ({ ctx }) => ctx.session.user.role),
-
-  roles: instanceProcedure
+  role: roleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx, input: { params } }) => {
-      const user = ctx.session.user;
-      const roles = await getAllUserRoles(ctx.db, user, params);
-      return roles;
-    }),
+    .query(async ({ ctx }) => ctx.session.user.role),
 
-  hasSelfDefinedProject: roleAwareProcedure.query(
+  roles: multiRoleAwareProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx }) => ctx.session.user.roles),
+
+  hasSelfDefinedProject: multiRoleAwareProcedure.query(
     async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
-      const roles = await getAllUserRoles(ctx.db, user, params);
-      return await hasSelfDefinedProject(ctx.db, params, user, roles);
+      return await hasSelfDefinedProject(ctx.db, params, user, user.roles);
     },
   ),
 

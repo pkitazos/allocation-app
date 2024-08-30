@@ -68,7 +68,7 @@ export function InstanceDetailsCard({
       }),
       {
         loading: `Updating supervisor ${spacesLabels.instance.short} capacities...`,
-        success: `Successfully updated supervisor ${spacesLabels.instance.short} capacities!`,
+        success: `Successfully updated supervisor ${spacesLabels.instance.short} capacities`,
         error: "Something went wrong",
       },
     );

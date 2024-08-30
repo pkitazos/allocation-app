@@ -1,6 +1,7 @@
 import { Heading } from "@/components/heading";
 import { PageWrapper } from "@/components/page-wrapper";
 
+import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 import { instanceTabs as tabs } from "@/lib/validations/tabs/instance";
@@ -18,9 +19,9 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Projects({ params }: { params: InstanceParams }) {
-  const user = await api.user.get();
+  const user = await auth();
   const role = await api.user.role({ params });
-  const projects = await api.project.getAllForUser({ params });
+  const projects = await api.project.getAllForUser({ params, userId: user.id });
 
   const preferencesByProject = await api.user.student.preference.getByProject({
     params,

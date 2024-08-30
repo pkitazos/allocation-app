@@ -50,7 +50,7 @@ export function ProjectPreferenceCard({
       <div
         ref={setNodeRef}
         style={style}
-        className={cn("h-44 rounded-md bg-muted-foreground/20")}
+        className={cn("h-40 rounded-md bg-muted-foreground/20")}
       />
     );
   }
@@ -62,7 +62,7 @@ export function ProjectPreferenceCard({
       {...attributes}
       {...listeners}
       className={cn(
-        "group relative rounded-md bg-accent p-4 shadow-sm",
+        "group relative rounded-md bg-accent shadow-sm",
         isOver && "outline outline-4 outline-muted-foreground/50",
       )}
     >
@@ -81,11 +81,9 @@ export function ProjectPreferenceCard({
           </CardTitle>
         </div>
       </CardHeader>
-      <CardContent>
-        <div>
-          <p className="text-muted-foreground">Supervisor</p>
-          <p className="font-semibold">{project.supervisorName}</p>
-        </div>
+      <CardContent className="flex flex-col">
+        <p className="text-muted-foreground">Supervisor</p>
+        <p className="font-semibold">{project.supervisorName}</p>
       </CardContent>
       <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
         <Button

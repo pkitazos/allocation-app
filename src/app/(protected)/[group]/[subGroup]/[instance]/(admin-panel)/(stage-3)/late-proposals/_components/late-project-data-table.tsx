@@ -2,9 +2,9 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { useDataTableProjectFilters } from "@/components/data-table-context";
 import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
+import { useDataTableProjectFilters } from "@/components/ui/data-table/data-table-context";
 
 import { api } from "@/lib/trpc/client";
 import { LateProjectDto } from "@/lib/validations/dto/project";

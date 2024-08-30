@@ -8,3 +8,19 @@ export const studentInviteDtoSchema = z.object({
 });
 
 export type StudentInviteDto = z.infer<typeof studentInviteDtoSchema>;
+
+export const studentInstanceDetailsSchema = z.object({
+  level: z.coerce
+    .number({
+      required_error: "Please enter a valid integer for the level",
+      invalid_type_error: "Please enter a valid integer for the level",
+    })
+    .int("Please enter a valid integer for the level")
+    .refine((level) => level === 4 || level === 5, {
+      message: "Level must be 4 or 5",
+    }),
+});
+
+export type StudentInstanceDetails = z.infer<
+  typeof studentInstanceDetailsSchema
+>;

@@ -22,6 +22,7 @@ export function ColumnContainer({
   deletePreference: (id: string) => Promise<void>;
 }) {
   const stage = useInstanceStage();
+  const projectIds = useMemo(() => projects.map((e) => e.id), [projects]);
 
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -31,8 +32,6 @@ export function ColumnContainer({
     },
     disabled: stageGte(stage, Stage.PROJECT_ALLOCATION),
   });
-
-  const projectIds = useMemo(() => projects.map((e) => e.id), [projects]);
 
   return (
     <div

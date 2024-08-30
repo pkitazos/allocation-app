@@ -74,6 +74,7 @@ export const studentRouter = createTRPCRouter({
         );
 
         return {
+          id: studentId,
           name: data.userInInstance.user.name,
           email: data.userInInstance.user.email,
           level: data.studentLevel,
@@ -115,6 +116,39 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
+  updateLevel: instanceAdminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        studentId: z.string(),
+        level: z.number(),
+      }),
+    )
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+          level,
+        },
+      }) => {
+        await ctx.db.studentDetails.update({
+          where: {
+            detailsId: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+          },
+          data: { studentLevel: level },
+        });
+
+        return level;
+      },
+    ),
+
   isPreAllocated: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -132,7 +166,7 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  preferenceRestrictions: studentProcedure
+  preferenceRestrictions: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
       async ({
@@ -156,12 +190,38 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
-  latestSubmission: studentProcedure
-    .input(z.object({ params: instanceParamsSchema }))
+  latestSubmission: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(
-      async ({ ctx }) => ctx.session.user.latestSubmissionDateTime ?? undefined,
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const { latestSubmissionDateTime } =
+          await ctx.db.studentDetails.findFirstOrThrow({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              userId: studentId,
+            },
+            select: { latestSubmissionDateTime: true },
+          });
+
+        // TODO: check if toZonedTime is necessary
+
+        return latestSubmissionDateTime
+          ? toZonedTime(latestSubmissionDateTime, "Europe/London")
+          : undefined;
+      },
     ),
 
+  /**
+   * @deprecated
+   */
   allocatedProject: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -178,6 +238,52 @@ export const studentRouter = createTRPCRouter({
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             userId: user.id,
+          },
+          select: {
+            studentRanking: true,
+            project: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                supervisor: {
+                  select: { user: { select: { name: true, id: true } } },
+                },
+              },
+            },
+          },
+        });
+
+        if (!projectAllocation) return undefined;
+
+        return {
+          id: projectAllocation.project.id,
+          title: projectAllocation.project.title,
+          description: projectAllocation.project.description,
+          studentRanking: projectAllocation.studentRanking,
+          supervisor: {
+            name: projectAllocation.project.supervisor.user.name!,
+          },
+        };
+      },
+    ),
+
+  getAllocatedProject: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          studentId,
+        },
+      }) => {
+        const projectAllocation = await ctx.db.projectAllocation.findFirst({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            userId: studentId,
           },
           select: {
             studentRanking: true,

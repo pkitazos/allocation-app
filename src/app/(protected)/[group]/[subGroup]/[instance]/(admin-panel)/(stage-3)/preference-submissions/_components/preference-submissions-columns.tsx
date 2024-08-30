@@ -3,6 +3,7 @@ import {
   CopyIcon,
   CornerDownRightIcon,
   MoreHorizontalIcon as MoreIcon,
+  PenIcon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -158,7 +159,7 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
                   <span>View student details</span>
                 </Link>
               </DropdownMenuItem>
-              {/* <DropdownMenuItem className="group/item">
+              <DropdownMenuItem className="group/item">
                 <Link
                   className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
                   href={`./students/${id}?edit=true`}
@@ -166,7 +167,7 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
                   <PenIcon className="h-4 w-4" />
                   <span>Edit student details</span>
                 </Link>
-              </DropdownMenuItem> */}
+              </DropdownMenuItem>
               <DropdownMenuItem className="group/item">
                 <button
                   className="flex items-center gap-2 text-sm text-primary underline-offset-4 group-hover/item:underline hover:underline"
@@ -176,15 +177,6 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
                   <span>Copy email</span>
                 </button>
               </DropdownMenuItem>
-              {/* <DropdownMenuItem className="group/item">
-                <Link
-                  className="flex items-center gap-2 text-primary underline-offset-4 group-hover/item:underline hover:underline"
-                  href={`./students/${id}/new-project`}
-                >
-                  <FilePlus2 className="h-4 w-4" />
-                  <span>Create new project</span>
-                </Link>
-              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

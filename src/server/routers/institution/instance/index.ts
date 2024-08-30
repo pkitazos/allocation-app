@@ -27,16 +27,14 @@ import {
   createTRPCRouter,
   instanceAdminProcedure,
   instanceProcedure,
+  multiRoleAwareProcedure,
   protectedProcedure,
   roleAwareProcedure,
 } from "@/server/trpc";
 import { checkAdminPermissions } from "@/server/utils/admin/access";
 import { validateEmailGUIDMatch } from "@/server/utils/id-email-check";
 import { getInstance } from "@/server/utils/instance";
-import {
-  getAllUserRoles,
-  getUserRole,
-} from "@/server/utils/instance/user-role";
+import { getUserRole } from "@/server/utils/instance/user-role";
 
 import { hasSelfDefinedProject } from "../../user/_utils/get-self-defined-project";
 
@@ -804,21 +802,20 @@ export const instanceRouter = createTRPCRouter({
       return { headerTabs, instancePath };
     }),
 
-  getSidePanelTabs: instanceProcedure
+  getSidePanelTabs: multiRoleAwareProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
-      const roles = await getAllUserRoles(ctx.db, user, params);
 
       const preAllocatedProject = await hasSelfDefinedProject(
         ctx.db,
         params,
         user,
-        roles,
+        user.roles,
       );
 
       const tabs = getTabs({
-        roles,
+        roles: user.roles,
         instance: ctx.instance,
         preAllocatedProject,
       });

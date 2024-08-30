@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { notFound } from "next/navigation";
 
-import { DataTableProvider } from "@/components/data-table-context";
 import { InstanceParamsProvider } from "@/components/params-context";
+import { DataTableProvider } from "@/components/ui/data-table/data-table-context";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
