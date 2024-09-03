@@ -14,6 +14,7 @@ import { z, ZodError } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { now } from "@/lib/utils/date/now";
 import { Session } from "@/lib/validations/auth";
 import {
   instanceParamsSchema,
@@ -42,16 +43,11 @@ export const createTRPCContext = async (opts: {
   session: Session | null;
 }) => {
   const session = opts.session ?? { user: await auth() };
-  // if there's a header indicating that a user exists
-  // (like an Authorization header or something)
-  // -> return a new session with the correct user attached
-  //
-  // otherwise
-  // -> return an empty session / null / throw an error
 
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
+  const time = now();
 
-  console.log(">>> tRPC Request from", source, "by", session.user);
+  console.log(`>>> tRPC Request from ${source} by`, session.user, `at ${time}`);
 
   return {
     session,
@@ -151,8 +147,8 @@ const userRoleMiddleware = instanceMiddleware.unstable_pipe(
   async ({ ctx, next }) => {
     const role = await getUserRole(
       ctx.db,
-      ctx.session.user,
       ctx.instance.params,
+      ctx.session.user.id,
     );
 
     return next({ ctx: { session: { user: { ...ctx.session.user, role } } } });
@@ -174,7 +170,7 @@ export const roleAwareProcedure = instanceProcedure.use(userRoleMiddleware);
 export const multiRoleAwareProcedure = instanceProcedure.use(
   async ({ ctx, next }) => {
     const user = ctx.session.user;
-    const roles = await getAllUserRoles(ctx.db, user, ctx.instance.params);
+    const roles = await getAllUserRoles(ctx.db, ctx.instance.params, user.id);
     return next({ ctx: { session: { user: { ...user, roles } } } });
   },
 );

@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
-import { blankEmail } from "@/lib/utils/general/blank-email";
 import { ShibUser } from "@/lib/validations/auth";
 
 import { env } from "@/env";
@@ -28,10 +27,10 @@ export async function getShibUserFromHeaders() {
 
   const guid = z.string().parse(shib_guid);
   const displayName = z.string().parse(shib_displayName);
-  // const email = z.string().parse(shib_email);
+  const email = z.string().parse(shib_email);
   // const groups = z.string().parse(shib_groups).split(";");
 
-  return { guid, displayName };
+  return { guid, displayName, email };
 }
 
 export async function retrieveUser(user: ShibUser) {
@@ -43,8 +42,7 @@ export async function retrieveUser(user: ShibUser) {
       data: {
         id: user.guid,
         name: user.displayName,
-        email: blankEmail(user.guid),
-        // email: user.email,
+        email: user.email,
       },
     });
     return newUser;

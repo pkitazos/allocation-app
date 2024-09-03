@@ -818,7 +818,7 @@ export const instanceRouter = createTRPCRouter({
       const params = result.data;
 
       const instance = await getInstance(ctx.db, params);
-      const role = await getUserRole(ctx.db, ctx.session.user, params);
+      const role = await getUserRole(ctx.db, params, ctx.session.user.id);
       const instancePath = formatParamsAsPath(params);
 
       const adminTabs = [instanceTabs.allSupervisors, instanceTabs.allStudents];

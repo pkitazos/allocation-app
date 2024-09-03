@@ -1,17 +1,16 @@
 import { PrismaClient, Role } from "@prisma/client";
 
 import { PrismaTransactionClient } from "@/lib/db";
-import { User } from "@/lib/validations/auth";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { checkAdminPermissions } from "../admin/access";
 
 export async function getUserRole(
   db: PrismaClient,
-  user: User,
   params: InstanceParams,
+  userId: string,
 ) {
-  const isAdmin = await checkAdminPermissions(db, params, user.id);
+  const isAdmin = await checkAdminPermissions(db, params, userId);
   if (isAdmin) return Role.ADMIN;
 
   const userInInstance = await db.userInInstance.findFirstOrThrow({
@@ -19,7 +18,7 @@ export async function getUserRole(
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: params.instance,
-      userId: user.id,
+      userId,
     },
   });
 
@@ -28,12 +27,12 @@ export async function getUserRole(
 
 export async function getAllUserRoles(
   db: PrismaTransactionClient,
-  user: User,
   params: InstanceParams,
+  userId: string,
 ) {
   const roles: Role[] = [];
 
-  const admin = await checkAdminPermissions(db, params, user.id);
+  const admin = await checkAdminPermissions(db, params, userId);
   if (admin) roles.push(Role.ADMIN);
 
   const userInInstance = await db.userInInstance.findFirst({
@@ -41,7 +40,7 @@ export async function getAllUserRoles(
       allocationGroupId: params.group,
       allocationSubGroupId: params.subGroup,
       allocationInstanceId: params.instance,
-      userId: user.id,
+      userId,
     },
     select: { role: true },
   });
