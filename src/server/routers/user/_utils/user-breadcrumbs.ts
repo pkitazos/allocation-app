@@ -13,6 +13,7 @@ import {
 import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
 import { isSubGroupAdmin } from "@/server/utils/admin/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
+import { getAllUserRoles } from "@/server/utils/instance/user-role";
 
 export async function validateSegments(
   db: PrismaClient,
@@ -157,6 +158,7 @@ async function handle_in_instance(
   userId: string,
 ) {
   const remainingSegments = segments.slice(3);
+  const params = { group, subGroup, instance };
 
   // user is in an instance
   // if this instance does not exist, i.e. if we're at the not-found page
@@ -175,35 +177,24 @@ async function handle_in_instance(
 
   if (remainingSegments.length === 0) return baseSegments;
 
-  // ! currently errors when a user does not also have a userInInstance account (i.e. is just an admin)
-  // TODO: update to handle multiple roles
-
-  const { role } = await db.userInInstance.findFirstOrThrow({
-    where: {
-      allocationGroupId: group,
-      allocationSubGroupId: subGroup,
-      allocationInstanceId: instance,
-      userId,
-    },
-    select: { role: true },
-  });
-
   const allSegments = (rest: ValidatedSegments[]) => [...baseSegments, ...rest];
+
+  const roles = await getAllUserRoles(db, params, userId);
 
   if (remainingSegments.length === 1) {
     const segment = remainingSegments[0];
     if (adminRoutes.includes(segment)) {
       // user is in the admin panel
       // user must be a group admin
-      return allSegments([{ segment, access: role === Role.ADMIN }]);
+      return allSegments([{ segment, access: roles.has(Role.ADMIN) }]);
     } else if (supervisorRoutes.includes(segment)) {
       // user is in the supervisor panel
       // user must be a supervisor
-      return allSegments([{ segment, access: role === Role.SUPERVISOR }]);
+      return allSegments([{ segment, access: roles.has(Role.SUPERVISOR) }]);
     } else if (studentRoutes.includes(segment)) {
       // user is in the student panel
       // user must be a student
-      return allSegments([{ segment, access: role === Role.STUDENT }]);
+      return allSegments([{ segment, access: roles.has(Role.STUDENT) }]);
     }
   }
 
@@ -221,7 +212,7 @@ async function handle_in_instance(
       return allSegments(
         remainingSegments.map((segment) => ({
           segment,
-          access: role === Role.ADMIN,
+          access: roles.has(Role.ADMIN),
         })),
       );
     }
@@ -229,7 +220,7 @@ async function handle_in_instance(
 
   if (remainingSegments.length === 3) {
     // you are in the edit project page
-    if (role === Role.SUPERVISOR) {
+    if (roles.has(Role.SUPERVISOR)) {
       // you are a supervisor
       const { supervisorId } = await db.project.findFirstOrThrow({
         where: { id: remainingSegments[1] },
@@ -248,7 +239,7 @@ async function handle_in_instance(
       return allSegments(
         remainingSegments.map((segment) => ({
           segment,
-          access: role === Role.ADMIN,
+          access: roles.has(Role.ADMIN),
         })),
       );
     }

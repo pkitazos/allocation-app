@@ -151,8 +151,8 @@ const userRoleMiddleware = instanceMiddleware.unstable_pipe(
   async ({ ctx, next }) => {
     const role = await getUserRole(
       ctx.db,
-      ctx.session.user,
       ctx.instance.params,
+      ctx.session.user.id,
     );
 
     return next({ ctx: { session: { user: { ...ctx.session.user, role } } } });
@@ -174,7 +174,7 @@ export const roleAwareProcedure = instanceProcedure.use(userRoleMiddleware);
 export const multiRoleAwareProcedure = instanceProcedure.use(
   async ({ ctx, next }) => {
     const user = ctx.session.user;
-    const roles = await getAllUserRoles(ctx.db, user, ctx.instance.params);
+    const roles = await getAllUserRoles(ctx.db, ctx.instance.params, user.id);
     return next({ ctx: { session: { user: { ...user, roles } } } });
   },
 );
