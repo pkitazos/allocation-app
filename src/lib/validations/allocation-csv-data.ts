@@ -1,16 +1,19 @@
 import { z } from "zod";
 
 export const allocationCsvDataSchema = z.object({
-  projectInternalId: z.string(),
-  studentId: z.string(),
-  studentMatric: z.string(),
-  studentLevel: z.number().int(),
-  projectTitle: z.string(),
-  projectDescription: z.string(),
-  projectSpecialTechnicalRequirements: z.string(),
-  studentRanking: z.number(),
+  project: z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string(),
+    specialTechnicalRequirements: z.string(),
+  }),
+  student: z.object({
+    id: z.string(),
+    matric: z.string(),
+    level: z.number(),
+    ranking: z.number(),
+  }),
+  supervisor: z.object({ id: z.string(), name: z.string() }),
 });
-
-// TODO: add supervisor to export data
 
 export type AllocationCsvData = z.infer<typeof allocationCsvDataSchema>;

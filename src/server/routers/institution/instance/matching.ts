@@ -359,22 +359,25 @@ export const matchingRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
           select: {
-            project: true,
+            project: { include: { supervisor: { select: { user: true } } } },
             student: { select: { userId: true, studentDetails: true } },
             studentRanking: true,
           },
         });
 
         return allocationData.map(({ project, student, ...e }) => ({
-          projectInternalId: project.id,
-          studentId: student.userId,
-          studentMatric: guidToMatric(student.userId),
-          studentLevel: student.studentDetails[0].studentLevel, // TODO: invert query direction (findMany from studentDetails)
-          projectTitle: project.title,
-          projectDescription: project.description,
-          projectSpecialTechnicalRequirements:
-            project.specialTechnicalRequirements ?? "",
-          studentRanking: e.studentRanking,
+          project: {
+            ...project,
+            specialTechnicalRequirements:
+              project.specialTechnicalRequirements ?? "",
+          },
+          student: {
+            id: student.userId,
+            matric: guidToMatric(student.userId),
+            level: student.studentDetails[0].studentLevel, // TODO: move project allocation information to studentDetails table
+            ranking: e.studentRanking,
+          },
+          supervisor: project.supervisor.user,
         }));
       },
     ),
