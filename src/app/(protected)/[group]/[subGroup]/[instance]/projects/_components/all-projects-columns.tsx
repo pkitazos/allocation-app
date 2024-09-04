@@ -83,7 +83,10 @@ export function useAllProjectsColumns({
         },
       }) => (
         <Link
-          className={buttonVariants({ variant: "link" })}
+          className={cn(
+            buttonVariants({ variant: "link" }),
+            "inline-block h-max min-w-60 px-0 text-start",
+          )}
           href={`${instancePath}/projects/${id}`}
         >
           {title}

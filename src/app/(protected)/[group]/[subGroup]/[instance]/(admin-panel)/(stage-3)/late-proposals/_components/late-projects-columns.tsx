@@ -67,14 +67,17 @@ export function useLateProjectColumns({
           original: { id, title },
         },
       }) => (
-        <div className="flex min-w-60 items-center justify-start">
+        <WithTooltip tip={<p className="w-96">{title}</p>}>
           <Link
-            className={buttonVariants({ variant: "link" })}
-            href={`projects/${id}`}
+            className={cn(
+              buttonVariants({ variant: "link" }),
+              "inline-block w-60 truncate px-0 text-start",
+            )}
+            href={`${instancePath}/projects/${id}`}
           >
             {title}
           </Link>
-        </div>
+        </WithTooltip>
       ),
     },
     {

@@ -43,12 +43,17 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
         },
       },
     }) => (
-      <Link
-        className={cn(buttonVariants({ variant: "link" }), "text-left")}
-        href={`./projects/${id}`}
-      >
-        {title}
-      </Link>
+      <WithTooltip tip={<p className="w-96">{title}</p>}>
+        <Link
+          className={cn(
+            buttonVariants({ variant: "link" }),
+            "inline-block w-60 truncate px-0 text-start",
+          )}
+          href={`./projects/${id}`}
+        >
+          {title}
+        </Link>
+      </WithTooltip>
     ),
   },
   {

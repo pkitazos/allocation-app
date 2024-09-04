@@ -27,6 +27,7 @@ import {
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
 
+import { cn } from "@/lib/utils";
 import { stageGt } from "@/lib/utils/permissions/stage-check";
 
 export type SupervisorProjectDataDto = {
@@ -76,19 +77,17 @@ export function useMyProjectColumns({
           original: { id, title },
         },
       }) => (
-        <div className="flex min-w-52 max-w-56 items-center justify-start">
+        <WithTooltip tip={<p className="w-96">{title}</p>}>
           <Link
-            className={buttonVariants({ variant: "link" })}
-            href={`projects/${id}`}
+            className={cn(
+              buttonVariants({ variant: "link" }),
+              "inline-block w-52 truncate px-0 text-start",
+            )}
+            href={`${instancePath}/projects/${id}`}
           >
-            <WithTooltip
-              align="start"
-              tip={<div className="max-w-xs">{title}</div>}
-            >
-              <p className="max-w-56 truncate">{title}</p>
-            </WithTooltip>
+            {title}
           </Link>
-        </div>
+        </WithTooltip>
       ),
     },
     {

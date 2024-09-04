@@ -88,12 +88,24 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     id: "Project Description",
     accessorFn: (row) => row.project.description,
     header: () => <div className="w-60 py-1">Project Description</div>,
+    cell: ({
+      row: {
+        original: { project },
+      },
+    }) => <p className="line-clamp-6">{project.description}</p>,
   },
   {
     id: "Project Special Technical Requirements",
     accessorFn: (row) => row.project.specialTechnicalRequirements,
     header: () => (
       <div className="w-40 py-1">Project Special Technical Requirements</div>
+    ),
+    cell: ({
+      row: {
+        original: { project },
+      },
+    }) => (
+      <p className="line-clamp-6">{project.specialTechnicalRequirements}</p>
     ),
   },
   {
