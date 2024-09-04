@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
+import { WithTooltip } from "../ui/tooltip-wrapper";
 
 export function ProjectPreferenceCard({
   project,
@@ -72,12 +73,17 @@ export function ProjectPreferenceCard({
             <p className="text-xl font-bold text-sky-600">{idx}</p>
           )}
           <CardTitle>
-            <Link
-              className={cn(buttonVariants({ variant: "link" }), "text-xl")}
-              href={`${instancePath}/projects/${project.id}`}
-            >
-              {project.title}
-            </Link>
+            <WithTooltip tip={<p className="w-96">{project.title}</p>}>
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "link" }),
+                  "inline-block w-80 truncate px-0 text-start text-lg",
+                )}
+                href={`${instancePath}/projects/${project.id}`}
+              >
+                {project.title}
+              </Link>
+            </WithTooltip>
           </CardTitle>
         </div>
       </CardHeader>
