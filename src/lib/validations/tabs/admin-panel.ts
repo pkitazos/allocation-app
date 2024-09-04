@@ -156,6 +156,7 @@ export function getTabs({
       title: "Admin",
       tabs: [adminTabs.stageControl, adminTabs.settings],
     });
+    // TODO: don't display "Fork Instance" page if the instance already has a forked instance
     tabs.push({
       title: "Stage-specific",
       tabs: adminOnlyTabs(instance.parentInstanceId)[instance.stage],

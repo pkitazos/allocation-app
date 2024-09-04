@@ -86,8 +86,11 @@ export function useSupervisorProjectsColumns({
         },
       }) => (
         <Link
-          className={buttonVariants({ variant: "link" })}
-          href={`../projects/${id}`}
+          className={cn(
+            buttonVariants({ variant: "link" }),
+            "inline-block h-max w-60 px-0 text-start",
+          )}
+          href={`${instancePath}/projects/${id}`}
         >
           {title}
         </Link>

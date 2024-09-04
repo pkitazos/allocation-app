@@ -1,5 +1,6 @@
 "use client";
 import { ExportCSVButton } from "@/components/export-csv";
+import { Button } from "@/components/ui/button";
 
 import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
 
@@ -31,11 +32,13 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   ]);
 
   return (
-    <ExportCSVButton
-      text="Export Data to CSV"
-      filename="project_allocation_data"
-      header={header}
-      data={exportData}
-    />
+    <Button variant="outline">
+      <ExportCSVButton
+        text="Export Data to CSV"
+        filename="project_allocation_data"
+        header={header}
+        data={exportData}
+      />
+    </Button>
   );
 }
