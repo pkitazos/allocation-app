@@ -8,50 +8,44 @@ import { AllocationCsvData } from "@/lib/validations/allocation-csv-data";
 
 export const columns: ColumnDef<AllocationCsvData>[] = [
   {
-    id: "Project Internal ID",
-    accessorFn: (row) => row.projectInternalId,
+    id: "Project ID",
+    accessorFn: (row) => row.project.id,
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Project Internal ID"
-        canFilter
-      />
+      <DataTableColumnHeader column={column} title="Project ID" canFilter />
     ),
     cell: ({
       row: {
-        original: { projectInternalId },
+        original: { project },
       },
     }) => (
       <div className="flex w-32 items-center justify-center">
-        <WithTooltip tip={projectInternalId} duration={500}>
-          <p className={buttonVariants({ variant: "ghost" })}>
-            {projectInternalId}
-          </p>
+        <WithTooltip tip={project.id} duration={500}>
+          <p className={buttonVariants({ variant: "ghost" })}>{project.id}</p>
         </WithTooltip>
       </div>
     ),
   },
   {
     id: "Student GUID",
-    accessorFn: (row) => row.studentId,
+    accessorFn: (row) => row.student.id,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student GUID" canFilter />
     ),
     cell: ({
       row: {
-        original: { studentId },
+        original: { student },
       },
     }) => (
       <div className="flex w-32 items-center justify-center">
-        <WithTooltip tip={studentId} duration={500}>
-          <p className={buttonVariants({ variant: "ghost" })}>{studentId}</p>
+        <WithTooltip tip={student.id} duration={500}>
+          <p className={buttonVariants({ variant: "ghost" })}>{student.id}</p>
         </WithTooltip>
       </div>
     ),
   },
   {
     id: "Student Matric.",
-    accessorFn: (row) => row.studentMatric,
+    accessorFn: (row) => row.student.matric,
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
@@ -61,13 +55,13 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
     cell: ({
       row: {
-        original: { studentMatric },
+        original: { student },
       },
     }) => (
       <div className="flex w-32 items-center justify-center">
-        <WithTooltip tip={studentMatric} duration={500}>
+        <WithTooltip tip={student.matric} duration={500}>
           <p className={buttonVariants({ variant: "ghost" })}>
-            {studentMatric}
+            {student.matric}
           </p>
         </WithTooltip>
       </div>
@@ -75,43 +69,67 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
   },
   {
     id: "Student Level",
-    accessorFn: (row) => row.studentLevel,
+    accessorFn: (row) => row.student.level,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Level" />
     ),
     cell: ({
       row: {
-        original: { studentLevel },
+        original: { student },
       },
-    }) => <div className="text-center">{studentLevel}</div>,
+    }) => <div className="text-center">{student.level}</div>,
   },
   {
     id: "Project Title",
-    accessorFn: (row) => row.projectTitle,
+    accessorFn: (row) => row.project.title,
     header: () => <div className="w-32 py-1">Project Title</div>,
   },
   {
     id: "Project Description",
-    accessorFn: (row) => row.projectDescription,
+    accessorFn: (row) => row.project.description,
     header: () => <div className="w-60 py-1">Project Description</div>,
   },
   {
     id: "Project Special Technical Requirements",
-    accessorFn: (row) => row.projectSpecialTechnicalRequirements,
+    accessorFn: (row) => row.project.specialTechnicalRequirements,
     header: () => (
       <div className="w-40 py-1">Project Special Technical Requirements</div>
     ),
   },
   {
-    id: "student Ranking",
-    accessorFn: (row) => row.studentRanking,
+    id: "Student Ranking",
+    accessorFn: (row) => row.student.ranking,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Ranking" />
     ),
     cell: ({
       row: {
-        original: { studentRanking },
+        original: { student },
       },
-    }) => <p className="text-center">{studentRanking}</p>,
+    }) => <p className="text-center">{student.ranking}</p>,
+  },
+  {
+    id: "Supervisor GUID",
+    accessorFn: (row) => row.supervisor.id,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Supervisor GUID" />
+    ),
+    cell: ({
+      row: {
+        original: { supervisor },
+      },
+    }) => <p className="text-center">{supervisor.id}</p>,
+  },
+  {
+    id: "Supervisor Name",
+    accessorFn: (row) => row.supervisor.id,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Supervisor Name" />
+    ),
+    cell: ({
+      row: {
+        original: { supervisor },
+      },
+    }) => <p className="text-center">{supervisor.name}</p>,
   },
 ];
