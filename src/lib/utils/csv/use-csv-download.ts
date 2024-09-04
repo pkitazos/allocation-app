@@ -18,7 +18,8 @@ export function useCsvExport<T>({
   useEffect(() => {
     if (downloadLinkRef.current) {
       const link = downloadLinkRef.current;
-      link.href = encodeURI(`data:text/csv;charset=utf-8,${csvContent}`);
+      link.href =
+        `data:text/csv;charset=utf-8,` + encodeURIComponent(csvContent);
       link.download = filename;
     }
   }, [csvContent, filename]);
