@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { ProjectPreference } from "@/lib/validations/board";
+
 import { WithTooltip } from "../ui/tooltip-wrapper";
 
 export function ProjectPreferenceCard({

@@ -48,7 +48,11 @@ import {
 
 import { AccessControl } from "./access-control";
 import { MarkdownEditor } from "./markdown-editor";
-import { useInstancePath } from "./params-context";
+import {
+  useInstancePath,
+  useInstanceRoles,
+  useInstanceStage,
+} from "./params-context";
 
 import { spacesLabels } from "@/content/spaces";
 
@@ -70,6 +74,9 @@ export function ProjectForm({
   children: ReactNode;
 }) {
   const instancePath = useInstancePath();
+  const stage = useInstanceStage();
+  const userRoles = useInstanceRoles();
+
   const formProject = {
     title: project?.title ?? "",
     description: project?.description ?? "",
@@ -102,6 +109,7 @@ export function ProjectForm({
     },
   });
 
+  // TODO: somehow projects are created with the preAllocatedStudentId set to an empty string
   function handleSwitch() {
     const newState = !preAllocatedSwitchControl;
 
@@ -306,6 +314,12 @@ export function ProjectForm({
         <AccessControl
           allowedStages={[Stage.PROJECT_SUBMISSION]}
           allowedRoles={[Role.ADMIN, Role.SUPERVISOR]}
+          extraConditions={{
+            SBAC: {
+              OR:
+                stage === Stage.PROJECT_SELECTION && userRoles.has(Role.ADMIN),
+            },
+          }}
         >
           <FormField
             control={form.control}
@@ -368,7 +382,16 @@ export function ProjectForm({
               )}
             />
           </AccessControl>
-          <AccessControl allowedStages={[Stage.PROJECT_SUBMISSION]}>
+          <AccessControl
+            allowedStages={[Stage.PROJECT_SUBMISSION]}
+            extraConditions={{
+              SBAC: {
+                OR:
+                  stage === Stage.PROJECT_SELECTION &&
+                  userRoles.has(Role.ADMIN),
+              },
+            }}
+          >
             <FormField
               control={form.control}
               name="preAllocatedStudentId"
