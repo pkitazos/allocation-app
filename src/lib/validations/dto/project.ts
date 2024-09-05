@@ -1,7 +1,7 @@
+import { title } from "process";
 import { z } from "zod";
 
 import { tagTypeSchema } from "@/components/tag/tag-input";
-import { title } from "process";
 
 export const projectDtoSchema = z.object({
   title: z.string(),
