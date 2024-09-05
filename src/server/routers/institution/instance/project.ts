@@ -109,7 +109,7 @@ export const projectRouter = createTRPCRouter({
           maxPreferencesPerSupervisor: ctx.instance.maxPreferencesPerSupervisor,
         };
 
-        const data = await ctx.db.studentDetails.findMany({
+        const studentData = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -126,16 +126,31 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
-        const studentData = data.map(
-          ({ userInInstance, submittedPreferences }) => {
-            return {
-              ...userInInstance.user,
-              submissionCount: userInInstance.studentPreferences.length,
-              submitted: submittedPreferences,
-            };
+        const projectData = await ctx.db.project.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+            preAllocatedStudentId: { not: null },
           },
+          select: { preAllocatedStudentId: true },
+        });
+
+        const preAllocatedStudents = new Set(
+          projectData
+            .map((p) => p.preAllocatedStudentId)
+            .filter((p) => p !== null),
         );
-        return { studentData, preferenceCapacities };
+
+        const students = studentData
+          .filter((s) => !preAllocatedStudents.has(s.userInInstance.user.id))
+          .map(({ userInInstance, submittedPreferences }) => ({
+            ...userInInstance.user,
+            submissionCount: userInInstance.studentPreferences.length,
+            submitted: submittedPreferences,
+          }));
+
+        return { students, preferenceCapacities };
       },
     ),
 });

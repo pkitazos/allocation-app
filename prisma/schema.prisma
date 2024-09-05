@@ -63,9 +63,9 @@ model UserInInstance {
     allocationInstanceId      String                      @map("allocation_instance_id")
     allocationInstance        AllocationInstance          @relation(map: "allocation_instance", fields: [allocationGroupId, allocationSubGroupId, allocationInstanceId], references: [allocationGroupId, allocationSubGroupId, id], onDelete: Cascade)
     // ---
-    studentAllocation         ProjectAllocation?          @relation(name: "project_allocation")
+    studentAllocation         ProjectAllocation?          @relation(name: "project_allocation") // TODO: move to student details
     studentDetails            StudentDetails[]            @relation(name: "student_details")
-    studentPreferences        Preference[]
+    studentPreferences        Preference[] // TODO: move to student details
     // ---
     supervisorInstanceDetails SupervisorInstanceDetails[] @relation(name: "supervisor_details")
     supervisorProjects        Project[]

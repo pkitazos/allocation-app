@@ -27,10 +27,9 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const { studentData: students } =
-    await api.institution.instance.project.preferenceInfo({
-      params,
-    });
+  const { students } = await api.institution.instance.project.preferenceInfo({
+    params,
+  });
 
   const incomplete = students.filter((s) => !s.submitted);
 
