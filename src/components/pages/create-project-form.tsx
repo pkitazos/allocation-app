@@ -56,7 +56,7 @@ export function CreateProjectForm({
       requiredFlags={requiredFlags}
     >
       <Button variant="outline" size="lg" type="button" asChild>
-        <Link className="w-32" href={`./my-projects`}>
+        <Link className="w-32" href={createdByAdmin ? "." : "./my-projects"}>
           Cancel
         </Link>
       </Button>

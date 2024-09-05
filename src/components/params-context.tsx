@@ -1,6 +1,6 @@
 "use client";
 import { createContext, ReactNode, useContext } from "react";
-import { Stage } from "@prisma/client";
+import { Role, Stage } from "@prisma/client";
 import { ArrowUpLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -9,7 +9,7 @@ import { InstanceParams } from "@/lib/validations/params";
 
 const InstanceContext = createContext<Instance | undefined>(undefined);
 
-type Instance = { params: InstanceParams; stage: Stage };
+type Instance = { params: InstanceParams; stage: Stage; roles: Set<Role> };
 
 export function InstanceParamsProvider({
   children,
@@ -41,6 +41,12 @@ export function useInstanceStage() {
   const instance = useContext(InstanceContext);
   if (!instance) throw new Error("Missing InstanceParamsProvider in the tree");
   return instance.stage;
+}
+
+export function useInstanceRoles() {
+  const instance = useContext(InstanceContext);
+  if (!instance) throw new Error("Missing InstanceParamsProvider in the tree");
+  return instance.roles;
 }
 
 export function InstanceHomeRedirectButton() {

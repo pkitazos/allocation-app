@@ -44,10 +44,12 @@ export default async function Layout({
   }
 
   const stage = await api.institution.instance.currentStage({ params });
+  const roles = await api.user.roles({ params });
+
   const { flags, tags } = await api.project.details({ params });
 
   return (
-    <InstanceParamsProvider params={{ params, stage }}>
+    <InstanceParamsProvider params={{ params, stage, roles }}>
       <DataTableProvider details={{ flags, tags }}>
         {children}
       </DataTableProvider>
