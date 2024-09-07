@@ -3,6 +3,11 @@ import { AllocationInstance, Role, Stage } from "@prisma/client";
 import { TabGroup } from "./index";
 import { instanceTabs as userTabs } from "./instance";
 
+import { pages } from "@/content/pages";
+
+/**
+ * @deprecated use pages from "@/content/pages" instead
+ */
 export const adminTabs = {
   settings: {
     title: "Settings",
@@ -107,10 +112,7 @@ const adminOnlyTabs = (parentInstanceId: string | null) => ({
     adminTabs.preferenceSubmissions,
     adminTabs.lateProposals,
   ],
-  [Stage.PROJECT_ALLOCATION]: [
-    adminTabs.algorithmsOverview,
-    adminTabs.algorithmDetails,
-  ],
+  [Stage.PROJECT_ALLOCATION]: [pages.algorithms, pages.results],
   [Stage.ALLOCATION_ADJUSTMENT]: [adminTabs.manualChanges],
   [Stage.ALLOCATION_PUBLICATION]: [
     adminTabs.allocationOverview,

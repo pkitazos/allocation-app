@@ -8,7 +8,11 @@ import {
   MinCostAlgorithm,
 } from "@/lib/algorithms";
 import { relativeComplement } from "@/lib/utils/general/set-difference";
-import { algorithmSchema, builtInAlgSchema } from "@/lib/validations/algorithm";
+import {
+  AlgorithmResultDto,
+  algorithmSchema,
+  builtInAlgSchema,
+} from "@/lib/validations/algorithm";
 import {
   blankResult,
   MatchingDetailsDto,
@@ -43,6 +47,8 @@ export const algorithmRouter = createTRPCRouter({
         },
       }) => {
         const matchingData = await getMatchingData(ctx.db, ctx.instance);
+
+        console.log("------->", { matchingData });
 
         const matchingResults = await executeMatchingAlgorithm({
           algorithm,
@@ -92,30 +98,32 @@ export const algorithmRouter = createTRPCRouter({
     ),
 
   create: instanceAdminProcedure
-    .input(
-      algorithmSchema
-        .pick({ algName: true, flag1: true, flag2: true, flag3: true })
-        .extend({ params: instanceParamsSchema }),
-    )
+    .input(z.object({ params: instanceParamsSchema, data: algorithmSchema }))
     .mutation(
       async ({
         ctx,
         input: {
           params: { group, subGroup, instance },
-          algName,
-          flag1,
-          flag2,
-          flag3,
+          data: {
+            algName,
+            flag1,
+            flag2,
+            flag3,
+            targetModifier,
+            upperBoundModifier,
+          },
         },
       }) => {
         await ctx.db.algorithm.create({
           data: {
             algName,
             displayName: algName,
-            description: "description",
+            description: "", // TODO: handle optional description
             flag1,
             flag2,
             flag3,
+            targetModifier,
+            upperBoundModifier,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
@@ -125,7 +133,30 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 
-  customAlgs: instanceAdminProcedure
+  delete: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema, algName: z.string() }))
+    .mutation(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+          algName,
+        },
+      }) => {
+        await ctx.db.algorithm.delete({
+          where: {
+            algorithmId: {
+              algName,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+          },
+        });
+      },
+    ),
+
+  getAll: instanceAdminProcedure
     .input(
       z.object({
         params: instanceParamsSchema,
@@ -138,22 +169,75 @@ export const algorithmRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        return await ctx.db.algorithm.findMany({
+        const customAlgorithms = await ctx.db.algorithm.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
             NOT: builtInAlgSchema.options.map((algName) => ({ algName })),
           },
+        });
+
+        const allAlgorithms = [
+          GenerousAlgorithm,
+          GreedyAlgorithm,
+          GreedyGenAlgorithm,
+          MinCostAlgorithm,
+          ...customAlgorithms,
+        ];
+
+        return allAlgorithms.map((a) => ({
+          algName: a.algName,
+          displayName: a.displayName,
+          description: a.description,
+          targetModifier: a.targetModifier,
+          upperBoundModifier: a.upperBoundModifier,
+          flags: [a.flag1, a.flag2, a.flag3].filter((f) => f !== null),
+        }));
+      },
+    ),
+
+  getAllSummaryResults: instanceAdminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+      }),
+    )
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const algorithmData = await ctx.db.algorithm.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
           select: {
             algName: true,
             displayName: true,
-            description: true,
-            flag1: true,
-            flag2: true,
-            flag3: true,
+            matchingResultData: true,
           },
+          orderBy: { algName: "asc" },
         });
+
+        const resultsByAlgName = new Map<string, AlgorithmResultDto>();
+
+        for (const {
+          algName,
+          displayName,
+          matchingResultData: data,
+        } of algorithmData) {
+          const { weight, size, profile, cost } = parseMatchingResult(data);
+          const dto = { algName, displayName, weight, size, profile, cost };
+          resultsByAlgName.set(algName, dto);
+        }
+
+        const algs = getAlgorithmsInOrder(algorithmData);
+        return algs.map((a) => resultsByAlgName.get(a.algName)!);
       },
     ),
 
@@ -253,20 +337,7 @@ export const algorithmRouter = createTRPCRouter({
           resultsByAlgName.set(algName, details);
         }
 
-        const builtInAlgs = [
-          GenerousAlgorithm,
-          GreedyAlgorithm,
-          GreedyGenAlgorithm,
-          MinCostAlgorithm,
-        ];
-
-        const customAlgs = relativeComplement(
-          algorithmData,
-          builtInAlgs,
-          (a, b) => a.algName === b.algName,
-        );
-
-        const allAlgorithms = [...builtInAlgs, ...customAlgs];
+        const allAlgorithms = getAlgorithmsInOrder(algorithmData);
 
         const results = allAlgorithms.map(({ algName, displayName }) => ({
           algName,
@@ -354,20 +425,7 @@ export const algorithmRouter = createTRPCRouter({
           resultsByAlgName.set(algName, Object.values(details));
         }
 
-        const builtInAlgs = [
-          GenerousAlgorithm,
-          GreedyAlgorithm,
-          GreedyGenAlgorithm,
-          MinCostAlgorithm,
-        ];
-
-        const customAlgs = relativeComplement(
-          algorithmData,
-          builtInAlgs,
-          (a, b) => a.algName === b.algName,
-        );
-
-        const allAlgorithms = [...builtInAlgs, ...customAlgs];
+        const allAlgorithms = getAlgorithmsInOrder(algorithmData);
 
         const results = allAlgorithms.map(({ algName, displayName }) => ({
           algName,
@@ -384,3 +442,22 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 });
+
+function getAlgorithmsInOrder<T extends { algName: string }>(
+  algorithmData: T[],
+) {
+  const builtInAlgs = [
+    GenerousAlgorithm,
+    GreedyAlgorithm,
+    GreedyGenAlgorithm,
+    MinCostAlgorithm,
+  ];
+
+  const customAlgs = relativeComplement(
+    algorithmData,
+    builtInAlgs,
+    (a, b) => a.algName === b.algName,
+  ).sort((a, b) => a.algName.localeCompare(b.algName));
+
+  return [...builtInAlgs, ...customAlgs];
+}

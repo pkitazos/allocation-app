@@ -1,3 +1,6 @@
+/**
+ * @deprecated use pages from "@/content/pages" instead
+ */
 export const instanceTabs = {
   allProjects: {
     title: "All Projects",
