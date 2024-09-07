@@ -1,48 +1,38 @@
-"use client";
-import { InfoIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 import { api } from "@/lib/trpc/client";
-import { Algorithm } from "@/lib/validations/algorithm";
+import { AlgorithmDto } from "@/lib/validations/algorithm";
 
-export function RunAlgorithmButton({
-  algorithm,
-  custom = false,
-}: {
-  algorithm: Algorithm;
-  custom?: boolean;
-}) {
+import { useAlgorithmUtils } from "./use-algorithms";
+
+export function RunAlgorithmButton({ algorithm }: { algorithm: AlgorithmDto }) {
   const params = useInstanceParams();
-  const utils = api.useUtils();
+  const utils = useAlgorithmUtils();
 
-  const refetchAlgorithmResult = () =>
-    utils.institution.instance.algorithm.singleResult.refetch({
-      algName: algorithm.algName,
-      params,
-    });
-
-  const refetchAllResults = () =>
-    utils.institution.instance.algorithm.allStudentResults.refetch({ params });
+  function refetchResults(algName: string) {
+    utils.allStudentResults();
+    utils.allSupervisorResults();
+    utils.getAllSummaryResults();
+    utils.singleResult(algName);
+  }
 
   const { isPending, mutateAsync: runAlgAsync } =
     api.institution.instance.algorithm.run.useMutation();
 
-  const Info = custom ? Flags : Description;
+  async function runAlgorithm(a: AlgorithmDto) {
+    const algorithm = {
+      ...a,
+      flag1: a.flags.at(0)!,
+      flag2: a.flags.at(1) ?? null,
+      flag3: a.flags.at(2) ?? null,
+    };
 
-  async function runAlgorithm() {
     void toast.promise(
       runAlgAsync({ params, algorithm }).then((data) => {
-        refetchAlgorithmResult();
-        refetchAllResults();
+        refetchResults(a.algName);
         return data;
       }),
       {
@@ -58,44 +48,8 @@ export function RunAlgorithmButton({
   }
 
   return (
-    <div className="flex justify-between gap-5">
-      <p className="flex items-center gap-2">
-        {algorithm.displayName} - <Info algorithm={algorithm} />
-      </p>
-      <Button onClick={runAlgorithm} disabled={isPending}>
-        run
-      </Button>
-    </div>
-  );
-}
-
-function Description({ algorithm }: { algorithm: Algorithm }) {
-  return (
-    <Popover>
-      <PopoverTrigger>
-        <InfoIcon className="h-4 w-4 stroke-slate-400" />
-      </PopoverTrigger>
-      <PopoverContent>{algorithm.description}</PopoverContent>
-    </Popover>
-  );
-}
-
-function Flags({ algorithm }: { algorithm: Algorithm }) {
-  return (
-    <div className="flex items-center gap-2">
-      <Badge variant="outline" className="">
-        {algorithm.flag1}
-      </Badge>
-      {algorithm.flag2 && (
-        <Badge variant="outline" className="">
-          {algorithm.flag2}
-        </Badge>
-      )}
-      {algorithm.flag3 && (
-        <Badge variant="outline" className="">
-          {algorithm.flag3}
-        </Badge>
-      )}
-    </div>
+    <Button onClick={() => runAlgorithm(algorithm)} disabled={isPending}>
+      run
+    </Button>
   );
 }

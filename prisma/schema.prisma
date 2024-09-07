@@ -301,6 +301,8 @@ model Algorithm {
     algName              String             @map("alg_name")
     displayName          String             @map("display_name")
     description          String
+    targetModifier       Int                @default(0) @map("target_modifier")
+    upperBoundModifier   Int                @default(0) @map("upper_bound_modifier")
     flag1                AlgorithmFlag      @map("flag_1")
     flag2                AlgorithmFlag?     @map("flag_2")
     flag3                AlgorithmFlag?     @map("flag_3")
