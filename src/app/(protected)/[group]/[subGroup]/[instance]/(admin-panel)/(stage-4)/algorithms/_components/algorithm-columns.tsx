@@ -23,23 +23,26 @@ import {
 import { api } from "@/lib/trpc/client";
 import { AlgorithmDto } from "@/lib/validations/algorithm";
 
-import { RunAlgorithmButton2 } from "./run-algorithm-button2";
+import { RunAlgorithmButton } from "./run-algorithm-button";
+import { useAlgorithmUtils } from "./use-algorithms";
 
 export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
   const params = useInstanceParams();
-  const utils = api.useUtils();
+  const utils = useAlgorithmUtils();
+
+  function refetchResults() {
+    utils.getAll();
+    utils.allStudentResults();
+    utils.allSupervisorResults();
+    utils.getAllSummaryResults();
+  }
 
   const { mutateAsync: deleteAlgAsync } =
     api.institution.instance.algorithm.delete.useMutation();
 
-  const refetchAllResults = () =>
-    utils.institution.instance.algorithm.allStudentResults.refetch({ params });
-
   async function deleteAlgorithm(algName: string) {
     void toast.promise(
-      deleteAlgAsync({ params, algName }).then(() => {
-        refetchAllResults();
-      }),
+      deleteAlgAsync({ params, algName }).then(refetchResults),
       {
         loading: "Running...",
         success: `Successfully deleted algorithm "${algName}"`,
@@ -58,8 +61,12 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
           original: { algName, displayName, description },
         },
       }) => {
-        if (algName) {
-          return <MoreInformation side="left">{description}</MoreInformation>;
+        if (description !== "") {
+          return (
+            <div className="flex w-14 items-start justify-center">
+              <MoreInformation side="left">{description}</MoreInformation>
+            </div>
+          );
         }
 
         return (
@@ -89,7 +96,7 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
                       trigger={
                         <button className="flex items-center gap-2">
                           <Trash2Icon className="h-4 w-4" />
-                          <span>Delete</span>
+                          <span>Delete algorithm</span>
                         </button>
                       }
                     />
@@ -156,7 +163,7 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
       id: "Run",
       header: () => null,
       cell: ({ row: { original: algorithm } }) => (
-        <RunAlgorithmButton2 algorithm={algorithm} />
+        <RunAlgorithmButton algorithm={algorithm} />
       ),
     },
   ];

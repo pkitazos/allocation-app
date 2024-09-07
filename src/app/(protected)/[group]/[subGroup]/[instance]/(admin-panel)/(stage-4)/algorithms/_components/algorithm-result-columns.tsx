@@ -82,12 +82,14 @@ export function useAlgorithmResultColumns({
       header: () => null,
       cell: ({
         row: {
-          original: { algName },
+          original: { algName, profile },
         },
       }) => (
         <Button
+          className="w-24"
           variant={selectedAlgName === algName ? "secondary" : "ghost"}
           onClick={() => handleSelection(algName)}
+          disabled={profile.length === 0}
         >
           {selectedAlgName === algName ? "Selected" : "Select"}
         </Button>

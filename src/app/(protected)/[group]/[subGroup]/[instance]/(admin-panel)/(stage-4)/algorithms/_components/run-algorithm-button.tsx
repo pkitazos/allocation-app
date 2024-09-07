@@ -6,25 +6,21 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 import { AlgorithmDto } from "@/lib/validations/algorithm";
 
-export function RunAlgorithmButton2({
-  algorithm,
-}: {
-  algorithm: AlgorithmDto;
-}) {
+import { useAlgorithmUtils } from "./use-algorithms";
+
+export function RunAlgorithmButton({ algorithm }: { algorithm: AlgorithmDto }) {
   const params = useInstanceParams();
-  const utils = api.useUtils();
+  const utils = useAlgorithmUtils();
+
+  function refetchResults(algName: string) {
+    utils.allStudentResults();
+    utils.allSupervisorResults();
+    utils.getAllSummaryResults();
+    utils.singleResult(algName);
+  }
 
   const { isPending, mutateAsync: runAlgAsync } =
     api.institution.instance.algorithm.run.useMutation();
-
-  const refetchAlgorithmResult = (algName: string) =>
-    utils.institution.instance.algorithm.singleResult.refetch({
-      algName,
-      params,
-    });
-
-  const refetchAllResults = () =>
-    utils.institution.instance.algorithm.allStudentResults.refetch({ params });
 
   async function runAlgorithm(a: AlgorithmDto) {
     const algorithm = {
@@ -36,8 +32,7 @@ export function RunAlgorithmButton2({
 
     void toast.promise(
       runAlgAsync({ params, algorithm }).then((data) => {
-        refetchAlgorithmResult(a.algName);
-        refetchAllResults();
+        refetchResults(a.algName);
         return data;
       }),
       {

@@ -1,4 +1,6 @@
-import { SubHeading } from "@/components/heading";
+import { ListTodoIcon, ListVideoIcon } from "lucide-react";
+
+import { SectionHeading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
@@ -6,7 +8,7 @@ import { InstanceParams } from "@/lib/validations/params";
 
 import { AlgorithmDataTable } from "./_components/algorithm-data-table";
 import { AlgorithmResultDataTable } from "./_components/algorithm-result-data-table";
-import { NewAlgorithmButton2 } from "./_components/new-algorithm-button-2";
+import { NewAlgorithmSection } from "./_components/new-algorithm-section";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -29,18 +31,23 @@ export default async function Page({ params }: { params: InstanceParams }) {
   });
 
   return (
-    <PanelWrapper className="mt-20 flex flex-col items-center">
-      <div className="flex w-full flex-col gap-3">
-        <SubHeading className="mb-6">Select Algorithms to run</SubHeading>
-        <div className="flex flex-col gap-5">
-          <AlgorithmDataTable />
-          <NewAlgorithmButton2 takenNames={takenNames} />
-          <SubHeading className="mb-6 mt-16 text-2xl ">
-            Results Summary
-          </SubHeading>
-          <AlgorithmResultDataTable selectedAlg={selectedAlgName} />
-        </div>
-      </div>
+    <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">
+      <SubHeading className="mb-4">{pages.algorithms.title}</SubHeading>
+      <section className="flex w-full flex-col">
+        <SectionHeading className="mb-2 flex items-center">
+          <ListVideoIcon className="mr-2 h-6 w-6 text-indigo-500" />
+          <span>Select Algorithms to run</span>
+        </SectionHeading>
+        <AlgorithmDataTable />
+        <NewAlgorithmSection takenNames={takenNames} />
+      </section>
+      <section className="mt-10 flex w-full flex-col">
+        <SectionHeading className="mb-2 flex items-center">
+          <ListTodoIcon className="mr-2 h-6 w-6 text-indigo-500" />
+          <span>Results Summary</span>
+        </SectionHeading>
+        <AlgorithmResultDataTable selectedAlg={selectedAlgName} />
+      </section>
     </PanelWrapper>
   );
 }

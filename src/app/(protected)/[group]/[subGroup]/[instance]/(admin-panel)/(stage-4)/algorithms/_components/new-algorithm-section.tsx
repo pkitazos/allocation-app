@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,14 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import {
   Form,
@@ -41,7 +50,30 @@ import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { allFlags, buildNewAlgorithmSchema } from "@/lib/validations/algorithm";
 
-export function NewAlgorithmForm2({
+import { useAlgorithmUtils } from "./use-algorithms";
+
+export function NewAlgorithmSection({ takenNames }: { takenNames: string[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Configure New Algorithm</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl">
+        <DialogHeader>
+          <DialogTitle>Configure New Algorithm</DialogTitle>
+          <DialogDescription>
+            Select the algorithm flags and capacity modifiers you want then
+            click the &quot;Create&quot; button
+          </DialogDescription>
+        </DialogHeader>
+        <NewAlgorithmForm takenNames={takenNames} setShowForm={setOpen} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function NewAlgorithmForm({
   takenNames,
   setShowForm,
 }: {
@@ -50,13 +82,17 @@ export function NewAlgorithmForm2({
 }) {
   const params = useInstanceParams();
   const router = useRouter();
+  const utils = useAlgorithmUtils();
 
   const { mutateAsync: createAlgorithmAsync } =
     api.institution.instance.algorithm.create.useMutation();
 
-  const utils = api.useUtils();
-  const refetchAlgorithms = () =>
-    utils.institution.instance.algorithm.getAll.refetch({ params });
+  function refetchAlgorithms() {
+    utils.getAll();
+    utils.allStudentResults();
+    utils.allSupervisorResults();
+    utils.getAllSummaryResults();
+  }
 
   const formSchema = buildNewAlgorithmSchema(takenNames);
 
