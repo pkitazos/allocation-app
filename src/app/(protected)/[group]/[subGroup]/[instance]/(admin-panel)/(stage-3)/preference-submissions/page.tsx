@@ -33,6 +33,8 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   const incomplete = students.filter((s) => !s.submitted);
 
+  // TODO: don't include students with self-defined projects
+
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">
       <SubHeading className="mb-4">
