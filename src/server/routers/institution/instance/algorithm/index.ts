@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { AlgorithmFlag, Role } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -48,26 +48,45 @@ export const algorithmRouter = createTRPCRouter({
       }) => {
         const matchingData = await getMatchingData(ctx.db, ctx.instance);
 
-        console.log("------->", { matchingData });
-
         const matchingResults = await executeMatchingAlgorithm({
           algorithm,
           matchingData,
         });
 
-        await ctx.db.algorithm.update({
-          where: {
-            algorithmId: {
-              algName: algorithm.algName,
+        const builtInAlg = getBuiltInAlgorithm(algorithm.algName);
+
+        if (builtInAlg) {
+          await ctx.db.algorithm.upsert({
+            where: {
+              algorithmId: {
+                algName: algorithm.algName,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+            },
+            update: { matchingResultData: JSON.stringify(matchingResults) },
+            create: {
+              ...builtInAlg,
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
+              matchingResultData: JSON.stringify(matchingResults),
             },
-          },
-          data: {
-            matchingResultData: JSON.stringify(matchingResults),
-          },
-        });
+          });
+        } else {
+          await ctx.db.algorithm.update({
+            where: {
+              algorithmId: {
+                algName: algorithm.algName,
+                allocationGroupId: group,
+                allocationSubGroupId: subGroup,
+                allocationInstanceId: instance,
+              },
+            },
+            data: { matchingResultData: JSON.stringify(matchingResults) },
+          });
+        }
 
         return {
           totalStudents: matchingData.students.length,
@@ -460,4 +479,23 @@ function getAlgorithmsInOrder<T extends { algName: string }>(
   ).sort((a, b) => a.algName.localeCompare(b.algName));
 
   return [...builtInAlgs, ...customAlgs];
+}
+
+function getBuiltInAlgorithm(algName: string) {
+  switch (algName) {
+    case GenerousAlgorithm.algName:
+      return GenerousAlgorithm;
+
+    case GreedyAlgorithm.algName:
+      return GreedyAlgorithm;
+
+    case GreedyGenAlgorithm.algName:
+      return GreedyGenAlgorithm;
+
+    case MinCostAlgorithm.algName:
+      return MinCostAlgorithm;
+
+    default:
+      return undefined;
+  }
 }
