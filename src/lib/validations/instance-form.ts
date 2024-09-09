@@ -12,7 +12,7 @@ const baseSchema = z.object({
     z.object({ title: z.string().min(3, "Please enter a valid title") }),
   ),
   tags: z.array(
-    z.object({ title: z.string().min(3, "Please enter a valid title") }),
+    z.object({ title: z.string().min(2, "Please enter a valid title") }),
   ),
 });
 

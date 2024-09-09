@@ -11,6 +11,7 @@ import {
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
+import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { computeSubmissionDetails } from "./_utils/submission-details";
 
 export const projectRouter = createTRPCRouter({
@@ -103,13 +104,7 @@ export const projectRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const preferenceCapacities = {
-          minPreferences: ctx.instance.minPreferences,
-          maxPreferences: ctx.instance.maxPreferences,
-          maxPreferencesPerSupervisor: ctx.instance.maxPreferencesPerSupervisor,
-        };
-
-        const data = await ctx.db.studentDetails.findMany({
+        const studentData = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
@@ -126,16 +121,26 @@ export const projectRouter = createTRPCRouter({
           },
         });
 
-        const studentData = data.map(
-          ({ userInInstance, submittedPreferences }) => {
-            return {
-              ...userInInstance.user,
-              submissionCount: userInInstance.studentPreferences.length,
-              submitted: submittedPreferences,
-            };
-          },
+        const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
+          group,
+          subGroup,
+          instance,
+        });
+
+        const all = studentData.map(
+          ({ userInInstance, submittedPreferences }) => ({
+            ...userInInstance.user,
+            submissionCount: userInInstance.studentPreferences.length,
+            submitted: submittedPreferences,
+            preAllocated: preAllocatedStudents.has(userInInstance.user.id),
+          }),
         );
-        return { studentData, preferenceCapacities };
+
+        return {
+          all,
+          incomplete: all.filter((s) => !s.submitted && !s.preAllocated),
+          preAllocated: all.filter((s) => s.preAllocated),
+        };
       },
     ),
 });

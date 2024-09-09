@@ -43,6 +43,7 @@ import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
 import { getAllocationData } from "./_utils/allocation-data";
 import { forkInstanceTransaction } from "./_utils/fork";
 import { mergeInstanceTransaction } from "./_utils/merge";
+import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
@@ -694,13 +695,24 @@ export const instanceRouter = createTRPCRouter({
           select: { user: true, joined: true },
         });
 
+        const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
+          group,
+          subGroup,
+          instance,
+        });
+
+        const all = invitedUsers.map(({ user, joined }) => ({
+          id: user.id,
+          name: user.name!,
+          email: user.email!,
+          joined,
+          preAllocated: preAllocatedStudents.has(user.id),
+        }));
+
         return {
-          students: invitedUsers.map(({ user, joined }) => ({
-            id: user.id,
-            name: user.name!,
-            email: user.email!,
-            joined,
-          })),
+          all,
+          incomplete: all.filter((s) => !s.joined && !s.preAllocated),
+          preAllocated: all.filter((s) => s.preAllocated),
         };
       },
     ),

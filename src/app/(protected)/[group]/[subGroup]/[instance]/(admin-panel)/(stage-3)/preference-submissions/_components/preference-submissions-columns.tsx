@@ -22,7 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/lib/utils/general/copy-to-clipboard";
 import { PreferenceSubmissionDto } from "@/lib/validations/dto/preference";
 
@@ -69,21 +71,39 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
       header: "Submitted",
       cell: ({
         row: {
-          original: { submitted },
+          original: { submitted, preAllocated },
         },
-      }) => (
-        <div className="flex items-center justify-center">
-          {submitted ? (
-            <CircleCheckSolidIcon className="h-4 w-4 fill-green-500" />
-          ) : (
-            <CircleXIcon className="h-4 w-4 fill-destructive" />
-          )}
-        </div>
-      ),
-      filterFn: (row, columnId, value) => {
-        const selectedFilters = value as ("yes" | "no")[];
-        const rowValue = row.getValue(columnId) as boolean;
-        const submitted = rowValue ? "yes" : "no";
+      }) => {
+        if (preAllocated) {
+          return (
+            <WithTooltip tip={"This student self-defined a project"}>
+              <div className="flex items-center justify-center">
+                <CircleCheckSolidIcon className="h-4 w-4 fill-blue-500" />
+              </div>
+            </WithTooltip>
+          );
+        }
+
+        const Icon = submitted ? CircleCheckSolidIcon : CircleXIcon;
+
+        return (
+          <div className="flex items-center justify-center">
+            <Icon
+              className={cn(
+                "h-4 w-4",
+                submitted ? "fill-green-500" : "fill-destructive",
+              )}
+            />
+          </div>
+        );
+      },
+      filterFn: (row, _, value) => {
+        const selectedFilters = value as ("yes" | "no" | "pre-allocated")[];
+
+        const preAllocated = row.original.preAllocated;
+        if (preAllocated) return selectedFilters.includes("pre-allocated");
+
+        const submitted = row.original.submitted ? "yes" : "no";
         return selectedFilters.includes(submitted);
       },
     },

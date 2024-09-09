@@ -7,6 +7,7 @@ import {
   getStudentLevelFromFlag,
 } from "@/lib/utils/permissions/get-student-level";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { sortPreferenceType } from "@/lib/utils/preferences/sort";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
@@ -435,6 +436,40 @@ export const projectRouter = createTRPCRouter({
         access,
         studentFlagLabel: getFlagFromStudentLevel(student.studentLevel),
       };
+    }),
+
+  getAllStudentPreferences: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(async ({ ctx, input: { projectId } }) => {
+      const studentData = await ctx.db.preference.findMany({
+        where: { projectId },
+        select: {
+          student: {
+            select: {
+              user: { select: { id: true, name: true } },
+              studentPreferences: {
+                select: { projectId: true, rank: true },
+                orderBy: { rank: "asc" },
+              },
+            },
+          },
+          rank: true,
+          type: true,
+        },
+      });
+
+      return studentData
+        .sort((a, b) => a.rank - b.rank)
+        .sort(sortPreferenceType)
+        .map(({ student, ...s }) => ({
+          ...s,
+          id: student.user.id,
+          name: student.user.name,
+          rank:
+            student.studentPreferences
+              .map((s) => s.projectId)
+              .findIndex((p) => p === projectId) + 1,
+        }));
     }),
 
   delete: instanceProcedure

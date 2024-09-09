@@ -2,6 +2,7 @@ import { PreferenceType, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
 import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { sortPreferenceType } from "@/lib/utils/preferences/sort";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
 
@@ -63,11 +64,7 @@ export const preferenceRouter = createTRPCRouter({
           });
 
         return studentProjectPreferenceDetails
-          .sort((a, b) => {
-            const aPref = a.type === PreferenceType.PREFERENCE ? 0 : 1;
-            const bPref = b.type === PreferenceType.PREFERENCE ? 0 : 1;
-            return aPref - bPref;
-          })
+          .sort(sortPreferenceType)
           .map(({ project, type }, i) => ({
             project: { id: project.id, title: project.title },
             supervisor: {

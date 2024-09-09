@@ -19,6 +19,7 @@ export const preferenceSubmissionDto = z.object({
   email: z.string(),
   submissionCount: z.number(),
   submitted: z.boolean(),
+  preAllocated: z.boolean(),
 });
 
 export type PreferenceSubmissionDto = z.infer<typeof preferenceSubmissionDto>;
@@ -31,3 +32,12 @@ export const newProjectPreferenceDtoSchema = z.object({
 export type NewProjectPreferenceDto = z.infer<
   typeof newProjectPreferenceDtoSchema
 >;
+
+export const projectStudentDto = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.nativeEnum(PreferenceType),
+  rank: z.number(),
+});
+
+export type ProjectStudentDto = z.infer<typeof projectStudentDto>;
