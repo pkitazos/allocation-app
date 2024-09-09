@@ -2,6 +2,8 @@ import { AlgorithmFlag } from "@prisma/client";
 
 import { Algorithm } from "@/lib/validations/algorithm";
 
+// TODO: change algName to id
+
 export const GenerousAlgorithm = {
   algName: "generous",
   displayName: "Generous",

@@ -1,6 +1,13 @@
 import { AlgorithmFlag } from "@prisma/client";
 import { z } from "zod";
 
+import {
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  GreedyGenAlgorithm,
+  MinCostAlgorithm,
+} from "../algorithms";
+
 // TODO: centralise built-in algorithm names
 
 export const algorithmFlagSchema = z.nativeEnum(AlgorithmFlag);
@@ -78,3 +85,10 @@ export const algorithmResultDtoSchema = z.object({
 });
 
 export type AlgorithmResultDto = z.infer<typeof algorithmResultDtoSchema>;
+
+export const builtInAlgorithms = [
+  GenerousAlgorithm,
+  GreedyAlgorithm,
+  MinCostAlgorithm,
+  GreedyGenAlgorithm,
+];
