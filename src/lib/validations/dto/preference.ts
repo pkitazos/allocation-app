@@ -19,6 +19,7 @@ export const preferenceSubmissionDto = z.object({
   email: z.string(),
   submissionCount: z.number(),
   submitted: z.boolean(),
+  preAllocated: z.boolean(),
 });
 
 export type PreferenceSubmissionDto = z.infer<typeof preferenceSubmissionDto>;

@@ -25,6 +25,7 @@ export function PreferenceSubmissionsDataTable({
           options: [
             { title: "Submitted", id: "yes" },
             { title: "Not Submitted", id: "no" },
+            { title: "Pre-Allocated", id: "pre-allocated" },
           ],
         },
       ]}

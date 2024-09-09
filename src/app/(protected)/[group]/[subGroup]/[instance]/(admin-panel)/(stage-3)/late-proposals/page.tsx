@@ -5,7 +5,6 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { LateProjectDataTable } from "./_components/late-project-data-table";
 
@@ -25,7 +24,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">
-      <SubHeading>{adminTabs.lateProposals.title}</SubHeading>
+      <SubHeading>{pages.lateProposals.title}</SubHeading>
       <section className="flex w-full flex-col gap-5">
         <SectionHeading className="flex items-center">
           <DatabaseIcon className="mr-2 h-6 w-6 text-indigo-500" />
