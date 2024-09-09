@@ -20,6 +20,7 @@ import { ProjectDto } from "@/lib/validations/dto/project";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { StudentPreferenceButton } from "./_components/student-preference-button";
+import { StudentPreferenceDataTable } from "./_components/student-preference-data-table";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -73,6 +74,11 @@ export default async function Project({ params }: { params: PageParams }) {
   }
 
   const preferenceStatus = await api.user.student.preference.getForProject({
+    params,
+    projectId,
+  });
+
+  const studentPreferences = await api.project.getAllStudentPreferences({
     params,
     projectId,
   });
@@ -131,6 +137,12 @@ export default async function Project({ params }: { params: PageParams }) {
           <ProjectDetailsCard project={project} role={role} />
         </div>
       </div>
+      <AccessControl allowedRoles={[Role.ADMIN]}>
+        <section className="mt-16">
+          <SubHeading>Student Preferences</SubHeading>
+          <StudentPreferenceDataTable data={studentPreferences} />
+        </section>
+      </AccessControl>
     </PageWrapper>
   );
 }

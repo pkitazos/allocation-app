@@ -32,3 +32,12 @@ export const newProjectPreferenceDtoSchema = z.object({
 export type NewProjectPreferenceDto = z.infer<
   typeof newProjectPreferenceDtoSchema
 >;
+
+export const projectStudentDto = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.nativeEnum(PreferenceType),
+  rank: z.number(),
+});
+
+export type ProjectStudentDto = z.infer<typeof projectStudentDto>;
