@@ -95,8 +95,6 @@ export default async function Page({ params }: { params: InstanceParams }) {
                 initialColumns={initialColumns}
                 initialProjects={initialProjects}
               />
-              {/* <KanbanBoardSection
-              /> */}
             </div>
           </TabsContent>
           <TabsContent value="last-submission">
