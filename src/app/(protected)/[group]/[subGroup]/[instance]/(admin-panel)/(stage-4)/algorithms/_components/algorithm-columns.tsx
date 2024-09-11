@@ -55,7 +55,7 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
     {
       accessorKey: "actions",
       id: "Actions",
-      header: () => null,
+      header: "",
       cell: ({
         row: {
           original: { algName, displayName, description },
@@ -161,7 +161,7 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
     },
     {
       id: "Run",
-      header: () => null,
+      header: "",
       cell: ({ row: { original: algorithm } }) => (
         <RunAlgorithmButton algorithm={algorithm} />
       ),

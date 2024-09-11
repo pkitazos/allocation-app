@@ -19,15 +19,15 @@ const supervisorMatchingDataSchema = z.object({
   upperBound: z.number(),
 });
 
-export const matchingDataSchema = z.object({
+export const matchingDataDtoSchema = z.object({
   students: z.array(studentMatchingDataSchema),
   projects: z.array(projectMatchingDataSchema),
   supervisors: z.array(supervisorMatchingDataSchema),
 });
 
-export type MatchingData = z.infer<typeof matchingDataSchema>;
+export type MatchingDataDto = z.infer<typeof matchingDataDtoSchema>;
 
-export const matchingDataWithArgsSchema = matchingDataSchema.extend({
+export const matchingDataWithArgsSchema = matchingDataDtoSchema.extend({
   args: z.array(z.string()),
 });
 
