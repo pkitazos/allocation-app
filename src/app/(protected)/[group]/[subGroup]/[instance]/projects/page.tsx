@@ -4,17 +4,17 @@ import { PageWrapper } from "@/components/page-wrapper";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { instanceTabs as tabs } from "@/lib/validations/tabs/instance";
 
 import { AllProjectsDataTable } from "./_components/all-projects-data-table";
 
 import { app, metadataTitle } from "@/content/config/app";
+import { pages } from "@/content/pages";
 
 export async function generateMetadata({ params }: { params: InstanceParams }) {
   const { displayName } = await api.institution.instance.get({ params });
 
   return {
-    title: metadataTitle([tabs.allProjects.title, displayName, app.name]),
+    title: metadataTitle([pages.allProjects.title, displayName, app.name]),
   };
 }
 
@@ -33,7 +33,7 @@ export default async function Projects({ params }: { params: InstanceParams }) {
 
   return (
     <PageWrapper>
-      <Heading>{tabs.allProjects.title}</Heading>
+      <Heading>{pages.allProjects.title}</Heading>
       <AllProjectsDataTable
         user={user}
         role={role}

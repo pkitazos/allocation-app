@@ -3,7 +3,6 @@ import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { ForkedInstanceForm } from "./_components/forked-instance-form";
 
@@ -37,7 +36,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
   const currentInstance = { instanceName: instance.displayName, ...instance };
   return (
     <div className="mb-40 mt-10 flex h-max w-full max-w-5xl flex-col gap-10 px-12 pb-20">
-      <SubHeading>{adminTabs.forkInstance.title}</SubHeading>
+      <SubHeading>{pages.forkInstance.title}</SubHeading>
       <ForkedInstanceForm
         currentInstance={currentInstance}
         takenNames={takenNames}

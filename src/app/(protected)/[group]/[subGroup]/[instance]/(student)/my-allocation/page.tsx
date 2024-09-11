@@ -11,7 +11,6 @@ import { api } from "@/lib/trpc/server";
 import { toPositional } from "@/lib/utils/general/to-positional";
 import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
-import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -42,7 +41,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <>
-      <Heading>{instanceTabs.myAllocation.title}</Heading>
+      <Heading>{pages.myAllocation.title}</Heading>
       <PanelWrapper className="px-16">
         {!allocatedProject ? (
           <div className="mt-9 flex flex-col gap-4">

@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { AllocationDataTable } from "./_components/allocation-data-table";
 import { ExportDataButton } from "./_components/export-button";
@@ -29,7 +28,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <PanelWrapper className="mt-10 flex flex-col gap-8 px-12">
-      <SubHeading className="mb-6">{adminTabs.exportToCSV.title}</SubHeading>
+      <SubHeading className="mb-6">{pages.exportToCSV.title}</SubHeading>
       <section className="flex flex-col gap-5">
         <SectionHeading className="flex items-center">
           <ZapIcon className="mr-2 h-6 w-6 text-indigo-500" />
