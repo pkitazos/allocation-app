@@ -4,6 +4,17 @@ import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
+import {
+  DestructiveAction,
+  DestructiveActionCancel,
+  DestructiveActionConfirm,
+  DestructiveActionContent,
+  DestructiveActionDescription,
+  DestructiveActionHeader,
+  DestructiveActionTitle,
+  DestructiveActionTrigger,
+  DestructiveActionVerificationTypeIn,
+} from "@/components/ui/destructive-action";
 
 import { api } from "@/lib/trpc/client";
 import {
@@ -82,17 +93,48 @@ export function useAlgorithmResultColumns({
       header: () => null,
       cell: ({
         row: {
-          original: { algName, profile },
+          original: { algName, profile, displayName },
         },
       }) => (
-        <Button
-          className="w-24"
-          variant={selectedAlgName === algName ? "secondary" : "ghost"}
-          onClick={() => handleSelection(algName)}
-          disabled={profile.length === 0}
+        <DestructiveAction
+          action={() => handleSelection(algName)}
+          // TODO: don't allow selection of algName if it's already selected
+          requiresVerification
         >
-          {selectedAlgName === algName ? "Selected" : "Select"}
-        </Button>
+          <DestructiveActionTrigger asChild>
+            <Button
+              className="w-24"
+              variant={selectedAlgName === algName ? "secondary" : "ghost"}
+              disabled={profile.length === 0}
+            >
+              {selectedAlgName === algName ? "Selected" : "Select"}
+            </Button>
+          </DestructiveActionTrigger>
+          <DestructiveActionContent>
+            <DestructiveActionHeader>
+              <DestructiveActionTitle>Select Matching</DestructiveActionTitle>
+              <DestructiveActionDescription>
+                You are about to select the matching produced by algorithm
+                &quot;{displayName}&quot;. This will override any previous
+                selection, and remove the students matched by this algorithm
+                from the pool of available students to run further matching
+                algorithms against. Please confirm by typing the name of this
+                algorithm below:
+              </DestructiveActionDescription>
+            </DestructiveActionHeader>
+            <DestructiveActionVerificationTypeIn phrase={displayName} />
+            <div className="flex w-full flex-row justify-between gap-4">
+              <DestructiveActionCancel asChild>
+                <Button className="w-full">Cancel</Button>
+              </DestructiveActionCancel>
+              <DestructiveActionConfirm asChild>
+                <Button className="w-full" variant="secondary">
+                  Select
+                </Button>
+              </DestructiveActionConfirm>
+            </div>
+          </DestructiveActionContent>
+        </DestructiveAction>
       ),
     },
   ];

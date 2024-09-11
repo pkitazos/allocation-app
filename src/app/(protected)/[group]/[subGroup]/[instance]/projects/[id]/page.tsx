@@ -137,7 +137,10 @@ export default async function Project({ params }: { params: PageParams }) {
           <ProjectDetailsCard project={project} role={role} />
         </div>
       </div>
-      <AccessControl allowedRoles={[Role.ADMIN]}>
+      <AccessControl
+        allowedRoles={[Role.ADMIN]}
+        extraConditions={{ RBAC: { AND: !project.preAllocatedStudentId } }}
+      >
         <section className="mt-16">
           <SubHeading>Student Preferences</SubHeading>
           <StudentPreferenceDataTable data={studentPreferences} />

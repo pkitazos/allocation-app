@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { slugify } from "@/lib/utils/general/slugify";
 import { newAdminSchema } from "@/lib/validations/add-admins/new-admin";
+import { builtInAlgorithms } from "@/lib/validations/algorithm";
 import { createdInstanceSchema } from "@/lib/validations/instance-form";
 import {
   instanceParamsSchema,
@@ -187,6 +188,16 @@ export const subGroupRouter = createTRPCRouter({
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
+            })),
+          });
+
+          await tx.algorithm.createMany({
+            data: builtInAlgorithms.map((a) => ({
+              ...a,
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+              matchingResultData: JSON.stringify({}),
             })),
           });
         });

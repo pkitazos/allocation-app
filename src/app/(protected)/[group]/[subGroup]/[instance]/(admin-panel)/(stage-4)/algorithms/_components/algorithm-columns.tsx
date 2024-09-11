@@ -55,7 +55,7 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
     {
       accessorKey: "actions",
       id: "Actions",
-      header: () => null,
+      header: "",
       cell: ({
         row: {
           original: { algName, displayName, description },
@@ -141,7 +141,11 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
         },
       }) => (
         <p className="w-20 text-center">
-          {targetModifier !== 0 ?? targetModifier}
+          {targetModifier !== 0 && (
+            <Badge variant="outline" className="w-fit">
+              +{targetModifier}
+            </Badge>
+          )}
         </p>
       ),
     },
@@ -155,13 +159,17 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
         },
       }) => (
         <p className="w-28 text-center">
-          {upperBoundModifier !== 0 ?? upperBoundModifier}
+          {upperBoundModifier !== 0 && (
+            <Badge variant="outline" className="w-fit">
+              +{upperBoundModifier}
+            </Badge>
+          )}
         </p>
       ),
     },
     {
       id: "Run",
-      header: () => null,
+      header: "",
       cell: ({ row: { original: algorithm } }) => (
         <RunAlgorithmButton algorithm={algorithm} />
       ),

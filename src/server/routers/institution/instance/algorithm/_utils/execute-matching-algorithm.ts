@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { Algorithm, builtInAlgSchema } from "@/lib/validations/algorithm";
 import {
-  MatchingData,
+  MatchingDataDto,
   MatchingDataWithArgs,
   serverResponseSchema,
 } from "@/lib/validations/matching";
@@ -17,7 +17,7 @@ export async function executeMatchingAlgorithm({
   matchingData,
 }: {
   algorithm: Algorithm;
-  matchingData: MatchingData | MatchingDataWithArgs;
+  matchingData: MatchingDataDto | MatchingDataWithArgs;
 }) {
   const endpoint = builtInAlgSchema.safeParse(algName).success ? algName : "";
 

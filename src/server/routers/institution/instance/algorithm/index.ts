@@ -9,12 +9,14 @@ import {
 } from "@/lib/algorithms";
 import { relativeComplement } from "@/lib/utils/general/set-difference";
 import {
+  Algorithm,
   AlgorithmResultDto,
   algorithmSchema,
   builtInAlgSchema,
 } from "@/lib/validations/algorithm";
 import {
   blankResult,
+  MatchingDataDto,
   MatchingDetailsDto,
   matchingResultSchema,
   SupervisorMatchingDetailsDto,
@@ -46,7 +48,9 @@ export const algorithmRouter = createTRPCRouter({
           algorithm,
         },
       }) => {
-        const matchingData = await getMatchingData(ctx.db, ctx.instance);
+        const matchingData = await getMatchingData(ctx.db, ctx.instance).then(
+          (data) => applyCapacityModifiers(data, algorithm),
+        );
 
         const matchingResults = await executeMatchingAlgorithm({
           algorithm,
@@ -498,4 +502,19 @@ function getBuiltInAlgorithm(algName: string) {
     default:
       return undefined;
   }
+}
+
+function applyCapacityModifiers(data: MatchingDataDto, algorithm: Algorithm) {
+  return {
+    ...data,
+    supervisors: data.supervisors.map((s) => {
+      const newTarget = s.target + algorithm.targetModifier;
+      const newUpperBound = s.upperBound + algorithm.upperBoundModifier;
+      return {
+        ...s,
+        target: newTarget,
+        upperBound: Math.max(newTarget, newUpperBound),
+      };
+    }),
+  };
 }
