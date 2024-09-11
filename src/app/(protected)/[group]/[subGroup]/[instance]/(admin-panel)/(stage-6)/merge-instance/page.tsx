@@ -7,7 +7,6 @@ import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { MergeButton } from "./_components/merge-button";
 
@@ -37,7 +36,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <PanelWrapper className="mb-10 mt-10 flex h-max w-full flex-col gap-8 px-12 pb-10">
-      <SubHeading>{adminTabs.mergeInstance.title}</SubHeading>
+      <SubHeading>{pages.mergeInstance.title}</SubHeading>
       <p>
         You are about to merge {spacesLabels.instance.short}{" "}
         <span className="font-semibold">{forkedInstance.displayName}</span> into{" "}

@@ -1,4 +1,5 @@
 "use client";
+import { Stage } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CornerDownRightIcon,
@@ -8,6 +9,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { AccessControl } from "@/components/access-control";
+import { useInstanceStage } from "@/components/params-context";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -28,13 +31,15 @@ import {
 
 import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
-export function constructColumns({
+export function useNewSupervisorColumns({
   removeSupervisor,
   removeSelectedSupervisors,
 }: {
   removeSupervisor: (id: string) => Promise<void>;
   removeSelectedSupervisors: (ids: string[]) => Promise<void>;
 }): ColumnDef<NewSupervisor>[] {
+  const stage = useInstanceStage();
+
   const selectCol = getSelectColumn<NewSupervisor>();
 
   const userCols: ColumnDef<NewSupervisor>[] = [
@@ -121,7 +126,7 @@ export function constructColumns({
           );
         }
 
-        if (someSelected)
+        if (someSelected && stage === Stage.SETUP)
           return (
             <div className="flex w-14 items-center justify-center">
               <DropdownMenu>
@@ -205,16 +210,18 @@ export function constructColumns({
                     <span>Edit supervisor details</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
-                  <YesNoActionTrigger
-                    trigger={
-                      <button className="flex items-center gap-2">
-                        <Trash2Icon className="h-4 w-4" />
-                        <span>Remove from Instance</span>
-                      </button>
-                    }
-                  />
-                </DropdownMenuItem>
+                <AccessControl allowedStages={[Stage.SETUP]}>
+                  <DropdownMenuItem className="text-destructive focus:bg-red-100/40 focus:text-destructive">
+                    <YesNoActionTrigger
+                      trigger={
+                        <button className="flex items-center gap-2">
+                          <Trash2Icon className="h-4 w-4" />
+                          <span>Remove from Instance</span>
+                        </button>
+                      }
+                    />
+                  </DropdownMenuItem>
+                </AccessControl>
               </DropdownMenuContent>
             </YesNoActionContainer>
           </DropdownMenu>

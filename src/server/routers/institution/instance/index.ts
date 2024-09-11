@@ -21,7 +21,6 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { studentLevelSchema } from "@/lib/validations/student-level";
 import { getTabs } from "@/lib/validations/tabs/admin-panel";
-import { instanceTabs } from "@/lib/validations/tabs/instance";
 
 import {
   createTRPCRouter,
@@ -48,6 +47,8 @@ import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
+
+import { pages } from "@/content/pages";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -833,19 +834,19 @@ export const instanceRouter = createTRPCRouter({
       const role = await getUserRole(ctx.db, params, ctx.session.user.id);
       const instancePath = formatParamsAsPath(params);
 
-      const adminTabs = [instanceTabs.allSupervisors, instanceTabs.allStudents];
+      const adminTabs = [pages.allSupervisors, pages.allStudents];
 
       if (role !== Role.ADMIN) {
         return {
-          headerTabs: [instanceTabs.instanceHome, instanceTabs.allProjects],
+          headerTabs: [pages.instanceHome, pages.allProjects],
           instancePath,
         };
       }
 
       const headerTabs =
         instance.stage === Stage.SETUP
-          ? [instanceTabs.instanceHome, ...adminTabs]
-          : [instanceTabs.instanceHome, instanceTabs.allProjects, ...adminTabs];
+          ? [pages.instanceHome, ...adminTabs]
+          : [pages.instanceHome, pages.allProjects, ...adminTabs];
 
       return { headerTabs, instancePath };
     }),

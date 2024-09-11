@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { stageGt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
@@ -15,7 +16,7 @@ export default async function Layout({
   const stage = await api.institution.instance.currentStage({ params });
   const instancePath = formatParamsAsPath(params);
 
-  if (stage !== Stage.SETUP) redirect(`${instancePath}/`);
+  if (stageGt(stage, Stage.PROJECT_SELECTION)) redirect(`${instancePath}/`);
 
   return <>{children}</>;
 }

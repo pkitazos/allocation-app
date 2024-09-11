@@ -16,7 +16,7 @@ import { NewStudent } from "@/lib/validations/add-users/new-user";
 
 import { CSVUploadButton } from "./csv-upload-button";
 import { FormSection } from "./form-section";
-import { constructColumns } from "./new-student-columns";
+import { useNewStudentColumns } from "./new-student-columns";
 
 import { spacesLabels } from "@/content/spaces";
 
@@ -123,7 +123,7 @@ export function AddStudentsSection() {
     );
   }
 
-  const columns = constructColumns({
+  const columns = useNewStudentColumns({
     removeStudent: handleStudentRemoval,
     removeSelectedStudents: handleStudentsRemoval,
   });

@@ -3,7 +3,6 @@ import { PanelWrapper } from "@/components/panel-wrapper";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
 
 import { AddStudentsSection } from "./_components/add-students-section";
 
@@ -21,7 +20,7 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 export default function Page() {
   return (
     <PanelWrapper className="mt-10">
-      <SubHeading>{adminTabs.addStudents.title}</SubHeading>
+      <SubHeading>{pages.addStudents.title}</SubHeading>
       <AddStudentsSection />
     </PanelWrapper>
   );
