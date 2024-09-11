@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { PreferenceType } from "@prisma/client";
 import { format } from "date-fns";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, ClockIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -12,7 +12,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { api } from "@/lib/trpc/client";
 import { getSubmissionErrors } from "@/lib/utils/preferences/get-errors";
-import { ProjectPreference } from "@/lib/validations/board";
+import { PreferenceBoard } from "@/lib/validations/board";
 
 export function SubmissionArea({
   title,
@@ -23,7 +23,7 @@ export function SubmissionArea({
 }: {
   title: string;
   studentId: string;
-  initialProjects: ProjectPreference[];
+  initialProjects: PreferenceBoard;
   latestSubmissionDateTime: Date | undefined;
   restrictions: {
     minPreferences: number;
@@ -37,17 +37,16 @@ export function SubmissionArea({
     latestSubmissionDateTime,
   );
 
-  const preferenceList = initialProjects.filter(
-    (p) => p.columnId === PreferenceType.PREFERENCE,
-  );
+  const preferenceList = initialProjects[PreferenceType.PREFERENCE];
 
   const { isOver, isUnder, hasOverSelectedSupervisor, overSelected } =
     getSubmissionErrors(preferenceList, restrictions);
 
   const utils = api.useUtils();
 
-  const invalidateLatestSubmission = () =>
-    utils.user.student.preference.getAllSaved.invalidate();
+  async function invalidateLatestSubmission() {
+    return utils.user.student.preference.getAllSaved.invalidate();
+  }
 
   const { mutateAsync: submitAsync } =
     api.user.student.preference.submit.useMutation();
@@ -82,9 +81,11 @@ export function SubmissionArea({
         </CardHeader>
       </Card>
       {submissionDate && (
-        <div className="flex w-full justify-end p-3 ">
+        <div className="flex w-full items-center justify-end p-3">
+          <ClockIcon className="mr-1 h-4 w-4 text-muted-foreground" />
           <p className="text-lg ">
-            Last submitted at: {format(submissionDate, "dd/MM/yyyy - HH:mm")}
+            <span className="text-muted-foreground">Last submitted at:</span>{" "}
+            {format(submissionDate, "dd/MM/yyyy - HH:mm")}
           </p>
         </div>
       )}

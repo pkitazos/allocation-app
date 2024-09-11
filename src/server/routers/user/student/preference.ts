@@ -204,8 +204,8 @@ export const preferenceRouter = createTRPCRouter({
           preferenceType,
         });
 
-        const board = await getBoardState(ctx.db, params, studentId);
-        return board.projects;
+        const { projects } = await getBoardState(ctx.db, params, studentId);
+        return projects;
       },
     ),
 
@@ -490,7 +490,7 @@ export const preferenceRouter = createTRPCRouter({
       if (!ok) throw new Error(message);
 
       const board = await getBoardState(ctx.db, params, studentId);
-      return { initialColumns: board.columns, initialProjects: board.projects };
+      return { initialProjects: board.projects };
     }),
 
   change: instanceAdminProcedure

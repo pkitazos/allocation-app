@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import {
   DndContext,
@@ -10,16 +10,18 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
 import { PreferenceType } from "@prisma/client";
 import { z } from "zod";
 
-import { getUpdatedRank } from "@/lib/utils/sorting/get-updated-rank";
-import { ProjectPreference } from "@/lib/validations/board";
+import {
+  PREFERENCE_BOARD_COLUMNS,
+  PROJECT_PREFERENCE_CARD,
+  ProjectPreferenceCardDto,
+} from "@/lib/validations/board";
 
 import { ColumnContainer } from "./column-container";
 import { ProjectPreferenceCard } from "./project-preference-card";
-import { StateSetter, useBoardDetails } from "./store";
+import { useBoardDetails } from "./store";
 
 type ReorderFunction = (
   projectId: string,
@@ -27,10 +29,7 @@ type ReorderFunction = (
   preferenceType: PreferenceType,
 ) => Promise<void>;
 
-type DeleteFunction = (
-  projectId: string,
-  updateProjects: StateSetter<ProjectPreference[]>,
-) => Promise<void>;
+type DeleteFunction = (projectId: string) => Promise<void>;
 
 export function KanbanBoard({
   reorderPreference,
@@ -39,14 +38,11 @@ export function KanbanBoard({
   reorderPreference: ReorderFunction;
   deletePreference: DeleteFunction;
 }) {
-  const initialColumns = useBoardDetails((s) => s.columns);
-  const columns = useMemo(() => initialColumns, [initialColumns]);
-
   const projects = useBoardDetails((s) => s.projects);
-  const setProjects = useBoardDetails((s) => s.updateProjects);
-  const [activeProject, setActiveProject] = useState<ProjectPreference | null>(
-    null,
-  );
+  const moveProject = useBoardDetails((s) => s.moveProject);
+
+  const [activeProject, setActiveProject] =
+    useState<ProjectPreferenceCardDto | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -57,67 +53,66 @@ export function KanbanBoard({
   );
 
   function onDragStart({ active }: DragStartEvent) {
-    if (active.data.current?.type === "ProjectPreference") {
+    if (active.data.current?.type === PROJECT_PREFERENCE_CARD) {
       setActiveProject(active.data.current.project);
     }
   }
 
+  /**
+   * @description
+   * this function is called when the drag event ends
+   * it checks if the dragged item is dropped over another item or column
+   * if it is dropped over another item, it will reorder the items
+   * if it is dropped over a column, it will move the item to that column at the bottom
+   */
   function onDragEnd({ active, over }: DragEndEvent) {
+    // if there is no over, it means the item is not dropped over anything
+    // so we can just return
     if (!over) return;
 
+    // if the active item is the same as the over item, it means the item is dropped
+    // over itself, so we can just return
     if (active.id === over.id) return;
 
-    const isActiveProject = active.data.current?.type === "ProjectPreference";
-    const isOverProject = over.data.current?.type === "ProjectPreference";
+    // check if the active item and over item are cards or columns
+    const isActiveCard = active.data.current?.type === PROJECT_PREFERENCE_CARD;
+    const isOverCard = over.data.current?.type === PROJECT_PREFERENCE_CARD;
 
-    if (!isActiveProject) return;
+    // if the active item is not a card, we can just return
+    if (!isActiveCard) return;
 
-    // dropping a task over a task
-    if (isActiveProject && isOverProject) {
-      setProjects((projects) => {
-        const activeIdx = projects.findIndex((e) => e.id === active.id);
-        const overIdx = projects.findIndex((e) => e.id === over.id);
+    // find the columnId of the active and over items
+    const activeColumnId = z
+      .nativeEnum(PreferenceType)
+      .parse(active.data.current?.columnId);
 
-        if (projects[activeIdx].columnId !== projects[overIdx].columnId) {
-          projects[activeIdx].columnId = projects[overIdx].columnId;
-        }
-        // perform re-ordering mutation
-        const newArray = arrayMove(projects, activeIdx, overIdx);
-        const updatedRank = getUpdatedRank(newArray, overIdx);
+    // if the over item is a column the over id will be the columnId
+    const overColumnId = z
+      .nativeEnum(PreferenceType)
+      .parse(isOverCard ? over.data.current?.columnId : over.id);
 
-        const projectId = z.string().parse(projects[activeIdx].id);
-        const newType = z
-          .nativeEnum(PreferenceType)
-          .parse(projects[overIdx].columnId);
+    const {
+      id: projectId,
+      rank,
+      columnId: newType,
+    } = moveProject(
+      {
+        columnId: activeColumnId,
+        idx: projects[activeColumnId].findIndex((e) => e.id === active.id),
+      },
+      {
+        columnId: overColumnId,
+        idx: isOverCard
+          ? projects[overColumnId].findIndex((e) => e.id === over.id)
+          : undefined,
+      },
+    );
 
-        void reorderPreference(projectId, updatedRank, newType);
+    // perform the re-ordering mutation
+    // it just updates the rank of the active item to the new computed rank
+    void reorderPreference(projectId, rank, newType);
 
-        return newArray;
-      });
-    }
-
-    const isOverColumn = over.data.current?.type === "Column";
-
-    // dropping a task over a column
-    if (isActiveProject && isOverColumn) {
-      setProjects((projects) => {
-        const activeIdx = projects.findIndex((e) => e.id === active.id);
-
-        if (projects[activeIdx].columnId !== over.id) {
-          projects[activeIdx].columnId = over.id;
-        }
-
-        // perform re-ordering mutation
-        const newArray = arrayMove(projects, activeIdx, activeIdx);
-
-        const projectId = z.string().parse(projects[activeIdx].id);
-        const newType = z.nativeEnum(PreferenceType).parse(over.id);
-
-        void reorderPreference(projectId, 1, newType);
-
-        return newArray;
-      });
-    }
+    setActiveProject(null);
   }
 
   return (
@@ -127,12 +122,11 @@ export function KanbanBoard({
       onDragEnd={onDragEnd}
     >
       <div className="flex h-full w-full gap-5">
-        {columns.map((column) => (
+        {PREFERENCE_BOARD_COLUMNS.map((column) => (
           <ColumnContainer
             key={column.id}
             column={column}
-            projects={projects.filter((e) => e.columnId === column.id)}
-            deletePreference={(p) => deletePreference(p, setProjects)}
+            deletePreference={deletePreference}
           />
         ))}
         {createPortal(
@@ -140,7 +134,7 @@ export function KanbanBoard({
             {activeProject && (
               <ProjectPreferenceCard
                 project={activeProject}
-                deletePreference={(p) => deletePreference(p, setProjects)}
+                deletePreference={deletePreference}
               />
             )}
           </DragOverlay>,

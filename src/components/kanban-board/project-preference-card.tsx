@@ -1,8 +1,9 @@
 "use client";
+import { Fragment } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { PreferenceType, Stage } from "@prisma/client";
-import { X } from "lucide-react";
+import { GripVerticalIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
@@ -12,17 +13,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { cn } from "@/lib/utils";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
-import { ProjectPreference } from "@/lib/validations/board";
+import {
+  PROJECT_PREFERENCE_CARD,
+  ProjectPreferenceCardDto,
+} from "@/lib/validations/board";
 
+import { Badge } from "../ui/badge";
 import { WithTooltip } from "../ui/tooltip-wrapper";
 
 export function ProjectPreferenceCard({
   project,
-  idx,
+  rank,
   deletePreference,
 }: {
-  project: ProjectPreference;
-  idx?: number;
+  project: ProjectPreferenceCardDto;
+  rank?: number;
   deletePreference: (id: string) => Promise<void>;
 }) {
   const stage = useInstanceStage();
@@ -39,8 +44,9 @@ export function ProjectPreferenceCard({
   } = useSortable({
     id: project.id,
     data: {
-      type: "ProjectPreference",
+      type: PROJECT_PREFERENCE_CARD,
       project,
+      columnId: project.columnId,
     },
     disabled: stageGte(stage, Stage.PROJECT_ALLOCATION),
   });
@@ -52,29 +58,40 @@ export function ProjectPreferenceCard({
       <div
         ref={setNodeRef}
         style={style}
-        className={cn("h-40 rounded-md bg-muted-foreground/20")}
+        className={cn("h-[7.5rem] rounded-md bg-muted-foreground/20")}
       />
     );
   }
+
+  const Comp = project.title.length > 34 ? WithTooltip : Fragment;
 
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       className={cn(
-        "group relative rounded-md bg-accent shadow-sm",
+        "group flex items-center",
         isOver && "outline outline-4 outline-muted-foreground/50",
       )}
     >
-      <CardHeader>
-        <div className="flex flex-row items-center gap-3">
-          {project.columnId === PreferenceType.PREFERENCE && (
-            <p className="text-xl font-bold text-sky-600">{idx}</p>
+      <Button
+        {...attributes}
+        {...listeners}
+        variant="ghost"
+        className="ml-2 flex h-20 w-8 flex-col"
+      >
+        <GripVerticalIcon className="-mb-1 h-8 w-8 cursor-move text-gray-400/50" />
+        <GripVerticalIcon className="h-8 w-8 cursor-move text-gray-400/50" />
+      </Button>
+      <div>
+        <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 p-4 pb-2">
+          {project.columnId === PreferenceType.PREFERENCE && rank && (
+            <Badge variant="accent" className="mr-2 text-lg text-secondary">
+              {rank}
+            </Badge>
           )}
-          <CardTitle>
-            <WithTooltip tip={<p className="w-96">{project.title}</p>}>
+          <CardTitle className="text-sm font-medium">
+            <Comp tip={<p className="max-w-96">{project.title}</p>}>
               <Link
                 className={cn(
                   buttonVariants({ variant: "link" }),
@@ -84,24 +101,26 @@ export function ProjectPreferenceCard({
               >
                 {project.title}
               </Link>
-            </WithTooltip>
+            </Comp>
           </CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col">
-        <p className="text-muted-foreground">Supervisor</p>
-        <p className="font-semibold">{project.supervisorName}</p>
-      </CardContent>
-      <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-1/2 hidden -translate-y-1/2 items-center justify-center group-hover:flex hover:bg-destructive hover:text-destructive-foreground"
-          onClick={() => deletePreference(project.id as string)}
-        >
-          <X className="h-4 w-4 font-bold" />
-        </Button>
-      </AccessControl>
+          <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="invisible items-center justify-center group-hover:visible group-hover:flex"
+              onClick={() => deletePreference(project.id)}
+            >
+              <XIcon className="h-4 w-4 font-bold" />
+            </Button>
+          </AccessControl>
+        </CardHeader>
+        <CardContent className="pl-8">
+          <div className="flex items-center">
+            <span className="mr-2 text-sm text-gray-500">Supervisor:</span>
+            <span className="font-medium">{project.supervisor.name}</span>
+          </div>
+        </CardContent>
+      </div>
     </Card>
   );
 }

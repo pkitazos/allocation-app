@@ -1,19 +1,25 @@
-type Id = string | number;
+import { PreferenceType } from "@prisma/client";
 
-export type BoardColumn = { id: Id; displayName: string };
+export type Id = string;
 
-export type ProjectPreference = {
+export type ProjectPreferenceCardDto = {
   id: Id;
-  columnId: Id;
+  columnId: PreferenceType;
   title: string;
   rank: number;
-  supervisorId: string;
-  supervisorName: string;
+  supervisor: { id: string; name: string };
 };
 
-export type SortablePreference = {
-  id: string;
-  title: string;
-  rank: number;
-  changed?: boolean;
-};
+export type PreferenceBoard = Record<
+  PreferenceType,
+  ProjectPreferenceCardDto[]
+>;
+
+export const PREFERENCE_BOARD_COLUMNS = [
+  { id: PreferenceType.PREFERENCE, displayName: "Preference List" },
+  { id: PreferenceType.SHORTLIST, displayName: "Shortlist" },
+];
+
+export const PROJECT_PREFERENCE_CARD = "PROJECT_PREFERENCE_CARD";
+
+export const PROJECT_PREFERENCE_COLUMN = "PROJECT_PREFERENCE_COLUMN";

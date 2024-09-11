@@ -1,9 +1,9 @@
-import { ProjectPreference } from "@/lib/validations/board";
+import { ProjectPreferenceCardDto } from "@/lib/validations/board";
 
 import { computeOverSelected } from "./over-selected";
 
 export function getSubmissionErrors(
-  preferences: ProjectPreference[],
+  preferences: ProjectPreferenceCardDto[],
   restrictions: {
     minPreferences: number;
     maxPreferences: number;

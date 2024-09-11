@@ -31,7 +31,7 @@ export default async function Page({ params }: { params: PageParams }) {
   }
   const student = await api.user.student.getById({ params, studentId });
 
-  const { initialColumns, initialProjects } =
+  const { initialProjects } =
     await api.user.student.preference.initialBoardState({ params, studentId });
 
   const latestSubmissionDateTime = await api.user.student.latestSubmission({
@@ -84,7 +84,6 @@ export default async function Page({ params }: { params: PageParams }) {
         <TabsContent value="current-board-state">
           <CurrentBoardState
             availableProjects={availableProjects}
-            initialColumns={initialColumns}
             initialProjects={initialProjects}
           />
         </TabsContent>
