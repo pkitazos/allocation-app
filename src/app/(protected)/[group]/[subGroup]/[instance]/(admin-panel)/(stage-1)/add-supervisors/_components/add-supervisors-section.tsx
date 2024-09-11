@@ -17,7 +17,7 @@ import { NewSupervisor } from "@/lib/validations/add-users/new-user";
 
 import { CSVUploadButton } from "./csv-upload-button";
 import { FormSection } from "./form-section";
-import { constructColumns } from "./new-supervisor-columns";
+import { useNewSupervisorColumns } from "./new-supervisor-columns";
 
 import { spacesLabels } from "@/content/spaces";
 
@@ -123,7 +123,7 @@ export function AddSupervisorsSection() {
     );
   }
 
-  const columns = constructColumns({
+  const columns = useNewSupervisorColumns({
     removeSupervisor: handleSupervisorRemoval,
     removeSelectedSupervisors: handleSupervisorsRemoval,
   });
