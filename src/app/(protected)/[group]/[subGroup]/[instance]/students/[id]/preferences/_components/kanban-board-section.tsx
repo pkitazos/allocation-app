@@ -5,17 +5,18 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { KanbanBoard } from "@/components/kanban-board";
-import { StateSetter } from "@/components/kanban-board/store";
+import { useBoardDetails } from "@/components/kanban-board/store";
 import { useInstanceParams } from "@/components/params-context";
 
 import { api } from "@/lib/trpc/client";
-import { ProjectPreference } from "@/lib/validations/board";
 
 export function KanbanBoardSection({ studentId }: { studentId: string }) {
   const params = useInstanceParams();
   const router = useRouter();
 
   const utils = api.useUtils();
+
+  const deleteProject = useBoardDetails((s) => s.deleteProject);
 
   const refetch = () =>
     utils.user.student.preference.initialBoardState.refetch();
@@ -50,10 +51,7 @@ export function KanbanBoardSection({ studentId }: { studentId: string }) {
     );
   }
 
-  async function deletePreference(
-    projectId: string,
-    updateProjects: StateSetter<ProjectPreference[]>,
-  ) {
+  async function deletePreference(projectId: string) {
     void toast.promise(
       updatePreferenceAsync({
         params,
@@ -63,7 +61,7 @@ export function KanbanBoardSection({ studentId }: { studentId: string }) {
       }).then(() => {
         router.refresh();
         refetch();
-        updateProjects((prev) => prev.filter((e) => e.id !== projectId));
+        deleteProject(projectId);
       }),
       {
         loading: `Removing project from preferences...`,

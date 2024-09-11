@@ -6,7 +6,7 @@ import { AccessControl } from "@/components/access-control";
 import { BoardDetailsProvider } from "@/components/kanban-board/store";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { PreferenceBoard } from "@/lib/validations/board";
 import { NewStudentProjectDto } from "@/lib/validations/dto/project";
 import { PageParams } from "@/lib/validations/params";
 
@@ -15,16 +15,14 @@ import { NewPreferenceButton } from "./new-preference-button";
 
 export function CurrentBoardState({
   availableProjects,
-  initialColumns,
   initialProjects,
 }: {
   availableProjects: NewStudentProjectDto[];
-  initialColumns: BoardColumn[];
-  initialProjects: ProjectPreference[];
+  initialProjects: PreferenceBoard;
 }) {
   const params = useParams<PageParams>();
   return (
-    <BoardDetailsProvider projects={initialProjects} columns={initialColumns}>
+    <BoardDetailsProvider projects={initialProjects}>
       <section className="flex w-full max-w-7xl flex-col">
         <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
           <Card className="my-4">

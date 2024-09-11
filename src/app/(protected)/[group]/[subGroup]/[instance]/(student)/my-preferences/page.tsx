@@ -2,6 +2,7 @@ import { Role, Stage } from "@prisma/client";
 
 import { AccessControl } from "@/components/access-control";
 import { Heading } from "@/components/heading";
+import { BoardDetailsProvider } from "@/components/kanban-board/store";
 import { LatestSubmissionDataTable } from "@/components/pages/student-preferences/latest-submission-data-table";
 import { SubmissionArea } from "@/components/pages/student-preferences/submission-area";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -12,9 +13,8 @@ import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
-import { instanceTabs } from "@/lib/validations/tabs/instance";
 
-import { CurrentBoardState } from "./_components/current-board-state";
+import { KanbanBoardSection } from "./_components/kanban-board-section";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -45,7 +45,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
     );
   }
 
-  const { initialColumns, initialProjects } =
+  const { initialProjects } =
     await api.user.student.preference.initialBoardState({
       params,
       studentId: user.id,
@@ -62,7 +62,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
 
   return (
     <>
-      <Heading>{instanceTabs.myPreferences.title}</Heading>
+      <Heading>{pages.myPreferences.title}</Heading>
       <PanelWrapper className="mt-10 h-full">
         <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
           <SubmissionArea
@@ -91,10 +91,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
           <Separator className="my-4" />
           <TabsContent value="current-board-state">
             <div className="flex w-full max-w-7xl flex-col">
-              <CurrentBoardState
-                initialColumns={initialColumns}
-                initialProjects={initialProjects}
-              />
+              <BoardDetailsProvider projects={initialProjects}>
+                <KanbanBoardSection />
+              </BoardDetailsProvider>
             </div>
           </TabsContent>
           <TabsContent value="last-submission">

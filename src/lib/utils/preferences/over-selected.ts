@@ -1,29 +1,22 @@
-import { ProjectPreference } from "@/lib/validations/board";
+import { ProjectPreferenceCardDto } from "@/lib/validations/board";
 
 export function computeOverSelected(
-  preferenceList: ProjectPreference[],
+  preferenceList: ProjectPreferenceCardDto[],
   maxPerSupervisor: number,
 ) {
   const supervisorCounts = preferenceList.reduce(
-    (acc, { supervisorId }) =>
-      acc.set(supervisorId, (acc.get(supervisorId) || 0) + 1),
-    new Map<string, number>(),
-  );
-
-  const supervisorNames = preferenceList.reduce(
-    (acc, { supervisorId, supervisorName }) => ({
+    (acc, { supervisor }) => ({
       ...acc,
-      [supervisorId]: supervisorName,
+      [supervisor.id]: {
+        count: (acc[supervisor.id]?.count ?? 0) + 1,
+        name: supervisor.name,
+      },
     }),
-    {} as { [key: string]: string },
+    {} as { [key: string]: { name: string; count: number } },
   );
 
-  const overSelected = Array.from(supervisorCounts.entries())
-    .map(([s, n]) => ({
-      id: s,
-      name: supervisorNames[s],
-      count: n,
-    }))
+  const overSelected = Object.entries(supervisorCounts)
+    .map(([id, rest]) => ({ id, ...rest }))
     .filter(({ count }) => count > maxPerSupervisor);
 
   return overSelected;

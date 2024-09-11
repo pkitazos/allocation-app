@@ -1,33 +1,77 @@
 "use client";
 import { createContext, useContext, useRef } from "react";
+import { PreferenceType } from "@prisma/client";
 import { createStore, useStore } from "zustand";
 
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { computeUpdatedRank } from "@/lib/utils/sorting/compute-updated-rank";
+import {
+  PreferenceBoard,
+  ProjectPreferenceCardDto,
+} from "@/lib/validations/board";
 
 interface KanbanBoardProps {
-  projects: ProjectPreference[];
-  columns: BoardColumn[];
+  projects: PreferenceBoard;
 }
 
-export type StateSetter<T> = (fn: (prev: T) => T) => void;
-
 interface KanbanBoardState extends KanbanBoardProps {
-  updateProjects: StateSetter<ProjectPreference[]>;
+  deleteProject: (projectId: string) => void;
+  addProject: (
+    project: ProjectPreferenceCardDto,
+    columnId: PreferenceType,
+  ) => void;
+  moveProject: (
+    from: { columnId: PreferenceType; idx: number },
+    to: { columnId: PreferenceType; idx?: number },
+  ) => ProjectPreferenceCardDto;
 }
 
 type BoardDetailsStore = ReturnType<typeof createBoardDetailsStore>;
 
 const createBoardDetailsStore = (initProps?: Partial<KanbanBoardProps>) => {
   const DEFAULT_PROPS: KanbanBoardProps = {
-    projects: [],
-    columns: [],
+    projects: {
+      [PreferenceType.PREFERENCE]: [],
+      [PreferenceType.SHORTLIST]: [],
+    },
   };
 
-  return createStore<KanbanBoardState>()((set) => ({
+  return createStore<KanbanBoardState>()((set, get) => ({
     ...DEFAULT_PROPS,
     ...initProps,
-    updateProjects: (fn: (prev: ProjectPreference[]) => ProjectPreference[]) =>
-      set((state) => ({ projects: fn(state.projects) })),
+
+    addProject: (project: ProjectPreferenceCardDto, columnId: PreferenceType) =>
+      set(({ projects }) => ({
+        projects: {
+          ...projects,
+          [columnId]: [...projects[columnId], project],
+        },
+      })),
+
+    deleteProject: (projectId: string) =>
+      set(({ projects: { PREFERENCE, SHORTLIST } }) => ({
+        projects: {
+          PREFERENCE: PREFERENCE.filter((p) => p.id !== projectId),
+          SHORTLIST: SHORTLIST.filter((p) => p.id !== projectId),
+        },
+      })),
+
+    moveProject: (from, to) => {
+      set(({ projects }) => {
+        const clone = structuredClone(projects);
+        const targetIdx = to.idx ?? clone[to.columnId].length;
+
+        const [project] = clone[from.columnId].splice(from.idx, 1);
+
+        project.columnId = to.columnId;
+        project.rank = computeUpdatedRank(clone[to.columnId], targetIdx);
+
+        clone[to.columnId].splice(targetIdx, 0, project);
+
+        return { projects: clone };
+      });
+
+      return get().projects[to.columnId].at(to.idx ?? -1)!;
+    },
   }));
 };
 

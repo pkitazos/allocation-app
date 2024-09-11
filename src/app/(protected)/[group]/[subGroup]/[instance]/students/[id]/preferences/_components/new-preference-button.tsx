@@ -59,7 +59,7 @@ export function NewPreferenceButton({
 }) {
   const params = useParams<PageParams>();
   const router = useRouter();
-  const updateProjects = useBoardDetails((s) => s.updateProjects);
+  const addProject = useBoardDetails((s) => s.addProject);
   const [open, setOpen] = useState(false);
 
   const form = useForm<NewProjectPreferenceDto>({
@@ -69,7 +69,8 @@ export function NewPreferenceButton({
     },
   });
 
-  const { mutateAsync } = api.user.student.preference.makeUpdate.useMutation();
+  const { mutateAsync: updatePreferencesAsync } =
+    api.user.student.preference.makeUpdate.useMutation();
 
   function onSubmit(data: NewProjectPreferenceDto) {
     const listType =
@@ -78,13 +79,15 @@ export function NewPreferenceButton({
         : "shortlist";
 
     void toast.promise(
-      mutateAsync({
+      updatePreferencesAsync({
         params,
         studentId: params.id,
         projectId: data.projectId,
         preferenceType: data.preferenceType,
       }).then((projects) => {
-        updateProjects(() => projects);
+        const columnId = data.preferenceType;
+        const i = projects[columnId].findIndex((p) => p.id === data.projectId);
+        addProject(projects[columnId][i], columnId);
         form.reset();
         router.refresh();
         setOpen(false);

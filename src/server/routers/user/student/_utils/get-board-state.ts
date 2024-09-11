@@ -1,6 +1,6 @@
 import { PreferenceType, PrismaClient } from "@prisma/client";
 
-import { BoardColumn, ProjectPreference } from "@/lib/validations/board";
+import { ProjectPreferenceCardDto } from "@/lib/validations/board";
 import { InstanceParams } from "@/lib/validations/params";
 
 export async function getBoardState(
@@ -31,20 +31,23 @@ export async function getBoardState(
     orderBy: { rank: "asc" },
   });
 
-  const columns: BoardColumn[] = [
-    { id: PreferenceType.PREFERENCE, displayName: "Preference List" },
-    { id: PreferenceType.SHORTLIST, displayName: "Shortlist" },
-  ];
-
-  const projects: ProjectPreference[] = res.map((e) => ({
+  const allProjects = res.map((e) => ({
     id: e.project.id,
     title: e.project.title,
     columnId: e.type,
     rank: e.rank,
-    supervisorId: e.project.supervisor.user.id,
-    supervisorName: e.project.supervisor.user.name!,
-    changed: false,
+    supervisor: e.project.supervisor.user,
   }));
 
-  return { columns, projects };
+  const projects: Record<PreferenceType, ProjectPreferenceCardDto[]> = {
+    [PreferenceType.PREFERENCE]: allProjects.filter(
+      (e) => e.columnId === PreferenceType.PREFERENCE,
+    ),
+
+    [PreferenceType.SHORTLIST]: allProjects.filter(
+      (e) => e.columnId === PreferenceType.SHORTLIST,
+    ),
+  };
+
+  return { projects };
 }
