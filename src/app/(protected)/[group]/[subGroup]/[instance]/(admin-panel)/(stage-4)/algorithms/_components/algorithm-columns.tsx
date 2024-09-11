@@ -141,7 +141,11 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
         },
       }) => (
         <p className="w-20 text-center">
-          {targetModifier !== 0 ?? targetModifier}
+          {targetModifier !== 0 && (
+            <Badge variant="outline" className="w-fit">
+              +{targetModifier}
+            </Badge>
+          )}
         </p>
       ),
     },
@@ -155,7 +159,11 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
         },
       }) => (
         <p className="w-28 text-center">
-          {upperBoundModifier !== 0 ?? upperBoundModifier}
+          {upperBoundModifier !== 0 && (
+            <Badge variant="outline" className="w-fit">
+              +{upperBoundModifier}
+            </Badge>
+          )}
         </p>
       ),
     },

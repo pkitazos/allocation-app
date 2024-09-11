@@ -507,10 +507,14 @@ function getBuiltInAlgorithm(algName: string) {
 function applyCapacityModifiers(data: MatchingDataDto, algorithm: Algorithm) {
   return {
     ...data,
-    supervisors: data.supervisors.map((s) => ({
-      ...s,
-      target: s.target + algorithm.targetModifier,
-      upperBound: s.upperBound + algorithm.upperBoundModifier,
-    })),
+    supervisors: data.supervisors.map((s) => {
+      const newTarget = s.target + algorithm.targetModifier;
+      const newUpperBound = s.upperBound + algorithm.upperBoundModifier;
+      return {
+        ...s,
+        target: newTarget,
+        upperBound: Math.max(newTarget, newUpperBound),
+      };
+    }),
   };
 }

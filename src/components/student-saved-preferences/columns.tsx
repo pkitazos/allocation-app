@@ -33,7 +33,7 @@ export const savedPreferencesColumns: ColumnDef<SavedPreferenceDto>[] = [
     cell: ({ row: { original: project } }) => (
       <Link
         className={buttonVariants({ variant: "link" })}
-        href={`../projects/${project.id}`}
+        href={`./projects/${project.id}`}
       >
         {project.title}
       </Link>
