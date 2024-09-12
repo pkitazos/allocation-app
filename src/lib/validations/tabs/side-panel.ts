@@ -115,7 +115,11 @@ const adminOnlyTabs = (parentInstanceId: string | null) => ({
     pages.addStudents,
     pages.addSupervisors,
   ],
-  [Stage.PROJECT_ALLOCATION]: [pages.algorithms, pages.results],
+  [Stage.PROJECT_ALLOCATION]: [
+    pages.algorithms,
+    pages.results,
+    pages.preferenceStatistics,
+  ],
   [Stage.ALLOCATION_ADJUSTMENT]: [pages.manualChanges],
   [Stage.ALLOCATION_PUBLICATION]: [
     pages.allocationOverview,

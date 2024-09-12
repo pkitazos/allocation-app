@@ -72,6 +72,11 @@ export const pages = {
     href: "results",
     icon: "square-kanban",
   },
+  preferenceStatistics: {
+    title: "Preference Statistics",
+    href: "preference-statistics",
+    icon: "chart-bar",
+  },
   manualChanges: {
     title: "Manual Changes",
     href: "manual-changes",

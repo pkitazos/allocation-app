@@ -1,3 +1,5 @@
+import { pages } from "@/content/pages";
+
 /**
  * @deprecated use pages from "@/content/pages" instead
  */
@@ -52,14 +54,14 @@ export const instanceTabs = {
 };
 
 export const supervisorTabs = [
-  instanceTabs.allProjects,
-  instanceTabs.myProjects,
-  instanceTabs.newProject,
-  instanceTabs.myAllocations,
+  pages.allProjects,
+  pages.myProjects,
+  pages.newProject,
+  pages.myAllocations,
 ];
 
 export const studentTabs = [
-  instanceTabs.allProjects,
-  instanceTabs.myPreferences,
-  instanceTabs.myAllocation,
+  pages.allProjects,
+  pages.myPreferences,
+  pages.myAllocation,
 ];

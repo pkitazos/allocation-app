@@ -101,6 +101,9 @@ importers:
       '@uiw/react-md-editor':
         specifier: ^4.0.4
         version: 4.0.4(@types/react@18.2.58)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      adm-zip:
+        specifier: ^0.5.16
+        version: 0.5.16
       autoprefixer:
         specifier: 10.4.17
         version: 10.4.17(postcss@8.4.41)
@@ -192,6 +195,9 @@ importers:
         specifier: ^4.5.1
         version: 4.5.4(@types/react@18.2.58)(react@18.2.0)
     devDependencies:
+      '@types/adm-zip':
+        specifier: ^0.5.5
+        version: 0.5.5
       '@types/node':
         specifier: 22.5.1
         version: 22.5.1
@@ -1231,6 +1237,9 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  '@types/adm-zip@0.5.5':
+    resolution: {integrity: sha512-YCGstVMjc4LTY5uK9/obvxBya93axZOVOyf2GSUulADzmLhYE45u2nAssCs/fWBs1Ifq5Vat75JTPwd5XZoPJw==}
+
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -1411,6 +1420,10 @@ packages:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  adm-zip@0.5.16:
+    resolution: {integrity: sha512-TGw5yVi4saajsSEgz25grObGHEUaDrniwvA2qwSC060KfqGPdglhvPMA2lPIoxs3PQIItj2iag35fONcQqgUaQ==}
+    engines: {node: '>=12.0'}
 
   agent-base@7.1.1:
     resolution: {integrity: sha512-H0TSyFNDMomMNJQBn8wFV5YC/2eJ+VXECwOadZJT554xP6cODZHPX3H9QMQECxvrgiSOP1pHjy1sMWQVYJOUOA==}
@@ -4612,6 +4625,10 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
+  '@types/adm-zip@0.5.5':
+    dependencies:
+      '@types/node': 22.5.1
+
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
@@ -4839,6 +4856,8 @@ snapshots:
       acorn: 8.12.1
 
   acorn@8.12.1: {}
+
+  adm-zip@0.5.16: {}
 
   agent-base@7.1.1:
     dependencies:

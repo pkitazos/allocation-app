@@ -41,3 +41,17 @@ export const projectStudentDto = z.object({
 });
 
 export type ProjectStudentDto = z.infer<typeof projectStudentDto>;
+
+export type StudentPreferenceDto = {
+  userId: string;
+  projectId: string;
+  rank: number;
+};
+
+export type SupervisorCentricPreferenceDto = StudentPreferenceDto & {
+  supervisorId: string;
+};
+
+export type TagCentricPreferenceDto = StudentPreferenceDto & {
+  tag: string;
+};
