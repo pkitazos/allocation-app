@@ -75,7 +75,7 @@ export const pages = {
   preferenceStatistics: {
     title: "Preference Statistics",
     href: "preference-statistics",
-    icon: "chart-bar",
+    icon: "bar-chart",
   },
   manualChanges: {
     title: "Manual Changes",

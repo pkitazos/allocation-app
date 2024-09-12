@@ -1,4 +1,4 @@
-import { ZapIcon } from "lucide-react";
+import { DatabaseIcon, ZapIcon } from "lucide-react";
 
 import { SectionHeading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
@@ -27,9 +27,9 @@ export default async function Page({ params }: { params: InstanceParams }) {
   });
 
   return (
-    <PanelWrapper className="mt-10 flex flex-col gap-8 px-12">
-      <SubHeading className="mb-6">{pages.exportToCSV.title}</SubHeading>
-      <section className="flex flex-col gap-5">
+    <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">
+      <SubHeading className="mb-4">{pages.exportToCSV.title}</SubHeading>
+      <section className="flex w-full flex-col gap-5">
         <SectionHeading className="flex items-center">
           <ZapIcon className="mr-2 h-6 w-6 text-indigo-500" />
           <span>Quick Actions</span>
@@ -41,7 +41,13 @@ export default async function Page({ params }: { params: InstanceParams }) {
           </CardContent>
         </Card>
       </section>
-      <AllocationDataTable data={data} />
+      <section className="flex w-full flex-col gap-5">
+        <SectionHeading className="flex items-center">
+          <DatabaseIcon className="mr-2 h-6 w-6 text-indigo-500" />
+          <span>All data</span>
+        </SectionHeading>
+        <AllocationDataTable data={data} />
+      </section>
     </PanelWrapper>
   );
 }
