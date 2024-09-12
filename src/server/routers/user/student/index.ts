@@ -211,11 +211,7 @@ export const studentRouter = createTRPCRouter({
             select: { latestSubmissionDateTime: true },
           });
 
-        // TODO: check if toZonedTime is necessary
-
-        return latestSubmissionDateTime
-          ? toZonedTime(latestSubmissionDateTime, "Europe/London")
-          : undefined;
+        return latestSubmissionDateTime ?? undefined;
       },
     ),
 
