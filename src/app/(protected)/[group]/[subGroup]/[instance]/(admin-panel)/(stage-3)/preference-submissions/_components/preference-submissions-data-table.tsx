@@ -1,15 +1,16 @@
 "use client";
 
 import DataTable from "@/components/ui/data-table/data-table";
+import { studentLevelFilter } from "@/components/ui/data-table/data-table-context";
 
-import { PreferenceSubmissionDto } from "@/lib/validations/dto/preference";
+import { StudentPreferenceSubmissionDto } from "@/lib/validations/dto/preference";
 
 import { usePreferenceSubmissionColumns } from "./preference-submissions-columns";
 
 export function PreferenceSubmissionsDataTable({
   data,
 }: {
-  data: PreferenceSubmissionDto[];
+  data: StudentPreferenceSubmissionDto[];
 }) {
   const columns = usePreferenceSubmissionColumns();
 
@@ -28,6 +29,7 @@ export function PreferenceSubmissionsDataTable({
             { title: "Pre-Allocated", id: "pre-allocated" },
           ],
         },
+        studentLevelFilter,
       ]}
       data={data}
     />

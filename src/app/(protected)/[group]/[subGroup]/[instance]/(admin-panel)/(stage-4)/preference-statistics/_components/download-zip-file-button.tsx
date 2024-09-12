@@ -1,6 +1,6 @@
 "use client";
-import { DownloadIcon } from "lucide-react";
 import { useRef } from "react";
+import { DownloadIcon } from "lucide-react";
 
 /**
  * @deprecated The zip file produced by this component cannot be opened.

@@ -153,6 +153,16 @@ export function AddStudentsSection() {
       ) : (
         <DataTable
           searchableColumn={{ id: "Full Name", displayName: "Student Names" }}
+          filters={[
+            {
+              title: "filter Student Level",
+              columnId: "Student Level",
+              options: [
+                { id: "4", title: "Level 4" },
+                { id: "5", title: "Level 5" },
+              ],
+            },
+          ]}
           columns={columns}
           data={data ?? []}
         />

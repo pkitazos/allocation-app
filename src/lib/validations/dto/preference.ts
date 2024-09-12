@@ -13,16 +13,19 @@ export const savedPreferenceDto = z.object({
 
 export type SavedPreferenceDto = z.infer<typeof savedPreferenceDto>;
 
-export const preferenceSubmissionDto = z.object({
+export const studentPreferenceSubmissionDto = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
+  level: z.number(),
   submissionCount: z.number(),
   submitted: z.boolean(),
   preAllocated: z.boolean(),
 });
 
-export type PreferenceSubmissionDto = z.infer<typeof preferenceSubmissionDto>;
+export type StudentPreferenceSubmissionDto = z.infer<
+  typeof studentPreferenceSubmissionDto
+>;
 
 export const newProjectPreferenceDtoSchema = z.object({
   projectId: z.string(),
@@ -36,6 +39,7 @@ export type NewProjectPreferenceDto = z.infer<
 export const projectStudentDto = z.object({
   id: z.string(),
   name: z.string(),
+  level: z.number(),
   type: z.nativeEnum(PreferenceType),
   rank: z.number(),
 });

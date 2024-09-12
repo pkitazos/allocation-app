@@ -4,6 +4,7 @@ export const studentInviteDtoSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string(),
+  level: z.number(),
   joined: z.boolean(),
 });
 

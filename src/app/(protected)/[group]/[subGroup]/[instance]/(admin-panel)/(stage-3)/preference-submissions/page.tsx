@@ -35,9 +35,9 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const students = await api.institution.instance.project.preferenceInfo({
-    params,
-  });
+  const students = await api.institution.instance.preference.studentSubmissions(
+    { params },
+  );
 
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-16 px-12">

@@ -1,6 +1,6 @@
 "use client";
-
 import DataTable from "@/components/ui/data-table/data-table";
+import { studentLevelFilter } from "@/components/ui/data-table/data-table-context";
 
 import { ProjectStudentDto } from "@/lib/validations/dto/preference";
 
@@ -13,5 +13,12 @@ export function StudentPreferenceDataTable({
 }) {
   const columns = useStudentPreferenceColumns();
 
-  return <DataTable columns={columns} data={data} />;
+  return (
+    <DataTable
+      searchableColumn={{ id: "Name", displayName: "Names" }}
+      columns={columns}
+      filters={[studentLevelFilter]}
+      data={data}
+    />
+  );
 }

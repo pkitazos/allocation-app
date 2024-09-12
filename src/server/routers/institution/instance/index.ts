@@ -46,10 +46,10 @@ import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
 import { matchingRouter } from "./matching";
+import { preferenceRouter } from "./preference";
 import { projectRouter } from "./project";
 
 import { pages } from "@/content/pages";
-import { preferenceRouter } from "./preference";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -688,14 +688,16 @@ export const instanceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const invitedUsers = await ctx.db.userInInstance.findMany({
+        const invitedStudents = await ctx.db.studentDetails.findMany({
           where: {
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
-            role: Role.STUDENT,
           },
-          select: { user: true, joined: true },
+          select: {
+            userInInstance: { include: { user: true } },
+            studentLevel: true,
+          },
         });
 
         const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
@@ -704,12 +706,13 @@ export const instanceRouter = createTRPCRouter({
           instance,
         });
 
-        const all = invitedUsers.map(({ user, joined }) => ({
-          id: user.id,
-          name: user.name!,
-          email: user.email!,
-          joined,
-          preAllocated: preAllocatedStudents.has(user.id),
+        const all = invitedStudents.map(({ userInInstance, studentLevel }) => ({
+          id: userInInstance.user.id,
+          name: userInInstance.user.name,
+          email: userInInstance.user.email,
+          joined: userInInstance.joined,
+          level: studentLevel,
+          preAllocated: preAllocatedStudents.has(userInInstance.user.id),
         }));
 
         return {

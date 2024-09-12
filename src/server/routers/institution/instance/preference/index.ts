@@ -1,10 +1,14 @@
 import AdmZip from "adm-zip";
+import { unparse } from "papaparse";
 import { z } from "zod";
 
+import { expand } from "@/lib/utils/general/instance-params";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
-import { expand } from "@/lib/utils/general/instance-params";
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
+
+import { getPreAllocatedStudents } from "../_utils/pre-allocated-students";
+
 import {
   generateProjectAggregated,
   generateProjectNormalised,
@@ -13,9 +17,59 @@ import {
   generateTagAggregated,
   generateTagNormalised,
 } from "./_utils/generate-csv-data";
-import { unparse } from "papaparse";
 
 export const preferenceRouter = createTRPCRouter({
+  studentSubmissions: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(
+      async ({
+        ctx,
+        input: {
+          params: { group, subGroup, instance },
+        },
+      }) => {
+        const studentData = await ctx.db.studentDetails.findMany({
+          where: {
+            allocationGroupId: group,
+            allocationSubGroupId: subGroup,
+            allocationInstanceId: instance,
+          },
+          select: {
+            submittedPreferences: true,
+            studentLevel: true,
+            userInInstance: {
+              select: {
+                user: { select: { id: true, name: true, email: true } },
+                studentPreferences: true,
+              },
+            },
+          },
+        });
+
+        const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
+          group,
+          subGroup,
+          instance,
+        });
+
+        const all = studentData.map(
+          ({ userInInstance, submittedPreferences, studentLevel }) => ({
+            ...userInInstance.user,
+            level: studentLevel,
+            submissionCount: userInInstance.studentPreferences.length,
+            submitted: submittedPreferences,
+            preAllocated: preAllocatedStudents.has(userInInstance.user.id),
+          }),
+        );
+
+        return {
+          all,
+          incomplete: all.filter((s) => !s.submitted && !s.preAllocated),
+          preAllocated: all.filter((s) => s.preAllocated),
+        };
+      },
+    ),
+
   statsByProject: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(async ({ ctx, input: { params } }) => {

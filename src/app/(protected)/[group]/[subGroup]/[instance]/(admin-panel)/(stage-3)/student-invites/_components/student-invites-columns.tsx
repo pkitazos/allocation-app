@@ -41,21 +41,59 @@ export function useStudentInvitesColumns(): ColumnDef<StudentInviteDto>[] {
       id: "GUID",
       accessorFn: (s) => s.id,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="GUID" canFilter />
+        <DataTableColumnHeader
+          className="w-36"
+          column={column}
+          title="GUID"
+          canFilter
+        />
+      ),
+      cell: ({ row }) => (
+        <p className="w-36 text-center text-sm">{row.original.id}</p>
       ),
     },
     {
       id: "Email",
       accessorFn: (s) => s.email,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Email" />
+        <DataTableColumnHeader className="w-44" column={column} title="Email" />
       ),
+      cell: ({ row }) => (
+        <p className="w-44 text-center text-sm">{row.original.email}</p>
+      ),
+    },
+    {
+      id: "Level",
+      accessorFn: ({ level }) => level,
+      header: ({ column }) => (
+        <DataTableColumnHeader className="w-20" column={column} title="Level" />
+      ),
+      cell: ({
+        row: {
+          original: { level },
+        },
+      }) => (
+        <div className="grid w-20 place-items-center">
+          <Badge variant="accent">{level}</Badge>
+        </div>
+      ),
+      filterFn: (row, columnId, value) => {
+        const selectedFilters = value as ("4" | "5")[];
+        const rowValue = row.getValue(columnId) as 4 | 5;
+        console.log({ selectedFilters });
+        const studentLevel = rowValue.toString() as "4" | "5";
+        return selectedFilters.includes(studentLevel);
+      },
     },
     {
       id: "Status",
       accessorFn: (s) => s.joined,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
+        <DataTableColumnHeader
+          className="w-24"
+          column={column}
+          title="Status"
+        />
       ),
       cell: ({
         row: {
@@ -63,9 +101,13 @@ export function useStudentInvitesColumns(): ColumnDef<StudentInviteDto>[] {
         },
       }) =>
         joined ? (
-          <Badge className="bg-green-700">joined</Badge>
+          <div className="grid w-24 place-items-center">
+            <Badge className="bg-green-700">joined</Badge>
+          </div>
         ) : (
-          <Badge className="bg-muted-foreground">invited</Badge>
+          <div className="grid w-24 place-items-center">
+            <Badge className="bg-muted-foreground">invited</Badge>
+          </div>
         ),
       filterFn: (row, columnId, value) => {
         const selectedFilters = value as ("joined" | "invited")[];
