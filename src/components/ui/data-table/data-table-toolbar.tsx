@@ -49,9 +49,10 @@ export function DataTableToolbar<TData>({
                 .getColumn(searchableColumn.id)
                 ?.setFilterValue(event.target.value)
             }
-            className="h-8 w-[150px] lg:w-[250px]"
+            className="h-8 max-w-[150px] lg:max-w-[250px]"
           />
         )}
+
         {filters.map((filter) => {
           const column = table.getColumn(filter.columnId);
           if (!column) return null; // Handle potential invalid columnId
@@ -65,6 +66,7 @@ export function DataTableToolbar<TData>({
 
           return (
             <DataTableFacetedFilter
+              className="flex-none"
               key={filter.columnId}
               column={column}
               title={filter?.title ?? (column.columnDef.id as string)} // Assuming header is a string
@@ -72,20 +74,7 @@ export function DataTableToolbar<TData>({
             />
           );
         })}
-        {/* {table.getAllColumns().some((c) => c.id === "Flags") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("Flags")}
-            title="Flags"
-            options={tableFlags}
-          />
-        )}
-        {table.getAllColumns().some((c) => c.id === "Keywords") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("Keywords")}
-            title="Keywords"
-            options={tableTags}
-          />
-        )} */}
+
         {isFiltered && (
           <Button
             variant="ghost"

@@ -1,4 +1,5 @@
 import { Column } from "@tanstack/react-table";
+import { ClassValue } from "clsx";
 import { CheckIcon, PlusCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,12 +24,14 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   options: TableFilterOption[];
+  className?: ClassValue;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  className,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
@@ -36,7 +39,11 @@ export function DataTableFacetedFilter<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn("h-8 border-dashed", className)}
+        >
           <PlusCircleIcon className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (

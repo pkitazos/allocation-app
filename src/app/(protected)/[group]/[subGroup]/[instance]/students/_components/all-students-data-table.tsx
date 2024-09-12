@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
+import { studentLevelFilter } from "@/components/ui/data-table/data-table-context";
 
 import { api } from "@/lib/trpc/client";
 
@@ -60,6 +61,7 @@ export function StudentsDataTable({
   return (
     <DataTable
       searchableColumn={{ id: "Name", displayName: "Student Names" }}
+      filters={[studentLevelFilter]}
       className="w-full"
       columns={columns}
       data={data}

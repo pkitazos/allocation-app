@@ -11,7 +11,6 @@ import {
 } from "@/server/trpc";
 import { computeProjectSubmissionTarget } from "@/server/utils/instance/submission-target";
 
-import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { computeSubmissionDetails } from "./_utils/submission-details";
 
 export const projectRouter = createTRPCRouter({
@@ -92,55 +91,6 @@ export const projectRouter = createTRPCRouter({
           ...c,
           targetMet: c.submittedProjectsCount >= c.submissionTarget,
         }));
-      },
-    ),
-
-  preferenceInfo: instanceAdminProcedure
-    .input(z.object({ params: instanceParamsSchema }))
-    .query(
-      async ({
-        ctx,
-        input: {
-          params: { group, subGroup, instance },
-        },
-      }) => {
-        const studentData = await ctx.db.studentDetails.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            submittedPreferences: true,
-            userInInstance: {
-              select: {
-                user: { select: { id: true, name: true, email: true } },
-                studentPreferences: true,
-              },
-            },
-          },
-        });
-
-        const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
-          group,
-          subGroup,
-          instance,
-        });
-
-        const all = studentData.map(
-          ({ userInInstance, submittedPreferences }) => ({
-            ...userInInstance.user,
-            submissionCount: userInInstance.studentPreferences.length,
-            submitted: submittedPreferences,
-            preAllocated: preAllocatedStudents.has(userInInstance.user.id),
-          }),
-        );
-
-        return {
-          all,
-          incomplete: all.filter((s) => !s.submitted && !s.preAllocated),
-          preAllocated: all.filter((s) => s.preAllocated),
-        };
       },
     ),
 });

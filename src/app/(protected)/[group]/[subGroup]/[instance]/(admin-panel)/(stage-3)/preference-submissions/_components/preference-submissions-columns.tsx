@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ExportCSVButton } from "@/components/export-csv";
 import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
 import { CircleXIcon } from "@/components/icons/circle-x";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -26,12 +27,12 @@ import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
 import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/lib/utils/general/copy-to-clipboard";
-import { PreferenceSubmissionDto } from "@/lib/validations/dto/preference";
+import { StudentPreferenceSubmissionDto } from "@/lib/validations/dto/preference";
 
-export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmissionDto>[] {
-  const selectCol = getSelectColumn<PreferenceSubmissionDto>();
+export function usePreferenceSubmissionColumns(): ColumnDef<StudentPreferenceSubmissionDto>[] {
+  const selectCol = getSelectColumn<StudentPreferenceSubmissionDto>();
 
-  const baseCols: ColumnDef<PreferenceSubmissionDto>[] = [
+  const baseCols: ColumnDef<StudentPreferenceSubmissionDto>[] = [
     {
       id: "GUID",
       accessorFn: (s) => s.id,
@@ -52,6 +53,29 @@ export function usePreferenceSubmissionColumns(): ColumnDef<PreferenceSubmission
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Email" />
       ),
+    },
+    {
+      id: "Level",
+      accessorFn: ({ level }) => level,
+      header: ({ column }) => (
+        <DataTableColumnHeader className="w-20" column={column} title="Level" />
+      ),
+      cell: ({
+        row: {
+          original: { level },
+        },
+      }) => (
+        <div className="grid w-20 place-items-center">
+          <Badge variant="accent">{level}</Badge>
+        </div>
+      ),
+      filterFn: (row, columnId, value) => {
+        const selectedFilters = value as ("4" | "5")[];
+        const rowValue = row.getValue(columnId) as 4 | 5;
+        console.log({ selectedFilters });
+        const studentLevel = rowValue.toString() as "4" | "5";
+        return selectedFilters.includes(studentLevel);
+      },
     },
     {
       id: "Count",

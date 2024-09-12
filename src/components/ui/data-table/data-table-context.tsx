@@ -40,3 +40,12 @@ export function useDataTableProjectFilters() {
     { columnId: "Keywords", options: tags },
   ];
 }
+
+export const studentLevelFilter = {
+  title: "filter Student Level",
+  columnId: "Level",
+  options: [
+    { id: "4", title: "Level 4" },
+    { id: "5", title: "Level 5" },
+  ],
+};

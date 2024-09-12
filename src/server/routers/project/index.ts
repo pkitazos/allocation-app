@@ -447,6 +447,7 @@ export const projectRouter = createTRPCRouter({
           student: {
             select: {
               user: { select: { id: true, name: true } },
+              studentDetails: { select: { studentLevel: true } },
               studentPreferences: {
                 select: { projectId: true, rank: true },
                 orderBy: { rank: "asc" },
@@ -465,6 +466,7 @@ export const projectRouter = createTRPCRouter({
           ...s,
           id: student.user.id,
           name: student.user.name,
+          level: student.studentDetails[0].studentLevel, // TODO: move preference relation to studentDetails table
           rank:
             student.studentPreferences
               .map((s) => s.projectId)

@@ -63,6 +63,29 @@ export function useStudentPreferenceColumns(): ColumnDef<ProjectStudentDto>[] {
       ),
     },
     {
+      id: "Level",
+      accessorFn: ({ level }) => level,
+      header: ({ column }) => (
+        <DataTableColumnHeader className="w-20" column={column} title="Level" />
+      ),
+      cell: ({
+        row: {
+          original: { level },
+        },
+      }) => (
+        <div className="grid w-20 place-items-center">
+          <Badge variant="accent">{level}</Badge>
+        </div>
+      ),
+      filterFn: (row, columnId, value) => {
+        const selectedFilters = value as ("4" | "5")[];
+        const rowValue = row.getValue(columnId) as 4 | 5;
+        console.log({ selectedFilters });
+        const studentLevel = rowValue.toString() as "4" | "5";
+        return selectedFilters.includes(studentLevel);
+      },
+    },
+    {
       id: "Type",
       accessorFn: ({ type }) => type,
       header: ({ column }) => (

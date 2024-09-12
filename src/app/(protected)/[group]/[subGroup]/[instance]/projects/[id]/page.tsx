@@ -141,7 +141,7 @@ export default async function Project({ params }: { params: PageParams }) {
         allowedRoles={[Role.ADMIN]}
         extraConditions={{ RBAC: { AND: !project.preAllocatedStudentId } }}
       >
-        <section className="mt-16">
+        <section className="mt-16 flex flex-col gap-8">
           <SubHeading>Student Preferences</SubHeading>
           <StudentPreferenceDataTable data={studentPreferences} />
         </section>

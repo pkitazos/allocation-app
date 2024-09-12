@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
 import { useInstanceStage } from "@/components/params-context";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
@@ -89,13 +90,28 @@ export function useNewStudentColumns({
       id: "Student Level",
       accessorFn: ({ level }) => level,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Student Level" />
+        <DataTableColumnHeader
+          className="w-24"
+          column={column}
+          title="Student Level"
+        />
       ),
       cell: ({
         row: {
           original: { level },
         },
-      }) => <div className="text-center">{level}</div>,
+      }) => (
+        <div className="grid w-24 place-items-center">
+          <Badge variant="accent">{level}</Badge>
+        </div>
+      ),
+      filterFn: (row, columnId, value) => {
+        const selectedFilters = value as ("4" | "5")[];
+        const rowValue = row.getValue(columnId) as 4 | 5;
+        console.log({ selectedFilters });
+        const studentLevel = rowValue.toString() as "4" | "5";
+        return selectedFilters.includes(studentLevel);
+      },
     },
     {
       accessorKey: "actions",

@@ -1,6 +1,6 @@
 "use client";
-
 import DataTable from "@/components/ui/data-table/data-table";
+import { studentLevelFilter } from "@/components/ui/data-table/data-table-context";
 
 import { StudentInviteDto } from "@/lib/validations/dto/student";
 
@@ -27,6 +27,7 @@ export function StudentInvitesDataTable({
             { title: "Invited", id: "invited" },
           ],
         },
+        studentLevelFilter,
       ]}
       data={data}
     />
