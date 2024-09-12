@@ -1,6 +1,12 @@
 "use client";
-
 import { useInstanceParams } from "@/components/params-context";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import DataTable from "@/components/ui/data-table/data-table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,18 +27,25 @@ export function StudentResultsSection() {
 
   return (
     <Tabs defaultValue={data.firstNonEmpty}>
-      <TabsList className="w-full">
-        {data.results.map((result, i) => (
-          <TabsTrigger
-            className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
-            value={result.algName}
-            key={i}
-            disabled={result.data.length === 0}
-          >
-            {result.displayName}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+      <Carousel className="mx-14">
+        <TabsList className="w-full">
+          <CarouselContent className="-ml-4">
+            {data.results.map((result, i) => (
+              <CarouselItem key={i} className="basis-1/4 pl-4">
+                <TabsTrigger
+                  className="w-full data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground"
+                  value={result.algName}
+                  disabled={result.data.length === 0}
+                >
+                  {result.displayName}
+                </TabsTrigger>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </TabsList>
+        <CarouselPrevious className="h-10 w-10 rounded-md" />
+        <CarouselNext className="h-10 w-10 rounded-md" />
+      </Carousel>
       <Separator className="my-4" />
       {data.results.map((result, i) => (
         <TabsContent key={i} value={result.algName}>
