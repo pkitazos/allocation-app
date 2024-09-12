@@ -3,17 +3,15 @@ import { PrismaClient, Role } from "@prisma/client";
 import { unSlugify } from "@/lib/utils/general/slugify";
 import { ValidatedSegments } from "@/lib/validations/breadcrumbs";
 import { InstanceParams } from "@/lib/validations/params";
-import { adminTabs } from "@/lib/validations/tabs/admin-panel";
-import {
-  instanceTabs,
-  studentTabs,
-  supervisorTabs,
-} from "@/lib/validations/tabs/instance";
+import { studentTabs, supervisorTabs } from "@/lib/validations/tabs/instance";
+import { adminTabs } from "@/lib/validations/tabs/side-panel";
 
 import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
 import { isSubGroupAdmin } from "@/server/utils/admin/is-sub-group-admin";
 import { isSuperAdmin } from "@/server/utils/admin/is-super-admin";
 import { getAllUserRoles } from "@/server/utils/instance/user-role";
+
+import { pages } from "@/content/pages";
 
 export async function validateSegments(
   db: PrismaClient,
@@ -199,7 +197,7 @@ async function handle_in_instance(
   }
 
   if (remainingSegments.length === 2) {
-    if (remainingSegments[0] === instanceTabs.allProjects.href) {
+    if (remainingSegments[0] === pages.allProjects.href) {
       // all users can see the projects pages
       return allSegments(
         remainingSegments.map((segment) => ({
@@ -290,7 +288,7 @@ export const adminRoutes: string[] = [
   ...Object.values(adminTabs)
     .filter((tab) => tab.title === "Stage Control")
     .map((tab) => tab.href),
-  instanceTabs.allProjects.href,
-  instanceTabs.allSupervisors.href,
-  instanceTabs.allStudents.href,
+  pages.allProjects.href,
+  pages.allSupervisors.href,
+  pages.allStudents.href,
 ];

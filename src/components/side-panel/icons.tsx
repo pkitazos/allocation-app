@@ -1,4 +1,5 @@
 import {
+  BarChart3Icon,
   FileCheck2Icon,
   FilePlus2Icon,
   FileSpreadsheetIcon,
@@ -23,6 +24,9 @@ import {
 
 export function Icon({ type }: { type: string }) {
   switch (type) {
+    case "chart-bar":
+      return <BarChart3Icon className="mr-2 h-4 w-4" />;
+
     case "file-check-2":
       return <FileCheck2Icon className="mr-2 h-4 w-4" />;
 

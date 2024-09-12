@@ -9,7 +9,7 @@ export function ExportCSVButton<T>({
   data,
   filename,
 }: {
-  text: string;
+  text?: string;
   header: string[];
   data: T[];
   filename: string;
@@ -24,7 +24,7 @@ export function ExportCSVButton<T>({
     <>
       <button className="flex items-center gap-2 text-sm" onClick={downloadCsv}>
         <DownloadIcon className="h-4 w-4" />
-        <span>{text}</span>
+        {text && <span>{text}</span>}
       </button>
       <a ref={downloadLinkRef} className="hidden" />
     </>

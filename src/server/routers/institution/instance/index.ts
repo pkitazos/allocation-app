@@ -20,7 +20,7 @@ import {
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentStages, supervisorStages } from "@/lib/validations/stage";
 import { studentLevelSchema } from "@/lib/validations/student-level";
-import { getTabs } from "@/lib/validations/tabs/admin-panel";
+import { getTabs } from "@/lib/validations/tabs/side-panel";
 
 import {
   createTRPCRouter,
@@ -49,6 +49,7 @@ import { matchingRouter } from "./matching";
 import { projectRouter } from "./project";
 
 import { pages } from "@/content/pages";
+import { preferenceRouter } from "./preference";
 
 // TODO: add stage checks to stage-specific procedures
 export const instanceRouter = createTRPCRouter({
@@ -56,6 +57,7 @@ export const instanceRouter = createTRPCRouter({
   algorithm: algorithmRouter,
   project: projectRouter,
   external: externalSystemRouter,
+  preference: preferenceRouter,
 
   exists: protectedProcedure
     .input(z.object({ params: instanceParamsSchema }))
