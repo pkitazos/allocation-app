@@ -119,10 +119,15 @@ const adminOnlyTabs = (parentInstanceId: string | null) => ({
     pages.algorithms,
     pages.results,
     pages.preferenceStatistics,
+    pages.preferenceSubmissions,
   ],
-  [Stage.ALLOCATION_ADJUSTMENT]: [pages.manualChanges],
+  [Stage.ALLOCATION_ADJUSTMENT]: [
+    pages.manualChanges,
+    pages.preferenceSubmissions,
+  ],
   [Stage.ALLOCATION_PUBLICATION]: [
     pages.allocationOverview,
+    pages.preferenceSubmissions,
     pages.exportToCSV,
     !parentInstanceId ? pages.forkInstance : pages.mergeInstance,
   ],
