@@ -2,21 +2,12 @@ import { Role } from "@prisma/client";
 import { z } from "zod";
 
 import {
-  GenerousAlgorithm,
-  GreedyAlgorithm,
-  GreedyGenAlgorithm,
-  MinCostAlgorithm,
-} from "@/lib/algorithms";
-import { relativeComplement } from "@/lib/utils/general/set-difference";
-import {
-  Algorithm,
   AlgorithmResultDto,
   algorithmSchema,
   builtInAlgSchema,
 } from "@/lib/validations/algorithm";
 import {
   blankResult,
-  MatchingDataDto,
   MatchingDetailsDto,
   matchingResultSchema,
   SupervisorMatchingDetailsDto,
@@ -25,11 +16,14 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
+import { applyModifiers } from "./_utils/apply-modifiers";
 import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
 import {
   extractMatchingDetails,
   parseMatchingResult,
 } from "./_utils/extract-matching-details";
+import { getAlgorithmsInOrder } from "./_utils/get-algorithms-in-order";
+import { getBuiltInAlgorithm } from "./_utils/get-built-in-algorithm";
 import { getMatchingData } from "./_utils/get-matching-data";
 
 export const algorithmRouter = createTRPCRouter({
@@ -49,7 +43,7 @@ export const algorithmRouter = createTRPCRouter({
         },
       }) => {
         const matchingData = await getMatchingData(ctx.db, ctx.instance).then(
-          (data) => applyCapacityModifiers(data, algorithm),
+          (data) => applyModifiers(data, algorithm),
         );
 
         const matchingResults = await executeMatchingAlgorithm({
@@ -134,6 +128,7 @@ export const algorithmRouter = createTRPCRouter({
             flag3,
             targetModifier,
             upperBoundModifier,
+            maxRank,
           },
         },
       }) => {
@@ -141,12 +136,12 @@ export const algorithmRouter = createTRPCRouter({
           data: {
             algName,
             displayName: algName,
-            description: "", // TODO: handle optional description
             flag1,
             flag2,
             flag3,
             targetModifier,
             upperBoundModifier,
+            maxRank,
             allocationGroupId: group,
             allocationSubGroupId: subGroup,
             allocationInstanceId: instance,
@@ -201,20 +196,15 @@ export const algorithmRouter = createTRPCRouter({
           },
         });
 
-        const allAlgorithms = [
-          GenerousAlgorithm,
-          GreedyAlgorithm,
-          GreedyGenAlgorithm,
-          MinCostAlgorithm,
-          ...customAlgorithms,
-        ];
+        const allAlgorithms = getAlgorithmsInOrder(customAlgorithms);
 
         return allAlgorithms.map((a) => ({
           algName: a.algName,
           displayName: a.displayName,
-          description: a.description,
+          description: a.description ?? "",
           targetModifier: a.targetModifier,
           upperBoundModifier: a.upperBoundModifier,
+          maxRank: a.maxRank,
           flags: [a.flag1, a.flag2, a.flag3].filter((f) => f !== null),
         }));
       },
@@ -465,56 +455,3 @@ export const algorithmRouter = createTRPCRouter({
       },
     ),
 });
-
-function getAlgorithmsInOrder<T extends { algName: string }>(
-  algorithmData: T[],
-) {
-  const builtInAlgs = [
-    GenerousAlgorithm,
-    GreedyAlgorithm,
-    GreedyGenAlgorithm,
-    MinCostAlgorithm,
-  ];
-
-  const customAlgs = relativeComplement(
-    algorithmData,
-    builtInAlgs,
-    (a, b) => a.algName === b.algName,
-  ).sort((a, b) => a.algName.localeCompare(b.algName));
-
-  return [...builtInAlgs, ...customAlgs];
-}
-
-function getBuiltInAlgorithm(algName: string) {
-  switch (algName) {
-    case GenerousAlgorithm.algName:
-      return GenerousAlgorithm;
-
-    case GreedyAlgorithm.algName:
-      return GreedyAlgorithm;
-
-    case GreedyGenAlgorithm.algName:
-      return GreedyGenAlgorithm;
-
-    case MinCostAlgorithm.algName:
-      return MinCostAlgorithm;
-
-    default:
-      return undefined;
-  }
-}
-
-function applyCapacityModifiers(data: MatchingDataDto, algorithm: Algorithm) {
-  return {
-    ...data,
-    supervisors: data.supervisors.map((s) => {
-      const newTarget = s.target + algorithm.targetModifier;
-      const newUpperBound = s.upperBound + algorithm.upperBoundModifier;
-      return {
-        ...s,
-        target: newTarget,
-        upperBound: Math.max(newTarget, newUpperBound),
-      };
-    }),
-  };
-}

@@ -14,6 +14,7 @@ export const GenerousAlgorithm = {
   flag3: AlgorithmFlag.LSB,
   targetModifier: 0,
   upperBoundModifier: 0,
+  maxRank: -1,
 } satisfies Algorithm;
 
 export const GreedyAlgorithm = {
@@ -26,6 +27,7 @@ export const GreedyAlgorithm = {
   flag3: AlgorithmFlag.LSB,
   targetModifier: 0,
   upperBoundModifier: 0,
+  maxRank: -1,
 } satisfies Algorithm;
 
 export const MinCostAlgorithm = {
@@ -38,6 +40,7 @@ export const MinCostAlgorithm = {
   flag3: AlgorithmFlag.LSB,
   targetModifier: 0,
   upperBoundModifier: 0,
+  maxRank: -1,
 } satisfies Algorithm;
 
 export const GreedyGenAlgorithm = {
@@ -50,4 +53,5 @@ export const GreedyGenAlgorithm = {
   flag3: AlgorithmFlag.LSB,
   targetModifier: 0,
   upperBoundModifier: 0,
+  maxRank: -1,
 } satisfies Algorithm;

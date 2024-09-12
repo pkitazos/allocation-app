@@ -61,32 +61,32 @@ export function useAlgorithmResultColumns({
     {
       id: "Weight",
       accessorFn: (a) => a.weight,
-      header: "Weight",
+      header: () => <p className="w-12 text-center">Weight</p>,
       cell: ({
         row: {
           original: { weight },
         },
-      }) => <p className="text-center">{formatWeight(weight)}</p>,
+      }) => <p className="w-12 text-center">{formatWeight(weight)}</p>,
     },
     {
       id: "Size",
       accessorFn: (a) => a.size,
-      header: "Size",
+      header: () => <p className="w-12 text-center">Size</p>,
       cell: ({
         row: {
           original: { size },
         },
-      }) => <p className="text-center">{formatSize(size)}</p>,
+      }) => <p className="w-12 text-center">{formatSize(size)}</p>,
     },
     {
       id: "Profile",
       accessorFn: (a) => a.profile,
-      header: "Profile",
+      header: () => <p className="w-28 text-center">Profile</p>,
       cell: ({
         row: {
           original: { profile },
         },
-      }) => <p className="text-center">{formatProfile(profile)}</p>,
+      }) => <p className="w-28 text-center">{formatProfile(profile)}</p>,
     },
     {
       id: "selection",

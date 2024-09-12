@@ -1,4 +1,6 @@
-import { SubHeading } from "@/components/heading";
+import { GraduationCapIcon, Users2Icon } from "lucide-react";
+
+import { SectionHeading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import {
   Accordion,
@@ -6,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
@@ -30,14 +33,25 @@ export default function Page() {
       <div className="flex w-full flex-col gap-3">
         <SubHeading className="mb-6">{pages.results.title}</SubHeading>
         <Accordion type="multiple">
-          <AccordionItem value="item-1">
-            <AccordionTrigger>By Students</AccordionTrigger>
+          <AccordionItem className="border-b-0" value="by-students">
+            <AccordionTrigger className="mb-4 rounded-md px-5 py-4 hover:bg-accent hover:no-underline">
+              <SectionHeading className="flex items-center">
+                <GraduationCapIcon className="mr-2 h-6 w-6 text-indigo-500" />
+                <span>By Students</span>
+              </SectionHeading>
+            </AccordionTrigger>
             <AccordionContent>
               <StudentResultsSection />
             </AccordionContent>
           </AccordionItem>
-          <AccordionItem value="item-2">
-            <AccordionTrigger>By Supervisors</AccordionTrigger>
+          <Separator className="mb-5" />
+          <AccordionItem className="border-b-0" value="by-supervisors">
+            <AccordionTrigger className="mb-4 rounded-md px-5 py-4 hover:bg-accent hover:no-underline">
+              <SectionHeading className="flex items-center">
+                <Users2Icon className="mr-2 h-6 w-6 text-indigo-500" />
+                <span>By Supervisors</span>
+              </SectionHeading>
+            </AccordionTrigger>
             <AccordionContent>
               <SupervisorResultsSection />
             </AccordionContent>
