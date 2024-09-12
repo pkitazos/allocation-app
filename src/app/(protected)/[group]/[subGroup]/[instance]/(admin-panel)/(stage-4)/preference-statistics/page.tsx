@@ -1,8 +1,8 @@
+import { FileSpreadsheetIcon, InfoIcon } from "lucide-react";
+
 import { SectionHeading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Card, CardContent } from "@/components/ui/card";
-import { WithTooltip } from "@/components/ui/tooltip-wrapper";
-
 import {
   Table,
   TableBody,
@@ -11,10 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { pages } from "@/content/pages";
+import { WithTooltip } from "@/components/ui/tooltip-wrapper";
+
 import { InstanceParams } from "@/lib/validations/params";
-import { FileSpreadsheetIcon, InfoIcon, ZapIcon } from "lucide-react";
+
 import { DownloadPreferenceDataSection } from "./_components/download-preference-section";
+
+import { pages } from "@/content/pages";
 
 export default async function Page({ params }: { params: InstanceParams }) {
   return (

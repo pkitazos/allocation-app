@@ -253,6 +253,7 @@ const allocationSubGroup = {
   displayName: "Level 4 & Level 5 Honours",
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const allocationGroup = (ID: string) => ({
   id: `socs`,
   displayName: `School of Computing Science`,

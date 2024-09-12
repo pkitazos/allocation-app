@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 
 import { api } from "@/lib/trpc/server";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
-import { InstanceParams } from "@/lib/validations/params";
 import { stageLt } from "@/lib/utils/permissions/stage-check";
+import { InstanceParams } from "@/lib/validations/params";
 
 export default async function Layout({
   params,
