@@ -1,5 +1,6 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
+import { AlgorithmFlag } from "@prisma/client";
+import { createColumnHelper } from "@tanstack/react-table";
 import { MoreHorizontalIcon as MoreIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +27,7 @@ import { AlgorithmDto } from "@/lib/validations/algorithm";
 import { RunAlgorithmButton } from "./run-algorithm-button";
 import { useAlgorithmUtils } from "./use-algorithms";
 
-export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
+export function useAlgorithmColumns() {
   const params = useInstanceParams();
   const utils = useAlgorithmUtils();
 
@@ -51,9 +52,10 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
     );
   }
 
-  const columns: ColumnDef<AlgorithmDto>[] = [
-    {
-      accessorKey: "actions",
+  const columnHelper = createColumnHelper<AlgorithmDto>();
+
+  const columns = [
+    columnHelper.display({
       id: "Actions",
       header: "",
       cell: ({
@@ -68,6 +70,8 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
             </div>
           );
         }
+
+        // TODO: add option to edit algorithm
 
         return (
           <div className="flex w-14 items-center justify-center">
@@ -107,15 +111,15 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
           </div>
         );
       },
-    },
-    {
+    }),
+
+    columnHelper.accessor((a) => a.displayName, {
       id: "Name",
-      accessorFn: (a) => a.displayName,
       header: () => <p className="w-32 py-2 pl-2">Name</p>,
-    },
-    {
+    }),
+
+    columnHelper.accessor((a) => a.flags as AlgorithmFlag[], {
       id: "Flags",
-      accessorFn: (a) => a.flags,
       header: () => <p className="py-2 pl-2">Flags</p>,
       cell: ({
         row: {
@@ -130,10 +134,10 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
           ))}
         </div>
       ),
-    },
-    {
+    }),
+
+    columnHelper.accessor((a) => a.targetModifier, {
       id: "Target Modifier",
-      accessorFn: (a) => a.targetModifier,
       header: () => <p className="w-20 text-wrap py-2">Target Modifier</p>,
       cell: ({
         row: {
@@ -148,17 +152,17 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
           )}
         </p>
       ),
-    },
-    {
+    }),
+
+    columnHelper.accessor((a) => a.upperBoundModifier, {
       id: "Upper Quota Modifier",
-      accessorFn: (a) => a.upperBoundModifier,
-      header: () => <p className="w-28 text-wrap py-2">Upper Quota Modifier</p>,
+      header: () => <p className="w-20 text-wrap py-2">Upper Quota Modifier</p>,
       cell: ({
         row: {
           original: { upperBoundModifier },
         },
       }) => (
-        <p className="w-28 text-center">
+        <p className="w-20 text-center">
           {upperBoundModifier !== 0 && (
             <Badge variant="outline" className="w-fit">
               +{upperBoundModifier}
@@ -166,14 +170,33 @@ export function useAlgorithmColumns(): ColumnDef<AlgorithmDto>[] {
           )}
         </p>
       ),
-    },
-    {
+    }),
+
+    columnHelper.accessor((a) => a.maxRank, {
+      id: "Max Rank",
+      header: () => <p className="w-20 text-wrap py-2">Max Rank</p>,
+      cell: ({
+        row: {
+          original: { maxRank },
+        },
+      }) => (
+        <p className="w-20 text-center">
+          {maxRank !== -1 && (
+            <Badge variant="outline" className="w-fit">
+              {maxRank}
+            </Badge>
+          )}
+        </p>
+      ),
+    }),
+
+    columnHelper.display({
       id: "Run",
       header: "",
       cell: ({ row: { original: algorithm } }) => (
         <RunAlgorithmButton algorithm={algorithm} />
       ),
-    },
+    }),
   ];
 
   return columns;

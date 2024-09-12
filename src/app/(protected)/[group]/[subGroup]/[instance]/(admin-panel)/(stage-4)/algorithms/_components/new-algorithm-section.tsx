@@ -98,7 +98,11 @@ function NewAlgorithmForm({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { targetModifier: 0, upperBoundModifier: 0 },
+    defaultValues: {
+      targetModifier: 0,
+      upperBoundModifier: 0,
+      maxRank: -1,
+    },
   });
 
   function onSubmit(data: z.infer<typeof formSchema>) {
@@ -383,6 +387,24 @@ function NewAlgorithmForm({
               <FormMessage />
               <FormDescription>
                 The amount to increase all supervisor upper quotas by.
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="maxRank"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Max Rank</FormLabel>
+              <FormControl>
+                <Input className="w-20" {...field} />
+              </FormControl>
+              <FormMessage />
+              <FormDescription>
+                The maximum preference list length to consider for matching. Use
+                -1 to consider all preferences.
               </FormDescription>
             </FormItem>
           )}

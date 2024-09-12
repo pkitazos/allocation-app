@@ -39,6 +39,7 @@ export const algorithmSchema = z.object({
   flag3: algorithmFlagSchema.nullable(),
   targetModifier: z.coerce.number().int().nonnegative(),
   upperBoundModifier: z.coerce.number().int().nonnegative(),
+  maxRank: z.number().int().min(-1),
 });
 
 export type Algorithm = z.infer<typeof algorithmSchema>;
@@ -62,15 +63,17 @@ export function buildNewAlgorithmSchema(takenNames: string[]) {
     flag3: algorithmFlagSchema.optional(),
     targetModifier: z.coerce.number().int().nonnegative(),
     upperBoundModifier: z.coerce.number().int().nonnegative(),
+    maxRank: z.coerce.number().int().min(-1), //TODO: don't allow 0
   });
 }
 const algorithmDtoSchema = z.object({
   algName: z.string(),
   displayName: z.string(),
   description: z.string(),
-  flags: z.array(algorithmFlagSchema),
+  flags: z.array(z.nativeEnum(AlgorithmFlag)),
   targetModifier: z.number(),
   upperBoundModifier: z.number(),
+  maxRank: z.number(),
 });
 
 export type AlgorithmDto = z.infer<typeof algorithmDtoSchema>;
