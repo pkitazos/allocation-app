@@ -109,7 +109,8 @@ export function ProjectForm({
     },
   });
 
-  // TODO: somehow projects are created with the preAllocatedStudentId set to an empty string
+  // TODO: investigate why this is happening
+  // ! somehow projects are created with the preAllocatedStudentId set to an empty string
   function handleSwitch() {
     const newState = !preAllocatedSwitchControl;
 
