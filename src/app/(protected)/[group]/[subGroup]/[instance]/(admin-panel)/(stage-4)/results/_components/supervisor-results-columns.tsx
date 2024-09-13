@@ -1,11 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
 import { SupervisorMatchingDetailsDto } from "@/lib/validations/matching";
 
-export const supervisorResultsColumns: ColumnDef<SupervisorMatchingDetailsDto>[] =
-  [
+export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetailsDto>[] {
+  return [
     {
       id: "GUID",
       accessorFn: (s) => s.supervisorId,
@@ -17,7 +19,19 @@ export const supervisorResultsColumns: ColumnDef<SupervisorMatchingDetailsDto>[]
       id: "Name",
       accessorFn: (s) => s.supervisorName,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" canFilter />
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({
+        row: {
+          original: { supervisorId, supervisorName },
+        },
+      }) => (
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`./supervisors/${supervisorId}`}
+        >
+          {supervisorName}
+        </Link>
       ),
     },
     {
@@ -27,11 +41,13 @@ export const supervisorResultsColumns: ColumnDef<SupervisorMatchingDetailsDto>[]
         <DataTableColumnHeader
           className="w-28"
           column={column}
-          title="Target"
+          title={"Target Considered (Actual)"}
         />
       ),
       cell: ({ row: { original: s } }) => (
-        <p className="w-28 text-center">{s.projectTarget}</p>
+        <p className="w-28 text-center">
+          {s.projectTarget} ({s.actualTarget})
+        </p>
       ),
     },
     {
@@ -41,11 +57,13 @@ export const supervisorResultsColumns: ColumnDef<SupervisorMatchingDetailsDto>[]
         <DataTableColumnHeader
           className="w-28"
           column={column}
-          title="Upper Quota"
+          title="Upper Quota Considered (Actual)"
         />
       ),
       cell: ({ row: { original: s } }) => (
-        <p className="w-28 text-center">{s.projectUpperQuota}</p>
+        <p className="w-28 text-center">
+          {s.projectUpperQuota} ({s.actualUpperQuota})
+        </p>
       ),
     },
     {
@@ -55,11 +73,28 @@ export const supervisorResultsColumns: ColumnDef<SupervisorMatchingDetailsDto>[]
         <DataTableColumnHeader
           className="w-28"
           column={column}
-          title="Allocation Count"
+          title="Allocation Count (Pre-allocated)"
         />
       ),
       cell: ({ row: { original: s } }) => (
-        <p className="w-28 text-center">{s.allocationCount}</p>
+        <p className="w-28 text-center">
+          {s.allocationCount} ({s.preAllocatedCount})
+        </p>
+      ),
+    },
+    {
+      id: "Target Difference",
+      accessorFn: (s) => s.difference,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          className="w-28"
+          column={column}
+          title="Target Difference"
+        />
+      ),
+      cell: ({ row: { original: s } }) => (
+        <p className="w-28 text-center">{s.difference}</p>
       ),
     },
   ];
+}

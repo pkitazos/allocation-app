@@ -28,44 +28,44 @@ export const preferenceRouter = createTRPCRouter({
           params: { group, subGroup, instance },
         },
       }) => {
-        const studentData = await ctx.db.studentDetails.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            submittedPreferences: true,
-            studentLevel: true,
-            userInInstance: {
-              select: {
-                user: { select: { id: true, name: true, email: true } },
-                studentPreferences: true,
-              },
-            },
-          },
-        });
-
         const preAllocatedStudents = await getPreAllocatedStudents(ctx.db, {
           group,
           subGroup,
           instance,
         });
 
-        const all = studentData.map(
-          ({ userInInstance, submittedPreferences, studentLevel }) => ({
-            ...userInInstance.user,
-            level: studentLevel,
-            submissionCount: userInInstance.studentPreferences.length,
-            submitted: submittedPreferences,
-            preAllocated: preAllocatedStudents.has(userInInstance.user.id),
-          }),
-        );
+        const students = await ctx.db.studentDetails
+          .findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+            select: {
+              submittedPreferences: true,
+              preferences: true,
+              studentLevel: true,
+              userInInstance: {
+                select: {
+                  user: { select: { id: true, name: true, email: true } },
+                },
+              },
+            },
+          })
+          .then((data) =>
+            data.map(({ userInInstance, ...s }) => ({
+              ...userInInstance.user,
+              level: s.studentLevel,
+              submissionCount: s.preferences.length,
+              submitted: s.submittedPreferences,
+              preAllocated: preAllocatedStudents.has(userInInstance.user.id),
+            })),
+          );
 
         return {
-          all,
-          incomplete: all.filter((s) => !s.submitted && !s.preAllocated),
-          preAllocated: all.filter((s) => s.preAllocated),
+          all: students,
+          incomplete: students.filter((s) => !s.submitted && !s.preAllocated),
+          preAllocated: students.filter((s) => s.preAllocated),
         };
       },
     ),
