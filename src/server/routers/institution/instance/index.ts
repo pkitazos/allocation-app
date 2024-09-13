@@ -879,6 +879,19 @@ export const instanceRouter = createTRPCRouter({
     .query(async ({ ctx, input: { params } }) => {
       const user = ctx.session.user;
 
+      const forkedInstanceId = await ctx.db.allocationInstance.findFirst({
+        where: {
+          allocationGroupId: params.group,
+          allocationSubGroupId: params.subGroup,
+          parentInstanceId: params.instance,
+        },
+      });
+
+      const instance = {
+        ...ctx.instance,
+        forkedInstanceId: forkedInstanceId?.id ?? null,
+      };
+
       const preAllocatedProject = await hasSelfDefinedProject(
         ctx.db,
         params,
@@ -888,7 +901,7 @@ export const instanceRouter = createTRPCRouter({
 
       const tabs = getTabs({
         roles: user.roles,
-        instance: ctx.instance,
+        instance,
         preAllocatedProject,
       });
       return tabs;
