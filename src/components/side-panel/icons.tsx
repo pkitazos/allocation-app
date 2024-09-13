@@ -18,8 +18,9 @@ import {
   SettingsIcon,
   SplitIcon,
   SquareKanbanIcon,
+  UserCog2,
   UserPlusIcon,
-  UsersIcon,
+  Users2Icon,
 } from "lucide-react";
 
 export function Icon({ type }: { type: string }) {
@@ -81,11 +82,14 @@ export function Icon({ type }: { type: string }) {
     case "square-kanban":
       return <SquareKanbanIcon className="mr-2 h-4 w-4" />;
 
+    case "user-cog":
+      return <UserCog2 className="mr-2 h-4 w-4" />;
+
     case "user-plus":
       return <UserPlusIcon className="mr-2 h-4 w-4" />;
 
     case "users":
-      return <UsersIcon className="mr-2 h-4 w-4" />;
+      return <Users2Icon className="mr-2 h-4 w-4" />;
 
     default:
       return null;

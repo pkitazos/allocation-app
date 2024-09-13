@@ -17,6 +17,8 @@ export async function getShibUserFromHeaders() {
     shib_email = headers().get("DH75HDYT80");
     // shib_groups = headers().get("DH75HDYT78");
   } else {
+    // shib_guid = "000-123460d"; // supervisor
+    // shib_guid = "000-234581p"; // student
     shib_guid = env.DEV_P_ID;
     shib_displayName = "Dev";
     shib_email = env.DEV_P_EMAIL;

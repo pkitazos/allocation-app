@@ -92,6 +92,11 @@ export const pages = {
     href: "allocation-overview",
     icon: "folder-lock",
   },
+  manageUserAccess: {
+    title: "Manage User Access",
+    href: "manage-user-access",
+    icon: "user-cog",
+  },
   forkInstance: {
     title: "Fork Instance",
     href: "fork-instance",

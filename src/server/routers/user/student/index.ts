@@ -83,6 +83,32 @@ export const studentRouter = createTRPCRouter({
       },
     ),
 
+  allocationAccess: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx }) => ctx.instance.studentAllocationAccess),
+
+  setAllocationAccess: instanceAdminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        access: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { params, access } }) => {
+      await ctx.db.allocationInstance.update({
+        where: {
+          instanceId: {
+            allocationGroupId: params.group,
+            allocationSubGroupId: params.subGroup,
+            id: params.instance,
+          },
+        },
+        data: { studentAllocationAccess: access },
+      });
+
+      return access;
+    }),
+
   overviewData: studentProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
