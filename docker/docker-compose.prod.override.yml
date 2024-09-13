@@ -11,7 +11,8 @@ services:
     networks:
       - spa-network
   
+  matching-service:
+    image: pkitazos/matching-service:amd64
 
-
-
-
+    networks:
+      - spa-network
