@@ -108,7 +108,7 @@ export const matchingRouter = createTRPCRouter({
           where: { ...expand(params), userId: { notIn: preAllocatedStudents } },
         });
 
-        tx.allocationInstance.update({
+        await tx.allocationInstance.update({
           where: {
             instanceId: {
               allocationGroupId: params.group,
