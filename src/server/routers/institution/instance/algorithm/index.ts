@@ -16,6 +16,8 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
+import { getSupervisorPreAllocatedProjects } from "../_utils/supervisor-pre-allocations";
+
 import { applyModifiers } from "./_utils/apply-modifiers";
 import { executeMatchingAlgorithm } from "./_utils/execute-matching-algorithm";
 import {
@@ -390,20 +392,37 @@ export const algorithmRouter = createTRPCRouter({
           orderBy: { algName: "asc" },
         });
 
-        const supervisorData = await ctx.db.supervisorInstanceDetails.findMany({
-          where: {
-            allocationGroupId: group,
-            allocationSubGroupId: subGroup,
-            allocationInstanceId: instance,
-          },
-          select: {
-            userInInstance: {
-              select: { user: { select: { id: true, name: true } } },
-            },
-          },
-        });
+        const supervisorPreAllocations =
+          await getSupervisorPreAllocatedProjects(ctx.db, {
+            group,
+            subGroup,
+            instance,
+          });
 
-        const supervisors = supervisorData.map((u) => u.userInInstance.user);
+        const supervisors = await ctx.db.supervisorInstanceDetails
+          .findMany({
+            where: {
+              allocationGroupId: group,
+              allocationSubGroupId: subGroup,
+              allocationInstanceId: instance,
+            },
+            select: {
+              projectAllocationTarget: true,
+              projectAllocationUpperBound: true,
+              userInInstance: {
+                select: { user: { select: { id: true, name: true } } },
+              },
+            },
+          })
+          .then((data) =>
+            data.map((s) => ({
+              ...s.userInInstance.user,
+              projectAllocationTarget: s.projectAllocationTarget,
+              projectAllocationUpperBound: s.projectAllocationUpperBound,
+              preAllocations:
+                supervisorPreAllocations[s.userInInstance.user.id],
+            })),
+          );
 
         const resultsByAlgName = new Map<
           string,
@@ -420,15 +439,20 @@ export const algorithmRouter = createTRPCRouter({
                 throw new Error(`Supervisor ${m.supervisor_id} not found`);
               }
 
+              const allocationCount =
+                (acc[m.supervisor_id]?.allocationCount ?? 0) + 1;
               return {
                 ...acc,
                 [m.supervisor_id]: {
                   supervisorId: m.supervisor_id,
                   supervisorName: s.name,
                   projectTarget: m.supervisor_capacities.target,
+                  actualTarget: s.projectAllocationTarget,
                   projectUpperQuota: m.supervisor_capacities.upper_bound,
-                  allocationCount:
-                    (acc[m.supervisor_id]?.allocationCount ?? 0) + 1,
+                  actualUpperQuota: s.projectAllocationUpperBound,
+                  allocationCount,
+                  preAllocatedCount: s.preAllocations ?? 0,
+                  difference: s.projectAllocationTarget - allocationCount,
                 },
               };
             },

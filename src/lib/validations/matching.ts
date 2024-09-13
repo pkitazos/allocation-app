@@ -97,8 +97,12 @@ export const supervisorMatchingDetailsDtoSchema = z.object({
   supervisorId: z.string(),
   supervisorName: z.string(),
   projectTarget: z.number(),
+  actualTarget: z.number(),
   projectUpperQuota: z.number(),
+  actualUpperQuota: z.number(),
   allocationCount: z.number(),
+  preAllocatedCount: z.number(),
+  difference: z.number(),
 });
 
 export type SupervisorMatchingDetailsDto = z.infer<

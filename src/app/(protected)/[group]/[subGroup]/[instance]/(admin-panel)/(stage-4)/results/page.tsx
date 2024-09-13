@@ -33,18 +33,6 @@ export default function Page() {
       <div className="flex w-full flex-col gap-3">
         <SubHeading className="mb-6">{pages.results.title}</SubHeading>
         <Accordion type="multiple">
-          <AccordionItem className="border-b-0" value="by-students">
-            <AccordionTrigger className="mb-4 rounded-md px-5 py-4 hover:bg-accent hover:no-underline">
-              <SectionHeading className="flex items-center">
-                <GraduationCapIcon className="mr-2 h-6 w-6 text-indigo-500" />
-                <span>By Students</span>
-              </SectionHeading>
-            </AccordionTrigger>
-            <AccordionContent>
-              <StudentResultsSection />
-            </AccordionContent>
-          </AccordionItem>
-          <Separator className="mb-5" />
           <AccordionItem className="border-b-0" value="by-supervisors">
             <AccordionTrigger className="mb-4 rounded-md px-5 py-4 hover:bg-accent hover:no-underline">
               <SectionHeading className="flex items-center">
@@ -54,6 +42,18 @@ export default function Page() {
             </AccordionTrigger>
             <AccordionContent>
               <SupervisorResultsSection />
+            </AccordionContent>
+          </AccordionItem>
+          <Separator className="mb-5" />
+          <AccordionItem className="border-b-0" value="by-students">
+            <AccordionTrigger className="mb-4 rounded-md px-5 py-4 hover:bg-accent hover:no-underline">
+              <SectionHeading className="flex items-center">
+                <GraduationCapIcon className="mr-2 h-6 w-6 text-indigo-500" />
+                <span>By Students</span>
+              </SectionHeading>
+            </AccordionTrigger>
+            <AccordionContent>
+              <StudentResultsSection />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

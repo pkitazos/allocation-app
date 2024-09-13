@@ -7,14 +7,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import DataTable from "@/components/ui/data-table/data-table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { api } from "@/lib/trpc/client";
 
-import { supervisorResultsColumns } from "./supervisor-results-columns";
+import { SupervisorResultsDataTable } from "./supervisor-results-data-table";
 
 export function SupervisorResultsSection() {
   const params = useInstanceParams();
@@ -49,7 +48,7 @@ export function SupervisorResultsSection() {
       <Separator className="my-4" />
       {data.results.map((result, i) => (
         <TabsContent key={i} value={result.algName}>
-          <DataTable columns={supervisorResultsColumns} data={result.data} />
+          <SupervisorResultsDataTable data={result.data} />
         </TabsContent>
       ))}
     </Tabs>

@@ -11,7 +11,7 @@ import { ExportCSVButton } from "@/components/export-csv";
 import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
 import { CircleXIcon } from "@/components/icons/circle-x";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -37,7 +37,12 @@ export function usePreferenceSubmissionColumns(): ColumnDef<StudentPreferenceSub
       id: "GUID",
       accessorFn: (s) => s.id,
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="GUID" canFilter />
+        <DataTableColumnHeader
+          className="w-28"
+          column={column}
+          title="GUID"
+          canFilter
+        />
       ),
     },
     {
@@ -45,6 +50,18 @@ export function usePreferenceSubmissionColumns(): ColumnDef<StudentPreferenceSub
       accessorFn: (s) => s.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({
+        row: {
+          original: { name, id },
+        },
+      }) => (
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`./students/${id}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {
