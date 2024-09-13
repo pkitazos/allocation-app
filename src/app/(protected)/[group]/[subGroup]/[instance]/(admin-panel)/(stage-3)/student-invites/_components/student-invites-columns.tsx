@@ -9,7 +9,7 @@ import Link from "next/link";
 
 import { ExportCSVButton } from "@/components/export-csv";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/lib/utils/general/copy-to-clipboard";
 import { StudentInviteDto } from "@/lib/validations/dto/student";
 
@@ -35,6 +36,18 @@ export function useStudentInvitesColumns(): ColumnDef<StudentInviteDto>[] {
       accessorFn: (s) => s.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({
+        row: {
+          original: { name, id },
+        },
+      }) => (
+        <Link
+          className={cn(buttonVariants({ variant: "link" }), "pl-0")}
+          href={`./students/${id}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {

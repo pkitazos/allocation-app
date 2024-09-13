@@ -118,7 +118,7 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
       },
     }) => (
       <Link
-        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        className={cn(buttonVariants({ variant: "link" }), "pl-0 text-left")}
         href={`./supervisors/${id}`}
       >
         {name}

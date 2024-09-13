@@ -44,7 +44,7 @@ export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
       },
     }) => (
       <Link
-        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
         href={`./supervisors/${id}`}
       >
         {name}
