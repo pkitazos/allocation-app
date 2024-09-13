@@ -36,6 +36,20 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Name" />
     ),
+    cell: ({
+      row: {
+        original: {
+          student: { id, name },
+        },
+      },
+    }) => (
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
+        href={`./students/${id}`}
+      >
+        {name}
+      </Link>
+    ),
   },
   {
     id: "Student Email",
@@ -90,7 +104,7 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
       },
     }) => (
       <Link
-        className={cn(buttonVariants({ variant: "link" }), "text-left")}
+        className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
         href={`./supervisors/${id}`}
       >
         {name}

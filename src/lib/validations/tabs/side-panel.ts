@@ -4,42 +4,54 @@ import { TabGroup } from "./index";
 
 import { pages } from "@/content/pages";
 
-const adminOnlyTabs = (parentInstanceId: string | null) => ({
-  [Stage.SETUP]: [pages.addStudents, pages.addSupervisors],
-  [Stage.PROJECT_SUBMISSION]: [
-    pages.supervisorInvites,
-    pages.projectSubmissions,
-    pages.preAllocatedProjects,
-    pages.addStudents,
-    pages.addSupervisors,
-  ],
-  [Stage.PROJECT_SELECTION]: [
-    pages.studentInvites,
-    pages.preferenceSubmissions,
-    pages.lateProposals,
-    pages.preAllocatedProjects,
-    pages.addStudents,
-    pages.addSupervisors,
-  ],
-  [Stage.PROJECT_ALLOCATION]: [
-    pages.algorithms,
-    pages.results,
-    pages.preferenceStatistics,
-    pages.preferenceSubmissions,
-    pages.preAllocatedProjects,
-  ],
-  [Stage.ALLOCATION_ADJUSTMENT]: [
-    pages.manualChanges,
-    pages.preferenceSubmissions,
-    pages.preAllocatedProjects,
-  ],
-  [Stage.ALLOCATION_PUBLICATION]: [
-    pages.allocationOverview,
-    pages.preferenceSubmissions,
-    pages.exportToCSV,
-    !parentInstanceId ? pages.forkInstance : pages.mergeInstance,
-  ],
-});
+function adminOnlyTabs<
+  T extends {
+    parentInstanceId: string | null;
+    forkedInstanceId: string | null;
+  },
+>(instance: T) {
+  const branchingTab = getInstanceBranchingTab(instance);
+  return {
+    [Stage.SETUP]: [pages.addStudents, pages.addSupervisors],
+
+    [Stage.PROJECT_SUBMISSION]: [
+      pages.supervisorInvites,
+      pages.projectSubmissions,
+      pages.preAllocatedProjects,
+      pages.addStudents,
+      pages.addSupervisors,
+    ],
+    [Stage.PROJECT_SELECTION]: [
+      pages.studentInvites,
+      pages.preferenceSubmissions,
+      pages.lateProposals,
+      pages.preAllocatedProjects,
+      pages.addStudents,
+      pages.addSupervisors,
+    ],
+    [Stage.PROJECT_ALLOCATION]: [
+      pages.algorithms,
+      pages.results,
+      pages.preferenceStatistics,
+      pages.preferenceSubmissions,
+      pages.preAllocatedProjects,
+    ],
+    [Stage.ALLOCATION_ADJUSTMENT]: [
+      pages.manualChanges,
+      pages.results,
+      pages.preferenceStatistics,
+      pages.preferenceSubmissions,
+      pages.preAllocatedProjects,
+    ],
+    [Stage.ALLOCATION_PUBLICATION]: [
+      pages.allocationOverview,
+      pages.exportToCSV,
+      ...branchingTab,
+      pages.preferenceStatistics,
+      pages.preferenceSubmissions,
+    ],
+  };
+}
 
 const superVisorOnlyTabs = {
   [Stage.SETUP]: [],
@@ -68,7 +80,7 @@ export function getTabs({
   preAllocatedProject,
 }: {
   roles: Set<Role>;
-  instance: AllocationInstance;
+  instance: AllocationInstance & { forkedInstanceId: string | null };
   preAllocatedProject: boolean;
 }): TabGroup[] {
   const tabs = [];
@@ -78,10 +90,10 @@ export function getTabs({
       title: "Admin",
       tabs: [pages.stageControl, pages.settings],
     });
-    // TODO: don't display "Fork Instance" page if the instance already has a forked instance
+
     tabs.push({
       title: "Stage-specific",
-      tabs: adminOnlyTabs(instance.parentInstanceId)[instance.stage],
+      tabs: adminOnlyTabs(instance)[instance.stage],
     });
   }
 
@@ -110,4 +122,15 @@ export function getTabs({
   }
 
   return tabs;
+}
+
+function getInstanceBranchingTab<
+  T extends {
+    parentInstanceId: string | null;
+    forkedInstanceId: string | null;
+  },
+>(instance: T) {
+  if (instance.parentInstanceId) return [pages.mergeInstance];
+  if (!instance.forkedInstanceId) return [pages.forkInstance];
+  return [];
 }
