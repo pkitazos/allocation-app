@@ -11,11 +11,16 @@ export async function getShibUserFromHeaders() {
   let shib_displayName: string | null = null;
   let shib_email: string | null = null;
 
-  if (env.DEV_ENV !== "LOCAL") {
+  if (env.DEV_ENV === "PROD") {
     shib_guid = headers().get("DH75HDYT76");
     shib_displayName = headers().get("DH75HDYT77");
     shib_email = headers().get("DH75HDYT80");
-    // const shib_groups = headers().get("DH75HDYT78");
+    // shib_groups = headers().get("DH75HDYT78");
+  } else {
+    shib_guid = env.DEV_P_ID;
+    shib_displayName = "Dev";
+    shib_email = env.DEV_P_EMAIL;
+    // shib_groups = "staff;member"
   }
 
   console.log(">>> from shibboleth", {
