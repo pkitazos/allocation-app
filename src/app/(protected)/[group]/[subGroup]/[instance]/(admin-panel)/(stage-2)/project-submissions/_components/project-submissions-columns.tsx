@@ -11,7 +11,7 @@ import Link from "next/link";
 import { ExportCSVButton } from "@/components/export-csv";
 import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
 import { CircleXIcon } from "@/components/icons/circle-x";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ActionColumnLabel } from "@/components/ui/data-table/action-column-label";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { getSelectColumn } from "@/components/ui/data-table/select-column";
@@ -37,6 +37,18 @@ export function useProjectSubmissionColumns(): ColumnDef<ProjectSubmissionDto>[]
       accessorFn: (s) => s.name,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({
+        row: {
+          original: { userId, name },
+        },
+      }) => (
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`./supervisors/${userId}`}
+        >
+          {name}
+        </Link>
       ),
     },
     {

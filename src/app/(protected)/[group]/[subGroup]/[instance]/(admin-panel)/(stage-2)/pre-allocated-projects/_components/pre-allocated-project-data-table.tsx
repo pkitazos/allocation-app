@@ -7,14 +7,14 @@ import DataTable from "@/components/ui/data-table/data-table";
 import { useDataTableProjectFilters } from "@/components/ui/data-table/data-table-context";
 
 import { api } from "@/lib/trpc/client";
-import { SupervisorProjectDto } from "@/lib/validations/dto/project";
+import { PreAllocatedProjectDto } from "@/lib/validations/dto/project";
 
-import { useSupervisorProjectsColumns } from "./supervisor-projects-columns";
+import { usePreAllocatedProjectColumns } from "./pre-allocated-projects-columns";
 
-export function SupervisorProjectsDataTable({
+export function PreAllocatedProjectDataTable({
   data,
 }: {
-  data: SupervisorProjectDto[];
+  data: PreAllocatedProjectDto[];
 }) {
   const params = useInstanceParams();
   const router = useRouter();
@@ -38,36 +38,25 @@ export function SupervisorProjectsDataTable({
     void toast.promise(
       deleteSelectedAsync({ params, projectIds }).then(() => router.refresh()),
       {
-        loading: `Deleting ${projectIds.length} Projects...`,
+        loading: "Deleting Project...",
         error: "Something went wrong",
-        success: `Successfully deleted ${projectIds.length} Projects`,
+        success: `All Projects deleted successfully`,
       },
     );
   }
 
   const filters = useDataTableProjectFilters();
 
-  const columns = useSupervisorProjectsColumns({
+  const columns = usePreAllocatedProjectColumns({
     deleteProject: handleDelete,
     deleteSelectedProjects: handleDeleteSelected,
   });
 
   return (
     <DataTable
-      className="w-full"
-      searchableColumn={{ id: "Title", displayName: "Project Titles" }}
+      searchableColumn={{ id: "Project Title", displayName: "Project Titles" }}
       columns={columns}
-      filters={[
-        ...filters,
-        {
-          columnId: "Student",
-          title: "Allocation Status",
-          options: [
-            { id: "yes", title: "Pre-allocated" },
-            { id: "no", title: "Unallocated" },
-          ],
-        },
-      ]}
+      filters={filters}
       data={data}
     />
   );

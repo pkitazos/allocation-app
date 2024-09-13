@@ -47,6 +47,11 @@ export const pages = {
     href: "project-submissions",
     icon: "folder",
   },
+  preAllocatedProjects: {
+    title: "Pre-Allocated Projects",
+    href: "pre-allocated-projects",
+    icon: "folder-lock",
+  },
   studentInvites: {
     title: "Student Invites",
     href: "student-invites",
