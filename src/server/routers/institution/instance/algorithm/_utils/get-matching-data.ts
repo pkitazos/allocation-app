@@ -73,9 +73,14 @@ export async function getMatchingData(
         data.map((s) => ({
           id: s.userId,
           lowerBound: s.projectAllocationLowerBound,
-          target: s.projectAllocationTarget - (preAllocations[s.userId] ?? 0),
-          upperBound:
+          target: Math.max(
+            s.projectAllocationTarget - (preAllocations[s.userId] ?? 0),
+            0,
+          ),
+          upperBound: Math.max(
             s.projectAllocationUpperBound - (preAllocations[s.userId] ?? 0),
+            0,
+          ),
         })),
       );
 

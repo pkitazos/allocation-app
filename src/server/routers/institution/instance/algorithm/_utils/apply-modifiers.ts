@@ -3,7 +3,7 @@ import { MatchingDataDto } from "@/lib/validations/matching";
 
 export function applyModifiers(
   { students, supervisors, projects }: MatchingDataDto,
-  algorithm: Algorithm,
+  { maxRank, targetModifier, upperBoundModifier }: Algorithm,
 ) {
   return {
     projects,
@@ -12,13 +12,13 @@ export function applyModifiers(
       ...rest,
       preferences: preferences.slice(
         0,
-        algorithm.maxRank === -1 ? preferences.length : algorithm.maxRank,
+        maxRank === -1 ? preferences.length : maxRank,
       ),
     })),
 
     supervisors: supervisors.map(({ target, upperBound, ...rest }) => {
-      const newTarget = target + algorithm.targetModifier;
-      const newUpperBound = upperBound + algorithm.upperBoundModifier;
+      const newTarget = target + targetModifier;
+      const newUpperBound = upperBound + upperBoundModifier;
       return {
         ...rest,
         target: newTarget,
