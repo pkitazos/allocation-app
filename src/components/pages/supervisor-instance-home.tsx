@@ -63,10 +63,15 @@ export async function SupervisorInstanceHome({
     );
   }
 
+  const allocationAccess = await api.user.supervisor.allocationAccess({
+    params,
+  });
+
   if (
     stage === Stage.PROJECT_SELECTION ||
     stage === Stage.PROJECT_ALLOCATION ||
-    stage === Stage.ALLOCATION_ADJUSTMENT
+    stage === Stage.ALLOCATION_ADJUSTMENT ||
+    (stage === Stage.ALLOCATION_PUBLICATION && !allocationAccess)
   ) {
     return (
       <div className="mt-9 flex flex-col gap-4">
@@ -76,7 +81,7 @@ export async function SupervisorInstanceHome({
     );
   }
 
-  if (stage === Stage.ALLOCATION_PUBLICATION) {
+  if (stage === Stage.ALLOCATION_PUBLICATION && allocationAccess) {
     return (
       <div className="mt-9 flex flex-col gap-4">
         <SubHeading>Allocations Released</SubHeading>

@@ -2,6 +2,7 @@ import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
@@ -18,6 +19,16 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
+  const allocationAccess = await api.user.supervisor.allocationAccess({
+    params,
+  });
+
+  if (!allocationAccess) {
+    return (
+      <Unauthorised message="You are not allowed to access this resource at this time" />
+    );
+  }
+
   const allocations = await api.user.supervisor.allocations({ params });
 
   return (

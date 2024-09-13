@@ -1,5 +1,3 @@
-import { Stage } from "@prisma/client";
-
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +7,6 @@ import { Unauthorised } from "@/components/unauthorised";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/trpc/server";
 import { toPositional } from "@/lib/utils/general/to-positional";
-import { stageLt } from "@/lib/utils/permissions/stage-check";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { app, metadataTitle } from "@/content/config/app";
@@ -24,11 +21,13 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const stage = await api.institution.instance.currentStage({ params });
+  const allocationAccess = await api.user.supervisor.allocationAccess({
+    params,
+  });
 
-  if (stageLt(stage, Stage.ALLOCATION_PUBLICATION)) {
+  if (!allocationAccess) {
     return (
-      <Unauthorised message="You are not allowed to access this page at this time" />
+      <Unauthorised message="You are not allowed to access this resource at this time" />
     );
   }
 

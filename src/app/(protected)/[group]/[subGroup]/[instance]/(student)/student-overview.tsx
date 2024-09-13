@@ -108,9 +108,12 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     );
   }
 
+  const allocationAccess = await api.user.student.allocationAccess({ params });
+
   if (
     stage === Stage.ALLOCATION_ADJUSTMENT ||
-    stage === Stage.PROJECT_ALLOCATION
+    stage === Stage.PROJECT_ALLOCATION ||
+    (stage === Stage.ALLOCATION_PUBLICATION && !allocationAccess)
   ) {
     return (
       <ThinLayout pageName={displayName} params={params}>
@@ -122,7 +125,7 @@ export async function StudentOverview({ params }: { params: InstanceParams }) {
     );
   }
 
-  if (stage === Stage.ALLOCATION_PUBLICATION) {
+  if (stage === Stage.ALLOCATION_PUBLICATION && allocationAccess) {
     return (
       <ThinLayout pageName={displayName} params={params}>
         <div className="mt-9 flex flex-col gap-4">

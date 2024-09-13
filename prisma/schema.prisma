@@ -109,13 +109,13 @@ model AllocationInstance {
     parentInstanceId             String?                @map("parent_instance_id")
     // supervisor details
     projectSubmissionDeadline    DateTime               @map("project_submission_deadline")
-    // supervisorAllocationAccess   Boolean                @default(false) @map("supervisor_allocation_access")
+    supervisorAllocationAccess   Boolean                @default(false) @map("supervisor_allocation_access")
     // student details
     minPreferences               Int                    @map("min_preferences")
     maxPreferences               Int                    @map("max_preferences")
     maxPreferencesPerSupervisor  Int                    @map("max_preferences_per_supervisor")
     preferenceSubmissionDeadline DateTime               @map("preference_submission_deadline")
-    // studentAllocationAccess      Boolean                @default(false) @map("student_allocation_access")
+    studentAllocationAccess      Boolean                @default(false) @map("student_allocation_access")
     // ---
     allocationSubGroup           AllocationSubGroup     @relation(fields: [allocationGroupId, allocationSubGroupId], references: [allocationGroupId, id], onDelete: Cascade)
     allocationGroupId            String                 @map("allocation_group_id")

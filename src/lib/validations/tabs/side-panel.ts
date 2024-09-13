@@ -6,12 +6,13 @@ import { pages } from "@/content/pages";
 
 function adminOnlyTabs<
   T extends {
+    stage: Stage;
     parentInstanceId: string | null;
     forkedInstanceId: string | null;
   },
 >(instance: T) {
   const branchingTab = getInstanceBranchingTab(instance);
-  return {
+  const tabs = {
     [Stage.SETUP]: [pages.addStudents, pages.addSupervisors],
 
     [Stage.PROJECT_SUBMISSION]: [
@@ -44,6 +45,7 @@ function adminOnlyTabs<
       pages.preAllocatedProjects,
     ],
     [Stage.ALLOCATION_PUBLICATION]: [
+      pages.manageUserAccess,
       pages.allocationOverview,
       pages.exportToCSV,
       ...branchingTab,
@@ -51,27 +53,44 @@ function adminOnlyTabs<
       pages.preferenceSubmissions,
     ],
   };
+  return tabs[instance.stage];
 }
 
-const superVisorOnlyTabs = {
-  [Stage.SETUP]: [],
-  [Stage.PROJECT_SUBMISSION]: [pages.myProjects, pages.newProject],
-  [Stage.PROJECT_SELECTION]: [pages.myProjects, pages.newProject],
-  [Stage.PROJECT_ALLOCATION]: [pages.myProjects],
-  [Stage.ALLOCATION_ADJUSTMENT]: [pages.myProjects],
-  [Stage.ALLOCATION_PUBLICATION]: [pages.myProjects, pages.myAllocations],
-};
+function supervisorOnlyTabs(instance: AllocationInstance) {
+  const myAllocationsTab = instance.supervisorAllocationAccess
+    ? [pages.myAllocations]
+    : [];
 
-const studentOnlyTabs = (preAllocatedProject: boolean) => {
+  const tabs = {
+    [Stage.SETUP]: [],
+    [Stage.PROJECT_SUBMISSION]: [pages.myProjects, pages.newProject],
+    [Stage.PROJECT_SELECTION]: [pages.myProjects, pages.newProject],
+    [Stage.PROJECT_ALLOCATION]: [pages.myProjects],
+    [Stage.ALLOCATION_ADJUSTMENT]: [pages.myProjects],
+    [Stage.ALLOCATION_PUBLICATION]: [pages.myProjects, ...myAllocationsTab],
+  };
+  return tabs[instance.stage];
+}
+
+const studentOnlyTabs = (
+  instance: AllocationInstance,
+  preAllocatedProject: boolean,
+) => {
   const base = preAllocatedProject ? [] : [pages.myPreferences];
-  return {
+
+  const myAllocationTab = instance.studentAllocationAccess
+    ? [pages.myAllocation]
+    : [];
+
+  const tabs = {
     [Stage.SETUP]: [],
     [Stage.PROJECT_SUBMISSION]: [],
     [Stage.PROJECT_SELECTION]: base,
     [Stage.PROJECT_ALLOCATION]: base,
     [Stage.ALLOCATION_ADJUSTMENT]: base,
-    [Stage.ALLOCATION_PUBLICATION]: [pages.myAllocation],
+    [Stage.ALLOCATION_PUBLICATION]: myAllocationTab,
   };
+  return tabs[instance.stage];
 };
 
 export function getTabs({
@@ -93,13 +112,13 @@ export function getTabs({
 
     tabs.push({
       title: "Stage-specific",
-      tabs: adminOnlyTabs(instance)[instance.stage],
+      tabs: adminOnlyTabs(instance),
     });
   }
 
   if (roles.has(Role.SUPERVISOR)) {
     const isSecondRole = roles.size > 1;
-    const base = superVisorOnlyTabs[instance.stage];
+    const base = supervisorOnlyTabs(instance);
 
     tabs.push({
       title: "Supervisor",
@@ -113,7 +132,7 @@ export function getTabs({
 
   if (roles.has(Role.STUDENT)) {
     const isSecondRole = roles.size > 1;
-    const base = studentOnlyTabs(preAllocatedProject)[instance.stage];
+    const base = studentOnlyTabs(instance, preAllocatedProject);
 
     tabs.push({
       title: "Student",

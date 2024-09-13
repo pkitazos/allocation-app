@@ -40,6 +40,32 @@ export const supervisorRouter = createTRPCRouter({
       },
     ),
 
+  allocationAccess: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx }) => ctx.instance.supervisorAllocationAccess),
+
+  setAllocationAccess: instanceAdminProcedure
+    .input(
+      z.object({
+        params: instanceParamsSchema,
+        access: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input: { params, access } }) => {
+      await ctx.db.allocationInstance.update({
+        where: {
+          instanceId: {
+            allocationGroupId: params.group,
+            allocationSubGroupId: params.subGroup,
+            id: params.instance,
+          },
+        },
+        data: { supervisorAllocationAccess: access },
+      });
+
+      return access;
+    }),
+
   instancePage: instanceProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(

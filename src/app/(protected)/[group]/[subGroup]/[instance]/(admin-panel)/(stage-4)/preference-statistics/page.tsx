@@ -13,11 +13,25 @@ import {
 } from "@/components/ui/table";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
+import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { DownloadPreferenceDataSection } from "./_components/download-preference-section";
 
+import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
+
+export async function generateMetadata({ params }: { params: InstanceParams }) {
+  const { displayName } = await api.institution.instance.get({ params });
+
+  return {
+    title: metadataTitle([
+      pages.preferenceStatistics.title,
+      displayName,
+      app.name,
+    ]),
+  };
+}
 
 export default async function Page({ params }: { params: InstanceParams }) {
   return (
