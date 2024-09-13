@@ -74,19 +74,24 @@ export function ProjectPreferenceCard({
         isOver && "outline outline-4 outline-muted-foreground/50",
       )}
     >
-      <Button
-        {...attributes}
-        {...listeners}
-        variant="ghost"
-        className="ml-2 flex h-20 w-8 flex-col"
-      >
-        <GripVerticalIcon className="-mb-1 h-8 w-8 cursor-move text-gray-400/50" />
-        <GripVerticalIcon className="h-8 w-8 cursor-move text-gray-400/50" />
-      </Button>
+      <AccessControl allowedStages={[Stage.PROJECT_SELECTION]}>
+        <Button
+          {...attributes}
+          {...listeners}
+          variant="ghost"
+          className="ml-2 flex h-20 w-8 flex-col"
+        >
+          <GripVerticalIcon className="-mb-1 h-8 w-8 cursor-move text-gray-400/50" />
+          <GripVerticalIcon className="h-8 w-8 cursor-move text-gray-400/50" />
+        </Button>
+      </AccessControl>
       <div>
         <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 p-4 pb-2">
           {project.columnId === PreferenceType.PREFERENCE && rank && (
-            <Badge variant="accent" className="mr-2 text-lg text-secondary">
+            <Badge
+              variant="accent"
+              className="mr-2 h-8 w-8 rounded-full text-lg text-secondary"
+            >
               {rank}
             </Badge>
           )}

@@ -1,7 +1,7 @@
 import { PreferenceType, Role, Stage } from "@prisma/client";
 import { z } from "zod";
 
-import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { stageGte, stageIn } from "@/lib/utils/permissions/stage-check";
 import { sortPreferenceType } from "@/lib/utils/preferences/sort";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { studentPreferenceSchema } from "@/lib/validations/student-preference";
@@ -476,16 +476,14 @@ export const preferenceRouter = createTRPCRouter({
       },
     ),
 
-  /**
-   * TODO: check all references
-   */
   initialBoardState: multiRoleAwareProcedure
     .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
     .query(async ({ ctx, input: { params, studentId } }) => {
       const { ok, message } = accessControl({
         ctx,
         allowedRoles: [Role.ADMIN, Role.STUDENT],
-        stageCheck: (s) => s === Stage.PROJECT_SELECTION,
+        stageCheck: (s) =>
+          stageIn(s, [Stage.PROJECT_SELECTION, Stage.ALLOCATION_ADJUSTMENT]),
       });
       if (!ok) throw new Error(message);
 

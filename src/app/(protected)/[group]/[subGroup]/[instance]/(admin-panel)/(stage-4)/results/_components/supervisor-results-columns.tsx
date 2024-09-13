@@ -49,6 +49,7 @@ export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetai
           {s.projectTarget} ({s.actualTarget})
         </p>
       ),
+      sortingFn: (a, b) => a.original.projectTarget - b.original.projectTarget,
     },
     {
       id: "Upper Quota",
@@ -65,6 +66,8 @@ export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetai
           {s.projectUpperQuota} ({s.actualUpperQuota})
         </p>
       ),
+      sortingFn: (a, b) =>
+        a.original.projectUpperQuota - b.original.projectUpperQuota,
     },
     {
       id: "Allocation Count",
@@ -81,6 +84,8 @@ export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetai
           {s.allocationCount} ({s.preAllocatedCount})
         </p>
       ),
+      sortingFn: (a, b) =>
+        a.original.allocationCount - b.original.allocationCount,
     },
     {
       id: "Target Difference",
