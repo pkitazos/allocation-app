@@ -9,14 +9,15 @@
     "lint": "next lint",
     "tc": "tsc",
     "postinstall": "prisma generate",
-    "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:reset": "prisma db push --force-reset",
-    "db:seed": "tsx src/lib/scripts/seed.ts",
-    "db:populate": "prisma db push --force-reset; tsx src/lib/scripts/seed.ts",
-    "db:drop": "prisma migrate reset",
-    "credentials": "tsx src/lib/scripts/generate-passwords.ts"
+    "db:studio": "DATABASE_URL=\"postgresql://root:1234@localhost:6565/allocation-db?schema=public&connect_timeout=300\" prisma studio",
+    "db:push": "DATABASE_URL=\"postgresql://root:1234@localhost:6565/allocation-db?schema=public&connect_timeout=300\" prisma db push",
+    "db:drop": "DATABASE_URL=\"postgresql://root:1234@localhost:6565/allocation-db?schema=public&connect_timeout=300\" prisma migrate reset",
+    "db:populate": "pnpm run db:push --force-reset && DATABASE_URL=\"postgresql://root:1234@localhost:6565/allocation-db?schema=public&connect_timeout=300\" tsx src/lib/scripts/seed.ts",
+    "docker:dev": "docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up -d",
+    "docker:prod": "docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.override.yml up -d",
+    "dev:patch": "DATABASE_URL=\"postgresql://root:1234@localhost:6565/allocation-db?schema=public&connect_timeout=300\" tsx src/lib/scripts/patch.ts",
+    "schema:change": "pnpm run db:generate && pnpm run db:push"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
