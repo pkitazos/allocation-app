@@ -3,6 +3,7 @@ import { TRPCClientError } from "@trpc/client";
 import { z } from "zod";
 
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { expand } from "@/lib/utils/general/instance-params";
 import { setDiff } from "@/lib/utils/general/set-difference";
 import {
   newStudentSchema,
@@ -135,9 +136,26 @@ export const instanceRouter = createTRPCRouter({
       },
     ),
 
-  selectedAlgName: instanceAdminProcedure
+  selectedAlgorithm: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
-    .query(async ({ ctx }) => ctx.instance.selectedAlgName ?? undefined),
+    .query(async ({ ctx, input: { params } }) => {
+      if (!ctx.instance.selectedAlgName) {
+        return {
+          id: "",
+          displayName: "",
+        };
+      }
+
+      const algorithm = await ctx.db.algorithm.findFirstOrThrow({
+        where: { ...expand(params), algName: ctx.instance.selectedAlgName },
+        select: { algName: true, displayName: true },
+      });
+
+      return {
+        id: algorithm.algName,
+        displayName: algorithm.displayName,
+      };
+    }),
 
   projectAllocations: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))

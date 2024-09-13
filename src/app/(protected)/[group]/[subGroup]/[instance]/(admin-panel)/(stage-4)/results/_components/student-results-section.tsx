@@ -28,8 +28,8 @@ export function StudentResultsSection() {
   return (
     <Tabs defaultValue={data.firstNonEmpty}>
       <Carousel className="mx-14">
-        <TabsList className="w-full">
-          <CarouselContent className="-ml-4">
+        <TabsList className="w-full justify-evenly">
+          <CarouselContent className="-ml-4 flex w-full">
             {data.results.map((result, i) => (
               <CarouselItem key={i} className="basis-1/4 pl-4">
                 <TabsTrigger

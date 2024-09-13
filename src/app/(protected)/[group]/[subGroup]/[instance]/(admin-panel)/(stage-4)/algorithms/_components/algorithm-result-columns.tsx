@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { ColumnDef } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useInstanceParams } from "@/components/params-context";
@@ -24,6 +25,8 @@ import {
 } from "@/lib/utils/algorithm-results/format";
 import { AlgorithmResultDto } from "@/lib/validations/algorithm";
 
+import { useAlgorithmUtils } from "./algorithm-context";
+
 export function useAlgorithmResultColumns({
   selectedAlgName,
   setSelectedAlgName,
@@ -32,17 +35,29 @@ export function useAlgorithmResultColumns({
   setSelectedAlgName: Dispatch<SetStateAction<string | undefined>>;
 }): ColumnDef<AlgorithmResultDto>[] {
   const params = useInstanceParams();
+  const router = useRouter();
+
+  const utils = useAlgorithmUtils();
+
+  function refetchResults() {
+    utils.getAll();
+    utils.allStudentResults();
+    utils.allSupervisorResults();
+    utils.getAllSummaryResults();
+  }
 
   const { mutateAsync: selectMatchingAsync } =
     api.institution.instance.matching.select.useMutation();
 
-  const handleSelection = (algName: string) => {
+  function handleSelection(algName: string) {
     void toast.promise(
       selectMatchingAsync({
         algName,
         params,
       }).then(() => {
         setSelectedAlgName(algName);
+        refetchResults();
+        router.refresh();
       }),
       {
         loading: "Changing selection...",
@@ -50,7 +65,7 @@ export function useAlgorithmResultColumns({
         success: "Successfully updated selection",
       },
     );
-  };
+  }
 
   const columns: ColumnDef<AlgorithmResultDto>[] = [
     {
@@ -113,7 +128,7 @@ export function useAlgorithmResultColumns({
           <DestructiveActionContent>
             <DestructiveActionHeader>
               <DestructiveActionTitle>Select Matching</DestructiveActionTitle>
-              <DestructiveActionDescription>
+              <DestructiveActionDescription className="text-justify tracking-tight">
                 You are about to select the matching produced by algorithm
                 &quot;{displayName}&quot;. This will override any previous
                 selection, and remove the students matched by this algorithm

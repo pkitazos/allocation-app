@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils/allocation-adjustment/rank";
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 import { guidToMatric } from "@/lib/utils/external/matriculation";
+import { expand } from "@/lib/utils/general/instance-params";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -16,6 +17,8 @@ import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
+
+import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 
 export const matchingRouter = createTRPCRouter({
   select: instanceAdminProcedure
@@ -34,16 +37,6 @@ export const matchingRouter = createTRPCRouter({
         },
       }) => {
         await ctx.db.$transaction(async (tx) => {
-          const { selectedAlgName } =
-            await tx.allocationInstance.findFirstOrThrow({
-              where: {
-                allocationGroupId: group,
-                allocationSubGroupId: subGroup,
-                id: instance,
-              },
-              select: { selectedAlgName: true },
-            });
-
           const { matchingResultData } = await tx.algorithm.findFirstOrThrow({
             where: {
               algName,
@@ -58,12 +51,19 @@ export const matchingRouter = createTRPCRouter({
             JSON.parse(matchingResultData as string),
           );
 
-          if (selectedAlgName) {
+          if (ctx.instance.selectedAlgName) {
+            const preAllocatedStudents = await getPreAllocatedStudents(tx, {
+              group,
+              subGroup,
+              instance,
+            }).then((data) => Array.from(data));
+
             await tx.projectAllocation.deleteMany({
               where: {
                 allocationGroupId: group,
                 allocationSubGroupId: subGroup,
                 allocationInstanceId: instance,
+                userId: { notIn: preAllocatedStudents },
               },
             });
           }
@@ -95,6 +95,66 @@ export const matchingRouter = createTRPCRouter({
       },
     ),
 
+  clearSelection: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(async ({ ctx, input: { params } }) => {
+      await ctx.db.$transaction(async (tx) => {
+        const preAllocatedStudents = await getPreAllocatedStudents(
+          tx,
+          params,
+        ).then((data) => Array.from(data));
+
+        await tx.projectAllocation.deleteMany({
+          where: { ...expand(params), userId: { notIn: preAllocatedStudents } },
+        });
+
+        tx.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: params.group,
+              allocationSubGroupId: params.subGroup,
+              id: params.instance,
+            },
+          },
+          data: { selectedAlgName: null },
+        });
+      });
+    }),
+
+  clearAll: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(async ({ ctx, input: { params } }) => {
+      await ctx.db.$transaction(async (tx) => {
+        await tx.algorithm.updateMany({
+          where: { ...expand(params) },
+          data: { matchingResultData: JSON.stringify({}) },
+        });
+
+        await tx.allocationInstance.update({
+          where: {
+            instanceId: {
+              allocationGroupId: params.group,
+              allocationSubGroupId: params.subGroup,
+              id: params.instance,
+            },
+          },
+          data: { selectedAlgName: null },
+        });
+
+        const preAllocatedStudents = await getPreAllocatedStudents(
+          tx,
+          params,
+        ).then((data) => Array.from(data));
+
+        await tx.projectAllocation.deleteMany({
+          where: { ...expand(params), userId: { notIn: preAllocatedStudents } },
+        });
+      });
+    }),
+
+  /**
+   * @deprecated
+   */
   preferences: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .query(
@@ -241,12 +301,14 @@ export const matchingRouter = createTRPCRouter({
           select: { projectId: true, userId: true },
         });
 
+        // TODO: use reduce
         const allocationRecord: Record<string, string[]> = {};
         allocationData.forEach(({ projectId, userId }) => {
           if (!allocationRecord[projectId]) allocationRecord[projectId] = [];
           allocationRecord[projectId].push(userId);
         });
 
+        // TODO: use reduce
         const projectDetails: Record<string, ProjectDetails> = {};
         projectData.forEach(({ id, ...rest }) => {
           projectDetails[id] = {
@@ -323,11 +385,18 @@ export const matchingRouter = createTRPCRouter({
         });
 
         await ctx.db.$transaction(async (tx) => {
+          const preAllocatedStudents = await getPreAllocatedStudents(tx, {
+            group,
+            subGroup,
+            instance,
+          }).then((data) => Array.from(data));
+
           await tx.projectAllocation.deleteMany({
             where: {
               allocationGroupId: group,
               allocationSubGroupId: subGroup,
               allocationInstanceId: instance,
+              userId: { notIn: preAllocatedStudents },
             },
           });
 

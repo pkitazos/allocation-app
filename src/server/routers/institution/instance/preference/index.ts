@@ -176,6 +176,7 @@ export const preferenceRouter = createTRPCRouter({
           rank: p.rank,
         })),
       );
+
       const zip = new AdmZip();
 
       const handlers = [
@@ -190,7 +191,7 @@ export const preferenceRouter = createTRPCRouter({
       handlers.forEach(({ name, fn }) => {
         const { header, rows } = fn(preferences);
         const csvContent = unparse({ fields: header, data: rows });
-        zip.addFile(`by-${name}.csv`, Buffer.from(csvContent, "utf-8"));
+        zip.addFile(`by-${name}.csv`, Buffer.from(csvContent, "utf-8")); // change depending on the zip thing
       });
 
       const zipBuffer = zip.toBuffer();

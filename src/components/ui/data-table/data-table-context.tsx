@@ -42,7 +42,7 @@ export function useDataTableProjectFilters() {
 }
 
 export const studentLevelFilter = {
-  title: "filter Student Level",
+  title: "Student Level",
   columnId: "Level",
   options: [
     { id: "4", title: "Level 4" },

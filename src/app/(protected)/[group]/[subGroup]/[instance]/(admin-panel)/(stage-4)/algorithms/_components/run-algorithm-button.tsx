@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/trpc/client";
 import { AlgorithmDto } from "@/lib/validations/algorithm";
 
-import { useAlgorithmUtils } from "./use-algorithms";
+import { useAlgorithmUtils } from "./algorithm-context";
 
 export function RunAlgorithmButton({ algorithm }: { algorithm: AlgorithmDto }) {
   const params = useInstanceParams();
