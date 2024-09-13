@@ -1,23 +1,16 @@
 "use client";
-import { useState } from "react";
-
 import { useInstanceParams } from "@/components/params-context";
 import DataTable from "@/components/ui/data-table/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { api } from "@/lib/trpc/client";
 
+import { useSelectedAlgorithm } from "./algorithm-context";
 import { useAlgorithmResultColumns } from "./algorithm-result-columns";
 
-export function AlgorithmResultDataTable({
-  selectedAlg,
-}: {
-  selectedAlg: string | undefined;
-}) {
+export function AlgorithmResultDataTable() {
   const params = useInstanceParams();
-  const [selectedAlgName, setSelectedAlgName] = useState<string | undefined>(
-    selectedAlg,
-  );
+  const { selectedAlgName, setSelectedAlgName } = useSelectedAlgorithm();
 
   const { status, data } =
     api.institution.instance.algorithm.getAllSummaryResults.useQuery({

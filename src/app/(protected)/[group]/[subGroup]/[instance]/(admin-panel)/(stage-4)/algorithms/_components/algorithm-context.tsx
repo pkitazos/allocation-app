@@ -1,3 +1,13 @@
+"use client";
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
+
 import { useInstanceParams } from "@/components/params-context";
 
 import { api } from "@/lib/trpc/client";
@@ -40,4 +50,36 @@ export function useAlgorithmUtils() {
     getAllSummaryResults,
     singleResult,
   };
+}
+
+type AlgorithmContextProps = {
+  selectedAlgName: string | undefined;
+  setSelectedAlgName: Dispatch<SetStateAction<string | undefined>>;
+};
+
+export const AlgorithmContext = createContext<AlgorithmContextProps>({
+  selectedAlgName: undefined,
+  setSelectedAlgName: () => {},
+});
+
+export function AlgorithmProvider({
+  selectedAlgName: currentValue,
+  children,
+}: {
+  selectedAlgName: string | undefined;
+  children: ReactNode;
+}) {
+  const [selectedAlgName, setSelectedAlgName] = useState(currentValue);
+
+  return (
+    <AlgorithmContext.Provider value={{ selectedAlgName, setSelectedAlgName }}>
+      {children}
+    </AlgorithmContext.Provider>
+  );
+}
+
+export function useSelectedAlgorithm() {
+  const ctx = useContext(AlgorithmContext);
+  if (!ctx) throw new Error("Missing AlgorithmProvider in the tree");
+  return ctx;
 }

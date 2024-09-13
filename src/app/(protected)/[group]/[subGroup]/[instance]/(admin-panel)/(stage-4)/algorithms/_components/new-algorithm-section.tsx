@@ -50,7 +50,7 @@ import { api } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { allFlags, buildNewAlgorithmSchema } from "@/lib/validations/algorithm";
 
-import { useAlgorithmUtils } from "./use-algorithms";
+import { useAlgorithmUtils } from "./algorithm-context";
 
 export function NewAlgorithmSection({ takenNames }: { takenNames: string[] }) {
   const [open, setOpen] = useState(false);

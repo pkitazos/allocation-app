@@ -7,19 +7,19 @@ import Link from "next/link";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
 import { InstanceParams } from "@/lib/validations/params";
 
-const InstanceContext = createContext<Instance | undefined>(undefined);
-
 type Instance = { params: InstanceParams; stage: Stage; roles: Set<Role> };
+
+const InstanceContext = createContext<Instance | undefined>(undefined);
 
 export function InstanceParamsProvider({
   children,
-  params,
+  instance,
 }: {
   children: ReactNode;
-  params: Instance;
+  instance: Instance;
 }) {
   return (
-    <InstanceContext.Provider value={params}>
+    <InstanceContext.Provider value={instance}>
       {children}
     </InstanceContext.Provider>
   );

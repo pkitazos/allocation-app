@@ -1,10 +1,10 @@
-import { PenIcon } from "lucide-react";
+import { List, PenIcon } from "lucide-react";
 import Link from "next/link";
 
-import { SubHeading } from "@/components/heading";
+import { SectionHeading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
@@ -28,22 +28,27 @@ export default async function Page({ params }: { params: InstanceParams }) {
   return (
     <PanelWrapper className="mt-10 flex flex-col items-start gap-10 px-12">
       <SubHeading className="mb-4">Settings</SubHeading>
-      <Card className="w-full max-w-[40rem]">
-        <CardHeader>
-          <CardTitle>Details</CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-start gap-5">
-          <Button size="lg" asChild>
-            <Link className="flex items-center gap-2" href="./edit">
-              <PenIcon className="h-4 w-4" />
-              View or Edit {spacesLabels.instance.short} Details
-            </Link>
-          </Button>
-          <p>Modify {spacesLabels.instance.short}-specific details.</p>
-        </CardContent>
-      </Card>
+      <section className="flex w-full flex-col gap-6">
+        <SectionHeading className="mb-2 flex items-center">
+          <List className="mr-2 h-6 w-6 text-indigo-500" />
+          <span>{spacesLabels.instance.short} Details</span>
+        </SectionHeading>
+        <Card className="w-full">
+          <CardContent className="flex items-center justify-between gap-5 pt-6">
+            <CardDescription className="text-base text-muted-foreground">
+              Modify {spacesLabels.instance.short}-specific details.
+            </CardDescription>
+            <Button size="lg" asChild>
+              <Link className="flex items-center gap-2" href="./edit">
+                <PenIcon className="h-4 w-4" />
+                View or Edit
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
       <DeleteConfirmation
-        className="w-full max-w-[40rem]"
+        className="w-full"
         spaceLabel={spacesLabels.instance.short}
         name={instance.displayName}
       />

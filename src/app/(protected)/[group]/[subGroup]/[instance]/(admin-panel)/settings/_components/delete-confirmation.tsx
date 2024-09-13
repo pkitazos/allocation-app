@@ -42,6 +42,7 @@ export function DeleteConfirmation({
   return (
     <DangerZone
       className={className}
+      additionalDescription={`Delete this ${spaceLabel} and all related data.`}
       action={destructiveAction}
       spaceLabel={spaceLabel}
       name={name}

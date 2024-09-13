@@ -24,8 +24,8 @@ import {
 import { api } from "@/lib/trpc/client";
 import { AlgorithmDto } from "@/lib/validations/algorithm";
 
+import { useAlgorithmUtils } from "./algorithm-context";
 import { RunAlgorithmButton } from "./run-algorithm-button";
-import { useAlgorithmUtils } from "./use-algorithms";
 
 export function useAlgorithmColumns() {
   const params = useInstanceParams();
@@ -72,6 +72,7 @@ export function useAlgorithmColumns() {
         }
 
         // TODO: add option to edit algorithm
+        // TODO: add option to clear results for algorithm
 
         return (
           <div className="flex w-14 items-center justify-center">

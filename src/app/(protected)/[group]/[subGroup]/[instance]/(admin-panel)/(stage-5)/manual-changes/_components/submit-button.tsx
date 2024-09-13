@@ -30,10 +30,13 @@ export function SubmitButton() {
     api.institution.instance.matching.updateAllocation.useMutation();
 
   const utils = api.useUtils();
-  const fetchUpdatedRowData = utils.institution.instance.matching.rowData.fetch;
+
+  async function fetchUpdatedRowData() {
+    return await utils.institution.instance.matching.rowData.fetch({ params });
+  }
 
   async function updateInternalState() {
-    const { students, projects } = await fetchUpdatedRowData({ params });
+    const { students, projects } = await fetchUpdatedRowData();
     updateStudents(students);
     updateProjects(projects);
   }
