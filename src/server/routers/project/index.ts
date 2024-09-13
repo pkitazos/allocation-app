@@ -8,6 +8,7 @@ import {
 } from "@/lib/utils/permissions/get-student-level";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { sortPreferenceType } from "@/lib/utils/preferences/sort";
+import { User } from "@/lib/validations/auth";
 import { instanceParamsSchema } from "@/lib/validations/params";
 import { updatedProjectSchema } from "@/lib/validations/project-form";
 
@@ -20,6 +21,8 @@ import {
   multiRoleAwareProcedure,
   protectedProcedure,
 } from "@/server/trpc";
+
+import { getPreAllocatedProjects } from "./_utils/pre-allocated";
 
 export const projectRouter = createTRPCRouter({
   exists: instanceProcedure
@@ -317,6 +320,50 @@ export const projectRouter = createTRPCRouter({
         }));
       },
     ),
+
+  getAllPreAllocated: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      return await ctx.db.$transaction(async (tx) => {
+        const students = await tx.studentDetails
+          .findMany({
+            where: {
+              allocationGroupId: params.group,
+              allocationSubGroupId: params.subGroup,
+              allocationInstanceId: params.instance,
+            },
+            select: { userInInstance: { select: { user: true } } },
+          })
+          .then((data) =>
+            data
+              .map(({ userInInstance }) => userInInstance.user)
+              .reduce(
+                (acc, val) => {
+                  acc[val.id] = val;
+                  return acc;
+                },
+                {} as Record<string, User>,
+              ),
+          );
+
+        return await getPreAllocatedProjects(tx, params).then((data) =>
+          data.map((p) => ({
+            id: p.id,
+            title: p.title,
+            description: p.description,
+            specialTechnicalRequirements: p.specialTechnicalRequirements ?? "",
+            capacityLowerBound: p.capacityLowerBound,
+            capacityUpperBound: p.capacityUpperBound,
+            preAllocatedStudentId: p.preAllocatedStudentId,
+            student: students[p.preAllocatedStudentId],
+            supervisor: p.supervisor.user,
+            latestEditDateTime: p.latestEditDateTime,
+            tags: p.tagOnProject.map(({ tag }) => tag),
+            flags: p.flagOnProjects.map(({ flag }) => flag),
+          })),
+        );
+      });
+    }),
 
   getById: protectedProcedure
     .input(z.object({ projectId: z.string() }))

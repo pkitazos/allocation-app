@@ -3,8 +3,11 @@ import { PrismaClient, Role } from "@prisma/client";
 import { unSlugify } from "@/lib/utils/general/slugify";
 import { ValidatedSegments } from "@/lib/validations/breadcrumbs";
 import { InstanceParams } from "@/lib/validations/params";
-import { studentTabs, supervisorTabs } from "@/lib/validations/tabs/instance";
-import { adminTabs } from "@/lib/validations/tabs/side-panel";
+import {
+  adminTabs,
+  studentTabs,
+  supervisorTabs,
+} from "@/lib/validations/tabs/instance";
 
 import { isGroupAdmin } from "@/server/utils/admin/is-group-admin";
 import { isSubGroupAdmin } from "@/server/utils/admin/is-sub-group-admin";

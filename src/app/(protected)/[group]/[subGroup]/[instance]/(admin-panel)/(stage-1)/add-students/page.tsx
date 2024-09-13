@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 export default function Page() {
   return (
     <PanelWrapper className="mt-10">
-      <SubHeading>{pages.addStudents.title}</SubHeading>
+      <SubHeading className="mb-4">{pages.addStudents.title}</SubHeading>
       <AddStudentsSection />
     </PanelWrapper>
   );

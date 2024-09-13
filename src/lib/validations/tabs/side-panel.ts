@@ -4,107 +4,12 @@ import { TabGroup } from "./index";
 
 import { pages } from "@/content/pages";
 
-/**
- * @deprecated use pages from "@/content/pages" instead
- */
-export const adminTabs = {
-  settings: {
-    title: "Settings",
-    href: "settings",
-    icon: "settings",
-  },
-  stageControl: {
-    title: "Stage Control",
-    href: "",
-    icon: "layers",
-  },
-  addSupervisors: {
-    title: "Add Supervisors",
-    href: "add-supervisors",
-    icon: "user-plus",
-  },
-  addStudents: {
-    title: "Add Students",
-    href: "add-students",
-    icon: "user-plus",
-  },
-  supervisorInvites: {
-    title: "Supervisor Invites",
-    href: "supervisor-invites",
-    icon: "users",
-  },
-  projectSubmissions: {
-    title: "Project Submissions",
-    href: "project-submissions",
-    icon: "folder",
-  },
-  studentInvites: {
-    title: "Student Invites",
-    href: "student-invites",
-    icon: "users",
-  },
-  preferenceSubmissions: {
-    title: "Preference Submissions",
-    href: "preference-submissions",
-    icon: "folder-heart",
-  },
-  lateProposals: {
-    title: "Late Proposals",
-    href: "late-proposals",
-    icon: "folder-clock",
-  },
-  algorithmsOverview: {
-    title: "Algorithms",
-    href: "algorithms",
-    icon: "server",
-  },
-  algorithmDetails: {
-    title: "Results",
-    href: "results",
-    icon: "square-kanban",
-  },
-  manualChanges: {
-    title: "Manual Changes",
-    href: "manual-changes",
-    icon: "mouse-pointer",
-  },
-  allocationOverview: {
-    title: "Allocation Overview",
-    href: "allocation-overview",
-    icon: "folder-lock",
-  },
-  forkInstance: {
-    title: "Fork Instance",
-    href: "fork-instance",
-    icon: "split",
-  },
-  mergeInstance: {
-    title: "Merge Instance",
-    href: "merge-instance",
-    icon: "merge",
-  },
-  exportToCSV: {
-    title: "Export to CSV",
-    href: "export-to-csv",
-    icon: "file-spreadsheet",
-  },
-  exportToExternalSystem: {
-    title: "Send Data to External System",
-    href: "export-to-external-system",
-    icon: "folder-output",
-  },
-  supervisorTasks: {
-    title: "Tasks",
-    href: "supervisor-tasks",
-    icon: "list-checks",
-  },
-};
-
 const adminOnlyTabs = (parentInstanceId: string | null) => ({
   [Stage.SETUP]: [pages.addStudents, pages.addSupervisors],
   [Stage.PROJECT_SUBMISSION]: [
     pages.supervisorInvites,
     pages.projectSubmissions,
+    pages.preAllocatedProjects,
     pages.addStudents,
     pages.addSupervisors,
   ],
@@ -112,6 +17,7 @@ const adminOnlyTabs = (parentInstanceId: string | null) => ({
     pages.studentInvites,
     pages.preferenceSubmissions,
     pages.lateProposals,
+    pages.preAllocatedProjects,
     pages.addStudents,
     pages.addSupervisors,
   ],
@@ -120,10 +26,12 @@ const adminOnlyTabs = (parentInstanceId: string | null) => ({
     pages.results,
     pages.preferenceStatistics,
     pages.preferenceSubmissions,
+    pages.preAllocatedProjects,
   ],
   [Stage.ALLOCATION_ADJUSTMENT]: [
     pages.manualChanges,
     pages.preferenceSubmissions,
+    pages.preAllocatedProjects,
   ],
   [Stage.ALLOCATION_PUBLICATION]: [
     pages.allocationOverview,

@@ -36,14 +36,7 @@ import {
   stageGte,
   stageLt,
 } from "@/lib/utils/permissions/stage-check";
-
-export type SupervisorProjectDto = {
-  id: string;
-  title: string;
-  supervisorId: string;
-  flags: TagType[];
-  tags: TagType[];
-};
+import { SupervisorProjectDto } from "@/lib/validations/dto/project";
 
 export function useSupervisorProjectsColumns({
   deleteProject,
@@ -196,6 +189,35 @@ export function useSupervisorProjectsColumns({
           )}
         </div>
       ),
+    },
+    {
+      accessorFn: (p) => p.preAllocatedStudentId,
+      id: "Student",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          className="w-24"
+          column={column}
+          title="Student"
+        />
+      ),
+      cell: ({
+        row: {
+          original: { preAllocatedStudentId },
+        },
+      }) =>
+        preAllocatedStudentId && (
+          <Link
+            className={buttonVariants({ variant: "link" })}
+            href={`./students/${preAllocatedStudentId}`}
+          >
+            {preAllocatedStudentId}
+          </Link>
+        ),
+      filterFn: (row, _, value) => {
+        const selectedFilters = value as ("yes" | "no")[]; // selected filters
+        const studentId = row.original.preAllocatedStudentId ? "yes" : "no"; // row value
+        return selectedFilters.includes(studentId);
+      },
     },
   ];
 

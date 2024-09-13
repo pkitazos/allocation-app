@@ -1,6 +1,8 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
@@ -27,9 +29,16 @@ export const studentResultsColumns: ColumnDef<MatchingDetailsDto>[] = [
     ),
     cell: ({
       row: {
-        original: { studentName },
+        original: { studentName, studentId },
       },
-    }) => <div>{studentName}</div>,
+    }) => (
+      <Link
+        className={buttonVariants({ variant: "link" })}
+        href={`./students/${studentId}`}
+      >
+        {studentName}
+      </Link>
+    ),
   },
   {
     id: "Project ID",
@@ -58,9 +67,16 @@ export const studentResultsColumns: ColumnDef<MatchingDetailsDto>[] = [
     ),
     cell: ({
       row: {
-        original: { projectTitle },
+        original: { projectTitle, projectId },
       },
-    }) => <div>{projectTitle}</div>,
+    }) => (
+      <Link
+        className={buttonVariants({ variant: "link" })}
+        href={`../projects/${projectId}`}
+      >
+        {projectTitle}
+      </Link>
+    ),
   },
   {
     id: "Student rank",

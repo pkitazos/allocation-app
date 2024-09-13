@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { tagTypeSchema } from "@/components/tag/tag-input";
+import { TagType, tagTypeSchema } from "@/components/tag/tag-input";
 
 export const projectDtoSchema = z.object({
   title: z.string(),
@@ -69,3 +69,25 @@ export const newStudentProjectDtoSchema = z.object({
 });
 
 export type NewStudentProjectDto = z.infer<typeof newStudentProjectDtoSchema>;
+
+export const preAllocatedProjectDtoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  supervisor: z.object({ id: z.string(), name: z.string() }),
+  student: z.object({ id: z.string(), name: z.string() }),
+  flags: z.array(tagTypeSchema),
+  tags: z.array(tagTypeSchema),
+});
+
+export type PreAllocatedProjectDto = z.infer<
+  typeof preAllocatedProjectDtoSchema
+>;
+
+export type SupervisorProjectDto = {
+  id: string;
+  title: string;
+  supervisorId: string;
+  preAllocatedStudentId: string | undefined;
+  flags: TagType[];
+  tags: TagType[];
+};
