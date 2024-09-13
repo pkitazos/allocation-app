@@ -4,18 +4,20 @@ import DataTable from "@/components/ui/data-table/data-table";
 
 import { SavedPreferenceDto } from "@/lib/validations/dto/preference";
 
-import { savedPreferencesColumns } from "./columns";
+import { useSavedPreferencesColumns } from "./columns";
 
 export function StudentSavedPreferenceDataTable({
   data,
 }: {
   data: SavedPreferenceDto[];
 }) {
+  const columns = useSavedPreferencesColumns();
+
   return (
     <DataTable
       searchableColumn={{ id: "Title", displayName: "Project Title" }}
       className="w-full"
-      columns={savedPreferencesColumns}
+      columns={columns}
       data={data}
     />
   );

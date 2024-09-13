@@ -60,3 +60,18 @@ export function subsequentStages(minStage: Stage): Stage[] {
 export function previousStages(maxStage: Stage): Stage[] {
   return stageSchema.options.filter((s) => stageOrd[s] <= stageOrd[maxStage]);
 }
+
+/**
+ *
+ * checks if the current stage is between the minimum and maximum stages
+ * @param currentStage the current stage
+ * @param minStage the minimum stage to compare against
+ * @param maxStage the maximum stages to compare against
+ * @returns true if the current stage is between the minimum and maximum stages
+ */
+export function stageIn(
+  currentStage: Stage,
+  [minStage, maxStage]: [Stage, Stage],
+) {
+  return stageGte(currentStage, minStage) && stageLt(currentStage, maxStage);
+}

@@ -72,7 +72,7 @@ export const studentResultsColumns: ColumnDef<MatchingDetailsDto>[] = [
     }) => (
       <Link
         className={buttonVariants({ variant: "link" })}
-        href={`../projects/${projectId}`}
+        href={`./projects/${projectId}`}
       >
         {projectTitle}
       </Link>
