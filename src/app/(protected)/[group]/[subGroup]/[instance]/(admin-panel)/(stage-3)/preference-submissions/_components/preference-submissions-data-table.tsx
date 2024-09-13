@@ -22,7 +22,7 @@ export function PreferenceSubmissionsDataTable({
       filters={[
         {
           columnId: "Submitted",
-          title: "add filters",
+          title: "Submission Status",
           options: [
             { title: "Submitted", id: "yes" },
             { title: "Not Submitted", id: "no" },

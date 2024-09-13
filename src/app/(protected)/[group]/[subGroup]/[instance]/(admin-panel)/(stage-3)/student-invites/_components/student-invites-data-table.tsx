@@ -21,7 +21,7 @@ export function StudentInvitesDataTable({
       filters={[
         {
           columnId: "Status",
-          title: "add filters",
+          title: "Joined Status",
           options: [
             { title: "Joined", id: "joined" },
             { title: "Invited", id: "invited" },
