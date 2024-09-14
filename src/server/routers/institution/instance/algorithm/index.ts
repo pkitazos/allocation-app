@@ -452,7 +452,7 @@ export const algorithmRouter = createTRPCRouter({
                   actualUpperQuota: s.projectAllocationUpperBound,
                   allocationCount,
                   preAllocatedCount: s.preAllocations ?? 0,
-                  difference: s.projectAllocationTarget - allocationCount,
+                  difference: allocationCount - s.projectAllocationTarget,
                 },
               };
             },
