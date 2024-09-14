@@ -46,6 +46,7 @@ export type Algorithm = z.infer<typeof algorithmSchema>;
 
 // TODO: derive this from existing algorithmSchema
 export function buildNewAlgorithmSchema(takenNames: string[]) {
+  // TODO: fix closure issue. takenNames are not updated when algorithms are deleted
   const allTakenNames = new Set([
     "Generous",
     "Greedy",
@@ -66,6 +67,7 @@ export function buildNewAlgorithmSchema(takenNames: string[]) {
     maxRank: z.coerce.number().int().min(-1), //TODO: don't allow 0
   });
 }
+
 const algorithmDtoSchema = z.object({
   algName: z.string(),
   displayName: z.string(),

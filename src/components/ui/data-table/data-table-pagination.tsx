@@ -22,7 +22,11 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
-  const rowCount = table.getRowCount();
+  const pageSizes = [10, 20, 30, 40, 50];
+
+  let rowCount = table.getRowCount();
+  if (pageSizes.includes(rowCount)) rowCount += 1;
+
   return (
     <div className="flex items-center px-2">
       <div className="flex items-center space-x-6 lg:space-x-8">
@@ -38,7 +42,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent className="backdrop-blur-lg" side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {pageSizes.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>
