@@ -1,4 +1,9 @@
-import { ChevronDownIcon, DatabaseIcon, ZapIcon } from "lucide-react";
+import {
+  BarChartBigIcon,
+  ChevronDownIcon,
+  DatabaseIcon,
+  ZapIcon,
+} from "lucide-react";
 
 import { CopyEmailsButton } from "@/components/copy-emails-button.tsx";
 import { SectionHeading, SubHeading } from "@/components/heading";
@@ -18,6 +23,7 @@ import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
 import { PreferenceSubmissionsDataTable } from "./_components/preference-submissions-data-table";
+import { SummarySection } from "./_components/summary-section";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -103,6 +109,20 @@ export default async function Page({ params }: { params: InstanceParams }) {
             )}
           </CardContent>
         </Card>
+      </section>
+      <section className="flex w-full flex-col gap-5">
+        <SectionHeading className="flex items-center">
+          <BarChartBigIcon className="mr-2 h-6 w-6 text-indigo-500" />
+          <span>Summary</span>
+        </SectionHeading>
+        <SummarySection
+          data={{
+            all: students.all.length,
+            incomplete: students.incomplete.length,
+            preAllocated: students.preAllocated.length,
+            submitted: students.all.length - students.incomplete.length,
+          }}
+        />
       </section>
       <section className="flex w-full flex-col gap-5">
         <SectionHeading className="flex items-center">
