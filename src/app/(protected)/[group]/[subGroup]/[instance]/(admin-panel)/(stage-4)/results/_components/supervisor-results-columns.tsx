@@ -98,7 +98,9 @@ export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetai
         />
       ),
       cell: ({ row: { original: s } }) => (
-        <p className="w-28 text-center">{s.difference}</p>
+        <p className="w-28 text-center">
+          {s.difference > 0 ? `+${s.difference}` : s.difference}
+        </p>
       ),
     },
   ];
