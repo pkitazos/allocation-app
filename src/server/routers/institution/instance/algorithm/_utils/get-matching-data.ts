@@ -73,18 +73,11 @@ export async function getMatchingData(
         data.map((s) => ({
           id: s.userId,
           lowerBound: s.projectAllocationLowerBound,
-          target: Math.max(
-            s.projectAllocationTarget - (preAllocations[s.userId] ?? 0),
-            0,
-          ),
-          upperBound: Math.max(
+          target: s.projectAllocationTarget - (preAllocations[s.userId] ?? 0),
+          upperBound:
             s.projectAllocationUpperBound - (preAllocations[s.userId] ?? 0),
-            0,
-          ),
         })),
       );
-
-    console.log("supervisors", supervisors);
 
     const projects = await tx.project
       .findMany({

@@ -87,19 +87,39 @@ export function useSupervisorResultsColumns(): ColumnDef<SupervisorMatchingDetai
       sortingFn: (a, b) =>
         a.original.allocationCount - b.original.allocationCount,
     },
+    // {
+    //   id: "Algorithm Allocation Difference",
+    //   accessorFn: (s) => s.algorithmTargetDifference,
+    //   header: ({ column }) => (
+    //     <DataTableColumnHeader
+    //       className="w-28"
+    //       column={column}
+    //       title="Algorithm Allocation Difference"
+    //     />
+    //   ),
+    //   cell: ({ row: { original: s } }) => (
+    //     <p className="w-28 text-center">
+    //       {s.algorithmTargetDifference > 0
+    //         ? `+${s.algorithmTargetDifference}`
+    //         : s.algorithmTargetDifference}
+    //     </p>
+    //   ),
+    // },
     {
       id: "Target Difference",
-      accessorFn: (s) => s.difference,
+      accessorFn: (s) => s.actualTargetDifference,
       header: ({ column }) => (
         <DataTableColumnHeader
           className="w-28"
           column={column}
-          title="Target Difference"
+          title="Actual Target Difference"
         />
       ),
       cell: ({ row: { original: s } }) => (
         <p className="w-28 text-center">
-          {s.difference > 0 ? `+${s.difference}` : s.difference}
+          {s.actualTargetDifference > 0
+            ? `+${s.actualTargetDifference}`
+            : s.actualTargetDifference}
         </p>
       ),
     },
