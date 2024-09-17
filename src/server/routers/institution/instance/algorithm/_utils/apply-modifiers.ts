@@ -17,8 +17,9 @@ export function applyModifiers(
     })),
 
     supervisors: supervisors.map(({ target, upperBound, ...rest }) => {
-      const newTarget = target + targetModifier;
-      const newUpperBound = upperBound + upperBoundModifier;
+      const newTarget = adjustTarget(target, targetModifier);
+      const newUpperBound = adjustUpperBound(upperBound, upperBoundModifier);
+
       return {
         ...rest,
         target: newTarget,
@@ -26,4 +27,15 @@ export function applyModifiers(
       };
     }),
   };
+}
+
+function adjustTarget(unstableTarget: number, targetModifier: number) {
+  return Math.max(unstableTarget + targetModifier, 0);
+}
+
+function adjustUpperBound(
+  unstableUpperBound: number,
+  upperBoundModifier: number,
+) {
+  return Math.max(unstableUpperBound + upperBoundModifier, 0);
 }

@@ -102,7 +102,8 @@ export const supervisorMatchingDetailsDtoSchema = z.object({
   actualUpperQuota: z.number(),
   allocationCount: z.number(),
   preAllocatedCount: z.number(),
-  difference: z.number(),
+  algorithmTargetDifference: z.number(),
+  actualTargetDifference: z.number(),
 });
 
 export type SupervisorMatchingDetailsDto = z.infer<

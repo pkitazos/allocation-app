@@ -420,41 +420,58 @@ export const algorithmRouter = createTRPCRouter({
               projectAllocationTarget: s.projectAllocationTarget,
               projectAllocationUpperBound: s.projectAllocationUpperBound,
               preAllocations:
-                supervisorPreAllocations[s.userInInstance.user.id],
+                supervisorPreAllocations[s.userInInstance.user.id] ?? 0,
             })),
           );
 
+        // TODO: refactor this to use a Record instead of a Map
         const resultsByAlgName = new Map<
           string,
           SupervisorMatchingDetailsDto[]
         >();
 
+        // TODO: clean this whole thing up
         for (const { algName, matchingResultData: data } of algorithmData) {
           const matching = parseMatchingResult(data).matching;
 
           const details = matching.reduce(
             (acc, m) => {
-              const s = supervisors.find((s) => s.id === m.supervisor_id);
-              if (!s) {
+              const supervisorDetails = supervisors.find(
+                (s) => s.id === m.supervisor_id,
+              );
+
+              if (!supervisorDetails) {
                 throw new Error(`Supervisor ${m.supervisor_id} not found`);
               }
 
-              const allocationCount =
+              const algorithmAllocationCount =
                 (acc[m.supervisor_id]?.allocationCount ?? 0) + 1;
-              return {
-                ...acc,
-                [m.supervisor_id]: {
-                  supervisorId: m.supervisor_id,
-                  supervisorName: s.name,
-                  projectTarget: m.supervisor_capacities.target,
-                  actualTarget: s.projectAllocationTarget,
-                  projectUpperQuota: m.supervisor_capacities.upper_bound,
-                  actualUpperQuota: s.projectAllocationUpperBound,
-                  allocationCount,
-                  preAllocatedCount: s.preAllocations ?? 0,
-                  difference: allocationCount - s.projectAllocationTarget,
-                },
+
+              const trueCount =
+                algorithmAllocationCount + supervisorDetails.preAllocations;
+
+              acc[m.supervisor_id] = {
+                supervisorId: m.supervisor_id,
+                supervisorName: supervisorDetails.name,
+
+                projectTarget: m.supervisor_capacities.target,
+                actualTarget: supervisorDetails.projectAllocationTarget,
+
+                projectUpperQuota: m.supervisor_capacities.upper_bound,
+                actualUpperQuota: supervisorDetails.projectAllocationUpperBound,
+
+                allocationCount: algorithmAllocationCount,
+                preAllocatedCount: supervisorDetails.preAllocations,
+
+                algorithmTargetDifference:
+                  algorithmAllocationCount -
+                  supervisorDetails.projectAllocationTarget,
+
+                actualTargetDifference:
+                  trueCount - supervisorDetails.projectAllocationTarget,
               };
+
+              return acc;
             },
             {} as Record<string, SupervisorMatchingDetailsDto>,
           );
