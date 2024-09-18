@@ -361,6 +361,7 @@ export const supervisorRouter = createTRPCRouter({
             project: { supervisorId: user.id },
           },
           select: {
+            studentRanking: true,
             project: { select: { id: true, title: true } },
             student: {
               select: {
@@ -369,13 +370,9 @@ export const supervisorRouter = createTRPCRouter({
             },
           },
         });
-        return data.map(({ project, student }) => ({
+        return data.map(({ project, student, studentRanking: rank }) => ({
           project,
-          student: {
-            id: student.user.id,
-            name: student.user.name!,
-            email: student.user.email!,
-          },
+          student: { ...student.user, rank },
         }));
       },
     ),

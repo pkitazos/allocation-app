@@ -1,6 +1,10 @@
-import { Heading, SubHeading } from "@/components/heading";
+import { AwardIcon, MailIcon, User2Icon } from "lucide-react";
+
+import { CopyEmailLink } from "@/components/copy-email-link";
+import { Heading, SectionHeading, SubHeading } from "@/components/heading";
+import { MarkdownRenderer } from "@/components/markdown-editor";
 import { PanelWrapper } from "@/components/panel-wrapper";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Unauthorised } from "@/components/unauthorised";
 
@@ -21,7 +25,7 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocationAccess = await api.user.supervisor.allocationAccess({
+  const allocationAccess = await api.user.student.allocationAccess({
     params,
   });
 
@@ -49,30 +53,42 @@ export default async function Page({ params }: { params: InstanceParams }) {
           </div>
         ) : (
           <div className="mt-16 flex flex-col gap-8">
-            <SubHeading className="text-2xl no-underline">
-              You got your{" "}
-              <span className="font-semibold text-secondary">
-                {toPositional(allocatedProject.studentRanking)}
-              </span>{" "}
-              choice
-            </SubHeading>
-            <Card className="w-full">
-              <CardHeader>
-                <CardTitle>{allocatedProject.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-2 text-lg">
-                    <p className="text-muted-foreground">Supervisor:</p>
-                    <p className="text-xl font-medium">
-                      {allocatedProject.supervisor.name}
-                    </p>
-                  </div>
-                  <Separator className="my-6" />
-                  <p>{allocatedProject.description}</p>
-                </div>
+            <Card className="mb-8">
+              <CardContent className="pt-6">
+                <SectionHeading className="flex items-center text-2xl no-underline">
+                  <AwardIcon className="mr-2 h-6 w-6 text-indigo-500" />
+                  <span>
+                    You got your{" "}
+                    <span className="font-semibold text-indigo-600">
+                      {toPositional(allocatedProject.studentRanking)}
+                    </span>{" "}
+                    choice
+                  </span>
+                </SectionHeading>
               </CardContent>
             </Card>
+            <SectionHeading>{allocatedProject.title}</SectionHeading>
+            <div className="flex flex-col items-start">
+              <div className="flex items-center gap-2 text-lg">
+                <div className="text-muted-foreground">
+                  <User2Icon className="h-6 w-6" />
+                </div>
+                <p className="text-xl font-medium">
+                  {allocatedProject.supervisor.name}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-lg">
+                <div className="text-muted-foreground">
+                  <MailIcon className="h-6 w-6" />
+                </div>
+                <CopyEmailLink
+                  className="text-base font-medium"
+                  email={allocatedProject.supervisor.email}
+                />
+              </div>
+              <Separator className="my-6" />
+              <MarkdownRenderer source={allocatedProject.description} />
+            </div>
           </div>
         )}
       </PanelWrapper>

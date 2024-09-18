@@ -1,11 +1,11 @@
 import { Heading, SubHeading } from "@/components/heading";
 import { PanelWrapper } from "@/components/panel-wrapper";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Unauthorised } from "@/components/unauthorised";
 
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
+
+import { AllocationCard } from "./_components/allocation-card";
 
 import { app, metadataTitle } from "@/content/config/app";
 import { pages } from "@/content/pages";
@@ -43,32 +43,7 @@ export default async function Page({ params }: { params: InstanceParams }) {
         ) : (
           <div className="ml-10 mt-16 flex flex-col gap-6">
             {allocations.map(({ project, student }, i) => (
-              <Card key={i} className="w-1/2">
-                <CardHeader>
-                  <CardTitle>{project.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-4 items-center justify-start gap-x-4 gap-y-2">
-                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
-                    GUID
-                  </p>
-                  <Badge
-                    variant="secondary"
-                    className="col-span-3 w-max text-base"
-                  >
-                    {student.id}
-                  </Badge>
-                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
-                    Name
-                  </p>
-                  <p className="col-span-3 text-lg font-semibold">
-                    {student.name}
-                  </p>
-                  <p className="col-span-1 text-lg font-medium text-muted-foreground">
-                    Email
-                  </p>
-                  <p className="col-span-3 text-lg">{student.email}</p>
-                </CardContent>
-              </Card>
+              <AllocationCard key={i} title={project.title} student={student} />
             ))}
           </div>
         )}

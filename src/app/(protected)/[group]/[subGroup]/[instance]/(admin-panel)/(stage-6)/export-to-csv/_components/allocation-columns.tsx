@@ -68,6 +68,18 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
+    id: "Student Email",
+    accessorFn: (row) => row.student.email,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Email" />
+    ),
+    cell: ({
+      row: {
+        original: { student },
+      },
+    }) => <p className="text-center">{student.email}</p>,
+  },
+  {
     id: "Student Level",
     accessorFn: (row) => row.student.level,
     header: ({ column }) => (
@@ -143,5 +155,17 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
         original: { supervisor },
       },
     }) => <p className="text-center">{supervisor.name}</p>,
+  },
+  {
+    id: "Supervisor Email",
+    accessorFn: (row) => row.supervisor.email,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Supervisor Email" />
+    ),
+    cell: ({
+      row: {
+        original: { supervisor },
+      },
+    }) => <p className="text-center">{supervisor.email}</p>,
   },
 ];
