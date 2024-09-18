@@ -17,6 +17,11 @@ import {
   getAvailableSupervisors,
 } from "./instance-forking";
 
+/**
+ *
+ * @deprecated use fork/transaction.ts instead
+ *
+ */
 export async function forkInstanceTransaction(
   db: PrismaClient,
   forked: ForkedInstanceDetails,
