@@ -314,9 +314,7 @@ export const studentRouter = createTRPCRouter({
                 id: true,
                 title: true,
                 description: true,
-                supervisor: {
-                  select: { user: { select: { name: true, id: true } } },
-                },
+                supervisor: { select: { user: true } },
               },
             },
           },
@@ -329,9 +327,7 @@ export const studentRouter = createTRPCRouter({
           title: projectAllocation.project.title,
           description: projectAllocation.project.description,
           studentRanking: projectAllocation.studentRanking,
-          supervisor: {
-            name: projectAllocation.project.supervisor.user.name!,
-          },
+          supervisor: projectAllocation.project.supervisor.user,
         };
       },
     ),
