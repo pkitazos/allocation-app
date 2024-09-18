@@ -9,6 +9,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
     "Project ID",
     "Student GUID",
     "Student Matric.",
+    "Student Email",
     "Student Level",
     "Project Title",
     "Project Description",
@@ -16,12 +17,14 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
     "Student Ranking",
     "Supervisor GUID",
     "Supervisor Name",
+    "Supervisor Email",
   ];
 
   const exportData = data.map((e) => [
     e.project.id,
     e.student.id,
     e.student.matric,
+    e.student.email,
     e.student.level,
     e.project.title,
     e.project.description,
@@ -29,6 +32,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
     e.student.ranking,
     e.supervisor.id,
     e.supervisor.name,
+    e.supervisor.email,
   ]);
 
   return (

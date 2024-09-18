@@ -429,7 +429,7 @@ export const matchingRouter = createTRPCRouter({
           },
           select: {
             project: { include: { supervisor: { select: { user: true } } } },
-            student: { select: { userId: true, studentDetails: true } },
+            student: { select: { user: true, studentDetails: true } },
             studentRanking: true,
           },
         });
@@ -437,13 +437,15 @@ export const matchingRouter = createTRPCRouter({
         return allocationData.map(({ project, student, ...e }) => ({
           project: {
             ...project,
+            supervisor: project.supervisor.user,
             specialTechnicalRequirements:
               project.specialTechnicalRequirements ?? "",
           },
           student: {
-            id: student.userId,
-            matric: guidToMatric(student.userId),
+            id: student.user.id,
+            matric: guidToMatric(student.user.id),
             level: student.studentDetails[0].studentLevel, // TODO: move project allocation information to studentDetails table
+            email: student.user.email,
             ranking: e.studentRanking,
           },
           supervisor: project.supervisor.user,

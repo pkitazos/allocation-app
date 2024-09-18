@@ -10,10 +10,11 @@ export const allocationCsvDataSchema = z.object({
   student: z.object({
     id: z.string(),
     matric: z.string(),
+    email: z.string(),
     level: z.number(),
     ranking: z.number(),
   }),
-  supervisor: z.object({ id: z.string(), name: z.string() }),
+  supervisor: z.object({ id: z.string(), name: z.string(), email: z.string() }),
 });
 
 export type AllocationCsvData = z.infer<typeof allocationCsvDataSchema>;
