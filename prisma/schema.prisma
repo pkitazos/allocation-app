@@ -102,7 +102,7 @@ model AllocationSubGroup {
 }
 
 model AllocationInstance {
-    id                           String
+    id                           String // TODO: consider renaming
     displayName                  String                 @map("display_name")
     stage                        Stage                  @default(SETUP)
     selectedAlgName              String?                @map("selected_alg_name")
@@ -193,8 +193,8 @@ model Project {
     allocationSubGroupId         String              @map("allocation_sub_group_id")
     allocationInstanceId         String              @map("allocation_instance_id")
     // ---
-    flagOnProjects               FlagOnProject[]
-    tagOnProject                 TagOnProject[]
+    flagOnProjects               FlagOnProject[] // TODO: rename to flagsOnProject
+    tagOnProject                 TagOnProject[] // TODO: rename to tagsOnProject
     inStudentPreferences         Preference[]
     inStudentSavedPreferences    SavedPreference[]
     allocations                  ProjectAllocation[]
