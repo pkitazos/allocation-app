@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: InstanceParams }) {
 }
 
 export default async function Page({ params }: { params: InstanceParams }) {
-  const allocationAccess = await api.user.supervisor.allocationAccess({
+  const allocationAccess = await api.user.student.allocationAccess({
     params,
   });
 
