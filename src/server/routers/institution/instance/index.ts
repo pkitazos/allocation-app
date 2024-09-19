@@ -41,7 +41,7 @@ import { hasSelfDefinedProject } from "../../user/_utils/get-self-defined-projec
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
 import { getAllocationData } from "./_utils/allocation-data";
-import { forkInstanceTransaction } from "./_utils/fork";
+import { forkInstanceTransaction } from "./_utils/fork/transaction";
 import { mergeInstanceTransaction } from "./_utils/merge";
 import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { algorithmRouter } from "./algorithm";
@@ -202,6 +202,7 @@ export const instanceRouter = createTRPCRouter({
         },
       }));
 
+      // TODO: remove duplicate rows
       const bySupervisor = allocationData.map((allocation) => ({
         project: {
           id: allocation.project.id,

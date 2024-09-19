@@ -14,7 +14,11 @@ export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
     id: "Supervisor GUID",
     accessorFn: ({ supervisor }) => supervisor.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supervisor GUID" />
+      <DataTableColumnHeader
+        column={column}
+        title="Supervisor GUID"
+        canFilter
+      />
     ),
     cell: ({
       row: {

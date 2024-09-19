@@ -136,6 +136,9 @@ export const supervisorRouter = createTRPCRouter({
                       preAllocatedStudentId: true,
                       tagOnProject: { select: { tag: true } },
                       flagOnProjects: { select: { flag: true } },
+                      allocations: {
+                        select: { student: { select: { user: true } } },
+                      },
                     },
                   },
                 },
@@ -159,6 +162,7 @@ export const supervisorRouter = createTRPCRouter({
             preAllocatedStudentId: p.preAllocatedStudentId ?? undefined,
             tags: p.tagOnProject.map((t) => t.tag),
             flags: p.flagOnProjects.map((f) => f.flag),
+            allocatedStudents: p.allocations.map((a) => a.student.user),
           }),
         );
 
@@ -365,6 +369,7 @@ export const supervisorRouter = createTRPCRouter({
             project: { select: { id: true, title: true } },
             student: {
               select: {
+                studentDetails: true,
                 user: { select: { id: true, name: true, email: true } },
               },
             },
@@ -372,7 +377,11 @@ export const supervisorRouter = createTRPCRouter({
         });
         return data.map(({ project, student, studentRanking: rank }) => ({
           project,
-          student: { ...student.user, rank },
+          student: {
+            ...student.user,
+            rank,
+            level: student.studentDetails[0].studentLevel,
+          },
         }));
       },
     ),

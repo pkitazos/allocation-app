@@ -14,7 +14,7 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
     id: "Student GUID",
     accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" canFilter />
     ),
     cell: ({
       row: {
