@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 
 import { AccessControl } from "@/components/access-control";
+import { CircleCheckSolidIcon } from "@/components/icons/circle-check";
 import { useInstancePath, useInstanceStage } from "@/components/params-context";
 import { TagType } from "@/components/tag/tag-input";
 import { Badge, badgeVariants } from "@/components/ui/badge";
@@ -195,28 +196,72 @@ export function useSupervisorProjectsColumns({
       id: "Student",
       header: ({ column }) => (
         <DataTableColumnHeader
-          className="w-24"
+          className="w-28"
           column={column}
           title="Student"
         />
       ),
       cell: ({
         row: {
-          original: { preAllocatedStudentId },
+          original: { allocatedStudents, preAllocatedStudentId },
         },
-      }) =>
-        preAllocatedStudentId && (
-          <Link
-            className={buttonVariants({ variant: "link" })}
-            href={`./students/${preAllocatedStudentId}`}
-          >
-            {preAllocatedStudentId}
-          </Link>
-        ),
-      filterFn: (row, _, value) => {
-        const selectedFilters = value as ("yes" | "no")[]; // selected filters
-        const studentId = row.original.preAllocatedStudentId ? "yes" : "no"; // row value
-        return selectedFilters.includes(studentId);
+      }) => {
+        if (allocatedStudents.length > 0) {
+          return (
+            <div className=" flex w-28 flex-col items-start gap-1.5">
+              {allocatedStudents.map((student) => (
+                <Link
+                  key={student.id}
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "flex items-center gap-2",
+                  )}
+                  href={`../students/${student.id}`}
+                >
+                  <span>{student.id}</span>
+                  {student.id === preAllocatedStudentId && (
+                    <WithTooltip tip={"This is a pre-allocated project"}>
+                      <div className="flex items-center justify-center">
+                        <CircleCheckSolidIcon className="h-4 w-4 fill-blue-500" />
+                      </div>
+                    </WithTooltip>
+                  )}
+                </Link>
+              ))}
+            </div>
+          );
+        }
+
+        if (preAllocatedStudentId) {
+          return (
+            <Link
+              className={buttonVariants({ variant: "link" })}
+              href={`../students/${preAllocatedStudentId}`}
+            >
+              {preAllocatedStudentId}
+            </Link>
+          );
+        }
+      },
+      filterFn: ({ original: p }, _, value) => {
+        const filters = [...value] as ("0" | "1" | "2" | "3")[];
+        if (filters.includes("3")) filters.push("1", "2");
+        const selectedFilters = new Set(filters) as Set<"0" | "1" | "2" | "3">; // selected filters
+
+        const allocationStatus: Set<"0" | "1" | "2" | "3"> = new Set(); // default to unallocated
+
+        if (!p.preAllocatedStudentId && p.allocatedStudents.length === 0) {
+          allocationStatus.add("0");
+        } else {
+          if (p.preAllocatedStudentId) {
+            allocationStatus.add("2");
+          }
+          if (p.allocatedStudents.length !== 0 && !p.preAllocatedStudentId) {
+            allocationStatus.add("1");
+          }
+        }
+
+        return selectedFilters.intersection(allocationStatus).size > 0;
       },
     },
   ];

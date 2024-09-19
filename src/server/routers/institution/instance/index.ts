@@ -202,6 +202,7 @@ export const instanceRouter = createTRPCRouter({
         },
       }));
 
+      // TODO: remove duplicate rows
       const bySupervisor = allocationData.map((allocation) => ({
         project: {
           id: allocation.project.id,

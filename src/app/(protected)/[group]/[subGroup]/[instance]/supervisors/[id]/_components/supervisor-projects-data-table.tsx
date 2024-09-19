@@ -63,8 +63,10 @@ export function SupervisorProjectsDataTable({
           columnId: "Student",
           title: "Allocation Status",
           options: [
-            { id: "yes", title: "Pre-allocated" },
-            { id: "no", title: "Unallocated" },
+            { id: "1", title: "Algorithm Allocated" },
+            { id: "2", title: "Pre-allocated" },
+            { id: "3", title: "Allocated" },
+            { id: "0", title: "Unallocated" },
           ],
         },
       ]}

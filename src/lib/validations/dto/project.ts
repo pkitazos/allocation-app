@@ -88,6 +88,7 @@ export type SupervisorProjectDto = {
   title: string;
   supervisorId: string;
   preAllocatedStudentId: string | undefined;
+  allocatedStudents: { id: string; name: string }[];
   flags: TagType[];
   tags: TagType[];
 };

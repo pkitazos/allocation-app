@@ -13,6 +13,7 @@ type StudentInfo = {
   name: string;
   email: string;
   rank: number;
+  level: number;
 };
 
 type ProjectCardProps = {
@@ -37,7 +38,10 @@ export function AllocationCard({ title, student }: ProjectCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <User2Icon className="h-4 w-4 text-muted-foreground" />
-            <span className="text-base">{student.name}</span>
+            <span className="text-base">{student.name}</span>{" "}
+            <Badge variant="accent" className="bg-indigo-50 text-indigo-700">
+              Level {student.level}
+            </Badge>
           </div>
           <div className="flex items-center gap-2">
             <MailIcon className="h-4 w-4 text-muted-foreground" />
