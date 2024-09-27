@@ -46,3 +46,15 @@ export const allocationBySupervisorDtoSchema = z.object({
 export type AllocationBySupervisorDto = z.infer<
   typeof allocationBySupervisorDtoSchema
 >;
+
+export type StudentProjectAllocationDto = {
+  project: {
+    id: string;
+    title: string;
+    supervisor: {
+      id: string;
+      name: string;
+    };
+  };
+  rank: number;
+};
