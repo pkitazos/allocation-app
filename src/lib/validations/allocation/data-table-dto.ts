@@ -58,3 +58,8 @@ export type StudentProjectAllocationDto = {
   };
   rank: number;
 };
+
+export type RandomAllocationDto = {
+  student: { id: string; name: string; level: number };
+  project: { id: string; title: string } | undefined;
+};

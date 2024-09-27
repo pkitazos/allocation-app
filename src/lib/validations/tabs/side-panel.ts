@@ -39,6 +39,7 @@ function adminOnlyTabs<
     ],
     [Stage.ALLOCATION_ADJUSTMENT]: [
       pages.manualChanges,
+      pages.randomAllocations,
       pages.results,
       pages.preferenceStatistics,
       pages.preferenceSubmissions,

@@ -3,8 +3,10 @@ import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
 import { getGMTOffset } from "@/lib/utils/date/timezone";
+import { expand } from "@/lib/utils/general/instance-params";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
 import { StudentProjectAllocationDto } from "@/lib/validations/allocation/data-table-dto";
+import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -17,6 +19,7 @@ import {
 import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
 
 import { preferenceRouter } from "./preference";
+import { getUnallocatedStudents } from "@/server/utils/instance/unallocated-students";
 
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
@@ -418,4 +421,13 @@ export const studentRouter = createTRPCRouter({
         });
       },
     ),
+
+  getUnallocated: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const selectedAlgName = ctx.instance.selectedAlgName;
+      if (!selectedAlgName) return;
+
+      return await getUnallocatedStudents(ctx.db, params, selectedAlgName);
+    }),
 });

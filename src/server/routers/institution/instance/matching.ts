@@ -8,6 +8,7 @@ import {
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 import { guidToMatric } from "@/lib/utils/external/matriculation";
 import { expand } from "@/lib/utils/general/instance-params";
+import { getRandomInt } from "@/lib/utils/general/random";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -19,6 +20,9 @@ import { instanceParamsSchema } from "@/lib/validations/params";
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
 
 import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
+import { updateAllocation } from "./algorithm/_utils/update-allocation";
+import { randomAllocationTrx } from "./algorithm/_utils/random-allocation";
+import { getUnallocatedStudents } from "@/server/utils/instance/unallocated-students";
 
 export const matchingRouter = createTRPCRouter({
   select: instanceAdminProcedure
@@ -317,16 +321,16 @@ export const matchingRouter = createTRPCRouter({
           };
         });
 
-        const students = studentData.map(
-          ({ userInInstance: { user }, preferences }) => ({
+        const students = studentData
+          .map(({ userInInstance: { user }, preferences }) => ({
             student: { id: user.id, name: user.name! },
             projects: preferences.map(({ project: { id, allocations } }) => ({
               id,
               selected:
                 allocations.filter((u) => u.userId === user.id).length === 1,
             })),
-          }),
-        );
+          }))
+          .filter((e) => e.projects.length > 0);
 
         const projects = projectData.map((p) => {
           const supervisor = p.supervisor.supervisorInstanceDetails[0];
@@ -452,4 +456,37 @@ export const matchingRouter = createTRPCRouter({
         }));
       },
     ),
+
+  getRandomAllocation: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .mutation(async ({ ctx, input: { params, studentId } }) => {
+      await randomAllocationTrx(ctx.db, params, studentId);
+    }),
+
+  getRandomAllocationForAll: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .mutation(async ({ ctx, input: { params } }) => {
+      const selectedAlgName = ctx.instance.selectedAlgName;
+      if (!selectedAlgName) return;
+
+      const data = await getUnallocatedStudents(
+        ctx.db,
+        params,
+        selectedAlgName,
+      );
+
+      for (const { student } of data) {
+        await randomAllocationTrx(ctx.db, params, student.id);
+      }
+    }),
+
+  removeAllocation: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema, studentId: z.string() }))
+    .mutation(async ({ ctx, input: { params, studentId } }) => {
+      await updateAllocation(ctx.db, params, studentId);
+
+      await ctx.db.savedPreference.deleteMany({
+        where: { ...expand(params), userId: studentId },
+      });
+    }),
 });

@@ -16,6 +16,7 @@ import {
   MousePointerSquareIcon,
   ServerIcon,
   SettingsIcon,
+  ShuffleIcon,
   SplitIcon,
   SquareKanbanIcon,
   UserCog2,
@@ -75,6 +76,9 @@ export function Icon({ type }: { type: string }) {
 
     case "settings":
       return <SettingsIcon className="mr-2 h-4 w-4" />;
+
+    case "shuffle":
+      return <ShuffleIcon className="mr-2 h-4 w-4" />;
 
     case "split":
       return <SplitIcon className="mr-2 h-4 w-4" />;
