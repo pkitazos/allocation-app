@@ -307,19 +307,24 @@ export const instanceRouter = createTRPCRouter({
             allocationInstanceId: instance,
           },
           select: {
-            userInInstance: { select: { user: true } },
+            userInInstance: {
+              select: {
+                user: true,
+                studentAllocation: {
+                  select: { project: { select: { id: true, title: true } } },
+                },
+              },
+            },
             studentLevel: true,
           },
         });
 
-        return studentData.map(
-          ({ userInInstance: { user }, studentLevel }) => ({
-            id: user.id,
-            name: user.name!,
-            email: user.email!,
-            level: studentLevel,
-          }),
-        );
+        return studentData.map(({ userInInstance, studentLevel }) => ({
+          ...userInInstance.user,
+          level: studentLevel,
+          projectAllocation:
+            userInInstance.studentAllocation?.project ?? undefined,
+        }));
       },
     ),
 

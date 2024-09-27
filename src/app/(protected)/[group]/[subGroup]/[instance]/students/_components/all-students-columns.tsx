@@ -30,14 +30,13 @@ import {
   YesNoActionTrigger,
 } from "@/components/yes-no-action";
 
-import { previousStages, stageLte } from "@/lib/utils/permissions/stage-check";
-
-export interface AllStudentTableDto {
-  id: string;
-  name: string;
-  email: string;
-  level: number;
-}
+import { cn } from "@/lib/utils";
+import {
+  previousStages,
+  stageGt,
+  stageLte,
+} from "@/lib/utils/permissions/stage-check";
+import { StudentDto } from "@/lib/validations/dto/student";
 
 export function useAllStudentsColumns({
   role,
@@ -47,12 +46,12 @@ export function useAllStudentsColumns({
   role: Role;
   deleteStudent: (id: string) => Promise<void>;
   deleteSelectedStudents: (ids: string[]) => Promise<void>;
-}): ColumnDef<AllStudentTableDto>[] {
+}): ColumnDef<StudentDto>[] {
   const stage = useInstanceStage();
 
-  const selectCol = getSelectColumn<AllStudentTableDto>();
+  const selectCol = getSelectColumn<StudentDto>();
 
-  const userCols: ColumnDef<AllStudentTableDto>[] = [
+  const userCols: ColumnDef<StudentDto>[] = [
     {
       id: "GUID",
       accessorFn: ({ id }) => id,
@@ -117,9 +116,44 @@ export function useAllStudentsColumns({
         return selectedFilters.includes(studentLevel);
       },
     },
+    {
+      id: "Project Allocation",
+      accessorKey: "allocatedProject",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title="Project Allocation"
+          canFilter
+        />
+      ),
+      cell: ({
+        row: {
+          original: { projectAllocation },
+        },
+      }) => {
+        console.log({ projectAllocation });
+        if (stageGt(stage, Stage.SETUP) && projectAllocation) {
+          return (
+            <WithTooltip
+              tip={<p className="max-w-96">{projectAllocation.title}</p>}
+            >
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "link" }),
+                  "inline-block w-40 truncate px-0 text-start",
+                )}
+                href={`./projects/${projectAllocation.id}`}
+              >
+                {projectAllocation.title}
+              </Link>
+            </WithTooltip>
+          );
+        }
+      },
+    },
   ];
 
-  const actionsCol: ColumnDef<AllStudentTableDto> = {
+  const actionsCol: ColumnDef<StudentDto> = {
     accessorKey: "actions",
     id: "Actions",
     header: ({ table }) => {
