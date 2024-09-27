@@ -15,6 +15,7 @@ import { Unauthorised } from "@/components/unauthorised";
 import { api } from "@/lib/trpc/server";
 import { cn } from "@/lib/utils";
 import { formatParamsAsPath } from "@/lib/utils/general/get-instance-path";
+import { toPositional } from "@/lib/utils/general/to-positional";
 import { previousStages } from "@/lib/utils/permissions/stage-check";
 import { ProjectDto } from "@/lib/validations/dto/project";
 import { InstanceParams } from "@/lib/validations/params";
@@ -83,6 +84,11 @@ export default async function Project({ params }: { params: PageParams }) {
     projectId,
   });
 
+  const allocatedStudent = await api.project.getAllocation({
+    params,
+    projectId,
+  });
+
   return (
     <PageWrapper>
       <Heading
@@ -115,15 +121,16 @@ export default async function Project({ params }: { params: PageParams }) {
           </Link>
         </AccessControl>
       </Heading>
+
       <div className="mt-6 flex gap-6">
         <div className="flex w-3/4 flex-col gap-16">
-          <div className="flex flex-col">
+          <section className="flex flex-col">
             <SubHeading>Description</SubHeading>
             <div className="mt-6">
               <MarkdownRenderer source={project.description} />
             </div>
-          </div>
-          <div
+          </section>
+          <section
             className={cn(
               "flex flex-col",
               project.specialTechnicalRequirements === "" && "hidden",
@@ -131,12 +138,26 @@ export default async function Project({ params }: { params: PageParams }) {
           >
             <SubHeading>Special Technical Requirements</SubHeading>
             <p className="mt-6">{project.specialTechnicalRequirements}</p>
-          </div>
+          </section>
         </div>
         <div className="w-1/4">
           <ProjectDetailsCard project={project} role={role} />
         </div>
       </div>
+
+      <AccessControl
+        allowedRoles={[Role.ADMIN]}
+        extraConditions={{ RBAC: { AND: !!allocatedStudent } }}
+      >
+        <section className={cn("my-16 flex flex-col gap-8")}>
+          <SubHeading>Allocation</SubHeading>
+          <AllocatedStudentCard
+            student={allocatedStudent!}
+            preAllocated={!!project.preAllocatedStudentId}
+          />
+        </section>
+      </AccessControl>
+
       <AccessControl
         allowedRoles={[Role.ADMIN]}
         extraConditions={{ RBAC: { AND: !project.preAllocatedStudentId } }}
@@ -211,5 +232,50 @@ function ProjectDetailsCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function AllocatedStudentCard({
+  student,
+  preAllocated,
+}: {
+  student: { id: string; name: string; rank: number };
+  preAllocated: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Card className="w-fit max-w-sm border-none bg-accent px-6 py-3">
+        <CardContent className="flex flex-col p-0">
+          <div className="flex items-center space-x-4">
+            <UserIcon className="h-6 w-6 flex-none text-blue-500" />
+            <div className="flex flex-col">
+              <h3 className="-mb-1 text-sm font-medium text-muted-foreground">
+                Student
+              </h3>
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "link" }),
+                  "text-nowrap p-0 text-base",
+                )}
+                href={`../students/${student.id}`}
+              >
+                {student.name}
+              </Link>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      {preAllocated ? (
+        <p>The student self-defined this project.</p>
+      ) : (
+        <p>
+          This was the student&apos;s{" "}
+          <span className="font-semibold text-indigo-600">
+            {toPositional(student.rank)}
+          </span>{" "}
+          choice.
+        </p>
+      )}
+    </div>
   );
 }

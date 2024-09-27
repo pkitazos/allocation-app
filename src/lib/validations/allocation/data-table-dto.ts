@@ -7,7 +7,7 @@ export const allocationByStudentDtoSchema = z.object({
     email: z.string(),
     ranking: z.number(),
   }),
-  project: z.object({ id: z.string() }),
+  project: z.object({ id: z.string(), title: z.string() }),
   supervisor: z.object({ id: z.string(), name: z.string() }),
 });
 
@@ -23,7 +23,7 @@ export const allocationByProjectDtoSchema = z.object({
     capacityUpperBound: z.number(),
   }),
   supervisor: z.object({ id: z.string(), name: z.string() }),
-  student: z.object({ id: z.string(), ranking: z.number() }),
+  student: z.object({ id: z.string(), name: z.string(), ranking: z.number() }),
 });
 
 export type AllocationByProjectDto = z.infer<
@@ -40,9 +40,26 @@ export const allocationBySupervisorDtoSchema = z.object({
     allocationUpperBound: z.number(),
   }),
   project: z.object({ id: z.string(), title: z.string() }),
-  student: z.object({ id: z.string(), ranking: z.number() }),
+  student: z.object({ id: z.string(), name: z.string(), ranking: z.number() }),
 });
 
 export type AllocationBySupervisorDto = z.infer<
   typeof allocationBySupervisorDtoSchema
 >;
+
+export type StudentProjectAllocationDto = {
+  project: {
+    id: string;
+    title: string;
+    supervisor: {
+      id: string;
+      name: string;
+    };
+  };
+  rank: number;
+};
+
+export type RandomAllocationDto = {
+  student: { id: string; name: string; level: number };
+  project: { id: string; title: string } | undefined;
+};

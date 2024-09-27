@@ -43,7 +43,7 @@ export function StudentCard({ studentId }: { studentId: string }) {
     >
       <Card
         ref={setNodeRef}
-        className="h-20 w-32 bg-secondary px-5 py-3 text-secondary-foreground"
+        className="grid h-20 w-32 place-items-center bg-secondary px-5 py-3 text-secondary-foreground"
         style={style}
         {...attributes}
         {...listeners}

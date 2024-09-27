@@ -28,7 +28,7 @@ export function ProjectCardTooltip({
   } = projectInfo;
 
   return (
-    <Card className="border-none shadow-none">
+    <Card className="max-w-96 border-none shadow-none">
       <CardHeader>
         <p className="-mb-1 text-muted-foreground">Title</p>
         <p className="text-lg font-semibold">{projectInfo.title}</p>

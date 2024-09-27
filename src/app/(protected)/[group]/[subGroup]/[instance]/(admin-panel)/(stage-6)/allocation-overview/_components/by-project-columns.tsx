@@ -50,6 +50,7 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
             "inline-block w-60 truncate px-0 text-start",
           )}
           href={`./projects/${id}`}
+          scroll={true}
         >
           {title}
         </Link>
@@ -84,31 +85,16 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
       },
     }) => <div className="flex justify-center">{capacityUpperBound}</div>,
   },
-  {
-    id: "Supervisor GUID",
-    accessorFn: ({ supervisor }) => supervisor.id,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supervisor GUID" />
-    ),
-    cell: ({
-      row: {
-        original: { supervisor },
-      },
-    }) => (
-      <div className="text-left">
-        <WithTooltip tip={supervisor.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-16 truncate">{supervisor.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
-    ),
-  },
+
   {
     id: "Supervisor Name",
     accessorFn: ({ supervisor }) => supervisor.name,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Supervisor Name" />
+      <DataTableColumnHeader
+        column={column}
+        title="Supervisor Name"
+        canFilter
+      />
     ),
     cell: ({
       row: {
@@ -120,6 +106,7 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
       <Link
         className={cn(buttonVariants({ variant: "link" }), "pl-0 text-left")}
         href={`./supervisors/${id}`}
+        scroll={true}
       >
         {name}
       </Link>
@@ -129,20 +116,34 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
     id: "Student GUID",
     accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" canFilter />
     ),
     cell: ({
       row: {
         original: { student },
       },
+    }) => <p className="pl-3 font-medium">{student.id}</p>,
+  },
+  {
+    id: "Student Name",
+    accessorFn: ({ student }) => student.name,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Name" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: {
+          student: { id, name },
+        },
+      },
     }) => (
-      <div className="text-left">
-        <WithTooltip tip={student.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-20 truncate">{student.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
+        href={`./students/${id}`}
+        scroll={true}
+      >
+        {name}
+      </Link>
     ),
   },
   {

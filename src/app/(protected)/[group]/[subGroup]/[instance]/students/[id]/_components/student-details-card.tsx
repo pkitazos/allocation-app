@@ -77,7 +77,7 @@ export function StudentDetailsCard({
   }
 
   return (
-    <Card className={cn("w-1/2", className)}>
+    <Card className={cn(className)}>
       <CardHeader className="pb-4">
         <CardTitle className="group text-xl hover:cursor-pointer hover:text-primary">
           <WithTooltip tip="Edit Student Level">

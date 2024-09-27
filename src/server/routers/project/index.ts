@@ -790,4 +790,19 @@ export const projectRouter = createTRPCRouter({
         };
       },
     ),
+
+  getAllocation: instanceProcedure
+    .input(z.object({ params: instanceParamsSchema, projectId: z.string() }))
+    .query(async ({ ctx, input: { projectId } }) => {
+      const allocation = await ctx.db.projectAllocation.findFirst({
+        where: { projectId },
+        select: { student: { select: { user: true } }, studentRanking: true },
+      });
+
+      const student = allocation?.student?.user ?? undefined;
+      const rank = allocation?.studentRanking ?? undefined;
+
+      if (student && rank) return { ...student, rank };
+      return undefined;
+    }),
 });

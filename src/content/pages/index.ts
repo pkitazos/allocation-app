@@ -87,6 +87,11 @@ export const pages = {
     href: "manual-changes",
     icon: "mouse-pointer",
   },
+  randomAllocations: {
+    title: "Random Allocations",
+    href: "random-allocations",
+    icon: "shuffle",
+  },
   allocationOverview: {
     title: "Allocation Overview",
     href: "allocation-overview",

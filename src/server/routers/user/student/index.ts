@@ -3,7 +3,10 @@ import { toZonedTime } from "date-fns-tz";
 import { z } from "zod";
 
 import { getGMTOffset } from "@/lib/utils/date/timezone";
+import { expand } from "@/lib/utils/general/instance-params";
 import { stageGte } from "@/lib/utils/permissions/stage-check";
+import { StudentProjectAllocationDto } from "@/lib/validations/allocation/data-table-dto";
+import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import {
@@ -16,6 +19,7 @@ import {
 import { getSelfDefinedProject } from "../_utils/get-self-defined-project";
 
 import { preferenceRouter } from "./preference";
+import { getUnallocatedStudents } from "@/server/utils/instance/unallocated-students";
 
 export const studentRouter = createTRPCRouter({
   preference: preferenceRouter,
@@ -62,7 +66,21 @@ export const studentRouter = createTRPCRouter({
           select: {
             studentLevel: true,
             userInInstance: {
-              select: { user: { select: { email: true, name: true } } },
+              select: {
+                user: { select: { email: true, name: true } },
+                studentAllocation: {
+                  select: {
+                    project: {
+                      select: {
+                        id: true,
+                        title: true,
+                        supervisor: { select: { user: true } },
+                      },
+                    },
+                    studentRanking: true,
+                  },
+                },
+              },
             },
           },
         });
@@ -73,12 +91,31 @@ export const studentRouter = createTRPCRouter({
           studentId,
         );
 
+        const studentAllocationData = data.userInInstance.studentAllocation;
+        const projectId = studentAllocationData?.project.id;
+        const projectTitle = studentAllocationData?.project.title;
+        const supervisor = studentAllocationData?.project.supervisor.user;
+        const studentRank = studentAllocationData?.studentRanking;
+
+        let studentAllocation: StudentProjectAllocationDto | undefined;
+        if (projectId && projectTitle && supervisor && studentRank) {
+          studentAllocation = {
+            project: {
+              id: projectId,
+              title: projectTitle,
+              supervisor: supervisor,
+            },
+            rank: studentRank,
+          };
+        }
+
         return {
           id: studentId,
           name: data.userInInstance.user.name,
           email: data.userInInstance.user.email,
           level: data.studentLevel,
           selfDefinedProjectId: selfDefinedProject?.id,
+          allocation: studentAllocation,
         };
       },
     ),
@@ -384,4 +421,13 @@ export const studentRouter = createTRPCRouter({
         });
       },
     ),
+
+  getUnallocated: instanceAdminProcedure
+    .input(z.object({ params: instanceParamsSchema }))
+    .query(async ({ ctx, input: { params } }) => {
+      const selectedAlgName = ctx.instance.selectedAlgName;
+      if (!selectedAlgName) return;
+
+      return await getUnallocatedStudents(ctx.db, params, selectedAlgName);
+    }),
 });

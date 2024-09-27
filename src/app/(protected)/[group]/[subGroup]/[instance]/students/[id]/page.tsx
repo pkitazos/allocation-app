@@ -6,6 +6,7 @@ import { PageWrapper } from "@/components/page-wrapper";
 import { api } from "@/lib/trpc/server";
 import { InstanceParams } from "@/lib/validations/params";
 
+import { StudentAllocation } from "./_components/student-allocation";
 import { StudentDetailsCard } from "./_components/student-details-card";
 import { StudentPreferencesSection } from "./_components/student-preferences-section";
 import { StudentProjectSection } from "./_components/student-project-section";
@@ -46,7 +47,15 @@ export default async function Page({ params }: { params: PageParams }) {
     <PageWrapper>
       <Heading>{student.name}</Heading>
       <SubHeading>Details</SubHeading>
-      <StudentDetailsCard student={student} />
+      <section className="flex gap-10">
+        <StudentDetailsCard className="w-1/2" student={student} />
+        {!student.selfDefinedProjectId && student.allocation && (
+          <StudentAllocation
+            className="w-1/2"
+            allocation={student.allocation}
+          />
+        )}
+      </section>
       {!student.selfDefinedProjectId ? (
         <StudentPreferencesSection params={params} />
       ) : (

@@ -45,6 +45,7 @@ export async function copy(
   return { project: projectMapping, flag: flagMapping, tag: tagMapping };
 }
 
+// TODO: use difference instead of upper bound to check which supervisors to copy
 async function copySupervisors(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
