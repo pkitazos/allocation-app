@@ -25,3 +25,11 @@ export const studentInstanceDetailsSchema = z.object({
 export type StudentInstanceDetails = z.infer<
   typeof studentInstanceDetailsSchema
 >;
+
+export interface StudentDto {
+  id: string;
+  name: string;
+  email: string;
+  level: number;
+  projectAllocation?: { id: string; title: string };
+}

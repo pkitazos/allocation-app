@@ -43,7 +43,7 @@ export const byProjectColumns: ColumnDef<AllocationByProjectDto>[] = [
         },
       },
     }) => (
-      <WithTooltip tip={<p className="w-96">{title}</p>}>
+      <WithTooltip tip={<p className="max-w-96">{title}</p>}>
         <Link
           className={cn(
             buttonVariants({ variant: "link" }),
