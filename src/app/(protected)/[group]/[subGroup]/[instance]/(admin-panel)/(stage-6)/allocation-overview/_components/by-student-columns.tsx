@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
@@ -20,15 +20,7 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
       row: {
         original: { student },
       },
-    }) => (
-      <div className="text-left">
-        <WithTooltip tip={student.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-20 truncate">{student.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
-    ),
+    }) => <p className="pl-3 font-medium">{student.id}</p>,
   },
   {
     id: "Student Name",
@@ -46,6 +38,7 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
       <Link
         className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
         href={`./students/${id}`}
+        scroll={true}
       >
         {name}
       </Link>
@@ -57,25 +50,35 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Student Email" />
     ),
+    cell: ({
+      row: {
+        original: { student },
+      },
+    }) => <p className="pl-3">{student.email}</p>,
   },
   {
-    id: "Project ID",
+    id: "Project Title",
     accessorFn: ({ project }) => project.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Project ID" />
+      <DataTableColumnHeader column={column} title="Project Title" />
     ),
     cell: ({
       row: {
         original: { project },
       },
     }) => (
-      <div className="text-left">
-        <WithTooltip tip={project.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-16 truncate">{project.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
+      <WithTooltip tip={<p className="max-w-96">{project.title}</p>}>
+        <Link
+          className={cn(
+            buttonVariants({ variant: "link" }),
+            "inline-block w-40 truncate pl-2 text-start",
+          )}
+          href={`./projects/${project.id}`}
+          scroll={true}
+        >
+          {project.title}
+        </Link>
+      </WithTooltip>
     ),
   },
   {
@@ -106,6 +109,7 @@ export const byStudentColumns: ColumnDef<AllocationByStudentDto>[] = [
       <Link
         className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
         href={`./supervisors/${id}`}
+        scroll={true}
       >
         {name}
       </Link>

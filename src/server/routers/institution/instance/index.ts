@@ -169,64 +169,73 @@ export const instanceRouter = createTRPCRouter({
     .query(async ({ ctx, input: { params } }) => {
       const allocationData = await getAllocationData(ctx.db, params);
 
-      const byStudent = allocationData.map((allocation) => ({
-        student: {
-          id: allocation.student.user.id,
-          name: allocation.student.user.name!,
-          email: allocation.student.user.email!,
-          ranking: allocation.studentRanking,
-        },
-        project: {
-          id: allocation.project.id,
-        },
-        supervisor: {
-          id: allocation.project.supervisor.user.id,
-          name: allocation.project.supervisor.user.name!,
-        },
-      }));
+      const byStudent = allocationData
+        .map((allocation) => ({
+          student: {
+            id: allocation.student.user.id,
+            name: allocation.student.user.name!,
+            email: allocation.student.user.email!,
+            ranking: allocation.studentRanking,
+          },
+          project: {
+            id: allocation.project.id,
+            title: allocation.project.title,
+          },
+          supervisor: {
+            id: allocation.project.supervisor.user.id,
+            name: allocation.project.supervisor.user.name!,
+          },
+        }))
+        .sort((a, b) => a.student.id.localeCompare(b.student.id));
 
-      const byProject = allocationData.map((allocation) => ({
-        project: {
-          id: allocation.project.id,
-          title: allocation.project.title,
-          capacityLowerBound: allocation.project.capacityLowerBound,
-          capacityUpperBound: allocation.project.capacityUpperBound,
-        },
-        supervisor: {
-          id: allocation.project.supervisor.user.id,
-          name: allocation.project.supervisor.user.name!,
-        },
-        student: {
-          id: allocation.student.user.id,
-          ranking: allocation.studentRanking,
-        },
-      }));
+      const byProject = allocationData
+        .map((allocation) => ({
+          project: {
+            id: allocation.project.id,
+            title: allocation.project.title,
+            capacityLowerBound: allocation.project.capacityLowerBound,
+            capacityUpperBound: allocation.project.capacityUpperBound,
+          },
+          supervisor: {
+            id: allocation.project.supervisor.user.id,
+            name: allocation.project.supervisor.user.name!,
+          },
+          student: {
+            id: allocation.student.user.id,
+            name: allocation.student.user.name,
+            ranking: allocation.studentRanking,
+          },
+        }))
+        .sort((a, b) => a.project.id.localeCompare(b.project.id));
 
-      // TODO: remove duplicate rows
-      const bySupervisor = allocationData.map((allocation) => ({
-        project: {
-          id: allocation.project.id,
-          title: allocation.project.title,
-        },
-        supervisor: {
-          id: allocation.project.supervisor.user.id,
-          name: allocation.project.supervisor.user.name!,
-          email: allocation.project.supervisor.user.email!,
-          allocationLowerBound:
-            allocation.project.supervisor.supervisorInstanceDetails[0]
-              .projectAllocationLowerBound,
-          allocationTarget:
-            allocation.project.supervisor.supervisorInstanceDetails[0]
-              .projectAllocationTarget,
-          allocationUpperBound:
-            allocation.project.supervisor.supervisorInstanceDetails[0]
-              .projectAllocationUpperBound,
-        },
-        student: {
-          id: allocation.student.user.id,
-          ranking: allocation.studentRanking,
-        },
-      }));
+      // TODO: sort out duplicate rows (group or remove)
+      const bySupervisor = allocationData
+        .map((allocation) => ({
+          project: {
+            id: allocation.project.id,
+            title: allocation.project.title,
+          },
+          supervisor: {
+            id: allocation.project.supervisor.user.id,
+            name: allocation.project.supervisor.user.name!,
+            email: allocation.project.supervisor.user.email!,
+            allocationLowerBound:
+              allocation.project.supervisor.supervisorInstanceDetails[0]
+                .projectAllocationLowerBound,
+            allocationTarget:
+              allocation.project.supervisor.supervisorInstanceDetails[0]
+                .projectAllocationTarget,
+            allocationUpperBound:
+              allocation.project.supervisor.supervisorInstanceDetails[0]
+                .projectAllocationUpperBound,
+          },
+          student: {
+            id: allocation.student.user.id,
+            name: allocation.student.user.name,
+            ranking: allocation.studentRanking,
+          },
+        }))
+        .sort((a, b) => a.supervisor.id.localeCompare(b.supervisor.id));
 
       return { byStudent, byProject, bySupervisor };
     }),

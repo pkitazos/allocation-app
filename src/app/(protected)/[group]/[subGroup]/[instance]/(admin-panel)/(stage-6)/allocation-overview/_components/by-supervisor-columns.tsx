@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { WithTooltip } from "@/components/ui/tooltip-wrapper";
 
@@ -24,15 +24,7 @@ export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
       row: {
         original: { supervisor },
       },
-    }) => (
-      <div className="text-left">
-        <WithTooltip tip={supervisor.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-16 truncate">{supervisor.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
-    ),
+    }) => <p className="pl-3 font-medium">{supervisor.id}</p>,
   },
   {
     id: "Supervisor Name",
@@ -50,6 +42,7 @@ export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
       <Link
         className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
         href={`./supervisors/${id}`}
+        scroll={true}
       >
         {name}
       </Link>
@@ -105,43 +98,62 @@ export const bySupervisorColumns: ColumnDef<AllocationBySupervisorDto>[] = [
     }) => <div className="flex justify-center">{allocationUpperBound}</div>,
   },
   {
-    id: "Project ID",
-    accessorFn: ({ project }) => project.id,
+    id: "Project Title",
+    accessorFn: ({ project }) => project.title,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Project ID" />
+      <DataTableColumnHeader column={column} title="Project Title" canFilter />
     ),
     cell: ({
       row: {
         original: { project },
       },
     }) => (
-      <div className="text-left">
-        <WithTooltip tip={project.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-16 truncate">{project.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
+      <WithTooltip tip={<p className="max-w-96">{project.title}</p>}>
+        <Link
+          className={cn(
+            buttonVariants({ variant: "link" }),
+            "inline-block w-40 truncate px-0 text-start",
+          )}
+          href={`./projects/${project.id}`}
+          scroll={true}
+        >
+          {project.title}
+        </Link>
+      </WithTooltip>
     ),
   },
   {
     id: "Student GUID",
     accessorFn: ({ student }) => student.id,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Student GUID" />
+      <DataTableColumnHeader column={column} title="Student GUID" canFilter />
     ),
     cell: ({
       row: {
         original: { student },
       },
+    }) => <p className="pl-3 font-medium">{student.id}</p>,
+  },
+  {
+    id: "Student Name",
+    accessorFn: ({ student }) => student.name,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Name" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: {
+          student: { id, name },
+        },
+      },
     }) => (
-      <div className="text-left">
-        <WithTooltip tip={student.id}>
-          <Button variant="ghost" className="cursor-default">
-            <div className="w-20 truncate">{student.id}</div>
-          </Button>
-        </WithTooltip>
-      </div>
+      <Link
+        className={cn(buttonVariants({ variant: "link" }), "pl-2 text-left")}
+        href={`./students/${id}`}
+        scroll={true}
+      >
+        {name}
+      </Link>
     ),
   },
   {
