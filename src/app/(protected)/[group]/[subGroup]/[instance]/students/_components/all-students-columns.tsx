@@ -118,7 +118,7 @@ export function useAllStudentsColumns({
     },
     {
       id: "Project Allocation",
-      accessorFn: ({ projectAllocation }) => projectAllocation,
+      accessorFn: ({ projectAllocation }) => projectAllocation?.title,
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
