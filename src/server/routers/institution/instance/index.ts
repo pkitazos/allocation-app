@@ -40,7 +40,7 @@ import { hasSelfDefinedProject } from "../../user/_utils/get-self-defined-projec
 
 import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
-import { getAllocationData } from "./_utils/allocation-data";
+import { getAllAllocationData } from "./_utils/allocation-data";
 import { forkInstanceTransaction } from "./_utils/fork/transaction";
 import { mergeInstanceTrx } from "./_utils/merge/transaction";
 import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
@@ -167,7 +167,7 @@ export const instanceRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input: { params } }) => {
-      const allocationData = await getAllocationData(ctx.db, params);
+      const allocationData = await getAllAllocationData(ctx.db, params);
 
       const byStudent = allocationData
         .map((allocation) => ({

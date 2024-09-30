@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { InstanceParams } from "@/lib/validations/params";
 
-export async function getAllocationData(
+export async function getAllAllocationData(
   db: PrismaClient,
   params: InstanceParams,
 ) {

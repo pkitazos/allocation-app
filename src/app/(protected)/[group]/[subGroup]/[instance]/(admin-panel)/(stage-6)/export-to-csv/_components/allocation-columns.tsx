@@ -44,6 +44,24 @@ export const columns: ColumnDef<AllocationCsvData>[] = [
     ),
   },
   {
+    id: "Student Name",
+    accessorFn: (row) => row.student.name,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Student Name" canFilter />
+    ),
+    cell: ({
+      row: {
+        original: { student },
+      },
+    }) => (
+      <div className="flex w-32 items-center justify-center">
+        <WithTooltip tip={student.name} duration={500}>
+          <p className={buttonVariants({ variant: "ghost" })}>{student.name}</p>
+        </WithTooltip>
+      </div>
+    ),
+  },
+  {
     id: "Student Matric.",
     accessorFn: (row) => row.student.matric,
     header: ({ column }) => (

@@ -9,6 +9,7 @@ export const allocationCsvDataSchema = z.object({
   }),
   student: z.object({
     id: z.string(),
+    name: z.string(),
     matric: z.string(),
     email: z.string(),
     level: z.number(),
