@@ -2,13 +2,14 @@ import { PreferenceType, Role } from "@prisma/client";
 
 import { PrismaTransactionClient } from "@/lib/db";
 import { expand } from "@/lib/utils/general/instance-params";
+import { compareTitle } from "@/lib/utils/sorting/by-title";
 import { InstanceParams } from "@/lib/validations/params";
 
 import {
-  MarkedData,
-  MarkedProjectDto,
-  MarkedStudentDto,
-  MarkedSupervisorDto,
+  ForkMarkedData,
+  ForkMarkedProjectDto,
+  ForkMarkedStudentDto,
+  ForkMarkedSupervisorDto,
 } from "./mark";
 import { updateProjectCapacities, updateSupervisorCapacities } from "./utils";
 
@@ -16,7 +17,7 @@ export async function copy(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
   params: InstanceParams,
-  markedData: MarkedData,
+  markedData: ForkMarkedData,
   supervisorCounts: Record<string, number>,
   projectCounts: Record<string, number>,
 ) {
@@ -50,7 +51,7 @@ async function copySupervisors(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
   params: InstanceParams,
-  parentInstanceSupervisors: MarkedSupervisorDto[],
+  parentInstanceSupervisors: ForkMarkedSupervisorDto[],
   supervisorCounts: Record<string, number>,
 ) {
   await tx.userInInstance.createMany({
@@ -77,7 +78,7 @@ async function copyStudents(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
   params: InstanceParams,
-  parentInstanceStudents: MarkedStudentDto[],
+  parentInstanceStudents: ForkMarkedStudentDto[],
 ) {
   await tx.userInInstance.createMany({
     data: parentInstanceStudents.map((student) => ({
@@ -100,7 +101,7 @@ async function copyProjects(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
   params: InstanceParams,
-  parentInstanceProjects: MarkedProjectDto[],
+  parentInstanceProjects: ForkMarkedProjectDto[],
   projectCounts: Record<string, number>,
 ) {
   await tx.project.createMany({
@@ -133,9 +134,6 @@ async function copyProjects(
     {} as Record<string, string>,
   );
 }
-
-const compareTitle = (a: { title: string }, b: { title: string }) =>
-  a.title.localeCompare(b.title);
 
 export async function copyInstanceFlags(
   tx: PrismaTransactionClient,
@@ -209,8 +207,8 @@ async function copyPreferences(
   tx: PrismaTransactionClient,
   forkedInstanceId: string,
   params: InstanceParams,
-  parentInstanceStudents: MarkedStudentDto[],
-  parentInstanceProjects: MarkedProjectDto[],
+  parentInstanceStudents: ForkMarkedStudentDto[],
+  parentInstanceProjects: ForkMarkedProjectDto[],
 ) {
   const projectIds = new Set(parentInstanceProjects.map((p) => p.id));
 

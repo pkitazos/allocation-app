@@ -2,11 +2,11 @@ import { PrismaTransactionClient } from "@/lib/db";
 import { dbg } from "@/lib/utils/general/console-debug";
 
 import { MappingData } from "./copy";
-import { MarkedProjectDto } from "./mark";
+import { ForkMarkedProjectDto } from "./mark";
 
 export async function link(
   tx: PrismaTransactionClient,
-  parentInstanceProjects: MarkedProjectDto[],
+  parentInstanceProjects: ForkMarkedProjectDto[],
   mappings: MappingData,
 ) {
   await linkTags(tx, parentInstanceProjects, mappings);
@@ -15,7 +15,7 @@ export async function link(
 
 export async function linkTags(
   tx: PrismaTransactionClient,
-  parentInstanceProjects: MarkedProjectDto[],
+  parentInstanceProjects: ForkMarkedProjectDto[],
   { tag, project }: MappingData,
 ) {
   await tx.tagOnProject.createMany({
@@ -32,7 +32,7 @@ export async function linkTags(
 
 export async function linkFlags(
   tx: PrismaTransactionClient,
-  parentInstanceProjects: MarkedProjectDto[],
+  parentInstanceProjects: ForkMarkedProjectDto[],
   { flag, project }: MappingData,
 ) {
   await tx.flagOnProject.createMany({
