@@ -19,13 +19,13 @@ export async function mark(
   return { supervisors, projects, students };
 }
 
-export type MarkedData = Awaited<ReturnType<typeof mark>>;
+export type ForkMarkedData = Awaited<ReturnType<typeof mark>>;
 
-export type MarkedStudentDto = MarkedData["students"][number];
+export type ForkMarkedStudentDto = ForkMarkedData["students"][number];
 
-export type MarkedSupervisorDto = MarkedData["supervisors"][number];
+export type ForkMarkedSupervisorDto = ForkMarkedData["supervisors"][number];
 
-export type MarkedProjectDto = MarkedData["projects"][number];
+export type ForkMarkedProjectDto = ForkMarkedData["projects"][number];
 
 /**
  * Get supervisors who still have not reached their capacity
@@ -33,7 +33,6 @@ export type MarkedProjectDto = MarkedData["projects"][number];
  * @param params
  * @returns
  */
-
 async function getSupervisorsWithSlack(
   tx: PrismaTransactionClient,
   params: InstanceParams,

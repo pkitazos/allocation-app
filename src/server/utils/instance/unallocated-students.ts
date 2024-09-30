@@ -1,7 +1,8 @@
+import { PrismaClient } from "@prisma/client";
+
 import { expand } from "@/lib/utils/general/instance-params";
 import { matchingResultSchema } from "@/lib/validations/matching";
 import { InstanceParams } from "@/lib/validations/params";
-import { PrismaClient } from "@prisma/client";
 
 export async function getUnallocatedStudents(
   db: PrismaClient,

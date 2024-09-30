@@ -42,7 +42,7 @@ import { addStudentsTx } from "./_utils/add-students-transaction";
 import { addSupervisorsTx } from "./_utils/add-supervisors-transaction";
 import { getAllocationData } from "./_utils/allocation-data";
 import { forkInstanceTransaction } from "./_utils/fork/transaction";
-import { mergeInstanceTransaction } from "./_utils/merge";
+import { mergeInstanceTrx } from "./_utils/merge/transaction";
 import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
 import { algorithmRouter } from "./algorithm";
 import { externalSystemRouter } from "./external";
@@ -940,12 +940,7 @@ export const instanceRouter = createTRPCRouter({
   merge: instanceAdminProcedure
     .input(z.object({ params: instanceParamsSchema }))
     .mutation(async ({ ctx, input: { params } }) => {
-      const parentInstanceId = ctx.instance.parentInstanceId;
-      if (!parentInstanceId) {
-        // TODO: throw error instead of returning
-        return;
-      }
-      await mergeInstanceTransaction(ctx.db, parentInstanceId, params);
+      await mergeInstanceTrx(ctx.db, params);
     }),
 
   getFlags: instanceProcedure

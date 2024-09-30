@@ -1,4 +1,7 @@
 /**
+ *
+ * @todo refactor to use compare function instead of getKey
+ *
  * Computes the intersection of two sets
  * @param a set A
  * @param b set B

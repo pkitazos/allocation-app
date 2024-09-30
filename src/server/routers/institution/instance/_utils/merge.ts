@@ -16,6 +16,7 @@ export async function mergeInstanceTransaction(
 ) {
   const { group, subGroup, instance } = params;
   return db.$transaction(async (tx) => {
+    // * MARKING
     const p = await tx.allocationInstance.findFirstOrThrow({
       where: {
         allocationGroupId: group,
@@ -54,6 +55,7 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * MARKING
     const f = await tx.allocationInstance.findFirstOrThrow({
       where: {
         allocationGroupId: group,
@@ -92,66 +94,93 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * MARKING
     const pStudents = p.users.filter((u) => u.role === Role.STUDENT);
     const fStudents = f.users.filter((u) => u.role === Role.STUDENT);
 
+    // * MARKING
     const forkedInstanceNewStudents = setDiff(
       fStudents,
       pStudents,
       (a) => a.userId,
     );
 
+    // * COPYING
+    // ! this breaks because prisma doesn't like the data having extraneous fields
+    // create the new students
     await tx.userInInstance.createMany({
       data: forkedInstanceNewStudents.map((s) =>
         changeInstanceId(s, parentInstanceId),
       ),
     });
 
+    // ? where are the student details created?
+
+    // * MARKING
     const pSupervisors = p.users.filter((u) => u.role === Role.SUPERVISOR);
     const fSupervisors = f.users.filter((u) => u.role === Role.SUPERVISOR);
 
+    // * MARKING
     const forkedInstanceNewSupervisors = setDiff(
       fSupervisors,
       pSupervisors,
       (a) => a.userId,
     );
 
+    // * TRANSFORMING
     const newSupervisorData = forkedInstanceNewSupervisors.map((s) =>
       changeInstanceId(s, parentInstanceId),
     );
 
+    // * COPYING
+    // ! this breaks because prisma doesn't like the data having extraneous fields
+    // create the new supervisors
     await tx.userInInstance.createMany({ data: newSupervisorData });
 
+    // * COPYING
+    // create the new supervisor details
     await tx.supervisorInstanceDetails.createMany({
       data: newSupervisorData.map((u) => u.supervisorInstanceDetails[0]),
     });
 
+    // * MARKING
     const forkedInstanceNewFlags = setDiff(f.flags, p.flags, (a) => a.title);
 
+    // * COPYING
+    // update new flags in f to point to p
+    // ? would this work for students and supervisors?
     await tx.flag.updateMany({
       where: { id: { in: forkedInstanceNewFlags.map((f) => f.id) } },
       data: { allocationInstanceId: parentInstanceId },
     });
 
+    // * MARKING
     const forkedInstanceNewTags = setDiff(f.tags, p.tags, (a) => a.title);
 
+    // * COPYING
+    // update new tags in f to point to p
+    // ? would this work for students and supervisors?
     await tx.tag.updateMany({
       where: { id: { in: forkedInstanceNewTags.map((t) => t.id) } },
       data: { allocationInstanceId: parentInstanceId },
     });
 
+    // * MARKING
     const forkedInstanceUpdatedProjects = setIntersection(
       f.projects,
       p.projects,
       (a) => a.title,
     );
 
+    // update each details if they changed + update project's capacity correctly
     for (const updatedProject of forkedInstanceUpdatedProjects) {
+      // * TRANSFORMING
       const parentEquivalentProject = findItemFromTitle(
         p.projects,
         updatedProject.title,
       );
 
+      // * COPYING
       await tx.project.update({
         where: { id: parentEquivalentProject.id },
         data: {
@@ -165,20 +194,27 @@ export async function mergeInstanceTransaction(
       });
     }
 
+    // * MARKING
     const forkedInstanceNewProjects = setDiff(
       f.projects,
       forkedInstanceUpdatedProjects,
       (a) => a.title,
     );
 
+    // * TRANSFORMING
+    // TODO: copy this format for students and supervisors
     const newProjectData = forkedInstanceNewProjects
       .map((p) => changeInstanceId(p, parentInstanceId))
       .map(extractProjectAttributes);
 
+    // * COPYING
+    // create new projects from f in p
     await tx.project.createMany({
       data: newProjectData,
     });
 
+    // * MARKING
+    // get updated projects in p
     const postMergeParentInstanceProjects = await tx.project.findMany({
       where: {
         allocationGroupId: group,
@@ -187,6 +223,8 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * MARKING
+    // get updated flags in p
     const postMergeParentInstanceFlags = await tx.flag.findMany({
       where: {
         allocationGroupId: group,
@@ -195,6 +233,8 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * MARKING
+    // get updated tags in p
     const postMergeParentInstanceTags = await tx.tag.findMany({
       where: {
         allocationGroupId: group,
@@ -203,9 +243,11 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * MARKING
     const pFlagOnProjects = p.flags.flatMap((f) => f.flagOnProjects);
     const pTagOnProjects = p.tags.flatMap((f) => f.tagOnProject);
 
+    // * MARKING
     const forkedInstanceFlagOnProjects = await tx.flagOnProject.findMany({
       where: {
         project: {
@@ -217,14 +259,18 @@ export async function mergeInstanceTransaction(
       select: { flag: true, project: true },
     });
 
+    // * MARKING
     const forkedInstanceNewFlagOnProjects = setDiff(
       forkedInstanceFlagOnProjects,
       pFlagOnProjects,
       (a) => `${a.flag.title}-${a.project.title}`,
     );
 
+    // * COPYING
+    // create new flag on projects from f in p
     await tx.flagOnProject.createMany({
       data: forkedInstanceNewFlagOnProjects.map((f) => {
+        // * TRANSFORMING
         const parentEquivalentFlag = findItemFromTitle(
           postMergeParentInstanceFlags,
           f.flag.title,
@@ -240,6 +286,7 @@ export async function mergeInstanceTransaction(
       }),
     });
 
+    // * MARKING
     const forkedInstanceTagOnProjects = await tx.tagOnProject.findMany({
       where: {
         project: {
@@ -251,14 +298,18 @@ export async function mergeInstanceTransaction(
       select: { tag: true, project: true },
     });
 
+    // * MARKING
     const forkedInstanceNewTagOnProjects = setDiff(
       forkedInstanceTagOnProjects,
       pTagOnProjects,
       (a) => `${a.tag.title}-${a.project.title}`,
     );
 
+    // * COPYING
+    // create new tag on projects from f in p
     await tx.tagOnProject.createMany({
       data: forkedInstanceNewTagOnProjects.map((t) => {
+        // * TRANSFORMING
         const parentEquivalentProject = findItemFromTitle(
           postMergeParentInstanceProjects,
           t.project.title,
@@ -275,12 +326,16 @@ export async function mergeInstanceTransaction(
       }),
     });
 
+    // * MARKING
     const forkedInstanceUpdatedStudents = setIntersection(
       fStudents,
       pStudents,
       (a) => a.userId,
     );
 
+    // * COPYING
+    // delete preferences of updated students
+    // TODO: delete savedPreferences as well
     await tx.preference.deleteMany({
       where: {
         allocationGroupId: group,
@@ -294,6 +349,9 @@ export async function mergeInstanceTransaction(
       },
     });
 
+    // * COPYING
+    // create new preferences of updated students
+    // TODO: create savedPreferences as well
     await tx.preference.createMany({
       data: fStudents.flatMap(({ userId, studentPreferences }) =>
         studentPreferences.map((p) => {
@@ -314,6 +372,7 @@ export async function mergeInstanceTransaction(
       ),
     });
 
+    // * MARKING
     const forkedInstanceProjectAllocations =
       await tx.projectAllocation.findMany({
         where: {
@@ -324,6 +383,7 @@ export async function mergeInstanceTransaction(
         include: { project: true, student: true },
       });
 
+    // * TRANSFORMING
     const forkedInstanceNewProjectAllocations =
       forkedInstanceProjectAllocations.map((projectAllocation) => {
         const parentEquivalentProject = findItemFromTitle(
@@ -341,10 +401,14 @@ export async function mergeInstanceTransaction(
         };
       });
 
+    // * COPYING
+    // create new project allocations from f in p
     await tx.projectAllocation.createMany({
       data: forkedInstanceNewProjectAllocations,
     });
 
+    // * COPYING
+    // delete the forked instance
     await tx.allocationInstance.delete({
       where: {
         instanceId: {

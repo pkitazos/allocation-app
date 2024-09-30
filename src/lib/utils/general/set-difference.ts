@@ -1,4 +1,7 @@
 /**
+ *
+ * @todo use relativeComplement to implement setDiff + rename
+ *
  * Finds the elements unique to `setA` (not present in `setB`).
  * The order of elements in the returned array is not guaranteed.
  *
@@ -26,6 +29,8 @@ export function setDiff<T>(
 /**
  * Finds the elements unique to `setA` (not present in `setB`).
  * The order of elements in the returned array is not guaranteed.
+ *
+ * @todo this comment is out of date
  *
  * @template T A type with a `title` property (e.g., an object).
  * @param {T[]} setA The first set of elements.
