@@ -8,7 +8,6 @@ import {
 import { toSupervisorDetails } from "@/lib/utils/allocation-adjustment/supervisor";
 import { guidToMatric } from "@/lib/utils/external/matriculation";
 import { expand } from "@/lib/utils/general/instance-params";
-import { getRandomInt } from "@/lib/utils/general/random";
 import {
   ProjectDetails,
   projectInfoSchema,
@@ -18,11 +17,11 @@ import { matchingResultSchema } from "@/lib/validations/matching";
 import { instanceParamsSchema } from "@/lib/validations/params";
 
 import { createTRPCRouter, instanceAdminProcedure } from "@/server/trpc";
+import { getUnallocatedStudents } from "@/server/utils/instance/unallocated-students";
 
 import { getPreAllocatedStudents } from "./_utils/pre-allocated-students";
-import { updateAllocation } from "./algorithm/_utils/update-allocation";
 import { randomAllocationTrx } from "./algorithm/_utils/random-allocation";
-import { getUnallocatedStudents } from "@/server/utils/instance/unallocated-students";
+import { updateAllocation } from "./algorithm/_utils/update-allocation";
 
 export const matchingRouter = createTRPCRouter({
   select: instanceAdminProcedure
@@ -438,22 +437,25 @@ export const matchingRouter = createTRPCRouter({
           },
         });
 
-        return allocationData.map(({ project, student, ...e }) => ({
-          project: {
-            ...project,
+        return allocationData
+          .map(({ project, student, ...e }) => ({
+            project: {
+              ...project,
+              supervisor: project.supervisor.user,
+              specialTechnicalRequirements:
+                project.specialTechnicalRequirements ?? "",
+            },
+            student: {
+              id: student.user.id,
+              name: student.user.name,
+              matric: guidToMatric(student.user.id),
+              level: student.studentDetails[0].studentLevel, // TODO: move project allocation information to studentDetails table
+              email: student.user.email,
+              ranking: e.studentRanking,
+            },
             supervisor: project.supervisor.user,
-            specialTechnicalRequirements:
-              project.specialTechnicalRequirements ?? "",
-          },
-          student: {
-            id: student.user.id,
-            matric: guidToMatric(student.user.id),
-            level: student.studentDetails[0].studentLevel, // TODO: move project allocation information to studentDetails table
-            email: student.user.email,
-            ranking: e.studentRanking,
-          },
-          supervisor: project.supervisor.user,
-        }));
+          }))
+          .sort((a, b) => a.student.id.localeCompare(b.student.id));
       },
     ),
 

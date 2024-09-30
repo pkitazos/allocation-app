@@ -1,7 +1,9 @@
+import { PrismaClient } from "@prisma/client";
+
 import { expand } from "@/lib/utils/general/instance-params";
 import { getRandomInt } from "@/lib/utils/general/random";
 import { InstanceParams } from "@/lib/validations/params";
-import { PrismaClient } from "@prisma/client";
+
 import { updateAllocation } from "./update-allocation";
 
 export async function randomAllocationTrx(

@@ -8,6 +8,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const header = [
     "Project ID",
     "Student GUID",
+    "Student Name",
     "Student Matric.",
     "Student Email",
     "Student Level",
@@ -23,6 +24,7 @@ export function ExportDataButton({ data }: { data: AllocationCsvData[] }) {
   const exportData = data.map((e) => [
     e.project.id,
     e.student.id,
+    e.student.name,
     e.student.matric,
     e.student.email,
     e.student.level,
